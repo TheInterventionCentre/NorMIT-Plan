@@ -18,6 +18,12 @@
 // Qt includes
 #include <QDebug>
 
+// MRML includes
+#include <vtkMRMLScene.h>
+#include <vtkMRMLNode.h>
+#include <vtkMRMLModelNode.h>
+#include <vtkMRMLDisplayNode.h>
+
 // SlicerQt includes
 #include "qSlicerResectionPlanningModuleWidget.h"
 #include "ui_qSlicerResectionPlanningModuleWidget.h"
@@ -58,5 +64,24 @@ void qSlicerResectionPlanningModuleWidget::setup()
 {
   Q_D(qSlicerResectionPlanningModuleWidget);
   d->setupUi(this);
+
+  // connect events to node selection dropdown
+  QObject::connect(d->ActiveParenchymaModelNodeSelector, SIGNAL(currentNodeChanged(vtkMRMLNode*)), this, SLOT(nodeSelectionChanged(vtkMRMLNode*)));
+  //QObject::connect(this, SIGNAL(mrmlSceneChanged(vtkMRMLScene*)), d->ActiveParenchymaModelNodeSelector, SLOT(setMRMLScene(vtkMRMLScene*)));
+
   this->Superclass::setup();
+}
+
+//------------------------------------------------------------------------------
+void qSlicerResectionPlanningModuleWidget::nodeSelectionChanged(vtkMRMLNode* node)
+{
+  Q_D(qSlicerResectionPlanningModuleWidget);
+
+  vtkMRMLModelNode *activeParenchymaModel = vtkMRMLModelNode::SafeDownCast(d->ActiveParenchymaModelNodeSelector->currentNode() );
+  if(activeParenchymaModel != NULL)
+  {
+    std::cout << "Widget - Model node selection changed " << std::endl;
+  }
+
+
 }

@@ -46,6 +46,9 @@ protected:
 
   virtual void setup();
 
+protected slots:
+  void nodeSelectionChanged(vtkMRMLNode* node);
+
 private:
   Q_DECLARE_PRIVATE(qSlicerResectionPlanningModuleWidget);
   Q_DISABLE_COPY(qSlicerResectionPlanningModuleWidget);
