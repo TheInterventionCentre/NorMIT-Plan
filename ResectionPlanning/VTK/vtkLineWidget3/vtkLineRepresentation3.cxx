@@ -17,6 +17,7 @@
 #include <vtkLineSource.h>
 #include <vtkSphereSource.h>
 #include <vtkPolyDataMapper.h>
+#include <vtkPolyDataAlgorithm.h>
 #include <vtkPolyData.h>
 #include <vtkCallbackCommand.h>
 #include <vtkBox.h>
@@ -32,7 +33,6 @@
 #include <vtkVectorText.h>
 #include <vtkFollower.h>
 #include <vtkCellPicker.h>
-#include <vtkPolyDataMapper.h>
 #include <vtkVector.h>
 #include <vtkVectorOperators.h>
 
@@ -70,10 +70,6 @@ vtkLineRepresentation3::vtkLineRepresentation3()
   this->LineActor->SetMapper(this->LineMapper);
 
   // Create the handles
-  this->Handle = vtkActor::New();
-  this->HandleMapper = vtkPolyDataMapper::New();
-  this->HandleGeometry = vtkPolyDataAlgorithm::New();
-
   vtkSphereSource *sphere = vtkSphereSource::New();
   sphere->SetThetaResolution(16);
   sphere->SetPhiResolution(8);
