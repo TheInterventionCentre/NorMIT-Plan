@@ -1,6 +1,6 @@
 /*=========================================================================
   Program:   Visualization Toolkit
-  Module:    vtkLineRepresentation.h
+  Module:    vtkLineRepresentation3.h
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
   See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
@@ -9,10 +9,10 @@
      PURPOSE.  See the above copyright notice for more information.
 =========================================================================*/
 /**
- * @class   vtkLineRepresentation
- * @brief   a class defining the representation for a vtkLineWidget2
+ * @class   vtkLineRepresentation3
+ * @brief   a class defining the representation for a vtkLineWidget3
  *
- * This class is a concrete representation for the vtkLineWidget2. It
+ * This class is a concrete representation for the vtkLineWidget3. It
  * represents a straight line with three handles: one at the beginning and
  * ending of the line, and one used to translate the line. Through
  * interaction with the widget, the line representation can be arbitrarily
@@ -23,12 +23,9 @@
  * method is also used to initially position the representation.
  *
  * @warning
- * This class, and vtkLineWidget2, are next generation VTK
+ * This class, and vtkLineWidget3, are next generation VTK
  * widgets. An earlier version of this functionality was defined in the
  * class vtkLineWidget.
- *
- * @sa
- * vtkLineWidget2 vtkLineWidget
 */
 
 #ifndef vtkLineRepresentation3_h
@@ -79,12 +76,10 @@ public:
   double* GetPoint1DisplayPosition();
   void SetPoint1WorldPosition(double pos[3]);
   void SetPoint1DisplayPosition(double pos[3]);
-  void GetPoint2DisplayPosition(double pos[3]);
-  double* GetPoint2DisplayPosition();
+
   void GetPoint2WorldPosition(double pos[3]);
   double* GetPoint2WorldPosition();
   void SetPoint2WorldPosition(double pos[3]);
-  void SetPoint2DisplayPosition(double pos[3]);
   //@}
 
   //@{
@@ -93,7 +88,7 @@ public:
    * use for the three internal vtkHandleWidgets within vtkLineWidget2.
    * To use this method, create a dummy vtkHandleWidget (or subclass),
    * and then invoke this method with this dummy. Then the
-   * vtkLineRepresentation uses this dummy to clone three vtkHandleWidgets
+   * vtkLineRepresentation3 uses this dummy to clone three vtkHandleWidgets
    * of the same type. Make sure you set the handle representation before
    * the widget is enabled. (The method InstantiateHandleRepresentation()
    * is invoked by the vtkLineWidget2.)
@@ -107,7 +102,6 @@ public:
    * Get the three handle representations used for the vtkLineWidget2.
    */
   vtkGetObjectMacro(Point1Representation,vtkPointHandleRepresentation3D);
-  vtkGetObjectMacro(Point2Representation,vtkPointHandleRepresentation3D);
   vtkGetObjectMacro(LineHandleRepresentation,vtkPointHandleRepresentation3D);
   //@}
 
@@ -118,15 +112,6 @@ public:
    */
   vtkGetObjectMacro(EndPointProperty,vtkProperty);
   vtkGetObjectMacro(SelectedEndPointProperty,vtkProperty);
-  //@}
-
-  //@{
-  /**
-   * Get the end-point (sphere) properties. The properties of the end-points
-   * when selected and unselected can be manipulated.
-   */
-  vtkGetObjectMacro(EndPoint2Property,vtkProperty);
-  vtkGetObjectMacro(SelectedEndPoint2Property,vtkProperty);
   //@}
 
   //@{
@@ -192,7 +177,8 @@ public:
   //@}
 
   // Manage the state of the widget
-  enum {Outside=0,OnP1,OnP2,TranslatingP1,TranslatingP2,OnLine,Scaling};
+  //enum {Outside=0,OnP1,OnP2,TranslatingP1,TranslatingP2,OnLine,Scaling};
+  enum {Outside=0,OnP1,Scaling};
 
   //@{
   /**
@@ -214,16 +200,6 @@ public:
    */
   virtual void SetRepresentationState(int);
   vtkGetMacro(RepresentationState, int);
-  //@}
-
-  //@{
-  /**
-   * Sets the representation to be a directional line with point 1 represented
-   * as a cone.
-   */
-  void SetDirectionalLine(bool val);
-  vtkGetMacro(DirectionalLine, bool);
-  vtkBooleanMacro(DirectionalLine, bool);
   //@}
 
   /**
@@ -311,12 +287,10 @@ protected:
   // The handle and the rep used to close the handles
   vtkPointHandleRepresentation3D *HandleRepresentation;
   vtkPointHandleRepresentation3D *Point1Representation;
-  vtkPointHandleRepresentation3D *Point2Representation;
   vtkPointHandleRepresentation3D *LineHandleRepresentation;
 
   // Manage how the representation appears
   int RepresentationState;
-  bool DirectionalLine;
 
   // the line
   vtkActor          *LineActor;
@@ -324,16 +298,14 @@ protected:
   vtkLineSource     *LineSource;
 
   // glyphs representing hot spots (e.g., handles)
-  vtkActor              **Handle;
-  vtkPolyDataMapper     **HandleMapper;
-  vtkPolyDataAlgorithm  **HandleGeometry;
+  vtkActor              *Handle;
+  vtkPolyDataMapper     *HandleMapper;
+  vtkPolyDataAlgorithm  *HandleGeometry;
 
   // Properties used to control the appearance of selected objects and
   // the manipulator in general.
   vtkProperty *EndPointProperty;
   vtkProperty *SelectedEndPointProperty;
-  vtkProperty *EndPoint2Property;
-  vtkProperty *SelectedEndPoint2Property;
   vtkProperty *LineProperty;
   vtkProperty *SelectedLineProperty;
   void         CreateDefaultProperties();
@@ -351,7 +323,6 @@ protected:
 
   // Ivars used during widget interaction to hold initial positions
   double StartP1[3];
-  double StartP2[3];
   double StartLineHandle[3];
   double Length;
   double LastEventPosition[3];

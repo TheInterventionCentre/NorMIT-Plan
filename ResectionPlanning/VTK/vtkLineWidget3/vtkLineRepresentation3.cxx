@@ -1,6 +1,6 @@
 /*=========================================================================
   Program:   Visualization Toolkit
-  Module:    vtkLineRepresentation.cxx
+  Module:    vtkLineRepresentation3.cxx
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
   See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
@@ -47,13 +47,12 @@ vtkLineRepresentation3::vtkLineRepresentation3()
   this->HandleSize = 5.0;
 
   // By default, use one of these handles
-  this->HandleRepresentation  = vtkPointHandleRepresentation3D::New();
+  this->HandleRepresentation = vtkPointHandleRepresentation3D::New();
   this->HandleRepresentation->AllOff();
   this->HandleRepresentation->SetHotSpotSize(1.0);
   this->HandleRepresentation->SetPlaceFactor(1.0);
   this->HandleRepresentation->TranslationModeOn();
   this->Point1Representation = NULL;
-  this->Point2Representation = NULL;
   this->LineHandleRepresentation = NULL;
   this->InstantiateHandleRepresentation();
 
@@ -70,34 +69,27 @@ vtkLineRepresentation3::vtkLineRepresentation3()
   this->LineActor = vtkActor::New();
   this->LineActor->SetMapper(this->LineMapper);
 
-  this->DirectionalLine = false;
-
   // Create the handles
-  this->Handle = new vtkActor* [2];
-  this->HandleMapper = new vtkPolyDataMapper* [2];
-  this->HandleGeometry = new vtkPolyDataAlgorithm* [2];
-  for (int i=0; i<2; i++)
-  {
-    vtkSphereSource *sphere = vtkSphereSource::New();
-    sphere->SetThetaResolution(16);
-    sphere->SetPhiResolution(8);
+  this->Handle = vtkActor::New();
+  this->HandleMapper = vtkPolyDataMapper::New();
+  this->HandleGeometry = vtkPolyDataAlgorithm::New();
 
-    this->HandleGeometry[i] = sphere;
-    this->HandleMapper[i] = vtkPolyDataMapper::New();
-    this->HandleMapper[i]->SetInputConnection(
-      this->HandleGeometry[i]->GetOutputPort());
-    this->Handle[i] = vtkActor::New();
-    this->Handle[i]->SetMapper(this->HandleMapper[i]);
-  }
+  vtkSphereSource *sphere = vtkSphereSource::New();
+  sphere->SetThetaResolution(16);
+  sphere->SetPhiResolution(8);
+
+  this->HandleGeometry = sphere;
+  this->HandleMapper = vtkPolyDataMapper::New();
+  this->HandleMapper->SetInputConnection(this->HandleGeometry->GetOutputPort());
+  this->Handle = vtkActor::New();
+  this->Handle->SetMapper(this->HandleMapper);
 
   // Set up the initial properties
   this->CreateDefaultProperties();
 
   // Pass the initial properties to the actors.
-  this->Handle[0]->SetProperty(this->EndPointProperty);
+  this->Handle->SetProperty(this->EndPointProperty);
   this->Point1Representation->SetProperty(this->EndPointProperty);
-  this->Handle[1]->SetProperty(this->EndPoint2Property);
-  this->Point2Representation->SetProperty(this->EndPoint2Property);
   this->LineHandleRepresentation->SetProperty(this->EndPointProperty);
   this->LineActor->SetProperty(this->LineProperty);
 
@@ -119,8 +111,7 @@ vtkLineRepresentation3::vtkLineRepresentation3()
   this->TextInput = vtkVectorText::New();
   this->TextInput->SetText( "0" );
   this->TextMapper = vtkPolyDataMapper::New();
-  this->TextMapper->SetInputConnection(
-    this->TextInput->GetOutputPort());
+  this->TextMapper->SetInputConnection(this->TextInput->GetOutputPort());
   this->TextActor = vtkFollower::New();
   this->TextActor->SetMapper(this->TextMapper);
   this->TextActor->GetProperty()->SetColor( 1.0, 0.1, 0.0 );
@@ -161,10 +152,6 @@ vtkLineRepresentation3::~vtkLineRepresentation3()
   {
     this->Point1Representation->Delete();
   }
-  if ( this->Point2Representation )
-  {
-    this->Point2Representation->Delete();
-  }
   if ( this->LineHandleRepresentation )
   {
     this->LineHandleRepresentation->Delete();
@@ -174,20 +161,12 @@ vtkLineRepresentation3::~vtkLineRepresentation3()
   this->LineMapper->Delete();
   this->LineSource->Delete();
 
-  for (int i=0; i<2; i++)
-  {
-    this->HandleGeometry[i]->Delete();
-    this->HandleMapper[i]->Delete();
-    this->Handle[i]->Delete();
-  }
-  delete [] this->Handle;
-  delete [] this->HandleMapper;
-  delete [] this->HandleGeometry;
+  this->Handle->Delete();
+  this->HandleMapper->Delete();
+  this->HandleGeometry->Delete();
 
   this->EndPointProperty->Delete();
   this->SelectedEndPointProperty->Delete();
-  this->EndPoint2Property->Delete();
-  this->SelectedEndPoint2Property->Delete();
   this->LineProperty->Delete();
   this->SelectedLineProperty->Delete();
 
@@ -200,35 +179,7 @@ vtkLineRepresentation3::~vtkLineRepresentation3()
   this->TextMapper->Delete();
   this->TextActor->Delete();
   this->LinePicker->Delete();
-}
 
-//----------------------------------------------------------------------
-void vtkLineRepresentation3::SetDirectionalLine(bool val)
-{
-  if (this->DirectionalLine == val)
-  {
-    return;
-  }
-
-  this->DirectionalLine = val;
-  this->Modified();
-
-  if (this->DirectionalLine)
-  {
-    vtkConeSource *cone = vtkConeSource::New();
-    cone->SetResolution(16);
-    this->HandleGeometry[1]->Delete();
-    this->HandleGeometry[1] = cone;
-  }
-  else
-  {
-    vtkSphereSource *sphere = vtkSphereSource::New();
-    sphere->SetThetaResolution(16);
-    sphere->SetPhiResolution(8);
-    this->HandleGeometry[1]->Delete();
-    this->HandleGeometry[1] = sphere;
-  }
-  this->HandleMapper[1]->SetInputConnection(this->HandleGeometry[1]->GetOutputPort());
 }
 
 //----------------------------------------------------------------------
@@ -245,13 +196,6 @@ void vtkLineRepresentation3::InstantiateHandleRepresentation()
     this->Point1Representation = this->HandleRepresentation->NewInstance();
     this->Point1Representation->ShallowCopy(this->HandleRepresentation);
   }
-
-  if ( ! this->Point2Representation )
-  {
-    this->Point2Representation = this->HandleRepresentation->NewInstance();
-    this->Point2Representation->ShallowCopy(this->HandleRepresentation);
-  }
-
   if ( ! this->LineHandleRepresentation )
   {
     this->LineHandleRepresentation = this->HandleRepresentation->NewInstance();
@@ -307,9 +251,6 @@ void vtkLineRepresentation3::SetPoint1WorldPosition(double x[3])
 {
   this->Point1Representation->SetWorldPosition(x);
   this->LineSource->SetPoint1(x);
-  //double p[3];
-  //this->Point1Representation->GetDisplayPosition(p);
-  //this->Point1Representation->SetDisplayPosition(p);
 }
 
 //----------------------------------------------------------------------
@@ -321,47 +262,22 @@ void vtkLineRepresentation3::SetPoint1DisplayPosition(double x[3])
   this->Point1Representation->SetWorldPosition(p);
 }
 
-
-// Point2
+// Point2 (do not have a point handle representation for this)
 //----------------------------------------------------------------------
 void vtkLineRepresentation3::GetPoint2WorldPosition(double pos[3])
 {
-  this->Point2Representation->GetWorldPosition(pos);
+  this->LineSource->GetPoint2(pos);
 }
 
 double* vtkLineRepresentation3::GetPoint2WorldPosition()
 {
-  return this->Point2Representation->GetWorldPosition();
-}
-
-//----------------------------------------------------------------------
-void vtkLineRepresentation3::GetPoint2DisplayPosition(double pos[3])
-{
-  this->Point2Representation->GetDisplayPosition(pos);
-}
-
-double* vtkLineRepresentation3::GetPoint2DisplayPosition()
-{
-  return this->Point2Representation->GetDisplayPosition();
+  return this->LineSource->GetPoint2();
 }
 
 //----------------------------------------------------------------------
 void vtkLineRepresentation3::SetPoint2WorldPosition(double x[3])
 {
-  this->Point2Representation->SetWorldPosition(x);
   this->LineSource->SetPoint2(x);
-  //double p[3];
-  //this->Point2Representation->GetDisplayPosition(p);
-  //this->Point2Representation->SetDisplayPosition(p);
-}
-
-//----------------------------------------------------------------------
-void vtkLineRepresentation3::SetPoint2DisplayPosition(double x[3])
-{
-  this->Point2Representation->SetDisplayPosition(x);
-  double p[3];
-  this->Point2Representation->GetWorldPosition(p);
-  this->Point2Representation->SetWorldPosition(p);
 }
 
 //----------------------------------------------------------------------
@@ -369,7 +285,6 @@ void vtkLineRepresentation3::SetRenderer(vtkRenderer* ren)
 {
   this->HandleRepresentation->SetRenderer(ren);
   this->Point1Representation->SetRenderer(ren);
-  this->Point2Representation->SetRenderer(ren);
   this->LineHandleRepresentation->SetRenderer(ren);
   this->Superclass::SetRenderer(ren);
 }
@@ -389,16 +304,7 @@ void vtkLineRepresentation3::StartWidgetInteraction(double e[2])
 
   // Get the coordinates of the three handles
   this->Point1Representation->GetWorldPosition(this->StartP1);
-  this->Point2Representation->GetWorldPosition(this->StartP2);
   this->LineHandleRepresentation->GetWorldPosition(this->StartLineHandle);
-
-  if ( this->InteractionState == vtkLineRepresentation3::Scaling )
-  {
-    double dp1[3], dp2[3];
-    this->Point1Representation->GetDisplayPosition(dp1);
-    this->Point2Representation->GetDisplayPosition(dp2);
-    this->Length = sqrt((dp1[0]-dp2[0])*(dp1[0]-dp2[0]) + (dp1[1]-dp2[1])*(dp1[1]-dp2[1]));
-  }
 }
 
 //----------------------------------------------------------------------
@@ -417,96 +323,6 @@ void vtkLineRepresentation3::WidgetInteraction(double e[2])
       }
       this->Point1Representation->SetWorldPosition(x);
     }
-  }
-  else if ( this->InteractionState == vtkLineRepresentation3::OnP2 )
-  {
-    if (this->RestrictFlag)
-    {
-      double x[3];
-      this->Point2Representation->GetWorldPosition(x);
-      for (int i = 0; i < 3; ++i)
-      {
-        x[i] = (this->RestrictFlag == (i + 1)) ? x[i] : this->StartP2[i];
-      }
-      this->Point2Representation->SetWorldPosition(x);
-    }
-  }
-  else if ( this->InteractionState == vtkLineRepresentation3::OnLine )
-  {
-    double x[3], p1[3], p2[3], delta[3];
-
-    // Get the new position
-    this->LineHandleRepresentation->GetWorldPosition(x);
-
-    // Compute the delta from the previous position
-    delta[0] = x[0] - this->StartLineHandle[0];
-    delta[1] = x[1] - this->StartLineHandle[1];
-    delta[2] = x[2] - this->StartLineHandle[2];
-
-    for (int i=0; i<3; i++)
-    {
-      double d = (!this->RestrictFlag || (this->RestrictFlag == (i + 1))) ?
-                 delta[i] : 0.0;
-      p1[i] = this->StartP1[i] + d;
-      p2[i] = this->StartP2[i] + d;
-    }
-
-    this->Point1Representation->SetWorldPosition(p1);
-    this->Point2Representation->SetWorldPosition(p2);
-  }
-
-  else if ( this->InteractionState == vtkLineRepresentation3::Scaling )
-  {//scale about the center of the widget
-    double p1[3], p2[3], center[3];
-
-    this->Point1Representation->GetWorldPosition(p1);
-    this->Point2Representation->GetWorldPosition(p2);
-
-    double delta = sqrt((this->StartEventPosition[0]-e[0])*(this->StartEventPosition[0]-e[0])+
-                        (this->StartEventPosition[1]-e[1])*(this->StartEventPosition[1]-e[1]));
-
-    double sf=1.0;
-    if ( this->Length != 0.0 )
-    {
-      sf = 1.0 + delta/this->Length;
-    }
-    if ( (e[1]-this->LastEventPosition[1]) < 0.0 )
-    {
-      sf = 1/sf;
-    }
-
-    for (int i=0; i<3; i++)
-    {
-      center[i] = (p1[i]+p2[i]) / 2.0;
-      p1[i] = center[i] + (p1[i]-center[i])*sf;
-      p2[i] = center[i] + (p2[i]-center[i])*sf;
-    }
-    this->Point1Representation->SetWorldPosition(p1);
-    this->Point2Representation->SetWorldPosition(p2);
-  }
-
-  else if ( this->InteractionState == vtkLineRepresentation3::TranslatingP1 )
-  {
-    double x[3], p2[3];
-    // Get the new position
-    this->Point1Representation->GetWorldPosition(x);
-    for (int i=0; i<3; i++)
-    {
-      p2[i] = this->StartP2[i] + (x[i] - this->StartP1[i]);
-    }
-    this->Point2Representation->SetWorldPosition(p2);
-  }
-
-  else if ( this->InteractionState == vtkLineRepresentation3::TranslatingP2 )
-  {
-    double x[3], p1[3];
-    // Get the new position
-    this->Point2Representation->GetWorldPosition(x);
-    for (int i=0; i<3; i++)
-    {
-      p1[i] = this->StartP1[i] + (x[i] - this->StartP2[i]);
-    }
-    this->Point1Representation->SetWorldPosition(p1);
   }
 
   // Store the start position
@@ -580,63 +396,15 @@ int vtkLineRepresentation3::ComputeInteractionState(int X, int Y, int vtkNotUsed
 {
   // Check if we are on end points. Use the handles to determine this.
   int p1State = this->Point1Representation->ComputeInteractionState(X,Y,0);
-  int p2State = this->Point2Representation->ComputeInteractionState(X,Y,0);
   if ( p1State == vtkHandleRepresentation::Nearby )
   {
     this->InteractionState = vtkLineRepresentation3::OnP1;
     this->SetRepresentationState(vtkLineRepresentation3::OnP1);
   }
-  else if ( p2State == vtkHandleRepresentation::Nearby )
-  {
-    this->InteractionState = vtkLineRepresentation3::OnP2;
-    this->SetRepresentationState(vtkLineRepresentation3::OnP2);
-  }
   else
   {
     this->InteractionState = vtkLineRepresentation3::Outside;
   }
-
-  // Okay if we're near a handle return, otherwise test the line
-  if ( this->InteractionState != vtkLineRepresentation3::Outside )
-  {
-    return this->InteractionState;
-  }
-
-  // Check if we are on edges
-  double pos1[3], pos2[3];
-  this->GetPoint1DisplayPosition(pos1);
-  this->GetPoint2DisplayPosition(pos2);
-
-  double p1[3], p2[3], xyz[3];
-  double t, closest[3];
-  xyz[0] = static_cast<double>(X);
-  xyz[1] = static_cast<double>(Y);
-  p1[0] = static_cast<double>(pos1[0]);
-  p1[1] = static_cast<double>(pos1[1]);
-  p2[0] = static_cast<double>(pos2[0]);
-  p2[1] = static_cast<double>(pos2[1]);
-  xyz[2] = p1[2] = p2[2] = 0.0;
-
-  double tol2 = this->Tolerance*this->Tolerance;
-
-  int onLine = (vtkLine::DistanceToLine(xyz,p1,p2,t,closest) <= tol2);
-  if ( onLine && t < 1.0 && t > 0.0 )
-  {
-    this->InteractionState = vtkLineRepresentation3::OnLine;
-    this->SetRepresentationState(vtkLineRepresentation3::OnLine);
-    this->GetPoint1WorldPosition(pos1);
-    this->GetPoint2WorldPosition(pos2);
-
-    this->LinePicker->Pick(X,Y,0.0,this->Renderer);
-    this->LinePicker->GetPickPosition(closest);
-    this->LineHandleRepresentation->SetWorldPosition(closest);
-  }
-  else
-  {
-    this->InteractionState = vtkLineRepresentation3::Outside;
-    this->SetRepresentationState(vtkLineRepresentation3::Outside);
-  }
-
   return this->InteractionState;
 }
 
@@ -668,18 +436,6 @@ void vtkLineRepresentation3::SetRepresentationState(int state)
     this->HighlightPoint(1,0);
     this->HighlightLine(0);
   }
-  else if ( state == vtkLineRepresentation3::OnP2 )
-  {
-    this->HighlightPoint(0,0);
-    this->HighlightPoint(1,1);
-    this->HighlightLine(0);
-  }
-  else if ( state == vtkLineRepresentation3::OnLine )
-  {
-    this->HighlightPoint(0,0);
-    this->HighlightPoint(1,0);
-    this->HighlightLine(1);
-  }
   else
   {
     this->HighlightPoint(0,1);
@@ -693,8 +449,7 @@ double *vtkLineRepresentation3::GetBounds()
 {
   this->BuildRepresentation();
   this->BoundingBox->SetBounds(this->LineActor->GetBounds());
-  this->BoundingBox->AddBounds(this->Handle[0]->GetBounds());
-  this->BoundingBox->AddBounds(this->Handle[1]->GetBounds());
+  this->BoundingBox->AddBounds(this->Handle->GetBounds());
 
   return this->BoundingBox->GetBounds();
 }
@@ -708,12 +463,6 @@ void vtkLineRepresentation3::CreateDefaultProperties()
 
   this->SelectedEndPointProperty = vtkProperty::New();
   this->SelectedEndPointProperty->SetColor(0,1,0);
-
-  this->EndPoint2Property = vtkProperty::New();
-  this->EndPoint2Property->SetColor(1,1,1);
-
-  this->SelectedEndPoint2Property = vtkProperty::New();
-  this->SelectedEndPoint2Property->SetColor(0,1,0);
 
   // Line properties
   this->LineProperty = vtkProperty::New();
@@ -732,18 +481,7 @@ void vtkLineRepresentation3::SizeHandles()
 {
   // The SizeHandles() method depends on the LastPickPosition data member.
   double radius = this->vtkWidgetRepresentation::SizeHandlesInPixels(1.35,this->LineSource->GetPoint1());
-  static_cast<vtkSphereSource*>(this->HandleGeometry[0])->SetRadius(radius);
-
-  radius = this->vtkWidgetRepresentation::SizeHandlesInPixels(1.35,this->LineSource->GetPoint2());
-  if (this->DirectionalLine)
-  {
-    static_cast<vtkConeSource*>(this->HandleGeometry[1])->SetRadius(radius);
-    static_cast<vtkConeSource*>(this->HandleGeometry[1])->SetHeight(2.8 * radius);
-  }
-  else
-  {
-    static_cast<vtkSphereSource*>(this->HandleGeometry[1])->SetRadius(radius);
-  }
+  static_cast<vtkSphereSource*>(this->HandleGeometry)->SetRadius(radius);
 }
 
 //----------------------------------------------------------------------------
@@ -752,7 +490,6 @@ void vtkLineRepresentation3::BuildRepresentation()
   // Rebuild only if necessary
   if ( this->GetMTime() > this->BuildTime ||
        this->Point1Representation->GetMTime() > this->BuildTime ||
-       this->Point2Representation->GetMTime() > this->BuildTime ||
        this->LineHandleRepresentation->GetMTime() > this->BuildTime ||
        (this->Renderer && this->Renderer->GetVTKWindow() &&
         (this->Renderer->GetVTKWindow()->GetMTime() > this->BuildTime ||
@@ -768,7 +505,6 @@ void vtkLineRepresentation3::BuildRepresentation()
 
     // Make sure that tolerance is consistent between handles and this representation
     this->Point1Representation->SetTolerance(this->Tolerance);
-    this->Point2Representation->SetTolerance(this->Tolerance);
     this->LineHandleRepresentation->SetTolerance(this->Tolerance);
 
     // Retrieve end point information
@@ -776,21 +512,10 @@ void vtkLineRepresentation3::BuildRepresentation()
     this->GetPoint1WorldPosition(x1);
 
     this->LineSource->SetPoint1(x1);
-    static_cast<vtkSphereSource*>(this->HandleGeometry[0])->SetCenter(x1);
+    static_cast<vtkSphereSource*>(this->HandleGeometry)->SetCenter(x1);
 
     this->GetPoint2WorldPosition(x2);
     this->LineSource->SetPoint2(x2);
-    if (this->DirectionalLine)
-    {
-      static_cast<vtkConeSource*>(this->HandleGeometry[1])->SetCenter(x2);
-      vtkVector3d dir(x2);
-      dir = dir - vtkVector3d(x1);
-      static_cast<vtkConeSource*>(this->HandleGeometry[1])->SetDirection(dir.GetData());
-    }
-    else
-    {
-      static_cast<vtkSphereSource*>(this->HandleGeometry[1])->SetCenter(x2);
-    }
 
     this->Distance = sqrt(vtkMath::Distance2BetweenPoints( x1, x2 ));
 
@@ -827,29 +552,16 @@ void vtkLineRepresentation3::HighlightPoint(int ptId, int highlight)
   {
     if ( highlight )
     {
-      this->Handle[0]->SetProperty(this->SelectedEndPointProperty);
+      this->Handle->SetProperty(this->SelectedEndPointProperty);
       this->Point1Representation->SetSelectedProperty(this->SelectedEndPointProperty);
     }
     else
     {
-      this->Handle[0]->SetProperty(this->EndPointProperty);
+      this->Handle->SetProperty(this->EndPointProperty);
       this->Point1Representation->SetProperty(this->EndPointProperty);
     }
   }
-  else if ( ptId == 1 )
-  {
-    if ( highlight )
-    {
-      this->Handle[1]->SetProperty(this->SelectedEndPoint2Property);
-      this->Point2Representation->SetSelectedProperty(this->SelectedEndPoint2Property);
-    }
-    else
-    {
-      this->Handle[1]->SetProperty(this->EndPoint2Property);
-      this->Point2Representation->SetProperty(this->EndPoint2Property);
-    }
-  }
-  else //if ( ptId == 2 )
+  else
   {
     if ( highlight )
     {
@@ -918,8 +630,7 @@ int vtkLineRepresentation3::InBounds(double x[3])
 void vtkLineRepresentation3::GetActors(vtkPropCollection *pc)
 {
   this->LineActor->GetActors(pc);
-  this->Handle[0]->GetActors(pc);
-  this->Handle[1]->GetActors(pc);
+  this->Handle->GetActors(pc);
   this->TextActor->GetActors(pc);
 }
 
@@ -927,8 +638,7 @@ void vtkLineRepresentation3::GetActors(vtkPropCollection *pc)
 void vtkLineRepresentation3::ReleaseGraphicsResources(vtkWindow *w)
 {
   this->LineActor->ReleaseGraphicsResources(w);
-  this->Handle[0]->ReleaseGraphicsResources(w);
-  this->Handle[1]->ReleaseGraphicsResources(w);
+  this->Handle->ReleaseGraphicsResources(w);
   this->TextActor->ReleaseGraphicsResources(w);
 }
 
@@ -938,8 +648,7 @@ int vtkLineRepresentation3::RenderOpaqueGeometry(vtkViewport *v)
   int count=0;
   this->BuildRepresentation();
   count += this->LineActor->RenderOpaqueGeometry(v);
-  count += this->Handle[0]->RenderOpaqueGeometry(v);
-  count += this->Handle[1]->RenderOpaqueGeometry(v);
+  count += this->Handle->RenderOpaqueGeometry(v);
   if (this->DistanceAnnotationVisibility)
   {
     count += this->TextActor->RenderOpaqueGeometry(v);
@@ -954,8 +663,7 @@ int vtkLineRepresentation3::RenderTranslucentPolygonalGeometry(vtkViewport *v)
   int count=0;
   this->BuildRepresentation();
   count += this->LineActor->RenderTranslucentPolygonalGeometry(v);
-  count += this->Handle[0]->RenderTranslucentPolygonalGeometry(v);
-  count += this->Handle[1]->RenderTranslucentPolygonalGeometry(v);
+  count += this->Handle->RenderTranslucentPolygonalGeometry(v);
   if (this->DistanceAnnotationVisibility)
   {
     count += this->TextActor->RenderTranslucentPolygonalGeometry(v);
@@ -970,8 +678,7 @@ int vtkLineRepresentation3::HasTranslucentPolygonalGeometry()
   int result=0;
   this->BuildRepresentation();
   result |= this->LineActor->HasTranslucentPolygonalGeometry();
-  result |= this->Handle[0]->HasTranslucentPolygonalGeometry();
-  result |= this->Handle[1]->HasTranslucentPolygonalGeometry();
+  result |= this->Handle->HasTranslucentPolygonalGeometry();
   if (this->DistanceAnnotationVisibility)
   {
     result |= this->TextActor->HasTranslucentPolygonalGeometry();
@@ -986,7 +693,6 @@ vtkMTimeType vtkLineRepresentation3::GetMTime()
   vtkMTimeType mTime=this->Superclass::GetMTime();
   vtkMTimeType mTime2=this->Point1Representation->GetMTime();
   mTime = ( mTime2 > mTime ? mTime2 : mTime );
-  mTime2=this->Point2Representation->GetMTime();
   mTime = ( mTime2 > mTime ? mTime2 : mTime );
   mTime2=this->LineHandleRepresentation->GetMTime();
   mTime = ( mTime2 > mTime ? mTime2 : mTime );
@@ -1053,23 +759,6 @@ void vtkLineRepresentation3::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Selected End Point Property: (none)\n";
   }
 
-  if ( this->EndPoint2Property )
-  {
-    os << indent << "End Point Property: " << this->EndPoint2Property << "\n";
-  }
-  else
-  {
-    os << indent << "End Point Property: (none)\n";
-  }
-  if ( this->SelectedEndPoint2Property )
-  {
-    os << indent << "Selected End Point Property: " << this->SelectedEndPoint2Property << "\n";
-  }
-  else
-  {
-    os << indent << "Selected End Point Property: (none)\n";
-  }
-
   os << indent << "Tolerance: " << this->Tolerance << "\n";
 
   os << indent << "Constrain To Bounds: "
@@ -1090,14 +779,10 @@ void vtkLineRepresentation3::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Point1 Representation: ";
   this->Point1Representation->PrintSelf(os,indent.GetNextIndent());
 
-  os << indent << "Point2 Representation: ";
-  this->Point2Representation->PrintSelf(os,indent.GetNextIndent());
-
   os << indent << "Line Handle Representation: ";
   this->LineHandleRepresentation->PrintSelf(os,indent.GetNextIndent());
 
   os << indent << "Representation State: " << this->RepresentationState << "\n";
-  os << indent << "Directional Line: " << this->DirectionalLine << "\n";
   os << indent << "Restring flag: ";
   switch (this->RestrictFlag)
   {
