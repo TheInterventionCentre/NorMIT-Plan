@@ -32,7 +32,6 @@
 #include <cassert>
 #include <iostream>
 #include <string.h>
-#include <regex>
 
 //----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkSlicerResectionPlanningLogic);
@@ -85,49 +84,10 @@ void vtkSlicerResectionPlanningLogic
 ::OnMRMLSceneNodeAdded(vtkMRMLNode* addedNode)
 {
   vtkMRMLModelNode* tempModelNode = vtkMRMLModelNode::SafeDownCast(addedNode);
-  if(tempModelNode != nullptr)
+  if(tempModelNode != NULL)
   {
     std::cout << "Logic: Model node added!" << std::endl;
 
-    std::regex parenchyma ("(.*)(parenchyma)(.*)");
-    std::regex Parenchyma ("(.*)(Parenchyma)(.*)");
-    std::regex tumor ("(.*)(tumor)(.*)");
-    std::regex Tumor ("(.*)(Tumor)(.*)");
-    std::regex hepatic ("(.*)(hepatic)(.*)");
-    std::regex Hepatic ("(.*)(Hepatic)(.*)");
-    std::regex portal ("(.*)(portal)(.*)");
-    std::regex Portal ("(.*)(portal)(.*)");
-
-    const char* name = tempModelNode->GetName();
-    std::cout << "Logic: model node name = " << name << std::endl;
-
-    if (std::regex_match (name, parenchyma) || std::regex_match (name, Parenchyma))
-    {
-      std::cout << "String matched to parenchyma" << std::endl;
-      vtkMRMLDisplayNode* tempDisplayNode = tempModelNode->GetDisplayNode();
-      tempDisplayNode->SetScalarVisibility(true);
-    }
-
-    if (std::regex_match (name, tumor) || std::regex_match (name, Tumor))
-    {
-      std::cout << "String matched to tumor" << std::endl;
-      vtkMRMLDisplayNode* tempDisplayNode = tempModelNode->GetDisplayNode();
-      tempDisplayNode->SetScalarVisibility(true);
-    }
-
-    if (std::regex_match (name, hepatic) || std::regex_match (name, Hepatic))
-    {
-      std::cout << "String matched to hepatic" << std::endl;
-      vtkMRMLDisplayNode* tempDisplayNode = tempModelNode->GetDisplayNode();
-      tempDisplayNode->SetScalarVisibility(true);
-    }
-
-    if (std::regex_match (name, portal) || std::regex_match (name, Portal))
-    {
-      std::cout << "String matched to portal" << std::endl;
-      vtkMRMLDisplayNode* tempDisplayNode = tempModelNode->GetDisplayNode();
-      tempDisplayNode->SetScalarVisibility(true);
-    }
 
   }
 }
