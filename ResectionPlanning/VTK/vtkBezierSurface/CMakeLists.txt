@@ -7,9 +7,8 @@ set(${KIT}_EXPORT_DIRECTIVE "VTK_SLICER_${MODULE_NAME_UPPER}_MODULE_MRML_EXPORT"
 set(${KIT}_INCLUDE_DIRECTORIES)
 
 set(${KIT}_SRCS
-  vtkBezierSurfaceSource.cxx
   vtkBezierSurfaceWidget.cxx
-  vtkBezierSurfaceWidgetRepresentation.cxx
+  vtkBezierSurfaceSource.cxx
   )
 
 set(${KIT}_TARGET_LIBRARIES

@@ -1,216 +1,193 @@
-/*===============================================================================
+/*=========================================================================
 
-  Project: vtkBezierSurface
-  Module: vtkBezierSurfaceWidget.h
+Program: NorMIT-Nav
+Module: vtkBezierSurfaceWidget.h
 
-  Contributors:
-  - Rafael Palomar <rafael.palomar@rr-research.no>
+Copyright (c) 2017 The Intervention Centre, Oslo University Hospital
 
-  Copyright (c) 2015, The Intervention Centre - Oslo University Hospital
+All rights reserved.
 
-  All rights reserved. This is propietary software. In no event shall
-  the author be liable for any claim or damages.
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
 
-  =============================================================================*/
-// .NAME vtkBezierSurfaceWidget - 3D widget for manipulating an infinite plane
-// .SECTION Description
-// This 3D widget defines an infinite plane that can be interactively placed
-// in a scene. The widget is assumed to consist of four parts: 1) a plane
-// contained in a 2) bounding box, with a 3) plane normal, which is rooted
-// at a 4) point on the plane. (The representation paired with this widget
-// determines the actual geometry of the widget.)
-//
-// To use this widget, you generally pair it with a vtkBezierSurfaceWidgetRepresentation
-// (or a subclass). Variuos options are available for controlling how the
-// representation appears, and how the widget functions.
+1. Redistributions of source code must retain the above copyright notice,
+   this list of conditions and the following disclaimer.
 
-// .SECTION Event Bindings
-// By default, the widget responds to the following VTK events (i.e., it
-// watches the vtkRenderWindowInteractor for these events):
-// <pre>
-// If the plane normal is selected:
-//   LeftButtonPressEvent - select normal
-//   LeftButtonReleaseEvent - release normal
-//   MouseMoveEvent - orient the normal vector
-// If the origin point is selected:
-//   LeftButtonPressEvent - select slider (if on slider)
-//   LeftButtonReleaseEvent - release slider (if selected)
-//   MouseMoveEvent - move the origin point (constrained to the plane)
-// If the plane is selected:
-//   LeftButtonPressEvent - select slider (if on slider)
-//   LeftButtonReleaseEvent - release slider (if selected)
-//   MouseMoveEvent - move the plane
-// If the outline is selected:
-//   LeftButtonPressEvent - select slider (if on slider)
-//   LeftButtonReleaseEvent - release slider (if selected)
-//   MouseMoveEvent - move the outline
-// If the keypress characters are used
-//   'Down/Left' Move plane down
-//   'Up/Right' Move plane up
-// In all the cases, independent of what is picked, the widget responds to the
-// following VTK events:
-//   MiddleButtonPressEvent - move the plane
-//   MiddleButtonReleaseEvent - release the plane
-//   RightButtonPressEvent - scale the widget's representation
-//   RightButtonReleaseEvent - stop scaling the widget
-//   MouseMoveEvent - scale (if right button) or move (if middle button) the widget
-// </pre>
-//
-// Note that the event bindings described above can be changed using this
-// class's vtkWidgetEventTranslator. This class translates VTK events
-// into the vtkBezierSurfaceWidget's widget events:
-// <pre>
-//   vtkWidgetEvent::Select -- some part of the widget has been selected
-//   vtkWidgetEvent::EndSelect -- the selection process has completed
-//   vtkWidgetEvent::Move -- a request for slider motion has been invoked
-//   vtkWidgetEvent::Up and vtkWidgetEvent::Down -- MovePlaneAction
-// </pre>
-//
-// In turn, when these widget events are processed, the vtkBezierSurfaceWidget
-// invokes the following VTK events on itself (which observers can listen for):
-// <pre>
-//   vtkCommand::StartInteractionEvent (on vtkWidgetEvent::Select)
-//   vtkCommand::EndInteractionEvent (on vtkWidgetEvent::EndSelect)
-//   vtkCommand::InteractionEvent (on vtkWidgetEvent::Move)
-// </pre>
-//
+2. Redistributions in binary form must reproduce the above copyright notice,
+   this list of conditions and the following disclaimer in the documentation
+   and/or other materials provided with the distribution.
 
-// This class, and vtkBezierSurfaceWidgetRepresentation, are next generation VTK
-// widgets. An earlier version of this functionality was defined in the class
-// vtkImplicitPlaneWidget.
+3. Neither the name of the copyright holder nor the names of its contributors
+   may be used to endorse or promote products derived from this software
+   without specific prior written permission.
 
-// .SECTION See Also
-// vtk3DWidget vtkBoxWidget vtkPlaneWidget vtkLineWidget vtkPointWidget
-// vtkSphereWidget vtkImagePlaneWidget
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+=========================================================================*/
 
 #ifndef vtkBezierSurfaceWidget_h
 #define vtkBezierSurfaceWidget_h
 
-#include "vtkBezierSurfaceSource.h"
-
-// VTK includes
-#include <vtkAbstractWidget.h>
+#include <vtk3DWidget.h>
 #include <vtkSmartPointer.h>
-#include <vtkCommand.h>
+#include <vtkWeakPointer.h>
+#include <vtkNew.h>
+#include <vtkProperty.h>
+#include <vtkBezierSurfaceSource.h>
 
-//----------------------------------------------------------------------------
-class vtkBezierSurfaceWidgetRepresentation;
-class vtkInteractionCallback;
-class vtkPoints;
-class vtkInteractionCallback;
 
-//----------------------------------------------------------------------------
-class vtkBezierSurfaceWidget : public vtkAbstractWidget
+//------------------------------------------------------------------------------
+class vtkActor;
+class vtkPolyData;
+class vtkCollection;
+class vtkProp;
+class vtkPolyDataMapper;
+class vtkCellPicker;
+class vtkTubeFilter;
+
+//------------------------------------------------------------------------------
+class vtkBezierSurfaceWidget: public vtk3DWidget
 {
-  friend class vtkInteractionCallback;
+ public:
 
-public:
-  // Description:
-  // Instantiate the object.
   static vtkBezierSurfaceWidget *New();
 
-  // Description:
-  // Standard vtkObject methods
-  vtkTypeMacro(vtkBezierSurfaceWidget,vtkAbstractWidget);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  vtkTypeMacro(vtkBezierSurfaceWidget, vtk3DWidget);
+  void PrintSelf(ostream &os, vtkIndent indent);
 
-  // Description:
-  // Specify an instance of vtkWidgetRepresentation used to represent this
-  // widget in the scene. Note that the representation is a subclass of vtkProp
-  // so it can be added to the renderer independent of the widget.
-  void SetRepresentation( vtkBezierSurfaceWidgetRepresentation *rep );
+  virtual void SetEnabled(int);
+  virtual void PlaceWidget(double bounds[6]);
+  void PlaceWidget()
+  {this->Superclass::PlaceWidget();}
+  void PlaceWidget(double xmin, double xmax,
+                   double ymin, double ymax,
+                   double zmin, double zmax)
+  {this->Superclass::PlaceWidget(xmin, xmax, ymin, ymax, zmin, zmax);}
 
-  // Descritpion:
-  // Disable/Enable the widget if needed.
-  // Unobserved the camera if the widget is disabled.
-  void SetEnabled(int enabling);
+  vtkGetMacro(MultiPointInteraction, int);
+  vtkSetMacro(MultiPointInteraction, int);
+  vtkBooleanMacro(MultiPointInteraction, int);
 
-  // Description:
-  // Return the representation as a vtkBezierSurfaceWidgetRepresentation.
-  vtkBezierSurfaceWidgetRepresentation *GetBezierSurfaceRepresentation()
-    {return reinterpret_cast<vtkBezierSurfaceWidgetRepresentation*>(this->WidgetRep);}
+  vtkGetMacro(TranslationInteraction, int);
+  vtkSetMacro(TranslationInteraction, int);
+  vtkBooleanMacro(TranslationInteraction, int);
 
+  vtkGetMacro(ContinuousBezierUpdate, int);
+  vtkSetMacro(ContinuousBezierUpdate, int);
+  vtkBooleanMacro(ContinuousBezierUpdate, int);
 
-  // Description:
-  // Create the default widget representation if one is not set.
-  void CreateDefaultRepresentation();
+  vtkGetObjectMacro(HandleProperty, vtkProperty);
+  vtkSetObjectMacro(HandleProperty, vtkProperty);
+  vtkGetObjectMacro(SelectedHandleProperty, vtkProperty);
+  vtkSetObjectMacro(SelectedHandleProperty, vtkProperty);
+  vtkGetObjectMacro(ControlPolygonProperty, vtkProperty);
+  vtkSetObjectMacro(ControlPolygonProperty, vtkProperty);
+  vtkGetObjectMacro(SelectedControlPolygonProperty, vtkProperty);
+  vtkSetObjectMacro(SelectedControlPolygonProperty, vtkProperty);
+  vtkGetObjectMacro(BezierSurfaceProperty, vtkProperty);
+  vtkSetObjectMacro(BezierSurfaceProperty, vtkProperty);
 
-  // Description:
-  // Mutltinteraction related methods
-  vtkGetMacro(MultiInteraction, bool);
-  vtkSetMacro(MultiInteraction, bool);
-  vtkBooleanMacro(MultiInteraction, bool);
+  void GetWidgetPolyData(vtkPolyData const *pd) const;
+  void GetTubedWidgetPolyData(vtkPolyData const *pd) const;
+  void GetControlPoints(vtkPoints const *points) const;
+  void GetBezierSurfacePolyData(vtkPolyData const *pd) const;
 
-  // Description:
-  // Moveinteraction related methods
-  vtkGetMacro(MoveInteraction, bool);
-  vtkSetMacro(MoveInteraction, bool);
-  vtkBooleanMacro(MoveInteraction, bool);
+  void HandlesOn();
+  void HandlesOff();
 
-  // Description:
-  // Moveinteraction related methods
-  vtkGetMacro(TranslationInteraction, bool);
-  vtkSetMacro(TranslationInteraction, bool);
-  vtkBooleanMacro(TranslationInteraction, bool);
+  void ControlPolygonOn();
+  void ControlPolygonOff();
+
+  void BezierSurfaceOn();
+  void BezierSurfaceOff();
 
  protected:
   vtkBezierSurfaceWidget();
   ~vtkBezierSurfaceWidget();
 
-//BTX - manage the state of the widget
-  int WidgetState;
-  enum _WidgetState {Start=0,Active};
-//ETX
+  int State;
+  enum WidgetState
+  {
+    Start=0,
+    Deforming,
+    MultiDeforming,
+    Moving,
+    Outside
+  };
 
-  // These methods handle events
-  static void SelectAction(vtkAbstractWidget*);
-  static void MultiSelectAction(vtkAbstractWidget*);
-  static void TranslateAction(vtkAbstractWidget*);
-  static void ScaleAction(vtkAbstractWidget*);
-  static void EndSelectAction(vtkAbstractWidget*);
-  static void EndMultiSelectAction(vtkAbstractWidget*);
-  static void MoveAction(vtkAbstractWidget*);
-  static void MovePlaneAction(vtkAbstractWidget*);
+  static void ProcessEvents(vtkObject *object,
+                            unsigned long event,
+                            void *clientdata,
+                            void *calldata);
 
-  // Description:
-  // Update the cursor shape based on the interaction state. Returns 1
-  // if the cursor shape requested is different from the existing one.
-  int UpdateCursorShape( int interactionState );
+  virtual void OnMouseMove();
+  virtual void OnLeftButtonDown();
+  virtual void OnLeftButtonUp();
+  virtual void OnMiddleButtonUp();
+  virtual void OnMiddleButtonDown();
+  virtual void OnRightButtonUp();
+  virtual void OnRightButtonDown();
 
-  bool MoveInteraction;
-  bool ShowControlPoints;
-  bool ShowControlPolygon;
-  bool ShowBezierSurface;
-  bool MultiInteraction;
-  bool TranslationInteraction;
+  vtkSmartPointer<vtkActor> ControlPolygonActor;
+  vtkSmartPointer<vtkPolyData> ControlPolygonPolyData;
+  vtkSmartPointer<vtkPolyDataMapper> ControlPolygonMapper;
+  vtkSmartPointer<vtkCollection> HandleActorCollection;
+  vtkSmartPointer<vtkCollection> HandleMapperCollection;
+  vtkSmartPointer<vtkCollection> HandlePolyDataCollection;
 
-protected:
-  vtkBezierSurfaceWidget(const vtkBezierSurfaceWidget&);  //Not implemented
-  void operator=(const vtkBezierSurfaceWidget&);  //Not implemented
+  vtkSmartPointer<vtkTubeFilter> TubeFilter;
 
-  // Description:
-  // Handle the interaction callback that may come from the representation
-  vtkSmartPointer<vtkInteractionCallback> InteractionCallback;
-  void InvokeInteractionCallback();
+  virtual void PositionHandles();
+  virtual void SizeHandles();
+  virtual void SizeControlPolygon();
 
-};
+  vtkWeakPointer<vtkActor> CurrentHandle;
 
-//----------------------------------------------------------------------------
-class vtkInteractionCallback : public vtkCommand
-{
-public:
-  static vtkInteractionCallback *New()
-    { return new vtkInteractionCallback; }
-  virtual void Execute(vtkObject*, unsigned long eventId, void*)
-    {
-      switch (eventId)
-        {
-        case vtkCommand::ModifiedEvent:
-          this->BezierSurfaceWidget->InvokeInteractionCallback();
-          break;
-        }
-    }
-  vtkBezierSurfaceWidget *BezierSurfaceWidget;
+  void HighlightHandle(vtkProp *prop);
+  void MultiHighlightHandle(vtkProp *prop);
+  void HighlightControlPolygon(int highlight);
+
+  vtkSmartPointer<vtkCellPicker> HandlePicker;
+  vtkSmartPointer<vtkCellPicker> ControlPolygonPicker;
+
+  virtual void RegisterPickers();
+
+  virtual void MoveControlPolygon(double *p1, double *p2);
+  void MoveControlPoint(int cp, double *p1, double *p2);
+  void MultiMoveControlPoint(int cp, double *p1, double *p2);
+
+  vtkSmartPointer<vtkProperty> HandleProperty;
+  vtkSmartPointer<vtkProperty> SelectedHandleProperty;
+  vtkSmartPointer<vtkProperty> ControlPolygonProperty;
+  vtkSmartPointer<vtkProperty> SelectedControlPolygonProperty;
+  vtkSmartPointer<vtkProperty> BezierSurfaceProperty;
+  void CreateDefaultProperties();
+
+  int MultiPointInteraction;
+  int TranslationInteraction;
+  int ContinuousBezierUpdate;
+  unsigned int SurfaceResolutionX;
+  unsigned int SurfaceResolutionY;
+  unsigned int NumberOfControlPointsX;
+  unsigned int NumberOfControlPointsY;
+
+  double HandleSizeFactor;
+
+  vtkSmartPointer<vtkBezierSurfaceSource> BezierSurfaceSource;
+  vtkSmartPointer<vtkPolyDataMapper> BezierSurfaceMapper;
+  vtkSmartPointer<vtkActor> BezierSurfaceActor;
+
+ private:
+  vtkBezierSurfaceWidget( const vtkBezierSurfaceWidget &) VTK_DELETE_FUNCTION;
+  void operator=(const vtkBezierSurfaceWidget&) VTK_DELETE_FUNCTION;
 };
 
 #endif
