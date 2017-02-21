@@ -71,7 +71,9 @@ vtkBezierSurfaceWidget::vtkBezierSurfaceWidget()
    SurfaceResolutionY(40),
    NumberOfControlPointsX(4),
    NumberOfControlPointsY(4),
-   ContinuousBezierUpdate(1)
+   ContinuousBezierUpdate(1),
+   HandleSizeFactor(1.1),
+   ControlPolygonSizeFactor(1.02)
 {
   // Set the event callback to our process events function
   this->EventCallbackCommand->SetCallback(vtkBezierSurfaceWidget::ProcessEvents);
@@ -203,8 +205,6 @@ vtkBezierSurfaceWidget::vtkBezierSurfaceWidget()
   bounds[0] = bounds[2] = bounds[4] = -0.5;
   bounds[1] = bounds[3] = bounds[5] =  0.5;
   this->PlaceWidget(bounds);
-
-
 }
 
 //-------------------------------------------------------------------------------
@@ -384,14 +384,38 @@ void vtkBezierSurfaceWidget::ProcessEvents(vtkObject *vtkNotUsed(object),
       self->OnMouseMove();
       break;
     }
-
-
 }
 
 //------------------------------------------------------------------------------
 void vtkBezierSurfaceWidget::PrintSelf(ostream &os, vtkIndent indent)
 {
+  this->Superclass::PrintSelf(os, indent);
 
+  // Initial bounds
+  double *bounds=this->InitialBounds;
+  os << indent << "Initial Bounds: "
+     << "(" << bounds[0] << "," << bounds[1] << ") "
+     << "(" << bounds[2] << "," << bounds[3] << ") "
+     << "(" << bounds[4] << "," << bounds[5] << ")\n";
+
+  // Properties
+  os << indent << "Handle property: " << this->HandleProperty << "\n";
+  os << indent << "Selected handle property: " << this->SelectedHandleProperty << "\n";
+  os << indent << "Control polygon property: " << this->ControlPolygonProperty << "\n";
+  os << indent << "Selected control polygon property: "
+     << this->SelectedControlPolygonProperty << "\n";
+  os << indent << "Bézier surface property: " << this->BezierSurfaceProperty << "\n";
+
+  // Interaction flags
+  os << indent << "Multi-point interaction: "
+     << this->MultiPointInteraction ? "On\n" : "Off\n";
+  os << indent << "Translation interaction: "
+     << this->TranslationInteraction ? "On\n" : "Off\n";
+  os << indent << "Continuous Bézier update: "
+     << this->ContinuousBezierUpdate ? "On\n" : "Off\n";
+
+  // Bézie surface
+  os << indent << "Bézier surface: " << *this->BezierSurfaceSource << "\n";
 }
 
 //------------------------------------------------------------------------------
@@ -464,7 +488,7 @@ void vtkBezierSurfaceWidget::BezierSurfaceOff()
 //------------------------------------------------------------------------------
 void vtkBezierSurfaceWidget::SizeHandles()
 {
-  double radius = this->vtk3DWidget::SizeHandles(1.1);
+  double radius = this->vtk3DWidget::SizeHandles(this->HandleSizeFactor);
 
   for(int i=0; i<this->HandlePolyDataCollection->GetNumberOfItems(); ++i)
     {
@@ -481,8 +505,8 @@ void vtkBezierSurfaceWidget::SizeHandles()
 //------------------------------------------------------------------------------
 void vtkBezierSurfaceWidget::SizeControlPolygon()
 {
-  double radius = this->vtk3DWidget::SizeHandles(1.1);
-  this->TubeFilter->SetRadius(radius/5.0);
+  double radius = this->vtk3DWidget::SizeHandles(this->ControlPolygonSizeFactor);
+  this->TubeFilter->SetRadius(radius);
 }
 
 //------------------------------------------------------------------------------
@@ -1064,6 +1088,36 @@ void vtkBezierSurfaceWidget::RegisterPickers()
 void vtkBezierSurfaceWidget::GetWidgetPolyData(vtkPolyData const *pd) const
 {
   pd = this->ControlPolygonPolyData;
+}
+
+//------------------------------------------------------------------------------
+unsigned int vtkBezierSurfaceWidget::GetSurfaceResolutionX() const
+{
+  return this->SurfaceResolutionX;
+}
+
+//------------------------------------------------------------------------------
+void vtkBezierSurfaceWidget::SetSurfaceResolutionX(unsigned int resolutionX)
+{
+  this->SurfaceResolutionX = resolutionX;
+  this->BezierSurfaceSource->SetResolution(this->SurfaceResolutionX,
+                                           this->SurfaceResolutionY);
+  this->BezierSurfaceSource->Update();
+}
+
+//------------------------------------------------------------------------------
+unsigned int vtkBezierSurfaceWidget::GetSurfaceResolutionY() const
+{
+  return this->SurfaceResolutionY;
+}
+
+//------------------------------------------------------------------------------
+void vtkBezierSurfaceWidget::SetSurfaceResolutionY(unsigned int resolutionY)
+{
+  this->SurfaceResolutionY = resolutionY;
+  this->BezierSurfaceSource->SetResolution(this->SurfaceResolutionX,
+                                           this->SurfaceResolutionY);
+  this->BezierSurfaceSource->Update();
 }
 
 //------------------------------------------------------------------------------
