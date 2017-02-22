@@ -9,7 +9,7 @@ set(${KIT}_INCLUDE_DIRECTORIES
 
 set(${KIT}_SRCS
   vtkMRMLResectionSurfaceNode.cxx
-  #vtkMRMLResectionSurfaceDisplayNode.cxx
+  vtkMRMLResectionSurfaceDisplayNode.cxx
   #vtkMRMLResectionSurfaceStorageNode.cxx
   )
 
