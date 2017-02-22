@@ -65,15 +65,15 @@ vtkStandardNewMacro(vtkBezierSurfaceWidget);
 //-------------------------------------------------------------------------------
 vtkBezierSurfaceWidget::vtkBezierSurfaceWidget()
   :State(vtkBezierSurfaceWidget::Start),
-   TranslationInteraction(1),
    MultiPointInteraction(1),
+   TranslationInteraction(1),
+   ContinuousBezierUpdate(1),
    SurfaceResolutionX(40),
    SurfaceResolutionY(40),
    NumberOfControlPointsX(4),
    NumberOfControlPointsY(4),
-   ContinuousBezierUpdate(1),
    HandleSizeFactor(1.1),
-   ControlPolygonSizeFactor(1.02)
+   ControlPolygonSizeFactor(0.2)
 {
   // Set the event callback to our process events function
   this->EventCallbackCommand->SetCallback(vtkBezierSurfaceWidget::ProcessEvents);
@@ -116,27 +116,19 @@ vtkBezierSurfaceWidget::vtkBezierSurfaceWidget()
       }
     }
 
-  this->ControlPolygonPolyData = vtkSmartPointer<vtkPolyData>::New();
   this->ControlPolygonPolyData->SetPoints(planePoints);
   this->ControlPolygonPolyData->SetLines(planeCells);
 
-  this->TubeFilter = vtkSmartPointer<vtkTubeFilter>::New();
-  this->TubeFilter->SetInputData(this->ControlPolygonPolyData);
+  this->TubeFilter->SetInputData(this->ControlPolygonPolyData.GetPointer());
   this->TubeFilter->SetRadius(0.002);
   this->TubeFilter->SetNumberOfSides(20);
   this->TubeFilter->Update();
 
   // Create control polygon and related objects
-
-  this->ControlPolygonMapper = vtkSmartPointer<vtkPolyDataMapper>::New();
   this->ControlPolygonMapper->SetInputConnection(this->TubeFilter->GetOutputPort());
-  this->ControlPolygonActor = vtkSmartPointer<vtkActor>::New();
-  this->ControlPolygonActor->SetMapper(this->ControlPolygonMapper);
+  this->ControlPolygonActor->SetMapper(this->ControlPolygonMapper.GetPointer());
 
   // Create control points and related objects
-  this->HandlePolyDataCollection = vtkSmartPointer<vtkCollection>::New();
-  this->HandleMapperCollection = vtkSmartPointer<vtkCollection>::New();
-  this->HandleActorCollection = vtkSmartPointer<vtkCollection>::New();
   for(int i=0; i<16; i++)
     {
     vtkSmartPointer<vtkSphereSource> handle =
@@ -163,7 +155,6 @@ vtkBezierSurfaceWidget::vtkBezierSurfaceWidget()
   this->CreateDefaultProperties();
 
   // Manage handles picking
-  this->HandlePicker = vtkSmartPointer<vtkCellPicker>::New();
   this->HandlePicker->SetTolerance(0.001);
   for (int i=0; i<this->HandleActorCollection->GetNumberOfItems(); ++i)
     {
@@ -177,15 +168,13 @@ vtkBezierSurfaceWidget::vtkBezierSurfaceWidget()
   this->HandlePicker->PickFromListOn();
 
   // Manage control polygon picking
-  this->ControlPolygonPicker = vtkSmartPointer<vtkCellPicker>::New();
   this->ControlPolygonPicker->SetTolerance(0.001);
-  this->ControlPolygonPicker->AddPickList(this->ControlPolygonActor);
+  this->ControlPolygonPicker->AddPickList(this->ControlPolygonActor.GetPointer());
   this->ControlPolygonPicker->PickFromListOn();
 
   this->CurrentHandle = NULL;
 
   // Crate default Bézier surface and associated elements
-  this->BezierSurfaceSource = vtkSmartPointer<vtkBezierSurfaceSource>::New();
   this->BezierSurfaceSource->SetNumberOfControlPoints(this->NumberOfControlPointsX,
                                                       this->NumberOfControlPointsY);
   this->BezierSurfaceSource->SetResolution(this->SurfaceResolutionX,
@@ -193,12 +182,10 @@ vtkBezierSurfaceWidget::vtkBezierSurfaceWidget()
 
   this->BezierSurfaceSource->SetControlPoints(this->ControlPolygonPolyData->GetPoints());
 
-  this->BezierSurfaceMapper = vtkSmartPointer<vtkPolyDataMapper>::New();
   this->BezierSurfaceMapper->
     SetInputConnection(this->BezierSurfaceSource->GetOutputPort());
 
-  this->BezierSurfaceActor = vtkSmartPointer<vtkActor>::New();
-  this->BezierSurfaceActor->SetMapper(this->BezierSurfaceMapper);
+  this->BezierSurfaceActor->SetMapper(this->BezierSurfaceMapper.GetPointer());
 
   // Place the widget
   double bounds[6];
@@ -279,8 +266,8 @@ void vtkBezierSurfaceWidget::SetEnabled(int enabling)
                                   this->Priority);
 
     // Add Control Polygon
-    this->ControlPolygonActor->SetProperty(this->ControlPolygonProperty);
-    this->CurrentRenderer->AddActor(this->ControlPolygonActor);
+    this->ControlPolygonActor->SetProperty(this->ControlPolygonProperty.GetPointer());
+    this->CurrentRenderer->AddActor(this->ControlPolygonActor.GetPointer());
 
     // Add Control Polygon Handles
     for(int i=0; i<this->HandleActorCollection->GetNumberOfItems(); i++)
@@ -289,14 +276,14 @@ void vtkBezierSurfaceWidget::SetEnabled(int enabling)
       vtkActor *handleActor = vtkActor::SafeDownCast(object);
       if (handleActor)
         {
-        handleActor->SetProperty(this->HandleProperty);
+        handleActor->SetProperty(this->HandleProperty.GetPointer());
         this->CurrentRenderer->AddActor(handleActor);
         }
       }
 
     // Add Bézier Surface
-    this->BezierSurfaceActor->SetProperty(this->BezierSurfaceProperty);
-    this->CurrentRenderer->AddActor(this->BezierSurfaceActor);
+    this->BezierSurfaceActor->SetProperty(this->BezierSurfaceProperty.GetPointer());
+    this->CurrentRenderer->AddActor(this->BezierSurfaceActor.GetPointer());
 
     // Enable event
     this->InvokeEvent(vtkCommand::EnableEvent, NULL);
@@ -316,7 +303,7 @@ void vtkBezierSurfaceWidget::SetEnabled(int enabling)
     this->Interactor->RemoveObserver(this->EventCallbackCommand);
 
     // Remove control polygon
-    this->CurrentRenderer->RemoveActor(this->ControlPolygonActor);
+    this->CurrentRenderer->RemoveActor(this->ControlPolygonActor.GetPointer());
 
     // Remove handles
     for(int i =0; i<this->HandleActorCollection->GetNumberOfItems();++i)
@@ -330,7 +317,7 @@ void vtkBezierSurfaceWidget::SetEnabled(int enabling)
       }
 
     // Remove Bézier surface
-    this->CurrentRenderer->RemoveActor(this->BezierSurfaceActor);
+    this->CurrentRenderer->RemoveActor(this->BezierSurfaceActor.GetPointer());
 
     this->CurrentHandle = NULL;
     this->InvokeEvent(vtkCommand::DisableEvent, NULL);
@@ -408,14 +395,15 @@ void vtkBezierSurfaceWidget::PrintSelf(ostream &os, vtkIndent indent)
 
   // Interaction flags
   os << indent << "Multi-point interaction: "
-     << this->MultiPointInteraction ? "On\n" : "Off\n";
+     << (this->MultiPointInteraction ? "On\n" : "Off\n");
   os << indent << "Translation interaction: "
-     << this->TranslationInteraction ? "On\n" : "Off\n";
+     << (this->TranslationInteraction ? "On\n" : "Off\n");
   os << indent << "Continuous Bézier update: "
-     << this->ContinuousBezierUpdate ? "On\n" : "Off\n";
+     << (this->ContinuousBezierUpdate ? "On\n" : "Off\n");
 
   // Bézie surface
-  os << indent << "Bézier surface: " << *this->BezierSurfaceSource << "\n";
+  os << indent << "Bézier surface: "
+     << *this->BezierSurfaceSource.GetPointer() << "\n";
 }
 
 //------------------------------------------------------------------------------
@@ -521,7 +509,7 @@ void vtkBezierSurfaceWidget::HighlightHandle(vtkProp *prop)
     vtkActor *actor = vtkActor::SafeDownCast(object);
     if(actor)
       {
-      actor->SetProperty(this->HandleProperty);
+      actor->SetProperty(this->HandleProperty.GetPointer());
       }
     }
 
@@ -529,7 +517,7 @@ void vtkBezierSurfaceWidget::HighlightHandle(vtkProp *prop)
   this->CurrentHandle = vtkActor::SafeDownCast(prop);
   if (this->CurrentHandle)
     {
-    this->CurrentHandle->SetProperty(this->SelectedHandleProperty);
+    this->CurrentHandle->SetProperty(this->SelectedHandleProperty.GetPointer());
     }
 }
 
@@ -570,22 +558,22 @@ void vtkBezierSurfaceWidget::MultiHighlightHandle(vtkProp *prop)
         // External marking and external point --> highlight
         if(externalMarking && externalPoint)
           {
-          handleActor->SetProperty(this->SelectedHandleProperty);
+          handleActor->SetProperty(this->SelectedHandleProperty.GetPointer());
           }
         // External marking and internal point --> un-highlight
         else if (externalMarking && !externalPoint)
           {
-          handleActor->SetProperty(this->HandleProperty);
+          handleActor->SetProperty(this->HandleProperty.GetPointer());
           }
         // Non-External marking and non-external point --> highlight
         else if (!externalMarking && !externalPoint)
           {
-          handleActor->SetProperty(this->SelectedHandleProperty);
+          handleActor->SetProperty(this->SelectedHandleProperty.GetPointer());
           }
         // Non-External marking and external point --> un-highlight
         else
           {
-          handleActor->SetProperty(this->HandleProperty);
+          handleActor->SetProperty(this->HandleProperty.GetPointer());
           }
         }
       }
@@ -609,11 +597,13 @@ void vtkBezierSurfaceWidget::HighlightControlPolygon(int highlight)
     //   }
 
     // Highlight control polygon
-    this->ControlPolygonActor->SetProperty(this->SelectedControlPolygonProperty);
+    this->ControlPolygonActor->
+      SetProperty(this->SelectedControlPolygonProperty.GetPointer());
     }
   else
     {
-    this->ControlPolygonActor->SetProperty(this->ControlPolygonProperty);
+    this->ControlPolygonActor->
+      SetProperty(this->ControlPolygonProperty.GetPointer());
     }
 }
 
@@ -630,7 +620,8 @@ void vtkBezierSurfaceWidget::OnLeftButtonDown()
     return;
     }
 
-  vtkAssemblyPath *path = this->GetAssemblyPath(X, Y, 0.0, this->HandlePicker);
+  vtkAssemblyPath *path = this->GetAssemblyPath(X, Y, 0.0,
+                                                this->HandlePicker.GetPointer());
 
   if (path)
     {
@@ -643,7 +634,8 @@ void vtkBezierSurfaceWidget::OnLeftButtonDown()
   else
     {
 
-    path = this->GetAssemblyPath(X, Y, 0., this->ControlPolygonPicker);
+    path = this->GetAssemblyPath(X, Y, 0.,
+                                 this->ControlPolygonPicker.GetPointer());
 
     if (path)
       {
@@ -707,7 +699,8 @@ void vtkBezierSurfaceWidget::OnRightButtonDown()
     return;
     }
 
-  vtkAssemblyPath *path = this->GetAssemblyPath(X, Y, 0.0, this->HandlePicker);
+  vtkAssemblyPath *path = this->GetAssemblyPath(X, Y, 0.0,
+                                                this->HandlePicker.GetPointer());
 
   if (path)
     {
@@ -719,7 +712,8 @@ void vtkBezierSurfaceWidget::OnRightButtonDown()
     }
   else
     {
-    path = this->GetAssemblyPath(X, Y, 0., this->ControlPolygonPicker);
+    path = this->GetAssemblyPath(X, Y, 0.,
+                                 this->ControlPolygonPicker.GetPointer());
 
     if (path)
       {
@@ -961,8 +955,8 @@ void vtkBezierSurfaceWidget::MultiMoveControlPoint(int cp, double *p1, double *p
         {
         // External marking and external point --> move
         // Internal marking and internal point --> move
-        if (externalMarking && externalPoint ||
-            !externalMarking && !externalPoint)
+        if ( (externalMarking && externalPoint) ||
+             (!externalMarking && !externalPoint) )
           {
           double *handlePoint = handle->GetCenter();
           double destinationPoint[3];
@@ -994,21 +988,16 @@ void vtkBezierSurfaceWidget::MultiMoveControlPoint(int cp, double *p1, double *p
 //------------------------------------------------------------------------------
 void vtkBezierSurfaceWidget::CreateDefaultProperties()
 {
-  this->HandleProperty = vtkSmartPointer<vtkProperty>::New();
   this->HandleProperty->SetColor(1.0, 1.0, 1.0);
 
-  this->SelectedHandleProperty = vtkSmartPointer<vtkProperty>::New();
   this->SelectedHandleProperty->SetColor(1.0, 0.0, 0.0);
 
-  this->ControlPolygonProperty = vtkSmartPointer<vtkProperty>::New();
   this->ControlPolygonProperty->SetColor(1.0, 1.0, 1.0);
   this->ControlPolygonProperty->LightingOff();
 
-  this->SelectedControlPolygonProperty = vtkSmartPointer<vtkProperty>::New();
   this->SelectedControlPolygonProperty->SetColor(0.0, 1.0, 0.0);
   this->SelectedControlPolygonProperty->LightingOff();
 
-  this->BezierSurfaceProperty = vtkSmartPointer<vtkProperty>::New();
   this->BezierSurfaceProperty->SetColor(1.0, 1.0, 1.0);
 }
 
@@ -1020,8 +1009,6 @@ void vtkBezierSurfaceWidget::PlaceWidget(double bds[6])
 
   double startX = bounds[0];
   double startY = bounds[2];
-  double endX = bounds[1];
-  double endY = bounds[3];
   double incX = (bounds[1] - bounds[0]) / 4.0;
   double incY = (bounds[3] - bounds[2]) / 4.0;
 
@@ -1078,16 +1065,10 @@ void vtkBezierSurfaceWidget::PlaceWidget(double bds[6])
 void vtkBezierSurfaceWidget::RegisterPickers()
 {
   this->Interactor->GetPickingManager()
-    ->AddPicker(this->HandlePicker, this);
+    ->AddPicker(this->HandlePicker.GetPointer(), this);
 
   this->Interactor->GetPickingManager()
-    ->AddPicker(this->ControlPolygonPicker, this);
-}
-
-//------------------------------------------------------------------------------
-void vtkBezierSurfaceWidget::GetWidgetPolyData(vtkPolyData const *pd) const
-{
-  pd = this->ControlPolygonPolyData;
+    ->AddPicker(this->ControlPolygonPicker.GetPointer(), this);
 }
 
 //------------------------------------------------------------------------------
@@ -1121,21 +1102,22 @@ void vtkBezierSurfaceWidget::SetSurfaceResolutionY(unsigned int resolutionY)
 }
 
 //------------------------------------------------------------------------------
-void vtkBezierSurfaceWidget::GetTubedWidgetPolyData(vtkPolyData const *pd) const
+vtkPolyData* vtkBezierSurfaceWidget::GetTubedWidgetPolyData() const
 {
   this->TubeFilter->Update();
-  pd = this->TubeFilter->GetOutput();
+  return this->TubeFilter->GetOutput();
 }
 
 //------------------------------------------------------------------------------
-void vtkBezierSurfaceWidget::GetControlPoints(vtkPoints const *points) const
+vtkPoints* vtkBezierSurfaceWidget::GetControlPoints() const
 {
-  points = this->ControlPolygonPolyData->GetPoints();
+  return this->ControlPolygonPolyData->GetPoints();
 }
 
 //------------------------------------------------------------------------------
-void vtkBezierSurfaceWidget::GetBezierSurfacePolyData(vtkPolyData const *pd) const
+vtkPolyData *
+vtkBezierSurfaceWidget::GetBezierSurfacePolyData() const
 {
   this->BezierSurfaceSource->Update();
-  pd = this->BezierSurfaceSource->GetOutput();
+  return this->BezierSurfaceSource->GetOutput();
 }
