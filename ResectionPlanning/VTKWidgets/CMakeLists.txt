@@ -1,4 +1,4 @@
-PROJECT(vtkBezierSurface)
+PROJECT(vtkSlicer${MODULE_NAME}ModuleVTKWidgets)
 
 find_package(OpenMP)
 
@@ -10,9 +10,7 @@ endif()
 
 set(KIT ${PROJECT_NAME})
 
-set(${KIT}_EXPORT_DIRECTIVE "VTK_SLICER_${MODULE_NAME_UPPER}_MODULE_MRML_EXPORT")
-
-set(${KIT}_INCLUDE_DIRECTORIES)
+set(${KIT}_EXPORT_DIRECTIVE "VTK_SLICER_${MODULE_NAME_UPPER}_MODULE_VTKWIDGETS_EXPORT")
 
 set(${KIT}_SRCS
   vtkBezierSurfaceWidget.cxx
@@ -24,7 +22,7 @@ set(${KIT}_TARGET_LIBRARIES
   )
 
 #-----------------------------------------------------------------------------
-SlicerMacroBuildModuleMRML(
+SlicerMacroBuildModuleLogic(
   NAME ${KIT}
   EXPORT_DIRECTIVE ${${KIT}_EXPORT_DIRECTIVE}
   INCLUDE_DIRECTORIES ${${KIT}_INCLUDE_DIRECTORIES}
