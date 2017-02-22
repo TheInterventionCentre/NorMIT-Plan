@@ -47,5 +47,5 @@ int vtkMRMLResectionSurfaceNodeTest1(int, char *[])
 
   EXERCISE_ALL_BASIC_MRML_METHODS(node1.GetPointer());
 
-  EXIT_SUCCESS;
+  return EXIT_SUCCESS;
 }

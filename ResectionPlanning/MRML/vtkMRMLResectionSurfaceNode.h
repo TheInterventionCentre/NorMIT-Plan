@@ -60,7 +60,6 @@ vtkMRMLResectionSurfaceNode: public vtkMRMLModelNode
   virtual const char* GetNodeTagName() {return "ResectionSurface";}
   virtual const char* GetIcon() {return "";}
 
-
  protected:
   vtkMRMLResectionSurfaceNode();
   ~vtkMRMLResectionSurfaceNode();
