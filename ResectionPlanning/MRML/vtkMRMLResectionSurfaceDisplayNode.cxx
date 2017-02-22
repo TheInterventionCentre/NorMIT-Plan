@@ -55,7 +55,8 @@ vtkMRMLResectionSurfaceDisplayNode::~vtkMRMLResectionSurfaceDisplayNode()
 }
 
 //------------------------------------------------------------------------------
-void vtkMRMLResectionSurfaceDisplayNode::PrintSelf(ostream &os, vtkIndent indent)
+void vtkMRMLResectionSurfaceDisplayNode::PrintSelf(ostream &vtkNotUsed(os),
+                                                   vtkIndent vtkNotUsed(indent))
 {
 
 }

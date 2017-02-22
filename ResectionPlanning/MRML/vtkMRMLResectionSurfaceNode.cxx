@@ -59,7 +59,8 @@ vtkMRMLResectionSurfaceNode::~vtkMRMLResectionSurfaceNode()
 }
 
 //------------------------------------------------------------------------------
-void vtkMRMLResectionSurfaceNode::PrintSelf(ostream &os, vtkIndent nIndent)
+void vtkMRMLResectionSurfaceNode::PrintSelf(ostream &vtkNotUsed(os),
+                                            vtkIndent vtkNotUsed(nIndent))
 {
 
 }

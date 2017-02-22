@@ -137,28 +137,33 @@ class vtkBezierSurfaceWidget: public vtk3DWidget
 
   // Description:
   // Set/Get the visual properties of the handle.
-  vtkGetObjectMacro(HandleProperty, vtkProperty);
-  vtkSetObjectMacro(HandleProperty, vtkProperty);
+  vtkGetNewMacro(HandleProperty,vtkProperty);
+  void SetHandleProperty(vtkProperty *prop)
+  {this->HandleProperty->DeepCopy(prop);}
 
   // Description:
   // Set/Get the visual properties of the handle while selected.
-  vtkGetObjectMacro(SelectedHandleProperty, vtkProperty);
-  vtkSetObjectMacro(SelectedHandleProperty, vtkProperty);
+  vtkGetNewMacro(SelectedHandleProperty, vtkProperty);
+  void SetSelectedHandleProperty(vtkProperty *prop)
+  {this->SelectedHandleProperty->DeepCopy(prop);}
 
   // Description:
   // Set/Get the visual properties of the control polygon.
-  vtkGetObjectMacro(ControlPolygonProperty, vtkProperty);
-  vtkSetObjectMacro(ControlPolygonProperty, vtkProperty);
+  vtkGetNewMacro(ControlPolygonProperty, vtkProperty);
+  void SetControlPolygonProperty(vtkProperty *prop)
+  {this->ControlPolygonProperty->DeepCopy(prop);}
 
   // Descripion:
   // Set/Get the visual properties of the control polygon while selected.
-  vtkGetObjectMacro(SelectedControlPolygonProperty, vtkProperty);
-  vtkSetObjectMacro(SelectedControlPolygonProperty, vtkProperty);
+  vtkGetNewMacro(SelectedControlPolygonProperty, vtkProperty);
+  void SetSelectedControlPolygonProperty(vtkProperty *prop)
+  {this->SelectedControlPolygonProperty->DeepCopy(prop);}
 
   // Description:
   // Set/Get the visual properties of the Bézier surface.
-  vtkGetObjectMacro(BezierSurfaceProperty, vtkProperty);
-  vtkSetObjectMacro(BezierSurfaceProperty, vtkProperty);
+  vtkGetNewMacro(BezierSurfaceProperty, vtkProperty);
+  void SetBezierSurfaceProperty(vtkProperty *prop)
+  {this->BezierSurfaceProperty->DeepCopy(prop);}
 
   // Description:
   // Set/Get resizing factor for handles
@@ -179,19 +184,20 @@ class vtkBezierSurfaceWidget: public vtk3DWidget
 
   // Description:
   // Get the widget polydata, this is, the connected grid of control points.
-  void GetWidgetPolyData(vtkPolyData const *pd) const;
+  vtkPolyData* GetWidgetPolyData() const
+  {return this->ControlPolygonPolyData.GetPointer();}
 
   // Description:
   // Get the tubed polydata, this is, the connected grid of points as tubes.
-  void GetTubedWidgetPolyData(vtkPolyData const *pd) const;
+  vtkPolyData* GetTubedWidgetPolyData() const;
 
   // Description:
   // Get the control points.
-  void GetControlPoints(vtkPoints const *points) const;
+  vtkPoints* GetControlPoints() const;
 
   // Description:
   // Get the Bézier surface as polydata.
-  void GetBezierSurfacePolyData(vtkPolyData const *pd) const;
+  vtkPolyData* GetBezierSurfacePolyData() const;
 
   // Description:
   // Enable/Disable the handles.
@@ -246,19 +252,19 @@ class vtkBezierSurfaceWidget: public vtk3DWidget
 
   // Description:
   // Elements defining the geometry and visualization of the control polygon.
-  vtkSmartPointer<vtkActor> ControlPolygonActor;
-  vtkSmartPointer<vtkPolyData> ControlPolygonPolyData;
-  vtkSmartPointer<vtkPolyDataMapper> ControlPolygonMapper;
+  vtkNew<vtkActor> ControlPolygonActor;
+  vtkNew<vtkPolyData> ControlPolygonPolyData;
+  vtkNew<vtkPolyDataMapper> ControlPolygonMapper;
 
   // Description:
   // Collections of elments defining the geometry and visualization of the handles.
-  vtkSmartPointer<vtkCollection> HandleActorCollection;
-  vtkSmartPointer<vtkCollection> HandleMapperCollection;
-  vtkSmartPointer<vtkCollection> HandlePolyDataCollection;
+  vtkNew<vtkCollection> HandleActorCollection;
+  vtkNew<vtkCollection> HandleMapperCollection;
+  vtkNew<vtkCollection> HandlePolyDataCollection;
 
   // Description:
   // Tube filter employed to beautify the control polygon.
-  vtkSmartPointer<vtkTubeFilter> TubeFilter;
+  vtkNew<vtkTubeFilter> TubeFilter;
 
   // Description:
   // Position the handles based on the coordinates of the control points in the
@@ -295,11 +301,11 @@ class vtkBezierSurfaceWidget: public vtk3DWidget
 
   // Description:
   // Picker associated to the handles-
-  vtkSmartPointer<vtkCellPicker> HandlePicker;
+  vtkNew<vtkCellPicker> HandlePicker;
 
   // Description:
   // Picker associated to the control polygon.
-  vtkSmartPointer<vtkCellPicker> ControlPolygonPicker;
+  vtkNew<vtkCellPicker> ControlPolygonPicker;
 
   // Description:
   // Register the handle picker and the control polygon picker.
@@ -313,17 +319,17 @@ class vtkBezierSurfaceWidget: public vtk3DWidget
 
   // Description:
   // Handles visual properties.
-  vtkSmartPointer<vtkProperty> HandleProperty;
-  vtkSmartPointer<vtkProperty> SelectedHandleProperty;
+  vtkNew<vtkProperty> HandleProperty;
+  vtkNew<vtkProperty> SelectedHandleProperty;
 
   // Description:
   // Control polygon properties.
-  vtkSmartPointer<vtkProperty> ControlPolygonProperty;
-  vtkSmartPointer<vtkProperty> SelectedControlPolygonProperty;
+  vtkNew<vtkProperty> ControlPolygonProperty;
+  vtkNew<vtkProperty> SelectedControlPolygonProperty;
 
   // Description:
   // Bézier surface visual properties.
-  vtkSmartPointer<vtkProperty> BezierSurfaceProperty;
+  vtkNew<vtkProperty> BezierSurfaceProperty;
 
   // Description:
   // Create default properties.
@@ -351,9 +357,9 @@ class vtkBezierSurfaceWidget: public vtk3DWidget
 
   // Description:
   // Bézier surface elements
-  vtkSmartPointer<vtkBezierSurfaceSource> BezierSurfaceSource;
-  vtkSmartPointer<vtkPolyDataMapper> BezierSurfaceMapper;
-  vtkSmartPointer<vtkActor> BezierSurfaceActor;
+  vtkNew<vtkBezierSurfaceSource> BezierSurfaceSource;
+  vtkNew<vtkPolyDataMapper> BezierSurfaceMapper;
+  vtkNew<vtkActor> BezierSurfaceActor;
 
  private:
   vtkBezierSurfaceWidget( const vtkBezierSurfaceWidget &) VTK_DELETE_FUNCTION;
