@@ -43,6 +43,9 @@
 #include <vtkMRMLModelNode.h>
 
 //------------------------------------------------------------------------------
+class vtkMRMLResectionSurfaceDisplayNode;
+
+//------------------------------------------------------------------------------
 class VTK_SLICER_RESECTIONPLANNING_MODULE_MRML_EXPORT
 vtkMRMLResectionSurfaceNode: public vtkMRMLModelNode
 {
@@ -55,10 +58,13 @@ vtkMRMLResectionSurfaceNode: public vtkMRMLModelNode
   void PrintSelf(ostream &os, vtkIndent indent);
 
   // Description
-  // MRML requried methods
+  // MRML requried methods.
   virtual vtkMRMLNode *CreateNodeInstance();
   virtual const char* GetNodeTagName() {return "ResectionSurface";}
   virtual const char* GetIcon() {return "";}
+
+  // Get Resection display node.
+  vtkMRMLResectionSurfaceDisplayNode* GetResectionSurfaceDisplayNode();
 
  protected:
   vtkMRMLResectionSurfaceNode();

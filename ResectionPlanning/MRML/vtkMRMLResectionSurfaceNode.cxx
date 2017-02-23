@@ -35,6 +35,7 @@
 
 // This module includes
 #include "vtkMRMLResectionSurfaceNode.h"
+#include "vtkMRMLResectionSurfaceDisplayNode.h"
 
 // MRML includes
 #include <vtkMRMLModelNode.h>
@@ -63,4 +64,16 @@ void vtkMRMLResectionSurfaceNode::PrintSelf(ostream &vtkNotUsed(os),
                                             vtkIndent vtkNotUsed(nIndent))
 {
 
+}
+
+//------------------------------------------------------------------------------
+vtkMRMLResectionSurfaceDisplayNode*
+vtkMRMLResectionSurfaceNode::GetResectionSurfaceDisplayNode()
+{
+  vtkMRMLDisplayNode *displayNode = this->GetDisplayNode();
+  if (displayNode && displayNode->IsA("vtkMRMLResectionSurfaceDisplayNode"))
+    {
+    return vtkMRMLResectionSurfaceDisplayNode::SafeDownCast(displayNode);
+    }
+  return NULL;
 }

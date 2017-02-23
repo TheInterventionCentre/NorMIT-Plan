@@ -41,8 +41,20 @@
 
 // VTK includes
 #include <vtkObject.h>
+#include <vtkNew.h>
 
-//-------------------------------------------------------------------------------x
+// STD includes
+#include <vector>
+#include <map>
+
+//-------------------------------------------------------------------------------
+class vtkMRMLResectionSurfaceNode;
+
+class vtk3DWidget;
+class vtkCollection;
+
+
+//-------------------------------------------------------------------------------
 class VTK_SLICER_RESECTIONPLANNING_MODULE_MRMLDISPLAYABLEMANAGER_EXPORT
 vtkMRMLResectionDisplayableManager3DHelper :
 public vtkObject
@@ -54,6 +66,29 @@ public vtkObject
   static vtkMRMLResectionDisplayableManager3DHelper *New();
   vtkTypeMacro(vtkMRMLResectionDisplayableManager3DHelper, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
+
+  // Description:
+  // Get a vtk3DWidget* given a node.
+  vtk3DWidget* GetWidget(vtkMRMLResectionSurfaceNode* node);
+
+  // Description:
+  // List of nodes handled by the displayable manager and associated iterator.
+  std::vector<vtkMRMLResectionSurfaceNode*> ResectionSurfaceNodeList;
+  typedef std::vector<vtkMRMLResectionSurfaceNode*>::iterator
+    ResectionSurfaceNodeListIt;
+
+  // Description:
+  // Map holding the relationships between widgets and nodes, and associated
+  // iterator.
+  std::map<vtkMRMLResectionSurfaceNode*, vtk3DWidget*> Widgets;
+  typedef std::map<vtkMRMLResectionSurfaceNode*, vtk3DWidget*>::iterator
+    WidgetsIt;
+
+  // Description:
+  // Keeps track of the relationship between widgets and nodes
+  void RecordWidgetForNode(vtk3DWidget *widget,
+                           vtkMRMLResectionSurfaceNode* node);
+
 
  protected:
 
@@ -69,6 +104,11 @@ public vtkObject
   vtkMRMLResectionDisplayableManager3DHelper(vtkMRMLResectionDisplayableManager3DHelper&);
   void operator=(vtkMRMLResectionDisplayableManager3DHelper&);
 
+  // Description:
+  // Collection holding the widgets. The reader should note that the
+  // relationship between the widgets and the nodes is kept separately in the
+  // std::map Widgets
+  vtkNew<vtkCollection> WidgetsCollection;
 };
 
 

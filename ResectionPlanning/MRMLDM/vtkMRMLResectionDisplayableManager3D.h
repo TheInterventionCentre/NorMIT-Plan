@@ -42,6 +42,14 @@
 // MRML includes
 #include <vtkMRMLAbstractThreeDViewDisplayableManager.h>
 
+// VTK includes
+#include <vtkNew.h>
+
+//------------------------------------------------------------------------------
+class vtkMRMLResectionDisplayableManager3DHelper;
+class vtkMRMLResectionSurfaceNode;
+
+class vtk3DWidget;
 
 //------------------------------------------------------------------------------
 class VTK_SLICER_RESECTIONPLANNING_MODULE_MRMLDISPLAYABLEMANAGER_EXPORT
@@ -57,12 +65,43 @@ public vtkMRMLAbstractThreeDViewDisplayableManager
                vtkMRMLAbstractThreeDViewDisplayableManager);
   void PrintSelf(ostream &os, vtkIndent indent);
 
+  // Description:
+  // Creates a new widget for the resection surface node and registers it with
+  // the helper. It returns true if the widget was succesfully added, false
+  // otherwise.
+  bool AddWidget(vtkMRMLResectionSurfaceNode *node);
+
  protected:
 
-  // Description:
+    // Description:
   // Constructor and destructor
   vtkMRMLResectionDisplayableManager3D();
   virtual ~vtkMRMLResectionDisplayableManager3D();
+
+  // Description:
+  // Sets a new mrmlScene
+  virtual void SetMRMLSceneInternal(vtkMRMLScene *newScene);
+
+  // Description:
+  // Sets and observes a resection node
+  void SetAndObserveNode(vtkMRMLResectionSurfaceNode* node);
+
+  // Description:
+  // Called from RequestRender method if UpdateFromMRMLRequested is true
+  // \sa RequestRender() SetUpdateFromMRMLRequested()
+  virtual void UpdateFromMRML();
+
+  // Description:
+  // Mehods dealing with scene-related events. These are called automatically
+  // after the corresponding MRML event is triggered.
+  virtual void UpdateFromMRMLScene();
+  virtual void OnMRMLSceneEndClose();
+  virtual void OnMRMLSceneNodeAdded(vtkMRMLNode* node);
+  virtual void OnMRMLSceneNodeRemoved(vtkMRMLNode* node);
+
+  // Description:
+  // Helper class.
+  vtkNew<vtkMRMLResectionDisplayableManager3DHelper> Helper;
 
  private:
 
