@@ -83,20 +83,19 @@ int vtkBezierSurfaceWidgetTest1(int argc, char *argv[])
   renderWindow->Render();
   recorder->Play();
 
-  // Start interaction (and recording)
-  //recorder->Record();
-  //renderWindowInteractor->Start();
-
+  // Take a screenshot
   vtkNew<vtkWindowToImageFilter> screenShot;
   screenShot->SetInput(renderWindow.GetPointer());
   screenShot->SetInputBufferTypeToRGB();
   screenShot->ReadFrontBufferOff();
   screenShot->Update();
 
+  // Read the reference image
   vtkNew<vtkPNGReader> pngReader;
   pngReader->SetFileName(argv[2]);
   pngReader->Update();
 
+  // Compute the difference between reference and the screenshot
   vtkNew<vtkImageDifference> imageDifference;
   imageDifference->SetInputConnection(0, screenShot->GetOutputPort());
   imageDifference->SetInputConnection(1, pngReader->GetOutputPort());
