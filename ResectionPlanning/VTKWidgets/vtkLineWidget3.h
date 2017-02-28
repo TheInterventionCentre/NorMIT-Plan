@@ -38,6 +38,17 @@
 
 //VTK includes
 #include <vtk3DWidget.h>
+#include <vtkWeakPointer.h>
+#include <vtkNew.h>
+
+//------------------------------------------------------------------------------
+class vtkPolyData;
+class vtkTubeFilter;
+class vtkPolyDataMapper;
+class vtkActor;
+class vtkSphereSource;
+class vtkProperty;
+class vtkCellPicker;
 
 //------------------------------------------------------------------------------
 class vtkLineWidget3: public vtk3DWidget
@@ -62,6 +73,20 @@ class vtkLineWidget3: public vtk3DWidget
                            double ymin, double ymax,
                            double zmin, double zmax);
 
+  // Description:
+  // Set/Get handle size factor
+  vtkGetMacro(HandleSizeFactor, double);
+  vtkSetMacro(HandleSizeFactor, double);
+
+  // Description:
+  // Set/Get line size factor
+  vtkGetMacro(LineSizeFactor, double);
+  vtkSetMacro(LineSizeFactor, double);
+
+  // Description:
+  // Enable/Disable widget
+  void SetEnabled(int enabling);
+
  protected:
 
   // Description:
@@ -69,11 +94,111 @@ class vtkLineWidget3: public vtk3DWidget
   vtkLineWidget3();
   ~vtkLineWidget3();
 
- private:
+    //BTX - manage the state of the widget.
+  int State;
+  enum WidgetState
+  {
+    Start=0,
+    Moving,
+    Outside
+  };
+  //ETX
+
+ // Description:
+ // Processes the events related to the mouse movement for the widget.
+ static void ProcessEvents(vtkObject *object,
+                           unsigned long event,
+                           void *clientdata,
+                           void *calldata);
+
+
+ // Description:
+ // Methods defining actions to be performed on user interaction. These methods
+ // are dispatched by ProcessEvents()
+ virtual void OnMouseMove();
+ virtual void OnLeftButtonDown();
+ virtual void OnLeftButtonUp();
+ virtual void OnMiddleButtonUp();
+ virtual void OnMiddleButtonDown();
+ virtual void OnRightButtonUp();
+ virtual void OnRightButtonDown();
+
+ // Description:
+ // Resize the handles.
+ virtual void SizeHandles();
+ virtual void SizeLine();
+
+ // Description:
+ // End points of the line
+ double Point1[3];
+ double Point2[3];
+
+ // Description:
+ // Polydata describing the line.
+ vtkNew<vtkPolyData> LinePolyData;
+
+ // Desctiption:
+ // Sphere source for handles representation.
+ vtkNew<vtkSphereSource> Handle1Source;
+ vtkNew<vtkSphereSource> Handle2Source;
+
+ // Description:
+ // Tube filter.
+ vtkNew<vtkTubeFilter> TubeFilter;
+
+ // Description:
+ // Mappers.
+ vtkNew<vtkPolyDataMapper> LineMapper;
+ vtkNew<vtkPolyDataMapper> Handle1Mapper;
+ vtkNew<vtkPolyDataMapper> Handle2Mapper;
+
+ // Description:
+ // Actors.
+ vtkNew<vtkActor> LineActor;
+ vtkNew<vtkActor> Handle1Actor;
+ vtkNew<vtkActor> Handle2Actor;
+
+ // Description:
+ // Visual properties of line
+ vtkNew<vtkProperty> LineProperty;
+
+ // Description:
+ // Visual properties of Handle1
+ vtkNew<vtkProperty> Handle1Property;
+ vtkNew<vtkProperty> SelectedHandle1Property;
+
+ // Description:
+ // Visual properties of Handle2
+ vtkNew<vtkProperty>Handle2Property;
+ vtkNew<vtkProperty>SelectedHandle2Property;
+
+ virtual void CreateDefaultProperties();
+
   // Description:
+ // Picker associated to handle1
+ vtkNew<vtkCellPicker> Handle1Picker;
+
+ // Description
+ // Picker associated to handle2
+ vtkNew<vtkCellPicker> Handle2Picker;
+
+ private:
+ // Description:
   // Copy constructor.
   vtkLineWidget3(const vtkLineWidget3&);
   void operator=(const vtkLineWidget3&);
+
+  vtkWeakPointer<vtkActor> CurrentHandle;
+
+  // Description:
+  // Resizing factor for the handles.
+  double HandleSizeFactor;
+
+  // Description:
+  // Resizing factor for the line.
+  double LineSizeFactor;
+
+
 };
 
 #endif
