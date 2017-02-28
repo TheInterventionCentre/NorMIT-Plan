@@ -8,6 +8,7 @@ string(TOUPPER ${MODULE_NAME} MODULE_NAME_UPPER)
 #-----------------------------------------------------------------------------
 add_subdirectory(VTKWidgets)
 add_subdirectory(MRML)
+add_subdirectory(MRMLDM)
 add_subdirectory(Logic)
 add_subdirectory(Widgets)
 
@@ -52,7 +53,7 @@ set(MODULE_RESOURCES
   )
 
 #-----------------------------------------------------------------------------
-slicerMacroBuildQtModule(
+slicerMacroBuildLoadableModule(
   NAME ${MODULE_NAME}
   TITLE ${MODULE_TITLE}
   EXPORT_DIRECTIVE ${MODULE_EXPORT_DIRECTIVE}

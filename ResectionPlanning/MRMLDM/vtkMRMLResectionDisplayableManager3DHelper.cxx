@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program: NorMIT-Plan
-  Module: vtkMRMLResectionSurfaceNode.cxx
+  Module: vtkMRMLResectionDisplayableManager3DHelper.cxx
 
   Copyright (c) 2017, The Intervention Centre, Oslo University Hospital
 
@@ -34,46 +34,74 @@
   =========================================================================*/
 
 // This module includes
-#include "vtkMRMLResectionSurfaceNode.h"
-#include "vtkMRMLResectionSurfaceDisplayNode.h"
-
-// MRML includes
-#include <vtkMRMLModelNode.h>
-#include <vtkMRMLScene.h>
+#include "vtkMRMLResectionDisplayableManager3DHelper.h"
 
 // VTK includes
 #include <vtkObjectFactory.h>
+#include <vtkSmartPointer.h>
+#include <vtkCollection.h>
+#include <vtk3DWidget.h>
 
-//------------------------------------------------------------------------------
-vtkMRMLNodeNewMacro(vtkMRMLResectionSurfaceNode);
+//-------------------------------------------------------------------------------
+vtkStandardNewMacro(vtkMRMLResectionDisplayableManager3DHelper);
 
-//------------------------------------------------------------------------------
-vtkMRMLResectionSurfaceNode::vtkMRMLResectionSurfaceNode()
+//-------------------------------------------------------------------------------
+vtkMRMLResectionDisplayableManager3DHelper::
+vtkMRMLResectionDisplayableManager3DHelper()
+{
+
+}
+
+//-------------------------------------------------------------------------------
+vtkMRMLResectionDisplayableManager3DHelper::
+~vtkMRMLResectionDisplayableManager3DHelper()
 {
 
 }
 
 //------------------------------------------------------------------------------
-vtkMRMLResectionSurfaceNode::~vtkMRMLResectionSurfaceNode()
+void vtkMRMLResectionDisplayableManager3DHelper::
+PrintSelf(ostream& vtkNotUsed(os), vtkIndent vtkNotUsed(indent))
 {
 
 }
 
 //------------------------------------------------------------------------------
-void vtkMRMLResectionSurfaceNode::PrintSelf(ostream &vtkNotUsed(os),
-                                            vtkIndent vtkNotUsed(nIndent))
+vtk3DWidget*
+vtkMRMLResectionDisplayableManager3DHelper::
+GetWidget(vtkMRMLResectionSurfaceNode* node)
 {
-
-}
-
-//------------------------------------------------------------------------------
-vtkMRMLResectionSurfaceDisplayNode*
-vtkMRMLResectionSurfaceNode::GetResectionSurfaceDisplayNode()
-{
-  vtkMRMLDisplayNode *displayNode = this->GetDisplayNode();
-  if (displayNode && displayNode->IsA("vtkMRMLResectionSurfaceDisplayNode"))
+  if (!node)
     {
-    return vtkMRMLResectionSurfaceDisplayNode::SafeDownCast(displayNode);
+    return NULL;
     }
-  return NULL;
+
+  // Check if there is an associated widget to the node.
+  WidgetsIt it = this->Widgets.find(node);
+  if (it == this->Widgets.end())
+    {
+    return 0;
+    }
+  return it->second;
+}
+
+//------------------------------------------------------------------------------
+void vtkMRMLResectionDisplayableManager3DHelper::
+RecordWidgetForNode(vtk3DWidget* widget,
+                    vtkMRMLResectionSurfaceNode *resectionNode)
+{
+  if (!widget)
+    {
+    vtkErrorMacro("RecordWidgetForNode: no widget");
+    return;
+    }
+
+  if (!resectionNode)
+    {
+    vtkErrorMacro("RecordWidgetForNode: no node");
+    return;
+    }
+
+  this->WidgetsCollection->AddItem(widget);
+  this->Widgets[resectionNode] = widget;
 }
