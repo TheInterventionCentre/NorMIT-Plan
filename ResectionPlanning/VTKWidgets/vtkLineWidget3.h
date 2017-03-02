@@ -42,13 +42,14 @@
 #include <vtkNew.h>
 
 //------------------------------------------------------------------------------
-class vtkPolyData;
 class vtkTubeFilter;
 class vtkPolyDataMapper;
 class vtkActor;
 class vtkSphereSource;
 class vtkProperty;
 class vtkCellPicker;
+class vtkProp;
+class vtkLineSource;
 
 //------------------------------------------------------------------------------
 class vtkLineWidget3: public vtk3DWidget
@@ -133,14 +134,15 @@ class vtkLineWidget3: public vtk3DWidget
  double Point1[3];
  double Point2[3];
 
- // Description:
- // Polydata describing the line.
- vtkNew<vtkPolyData> LinePolyData;
-
  // Desctiption:
  // Sphere source for handles representation.
  vtkNew<vtkSphereSource> Handle1Source;
  vtkNew<vtkSphereSource> Handle2Source;
+
+ // Description:
+ // Line source for the line representation.
+ vtkNew<vtkLineSource> LineSource;
+
 
  // Description:
  // Tube filter.
@@ -181,6 +183,14 @@ class vtkLineWidget3: public vtk3DWidget
  // Description
  // Picker associated to handle2
  vtkNew<vtkCellPicker> Handle2Picker;
+
+ // Description:
+ // Move the specified handle
+ void MoveHandle(vtkProp *prop, double *p1, double *p2);
+
+ // Description:
+ // Change the visual properties of the handle to highlight it.
+ void HighlightHandle(vtkProp *prop);
 
  private:
  // Description:

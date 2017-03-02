@@ -48,6 +48,7 @@
 #include <vtkCellPicker.h>
 #include <vtkRenderer.h>
 #include <vtkRenderWindowInteractor.h>
+#include <vtkProp.h>
 
 //------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkLineWidget3);
@@ -64,16 +65,11 @@ vtkLineWidget3::vtkLineWidget3()
   Point1[0] = -0.5; Point1[1] = 0.0; Point1[2] = 0.0;
   Point2[0] =  0.5; Point2[1] = 0.0; Point2[2] = 0.0;
 
-  vtkSmartPointer<vtkLineSource> lineSource =
-    vtkSmartPointer<vtkLineSource>::New();
-  lineSource->SetPoint1(Point1);
-  lineSource->SetPoint2(Point2);
-  lineSource->Update();
+  this->LineSource->SetPoint1(Point1);
+  this->LineSource->SetPoint2(Point2);
+  this->LineSource->Update();
 
-  this->LinePolyData->SetPoints(lineSource->GetOutput()->GetPoints());
-  this->LinePolyData->SetLines(lineSource->GetOutput()->GetLines());
-
-  this->TubeFilter->SetInputData(this->LinePolyData.GetPointer());
+  this->TubeFilter->SetInputData(this->LineSource->GetOutput());
   this->TubeFilter->SetRadius(0.002);
   this->TubeFilter->SetNumberOfSides(20);
   this->TubeFilter->Update();
@@ -293,7 +289,7 @@ void vtkLineWidget3::SetEnabled(int enabling)
 
     // Remove handles from scene
     this->CurrentRenderer->RemoveActor(this->Handle1Actor.GetPointer());
-    this->CurrentRenderer->RemoveActor(this->Handle1Actor.GetPointer());
+    this->CurrentRenderer->RemoveActor(this->Handle2Actor.GetPointer());
 
     this->CurrentHandle = NULL;
     this->InvokeEvent(vtkCommand::DisableEvent, NULL);
@@ -353,19 +349,121 @@ void vtkLineWidget3::ProcessEvents(vtkObject *vtkNotUsed(object),
 //------------------------------------------------------------------------------
 void vtkLineWidget3::OnMouseMove()
 {
+  if (this->State == vtkLineWidget3::Outside ||
+      this->State == vtkLineWidget3::Start)
+    {
+    return;
+    }
 
+  vtkCamera *camera = this->CurrentRenderer->GetActiveCamera();
+  if (!camera)
+    {
+    return;
+    }
+
+  int X = this->Interactor->GetEventPosition()[0];
+  int Y = this->Interactor->GetEventPosition()[1];
+
+
+
+  double focalPoint[4];
+  this->ComputeWorldToDisplay(this->LastPickPosition[0],
+                              this->LastPickPosition[1],
+                              this->LastPickPosition[2],
+                              focalPoint);
+
+  double z = focalPoint[2];
+  double lastX = static_cast<double>(this->Interactor->GetLastEventPosition()[0]);
+  double lastY = static_cast<double>(this->Interactor->GetLastEventPosition()[1]);
+  double prevPickPoint[4], pickPoint[4];
+  this->ComputeDisplayToWorld(lastX, lastY, z, prevPickPoint);
+  this->ComputeDisplayToWorld(static_cast<double>(X),
+                              static_cast<double>(Y),
+                              z, pickPoint);
+
+  if (this->State == vtkLineWidget3::Moving)
+    {
+    this->MoveHandle(this->CurrentHandle, prevPickPoint, pickPoint);
+    }
+
+  this->EventCallbackCommand->SetAbortFlag(1);
+  this->InvokeEvent(vtkCommand::InteractionEvent, NULL);
+  this->Interactor->Render();
 }
 
 //------------------------------------------------------------------------------
 void vtkLineWidget3::OnLeftButtonDown()
 {
+  int X = this->Interactor->GetEventPosition()[0];
+  int Y = this->Interactor->GetEventPosition()[1];
 
+  if (!this->CurrentRenderer ||
+      !this->CurrentRenderer->IsInViewport(X,Y))
+    {
+    this->State = vtkLineWidget3::Outside;
+    return;
+    }
+
+  vtkAssemblyPath *path =
+    this->GetAssemblyPath(X, Y, 0.0, this->Handle1Picker.GetPointer());
+
+  // Check for handle 1
+  if (path)
+    {
+    this->State = vtkLineWidget3::Moving;
+    this->Handle1Picker->GetPickPosition(this->LastPickPosition);
+    this->ValidPick = 1;
+    this->CurrentHandle = this->Handle1Picker->GetActor();
+    this->HighlightHandle(this->CurrentHandle.GetPointer());
+    }
+  else
+    {
+
+    path = this->GetAssemblyPath(X, Y, 0.0, this->Handle2Picker.GetPointer());
+
+    // Check for handle 2
+    if (path)
+      {
+      this->State = vtkLineWidget3::Moving;
+      this->Handle2Picker->GetPickPosition(this->LastPickPosition);
+      this->ValidPick = 1;
+      this->CurrentHandle = this->Handle2Picker->GetActor();
+      this->HighlightHandle(this->CurrentHandle.GetPointer());
+      }
+    else
+      {
+      this->HighlightHandle(NULL);
+      this->State = vtkLineWidget3::Outside;
+      return;
+      }
+    }
+
+  this->EventCallbackCommand->SetAbortFlag(1);
+  this->StartInteraction();
+  this->InvokeEvent(vtkCommand::StartInteractionEvent, NULL);
+  this->Interactor->Render();
 }
 
 //------------------------------------------------------------------------------
 void vtkLineWidget3::OnLeftButtonUp()
 {
+  if (this->State == vtkLineWidget3::Outside ||
+      this->State == vtkLineWidget3::Start)
+    {
+    return;
+    }
 
+  this->State = vtkLineWidget3::Start;
+  this->SizeHandles();
+  this->SizeLine();
+
+  this->HighlightHandle(NULL);
+  this->CurrentHandle = NULL;
+
+  this->EventCallbackCommand->SetAbortFlag(1);
+  this->EndInteraction();
+  this->InvokeEvent(vtkCommand::EndInteractionEvent, NULL);
+  this->Interactor->Render();
 }
 
 //------------------------------------------------------------------------------
@@ -390,4 +488,65 @@ void vtkLineWidget3::OnMiddleButtonDown()
 void vtkLineWidget3::OnMiddleButtonUp()
 {
 
+}
+
+//------------------------------------------------------------------------------
+void vtkLineWidget3::MoveHandle(vtkProp *prop, double *p1, double *p2)
+{
+  // Compute the motion vector
+  double motionVector[3];
+  motionVector[0] = p2[0] - p1[0];
+  motionVector[1] = p2[1] - p1[1];
+  motionVector[2] = p2[2] - p1[2];
+
+  // Move the handle
+  vtkActor *actor = vtkActor::SafeDownCast(prop);
+  if (actor == this->Handle1Actor.GetPointer())
+    {
+    double *handlePoint = this->Handle1Source->GetCenter();
+    double destinationPoint[3];
+    destinationPoint[0] = handlePoint[0] + motionVector[0];
+    destinationPoint[1] = handlePoint[1] + motionVector[1];
+    destinationPoint[2] = handlePoint[2] + motionVector[2];
+
+    this->Handle1Source->SetCenter(destinationPoint);
+    this->Handle1Source->Update();
+    this->LineSource->SetPoint1(destinationPoint);
+    this->LineSource->Update();
+    }
+  else if (actor == this->Handle2Actor.GetPointer())
+    {
+    double *handlePoint = this->Handle2Source->GetCenter();
+    double destinationPoint[3];
+    destinationPoint[0] = handlePoint[0] + motionVector[0];
+    destinationPoint[1] = handlePoint[1] + motionVector[1];
+    destinationPoint[2] = handlePoint[2] + motionVector[2];
+
+    this->Handle2Source->SetCenter(destinationPoint);
+    this->Handle2Source->Update();
+    this->LineSource->SetPoint2(destinationPoint);
+    this->LineSource->Update();
+    }
+}
+
+//------------------------------------------------------------------------------
+void vtkLineWidget3::HighlightHandle(vtkProp *prop)
+{
+  // Un-highlight both handles.
+  this->Handle1Actor->SetProperty(this->Handle1Property.GetPointer());
+  this->Handle2Actor->SetProperty(this->Handle2Property.GetPointer());
+
+  // Highlight the corresponding handle
+  vtkActor *actor = vtkActor::SafeDownCast(prop);
+  if (actor)
+    {
+    if (actor == this->Handle1Actor.GetPointer())
+      {
+      actor->SetProperty(this->SelectedHandle1Property.GetPointer());
+      }
+    else if (actor == this->Handle2Actor.GetPointer())
+      {
+      actor->SetProperty(this->SelectedHandle2Property.GetPointer());
+      }
+    }
 }
