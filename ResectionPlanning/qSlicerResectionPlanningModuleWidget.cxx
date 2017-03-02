@@ -83,5 +83,14 @@ void qSlicerResectionPlanningModuleWidget::nodeSelectionChanged(vtkMRMLNode* nod
     std::cout << "Widget - Model node selection changed " << std::endl;
   }
 
+}
 
+//-----------------------------------------------------------------------------
+void qSlicerResectionPlanningModuleWidget::setMRMLScene(vtkMRMLScene* scene)
+{
+  Q_D(qSlicerResectionPlanningModuleWidget);
+  this->Superclass::setMRMLScene(scene);
+
+  std::cout << "Widget - Set MRML scene called " << std::endl;
+  //d->SurfacesWidget->OnTreeChanged(scene);
 }

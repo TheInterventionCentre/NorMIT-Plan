@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>525</width>
-    <height>319</height>
+    <width>535</width>
+    <height>630</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,7 +17,7 @@
    <item>
     <widget class="ctkCollapsibleButton" name="CTKCollapsibleButton">
      <property name="text">
-      <string>Display</string>
+      <string>Manage Resections</string>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_3">
       <item>
@@ -40,7 +40,55 @@
        </widget>
       </item>
       <item>
-       <widget class="qSlicerResectionPlanningFooBarWidget" name="FooBar" native="true"/>
+       <widget class="qSlicerResectionPlanningSurfacesWidget" name="SurfacesWidget" native="true"/>
+      </item>
+      <item>
+       <spacer name="verticalSpacer_2">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>20</width>
+          <height>40</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="ctkCollapsibleButton" name="CollapsibleButton">
+     <property name="text">
+      <string>Calculate Volume</string>
+     </property>
+     <property name="contentsFrameShape">
+      <enum>QFrame::StyledPanel</enum>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_2">
+      <item>
+       <widget class="QLabel" name="label">
+        <property name="text">
+         <string>Calculate the volume resected:</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="qSlicerResectionPlanningVolumesWidget" name="VolumesWidget" native="true"/>
+      </item>
+      <item>
+       <spacer name="verticalSpacer_3">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>20</width>
+          <height>40</height>
+         </size>
+        </property>
+       </spacer>
       </item>
      </layout>
     </widget>
@@ -79,9 +127,15 @@
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>qSlicerResectionPlanningFooBarWidget</class>
+   <class>qSlicerResectionPlanningSurfacesWidget</class>
    <extends>QWidget</extends>
-   <header>qSlicerResectionPlanningFooBarWidget.h</header>
+   <header>qslicerresectionplanningsurfaceswidget.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>qSlicerResectionPlanningVolumesWidget</class>
+   <extends>QWidget</extends>
+   <header>qslicerresectionplanningvolumeswidget.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

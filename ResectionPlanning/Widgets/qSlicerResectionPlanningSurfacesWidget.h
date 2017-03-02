@@ -18,8 +18,8 @@
 
 ==============================================================================*/
 
-#ifndef __qSlicerResectionPlanningFooBarWidget_h
-#define __qSlicerResectionPlanningFooBarWidget_h
+#ifndef __qSlicerResectionPlanningSurfacesWidget_h
+#define __qSlicerResectionPlanningSurfacesWidget_h
 
 // Qt includes
 #include <QWidget>
@@ -27,26 +27,34 @@
 // FooBar Widgets includes
 #include "qSlicerResectionPlanningModuleWidgetsExport.h"
 
-class qSlicerResectionPlanningFooBarWidgetPrivate;
+class vtkMRMLScene;
+class QStringList;
+class qSlicerResectionPlanningSurfacesWidgetPrivate;
 
 /// \ingroup Slicer_QtModules_ResectionPlanning
-class Q_SLICER_MODULE_RESECTIONPLANNING_WIDGETS_EXPORT qSlicerResectionPlanningFooBarWidget
+class Q_SLICER_MODULE_RESECTIONPLANNING_WIDGETS_EXPORT qSlicerResectionPlanningSurfacesWidget
   : public QWidget
 {
   Q_OBJECT
 public:
   typedef QWidget Superclass;
-  qSlicerResectionPlanningFooBarWidget(QWidget *parent=0);
-  virtual ~qSlicerResectionPlanningFooBarWidget();
+  qSlicerResectionPlanningSurfacesWidget(QWidget *parent=0);
+  virtual ~qSlicerResectionPlanningSurfacesWidget();
 
 protected slots:
+  void OnAddSurfaceButtonClicked();
+  void OnRemoveSurfaceButtonClicked();
+  void OnAddTumorButtonClicked();
+  void OnRemoveTumorButtonClicked();
 
 protected:
-  QScopedPointer<qSlicerResectionPlanningFooBarWidgetPrivate> d_ptr;
+  QScopedPointer<qSlicerResectionPlanningSurfacesWidgetPrivate> d_ptr;
 
 private:
-  Q_DECLARE_PRIVATE(qSlicerResectionPlanningFooBarWidget);
-  Q_DISABLE_COPY(qSlicerResectionPlanningFooBarWidget);
+  Q_DECLARE_PRIVATE(qSlicerResectionPlanningSurfacesWidget);
+  Q_DISABLE_COPY(qSlicerResectionPlanningSurfacesWidget);
+  QStringList surfaceList;
+  QStringList tumorList;
 };
 
 #endif

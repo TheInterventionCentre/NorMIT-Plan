@@ -1,26 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>qSlicerResectionPlanningFooBarWidget</class>
- <widget class="QWidget" name="qSlicerResectionPlanningFooBarWidget">
+ <class>qSlicerResectionPlanningVolumesWidget</class>
+ <widget class="QWidget" name="qSlicerResectionPlanningVolumesWidget">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>103</width>
-    <height>27</height>
+    <width>400</width>
+    <height>300</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Foo bar</string>
+   <string>Form</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
-   <property name="margin">
-    <number>0</number>
-   </property>
    <item>
-    <widget class="QPushButton" name="FooBarButton">
+    <widget class="QPushButton" name="calculateVolumetryButton">
      <property name="text">
-      <string>Foo Bar</string>
+      <string>Calculate volumes</string>
      </property>
     </widget>
    </item>

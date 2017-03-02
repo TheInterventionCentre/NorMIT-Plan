@@ -38,6 +38,9 @@ public:
   qSlicerResectionPlanningModuleWidget(QWidget *parent=0);
   virtual ~qSlicerResectionPlanningModuleWidget();
 
+  /// Reimplemented for internal reasons
+  void setMRMLScene(vtkMRMLScene* scene);
+
 public slots:
 
 

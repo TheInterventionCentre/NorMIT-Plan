@@ -19,54 +19,54 @@
 ==============================================================================*/
 
 // FooBar Widgets includes
-#include "qSlicerResectionPlanningFooBarWidget.h"
-#include "ui_qSlicerResectionPlanningFooBarWidget.h"
+#include "qSlicerResectionPlanningVolumesWidget.h"
+#include "ui_qSlicerResectionPlanningVolumesWidget.h"
 
 //-----------------------------------------------------------------------------
 /// \ingroup Slicer_QtModules_ResectionPlanning
-class qSlicerResectionPlanningFooBarWidgetPrivate
-  : public Ui_qSlicerResectionPlanningFooBarWidget
+class qSlicerResectionPlanningVolumesWidgetPrivate
+  : public Ui_qSlicerResectionPlanningVolumesWidget
 {
-  Q_DECLARE_PUBLIC(qSlicerResectionPlanningFooBarWidget);
+  Q_DECLARE_PUBLIC(qSlicerResectionPlanningVolumesWidget);
 protected:
-  qSlicerResectionPlanningFooBarWidget* const q_ptr;
+  qSlicerResectionPlanningVolumesWidget* const q_ptr;
 
 public:
-  qSlicerResectionPlanningFooBarWidgetPrivate(
-    qSlicerResectionPlanningFooBarWidget& object);
-  virtual void setupUi(qSlicerResectionPlanningFooBarWidget*);
+  qSlicerResectionPlanningVolumesWidgetPrivate(
+    qSlicerResectionPlanningVolumesWidget& object);
+  virtual void setupUi(qSlicerResectionPlanningVolumesWidget*);
 };
 
 // --------------------------------------------------------------------------
-qSlicerResectionPlanningFooBarWidgetPrivate
-::qSlicerResectionPlanningFooBarWidgetPrivate(
-  qSlicerResectionPlanningFooBarWidget& object)
+qSlicerResectionPlanningVolumesWidgetPrivate
+::qSlicerResectionPlanningVolumesWidgetPrivate(
+  qSlicerResectionPlanningVolumesWidget& object)
   : q_ptr(&object)
 {
 }
 
 // --------------------------------------------------------------------------
-void qSlicerResectionPlanningFooBarWidgetPrivate
-::setupUi(qSlicerResectionPlanningFooBarWidget* widget)
+void qSlicerResectionPlanningVolumesWidgetPrivate
+::setupUi(qSlicerResectionPlanningVolumesWidget* widget)
 {
-  this->Ui_qSlicerResectionPlanningFooBarWidget::setupUi(widget);
+  this->Ui_qSlicerResectionPlanningVolumesWidget::setupUi(widget);
 }
 
 //-----------------------------------------------------------------------------
 // qSlicerResectionPlanningFooBarWidget methods
 
 //-----------------------------------------------------------------------------
-qSlicerResectionPlanningFooBarWidget
-::qSlicerResectionPlanningFooBarWidget(QWidget* parentWidget)
+qSlicerResectionPlanningVolumesWidget
+::qSlicerResectionPlanningVolumesWidget(QWidget* parentWidget)
   : Superclass( parentWidget )
-  , d_ptr( new qSlicerResectionPlanningFooBarWidgetPrivate(*this) )
+  , d_ptr( new qSlicerResectionPlanningVolumesWidgetPrivate(*this) )
 {
-  Q_D(qSlicerResectionPlanningFooBarWidget);
+  Q_D(qSlicerResectionPlanningVolumesWidget);
   d->setupUi(this);
 }
 
 //-----------------------------------------------------------------------------
-qSlicerResectionPlanningFooBarWidget
-::~qSlicerResectionPlanningFooBarWidget()
+qSlicerResectionPlanningVolumesWidget
+::~qSlicerResectionPlanningVolumesWidget()
 {
 }
