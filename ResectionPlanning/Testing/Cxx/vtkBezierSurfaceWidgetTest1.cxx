@@ -99,6 +99,8 @@ int vtkBezierSurfaceWidgetTest1(int argc, char *argv[])
   vtkNew<vtkImageDifference> imageDifference;
   imageDifference->SetInputConnection(0, screenShot->GetOutputPort());
   imageDifference->SetInputConnection(1, pngReader->GetOutputPort());
+  imageDifference->AllowShiftOn();
+  imageDifference->AveragingOn();
 
   // Compare the extents
   int ext1[6], ext2[6];
@@ -114,7 +116,7 @@ int vtkBezierSurfaceWidgetTest1(int argc, char *argv[])
 
   imageDifference->Update();
 
-  if (imageDifference->GetError() > 0.0)
+  if (imageDifference->GetError() > 1.0)
     {
     std::cerr << "Test and regression images are different e="
               << imageDifference->GetError() << std::endl;
