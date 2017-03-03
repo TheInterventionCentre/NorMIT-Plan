@@ -24,6 +24,10 @@
 #include <vtkMRMLModelNode.h>
 #include <vtkMRMLDisplayNode.h>
 
+#include <vtkEventQtSlotConnect.h>
+#include "vtkSlicerResectionPlanningLogic.h"
+#include "qSlicerResectionPlanningModule.h"
+
 // SlicerQt includes
 #include "qSlicerResectionPlanningModuleWidget.h"
 #include "ui_qSlicerResectionPlanningModuleWidget.h"
@@ -57,6 +61,10 @@ qSlicerResectionPlanningModuleWidget::qSlicerResectionPlanningModuleWidget(QWidg
 //-----------------------------------------------------------------------------
 qSlicerResectionPlanningModuleWidget::~qSlicerResectionPlanningModuleWidget()
 {
+  if(this->Connections)
+  {
+    this->Connections->Delete();
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -65,9 +73,20 @@ void qSlicerResectionPlanningModuleWidget::setup()
   Q_D(qSlicerResectionPlanningModuleWidget);
   d->setupUi(this);
 
+  this->Module = dynamic_cast<qSlicerResectionPlanningModule*>(this->module());
+  this->ModuleLogic = vtkSlicerResectionPlanningLogic::SafeDownCast(this->Module->logic());
+
+  this->Connections = vtkEventQtSlotConnect::New();
+
   // connect events to node selection dropdown
   QObject::connect(d->ActiveParenchymaModelNodeSelector, SIGNAL(currentNodeChanged(vtkMRMLNode*)), this, SLOT(nodeSelectionChanged(vtkMRMLNode*)));
   //QObject::connect(this, SIGNAL(mrmlSceneChanged(vtkMRMLScene*)), d->ActiveParenchymaModelNodeSelector, SLOT(setMRMLScene(vtkMRMLScene*)));
+
+  // add a bunch of connections to the logic
+  Connections->Connect(this->ModuleLogic,
+                       vtkSlicerResectionPlanningLogic::TumorNodeAdded,
+                       this, SLOT(OnTumorAdded(vtkObject*,unsigned long,void*,void*)));
+
 
   this->Superclass::setup();
 }
@@ -94,3 +113,23 @@ void qSlicerResectionPlanningModuleWidget::setMRMLScene(vtkMRMLScene* scene)
   std::cout << "Widget - Set MRML scene called " << std::endl;
   //d->SurfacesWidget->OnTreeChanged(scene);
 }
+
+void qSlicerResectionPlanningModuleWidget
+::OnTumorAdded(vtkObject* vtkNotUsed(object),
+                   unsigned long vtkNotUsed(event),
+                   void * vtkNotUsed(clientData),
+                   void *callData)
+{
+  std::cout << "Widget - Tumor Added called " << std::endl;
+
+  Q_D(qSlicerResectionPlanningModuleWidget);
+
+  std::pair<vtkMRMLModelNode*, QString> *pair =
+    reinterpret_cast< std::pair<vtkMRMLModelNode*,
+                                QString> *>(callData);
+
+  // add tumor node to list
+  d->SurfacesWidget->AddToTumorList(pair->second);
+
+}
+

@@ -33,6 +33,8 @@
 #include <iostream>
 #include <string.h>
 
+#include <QString>
+
 //----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkSlicerResectionPlanningLogic);
 
@@ -44,6 +46,7 @@ vtkSlicerResectionPlanningLogic::vtkSlicerResectionPlanningLogic()
 //----------------------------------------------------------------------------
 vtkSlicerResectionPlanningLogic::~vtkSlicerResectionPlanningLogic()
 {
+
 }
 
 //----------------------------------------------------------------------------
@@ -88,7 +91,36 @@ void vtkSlicerResectionPlanningLogic
   {
     std::cout << "Logic: Model node added!" << std::endl;
 
+    // get name of node
+    const char* name = tempModelNode->GetName();
 
+    std::string strNode (name);
+    QString index = name;
+
+    std::cout << "Logic: model node name = " << strNode << std::endl;
+
+    std::size_t found = strNode.find("Tumor");
+    if (found!=std::string::npos)
+    {
+      std::cout << "'Tumor' found at: " << found << '\n';
+
+      std::pair<vtkMRMLModelNode*, QString> pair;
+      pair.first = tempModelNode;
+      pair.second = name;
+      this->InvokeEvent(vtkSlicerResectionPlanningLogic::TumorNodeAdded,
+                        &pair);
+    }
+    found = strNode.find("tumor");
+    if (found!=std::string::npos)
+    {
+      std::cout << "'tumor' found at: " << found << '\n';
+
+      std::pair<vtkMRMLModelNode*, QString> pair;
+      pair.first = tempModelNode;
+      pair.second = index;
+      this->InvokeEvent(vtkSlicerResectionPlanningLogic::TumorNodeAdded,
+                        &pair);
+    }
   }
 }
 

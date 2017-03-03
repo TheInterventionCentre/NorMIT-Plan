@@ -28,7 +28,7 @@
 #include "qSlicerResectionPlanningModuleWidgetsExport.h"
 
 class vtkMRMLScene;
-class QStringList;
+class QString;
 class qSlicerResectionPlanningSurfacesWidgetPrivate;
 
 /// \ingroup Slicer_QtModules_ResectionPlanning
@@ -40,6 +40,8 @@ public:
   typedef QWidget Superclass;
   qSlicerResectionPlanningSurfacesWidget(QWidget *parent=0);
   virtual ~qSlicerResectionPlanningSurfacesWidget();
+
+  void AddToTumorList(QString nodeName);
 
 protected slots:
   void OnAddSurfaceButtonClicked();
@@ -53,8 +55,7 @@ protected:
 private:
   Q_DECLARE_PRIVATE(qSlicerResectionPlanningSurfacesWidget);
   Q_DISABLE_COPY(qSlicerResectionPlanningSurfacesWidget);
-  QStringList surfaceList;
-  QStringList tumorList;
+
 };
 
 #endif

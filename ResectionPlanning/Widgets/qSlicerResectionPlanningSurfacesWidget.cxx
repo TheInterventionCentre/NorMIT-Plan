@@ -23,12 +23,13 @@
 #include "ui_qSlicerResectionPlanningSurfacesWidget.h"
 
 #include <iostream>
-#include <string>         // std::string
+#include <string>
 
 #include <vtkMRMLModelNode.h>
 #include <vtkMRMLScene.h>
 
-#include <QList>
+#include <QListWidget>
+#include <QString>
 
 //-----------------------------------------------------------------------------
 /// \ingroup Slicer_QtModules_ResectionPlanning
@@ -88,6 +89,19 @@ qSlicerResectionPlanningSurfacesWidget
 qSlicerResectionPlanningSurfacesWidget
 ::~qSlicerResectionPlanningSurfacesWidget()
 {
+
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerResectionPlanningSurfacesWidget
+::AddToTumorList(QString nodeName)
+{
+  std::cout << "SurfacesWidget - Add to tumor list" << std::endl;
+
+  Q_D(qSlicerResectionPlanningSurfacesWidget);
+
+  new QListWidgetItem(nodeName, d->listTumorsToAdd);
+
 }
 
 //-----------------------------------------------------------------------------

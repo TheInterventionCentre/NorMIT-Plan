@@ -41,6 +41,11 @@ class VTK_SLICER_RESECTIONPLANNING_MODULE_LOGIC_EXPORT vtkSlicerResectionPlannin
 {
 public:
 
+  enum LogicEventType
+  {
+    TumorNodeAdded = 16534
+  };
+
   static vtkSlicerResectionPlanningLogic *New();
   vtkTypeMacro(vtkSlicerResectionPlanningLogic, vtkSlicerModuleLogic);
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -59,6 +64,7 @@ private:
 
   vtkSlicerResectionPlanningLogic(const vtkSlicerResectionPlanningLogic&); // Not implemented
   void operator=(const vtkSlicerResectionPlanningLogic&); // Not implemented
+
 };
 
 #endif

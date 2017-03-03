@@ -25,6 +25,9 @@
 
 class qSlicerResectionPlanningModuleWidgetPrivate;
 class vtkMRMLNode;
+class qSlicerResectionPlanningModule;
+class vtkSlicerResectionPlanningLogic;
+class vtkEventQtSlotConnect;
 
 /// \ingroup Slicer_QtModules_ExtensionTemplate
 class Q_SLICER_QTMODULES_RESECTIONPLANNING_EXPORT qSlicerResectionPlanningModuleWidget :
@@ -52,9 +55,18 @@ protected:
 protected slots:
   void nodeSelectionChanged(vtkMRMLNode* node);
 
+  void OnTumorAdded(vtkObject* object,
+                        unsigned long event,
+                        void *clientData,
+                        void *callData);
+
 private:
   Q_DECLARE_PRIVATE(qSlicerResectionPlanningModuleWidget);
   Q_DISABLE_COPY(qSlicerResectionPlanningModuleWidget);
+
+  qSlicerResectionPlanningModule *Module;
+  vtkSlicerResectionPlanningLogic *ModuleLogic;
+  vtkEventQtSlotConnect *Connections;
 };
 
 #endif
