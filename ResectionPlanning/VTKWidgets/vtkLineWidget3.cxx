@@ -94,9 +94,6 @@ vtkLineWidget3::vtkLineWidget3()
   this->Handle2Picker->PickFromListOn();
 
   this->CurrentHandle = NULL;
-
-
-
 }
 
 //------------------------------------------------------------------------------
