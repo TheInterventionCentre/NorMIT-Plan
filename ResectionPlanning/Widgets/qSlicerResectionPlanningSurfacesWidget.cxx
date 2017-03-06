@@ -103,7 +103,6 @@ void qSlicerResectionPlanningSurfacesWidget
   new QListWidgetItem(nodeName, d->listTumorsToAdd);
 
 }
-
 //-----------------------------------------------------------------------------
 void qSlicerResectionPlanningSurfacesWidget
 ::OnAddSurfaceButtonClicked()
@@ -122,6 +121,12 @@ void qSlicerResectionPlanningSurfacesWidget
 ::OnAddTumorButtonClicked()
 {
   std::cout << "SurfacesWidget - On Add Tumor" << std::endl;
+
+  // figure out which tumor is highlighted and add to the list related to the current resection node
+  Q_D(qSlicerResectionPlanningSurfacesWidget);
+
+  new QListWidgetItem(d->listTumorsToAdd->currentItem()->text(), d->listTumorsAdded);
+
 }
 
 //-----------------------------------------------------------------------------
@@ -129,4 +134,10 @@ void qSlicerResectionPlanningSurfacesWidget
 ::OnRemoveTumorButtonClicked()
 {
   std::cout << "SurfacesWidget - On Remove Tumor" << std::endl;
+
+  // figure out which tumor is highlighted and remove from the list related to the current resection node
+  Q_D(qSlicerResectionPlanningSurfacesWidget);
+
+  delete d->listTumorsAdded->item(d->listTumorsAdded->currentRow());
+
 }

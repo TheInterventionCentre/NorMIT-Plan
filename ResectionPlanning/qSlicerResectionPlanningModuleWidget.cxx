@@ -84,9 +84,8 @@ void qSlicerResectionPlanningModuleWidget::setup()
 
   // add a bunch of connections to the logic
   Connections->Connect(this->ModuleLogic,
-                       vtkSlicerResectionPlanningLogic::TumorNodeAdded,
+                       vtkSlicerResectionPlanningLogic::TumorNodeAddedToScene,
                        this, SLOT(OnTumorAdded(vtkObject*,unsigned long,void*,void*)));
-
 
   this->Superclass::setup();
 }
@@ -111,7 +110,6 @@ void qSlicerResectionPlanningModuleWidget::setMRMLScene(vtkMRMLScene* scene)
   this->Superclass::setMRMLScene(scene);
 
   std::cout << "Widget - Set MRML scene called " << std::endl;
-  //d->SurfacesWidget->OnTreeChanged(scene);
 }
 
 void qSlicerResectionPlanningModuleWidget
@@ -132,4 +130,6 @@ void qSlicerResectionPlanningModuleWidget
   d->SurfacesWidget->AddToTumorList(pair->second);
 
 }
+
+
 

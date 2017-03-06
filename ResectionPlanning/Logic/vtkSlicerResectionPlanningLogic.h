@@ -34,6 +34,11 @@
 
 #include "vtkSlicerResectionPlanningModuleLogicExport.h"
 
+class multimap;
+class list;
+class vtkMRMLResectionSurfaceNode;
+class vtkMRMLModelNode;
+
 
 /// \ingroup Slicer_QtModules_ExtensionTemplate
 class VTK_SLICER_RESECTIONPLANNING_MODULE_LOGIC_EXPORT vtkSlicerResectionPlanningLogic :
@@ -43,7 +48,9 @@ public:
 
   enum LogicEventType
   {
-    TumorNodeAdded = 16534
+    ResectionNodeAdded = 16534,
+    ResectionNodeRemoved = 16535,
+    TumorNodeAddedToScene = 16536,
   };
 
   static vtkSlicerResectionPlanningLogic *New();
@@ -60,10 +67,14 @@ protected:
   virtual void UpdateFromMRMLScene();
   virtual void OnMRMLSceneNodeAdded(vtkMRMLNode* node);
   virtual void OnMRMLSceneNodeRemoved(vtkMRMLNode* node);
-private:
 
+private:
   vtkSlicerResectionPlanningLogic(const vtkSlicerResectionPlanningLogic&); // Not implemented
   void operator=(const vtkSlicerResectionPlanningLogic&); // Not implemented
+
+  std::list<vtkMRMLResectionSurfaceNode*> resectionList;
+  std::list<vtkMRMLModelNode*> tumorList;
+  std::multimap<vtkMRMLResectionSurfaceNode*, vtkMRMLModelNode*> resectionToTumorMap;
 
 };
 

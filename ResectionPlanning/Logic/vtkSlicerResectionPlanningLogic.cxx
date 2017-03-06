@@ -17,6 +17,7 @@
 
 // ResectionPlanning Logic includes
 #include "vtkSlicerResectionPlanningLogic.h"
+#include "vtkMRMLResectionSurfaceNode.h"
 
 // MRML includes
 #include <vtkMRMLScene.h>
@@ -32,6 +33,8 @@
 #include <cassert>
 #include <iostream>
 #include <string.h>
+#include <map>
+#include <list>
 
 #include <QString>
 
@@ -86,40 +89,52 @@ void vtkSlicerResectionPlanningLogic::UpdateFromMRMLScene()
 void vtkSlicerResectionPlanningLogic
 ::OnMRMLSceneNodeAdded(vtkMRMLNode* addedNode)
 {
-  vtkMRMLModelNode* tempModelNode = vtkMRMLModelNode::SafeDownCast(addedNode);
-  if(tempModelNode != NULL)
+
+  vtkMRMLResectionSurfaceNode* tempResectionNode = vtkMRMLResectionSurfaceNode::SafeDownCast(addedNode);
+  if(tempResectionNode != NULL) // check if a resection node
   {
-    std::cout << "Logic: Model node added!" << std::endl;
+    this->resectionList.push_back(tempResectionNode);
 
-    // get name of node
-    const char* name = tempModelNode->GetName();
-
-    std::string strNode (name);
-    QString index = name;
-
-    std::cout << "Logic: model node name = " << strNode << std::endl;
-
-    std::size_t found = strNode.find("Tumor");
-    if (found!=std::string::npos)
+  }
+  else // check if a model node
+  {
+    vtkMRMLModelNode* tempModelNode = vtkMRMLModelNode::SafeDownCast(addedNode);
+    if(tempModelNode != NULL)
     {
-      std::cout << "'Tumor' found at: " << found << '\n';
+      std::cout << "Logic: Model node added!" << std::endl;
 
-      std::pair<vtkMRMLModelNode*, QString> pair;
-      pair.first = tempModelNode;
-      pair.second = name;
-      this->InvokeEvent(vtkSlicerResectionPlanningLogic::TumorNodeAdded,
-                        &pair);
-    }
-    found = strNode.find("tumor");
-    if (found!=std::string::npos)
-    {
-      std::cout << "'tumor' found at: " << found << '\n';
+      // get name of node
+      const char* name = tempModelNode->GetName();
 
-      std::pair<vtkMRMLModelNode*, QString> pair;
-      pair.first = tempModelNode;
-      pair.second = index;
-      this->InvokeEvent(vtkSlicerResectionPlanningLogic::TumorNodeAdded,
-                        &pair);
+      std::string strNode (name);
+      QString index = name;
+
+      std::cout << "Logic: model node name = " << strNode << std::endl;
+
+      std::size_t found = strNode.find("Tumor");
+      if (found!=std::string::npos)
+      {
+        std::cout << "'Tumor' found at: " << found << '\n';
+
+        std::pair<vtkMRMLModelNode*, QString> pair;
+        pair.first = tempModelNode;
+        pair.second = name;
+        this->InvokeEvent(vtkSlicerResectionPlanningLogic::TumorNodeAddedToScene,
+                          &pair);
+        this->tumorList.push_back(tempModelNode);
+      }
+      found = strNode.find("tumor");
+      if (found!=std::string::npos)
+      {
+        std::cout << "'tumor' found at: " << found << '\n';
+
+        std::pair<vtkMRMLModelNode*, QString> pair;
+        pair.first = tempModelNode;
+        pair.second = index;
+        this->InvokeEvent(vtkSlicerResectionPlanningLogic::TumorNodeAddedToScene,
+                          &pair);
+        this->tumorList.push_back(tempModelNode);
+      }
     }
   }
 }
