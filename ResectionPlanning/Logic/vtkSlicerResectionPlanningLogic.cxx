@@ -89,20 +89,16 @@ void vtkSlicerResectionPlanningLogic::UpdateFromMRMLScene()
 void vtkSlicerResectionPlanningLogic
 ::OnMRMLSceneNodeAdded(vtkMRMLNode* addedNode)
 {
-
   vtkMRMLResectionSurfaceNode* tempResectionNode = vtkMRMLResectionSurfaceNode::SafeDownCast(addedNode);
   if(tempResectionNode != NULL) // check if a resection node
   {
     this->resectionList.push_back(tempResectionNode);
-
   }
   else // check if a model node
   {
     vtkMRMLModelNode* tempModelNode = vtkMRMLModelNode::SafeDownCast(addedNode);
     if(tempModelNode != NULL)
     {
-      std::cout << "Logic: Model node added!" << std::endl;
-
       // get name of node
       const char* name = tempModelNode->GetName();
 
@@ -119,7 +115,7 @@ void vtkSlicerResectionPlanningLogic
         std::pair<vtkMRMLModelNode*, QString> pair;
         pair.first = tempModelNode;
         pair.second = name;
-        this->InvokeEvent(vtkSlicerResectionPlanningLogic::TumorNodeAddedToScene,
+        this->InvokeEvent(vtkSlicerResectionPlanningLogic::TumorNodeAdded,
                           &pair);
         this->tumorList.push_back(tempModelNode);
       }
@@ -131,7 +127,7 @@ void vtkSlicerResectionPlanningLogic
         std::pair<vtkMRMLModelNode*, QString> pair;
         pair.first = tempModelNode;
         pair.second = index;
-        this->InvokeEvent(vtkSlicerResectionPlanningLogic::TumorNodeAddedToScene,
+        this->InvokeEvent(vtkSlicerResectionPlanningLogic::TumorNodeAdded,
                           &pair);
         this->tumorList.push_back(tempModelNode);
       }
@@ -141,15 +137,59 @@ void vtkSlicerResectionPlanningLogic
 
 //---------------------------------------------------------------------------
 void vtkSlicerResectionPlanningLogic
-::OnMRMLSceneNodeRemoved(vtkMRMLNode* vtkNotUsed(node))
+::OnMRMLSceneNodeRemoved(vtkMRMLNode* addedNode)
 {
+  vtkMRMLResectionSurfaceNode* tempResectionNode = vtkMRMLResectionSurfaceNode::SafeDownCast(addedNode);
+   if(tempResectionNode != NULL) // check if a resection node
+   {
+     this->resectionList.remove(tempResectionNode);
+   }
+   else // check if a model node
+   {
+     vtkMRMLModelNode* tempModelNode = vtkMRMLModelNode::SafeDownCast(addedNode);
+     if(tempModelNode != NULL)
+     {
+       // get name of node
+       const char* name = tempModelNode->GetName();
+
+       std::string strNode (name);
+       QString index = name;
+
+       std::cout << "Logic: model node name = " << strNode << std::endl;
+
+       std::size_t found = strNode.find("Tumor");
+       if (found!=std::string::npos)
+       {
+         std::cout << "'Tumor' found at: " << found << '\n';
+
+         std::pair<vtkMRMLModelNode*, QString> pair;
+         pair.first = tempModelNode;
+         pair.second = name;
+         this->InvokeEvent(vtkSlicerResectionPlanningLogic::TumorNodeRemoved,
+                           &pair);
+         this->tumorList.remove(tempModelNode);
+       }
+       found = strNode.find("tumor");
+       if (found!=std::string::npos)
+       {
+         std::cout << "'tumor' found at: " << found << '\n';
+
+         std::pair<vtkMRMLModelNode*, QString> pair;
+         pair.first = tempModelNode;
+         pair.second = index;
+         this->InvokeEvent(vtkSlicerResectionPlanningLogic::TumorNodeRemoved,
+                           &pair);
+         this->tumorList.remove(tempModelNode);
+       }
+     }
+   }
 }
 
 
 void vtkSlicerResectionPlanningLogic
 ::SetTumorToResectionAssociation(std::string rsNodeName, std::string tumorNodeName)
 {
-  std::cout << "'Resection: " << rsNodeName << " associated to tumor: " << tumorNodeName << '\n';
+  std::cout << "'Resection: " << rsNodeName << ", associated to tumor: " << tumorNodeName << '\n';
   resectionToTumorMap.insert(std::pair<std::string, std::string>(rsNodeName, tumorNodeName));
 }
 
@@ -161,7 +201,7 @@ void vtkSlicerResectionPlanningLogic
   for (it=resectionToTumorMap.begin(); it!=resectionToTumorMap.end(); ++it) {
     if(((*it).first == rsNodeName) && ((*it).second == tumorNodeName))
     {
-      std::cout << "'Resection: " << (*it).first << " removed association to tumor: " << (*it).second << '\n';
+      std::cout << "'Resection: " << (*it).first << ", removed association to tumor: " << (*it).second << '\n';
       resectionToTumorMap.erase(it);
     }
   }

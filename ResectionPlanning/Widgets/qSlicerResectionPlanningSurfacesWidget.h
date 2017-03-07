@@ -43,9 +43,11 @@ public:
   virtual ~qSlicerResectionPlanningSurfacesWidget();
 
   void AddToTumorList(QString nodeName);
+  void RemoveFromTumorList(QString nodeName);
 
 signals:
   void AddTumorButtonClicked(QPair<QString&,QString&>&);
+  void RemoveTumorButtonClicked(QPair<QString&,QString&>&);
 
 protected slots:
   void OnAddSurfaceButtonClicked();

@@ -58,9 +58,14 @@ protected slots:
 
   // propagate up to higher level widget
   void OnAddTumorFromWidget(QPair<QString&,QString&>&);
+  void OnRemoveTumorFromWidget(QPair<QString&,QString&>&);
 
   // catch from logic
   void OnTumorAdded(vtkObject* object,
+                        unsigned long event,
+                        void *clientData,
+                        void *callData);
+  void OnTumorRemoved(vtkObject* object,
                         unsigned long event,
                         void *clientData,
                         void *callData);

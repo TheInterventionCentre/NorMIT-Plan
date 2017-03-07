@@ -50,7 +50,8 @@ public:
   {
     ResectionNodeAdded = 16534,
     ResectionNodeRemoved = 16535,
-    TumorNodeAddedToScene = 16536,
+    TumorNodeAdded = 16536,
+    TumorNodeRemoved = 16536,
   };
 
   static vtkSlicerResectionPlanningLogic *New();
