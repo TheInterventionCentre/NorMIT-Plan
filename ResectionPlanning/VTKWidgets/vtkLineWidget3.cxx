@@ -117,17 +117,21 @@ void vtkLineWidget3::PlaceWidget(double bds[6])
 
   this->Point1[0] = bds[0];
   this->Point1[1] = (bds[3]+bds[2])/2.0;
-  this->Point1[2] = (bds[5]-bds[4])/2.0;
+  this->Point1[2] = (bds[5]+bds[4])/2.0;
 
-  this->Handle1Source->SetCenter(Point1);
+  this->Handle1Source->SetCenter(this->Point1);
   this->Handle1Source->Update();
 
-  this->Point2[0] = bds[2];
+  this->Point2[0] = bds[1];
   this->Point2[1] = (bds[3]+bds[2])/2.0;
-  this->Point2[2] = (bds[5]-bds[4])/2.0;
+  this->Point2[2] = (bds[5]+bds[4])/2.0;
 
   this->Handle2Source->SetCenter(Point2);
   this->Handle2Source->Update();
+
+  this->LineSource->SetPoint1(this->Point1);
+  this->LineSource->SetPoint2(this->Point2);
+  this->LineSource->Update();
 
   for(int i=0; i<6; ++i)
     {
@@ -360,8 +364,6 @@ void vtkLineWidget3::OnMouseMove()
 
   int X = this->Interactor->GetEventPosition()[0];
   int Y = this->Interactor->GetEventPosition()[1];
-
-
 
   double focalPoint[4];
   this->ComputeWorldToDisplay(this->LastPickPosition[0],
