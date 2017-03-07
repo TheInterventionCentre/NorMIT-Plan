@@ -115,16 +115,16 @@ void vtkLineWidget3::PlaceWidget(double bds[6])
   double bounds[6], center[3];
   this->AdjustBounds(bds, bounds, center);
 
-  this->Point1[0] = bds[0];
-  this->Point1[1] = (bds[3]+bds[2])/2.0;
-  this->Point1[2] = (bds[5]+bds[4])/2.0;
+  this->Point1[0] = bounds[0];
+  this->Point1[1] = (bounds[3]+bounds[2])/2.0;
+  this->Point1[2] = (bounds[5]+bounds[4])/2.0;
 
   this->Handle1Source->SetCenter(this->Point1);
   this->Handle1Source->Update();
 
-  this->Point2[0] = bds[1];
-  this->Point2[1] = (bds[3]+bds[2])/2.0;
-  this->Point2[2] = (bds[5]+bds[4])/2.0;
+  this->Point2[0] = bounds[1];
+  this->Point2[1] = (bounds[3]+bounds[2])/2.0;
+  this->Point2[2] = (bounds[5]+bounds[4])/2.0;
 
   this->Handle2Source->SetCenter(Point2);
   this->Handle2Source->Update();
@@ -144,11 +144,17 @@ void vtkLineWidget3::PlaceWidget(double bds[6])
 
   this->SizeHandles();
   this->SizeLine();
+
+  if (this->Interactor)
+    {
+    this->Interactor->Render();
+    }
 }
 
 //------------------------------------------------------------------------------
 void vtkLineWidget3::PlaceWidget()
 {
+  this->PlaceWidget(-0.5, 0.5, -0.5, 0.5, -0.5, 0.5);
 }
 
 //------------------------------------------------------------------------------
@@ -296,6 +302,11 @@ void vtkLineWidget3::SetEnabled(int enabling)
     this->InvokeEvent(vtkCommand::DisableEvent, NULL);
     this->SetCurrentRenderer(NULL);
     }
+
+  this->PlaceWidget();
+
+  this->SizeHandles();
+  this->SizeLine();
 
   this->Interactor->Render();
  }
