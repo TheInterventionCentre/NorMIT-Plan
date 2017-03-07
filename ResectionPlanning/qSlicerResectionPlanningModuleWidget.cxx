@@ -82,7 +82,13 @@ void qSlicerResectionPlanningModuleWidget::setup()
   QObject::connect(d->ActiveParenchymaModelNodeSelector, SIGNAL(currentNodeChanged(vtkMRMLNode*)), this, SLOT(nodeSelectionChanged(vtkMRMLNode*)));
   //QObject::connect(this, SIGNAL(mrmlSceneChanged(vtkMRMLScene*)), d->ActiveParenchymaModelNodeSelector, SLOT(setMRMLScene(vtkMRMLScene*)));
 
-  // add a bunch of connections to the logic
+  // connections to lower level widgets (surfaces, volumes)
+  QObject::connect(d->SurfacesWidget,
+                     SIGNAL(AddTumorButtonClicked(QPair<QString&,QString&>&)),
+                     this,
+                     SLOT(OnAddTumorFromWidget(QPair<QString&,QString&>&)));
+
+  // connections to the logic
   Connections->Connect(this->ModuleLogic,
                        vtkSlicerResectionPlanningLogic::TumorNodeAddedToScene,
                        this, SLOT(OnTumorAdded(vtkObject*,unsigned long,void*,void*)));
@@ -112,13 +118,20 @@ void qSlicerResectionPlanningModuleWidget::setMRMLScene(vtkMRMLScene* scene)
   std::cout << "Widget - Set MRML scene called " << std::endl;
 }
 
+void qSlicerResectionPlanningModuleWidget::OnAddTumorFromWidget(QPair<QString&,QString&> &myPair)
+{
+   std::cout << "Widget - Add tumor from widget, resection: " << myPair.first.toStdString() << " tumor: " << myPair.second.toStdString() << std::endl;
+
+   this->ModuleLogic->SetTumorToResectionAssociation(myPair.first.toStdString(), myPair.second.toStdString());
+}
+
 void qSlicerResectionPlanningModuleWidget
 ::OnTumorAdded(vtkObject* vtkNotUsed(object),
                    unsigned long vtkNotUsed(event),
                    void * vtkNotUsed(clientData),
                    void *callData)
 {
-  std::cout << "Widget - Tumor Added called " << std::endl;
+  std::cout << "Widget - Tumor Added " << std::endl;
 
   Q_D(qSlicerResectionPlanningModuleWidget);
 
@@ -128,7 +141,6 @@ void qSlicerResectionPlanningModuleWidget
 
   // add tumor node to list
   d->SurfacesWidget->AddToTumorList(pair->second);
-
 }
 
 

@@ -53,19 +53,7 @@
     </layout>
    </item>
    <item>
-    <widget class="qMRMLTreeView" name="MRMLTreeView">
-     <property name="nodeTypes">
-      <stringlist>
-       <string>vtkMRMLResectionSurfaceNode</string>
-      </stringlist>
-     </property>
-     <property name="showRootNode">
-      <bool>false</bool>
-     </property>
-     <attribute name="headerVisible">
-      <bool>false</bool>
-     </attribute>
-    </widget>
+    <widget class="QListWidget" name="listResectionSurfaces"/>
    </item>
    <item>
     <widget class="QLabel" name="label_2">
@@ -129,13 +117,6 @@
    </item>
   </layout>
  </widget>
- <customwidgets>
-  <customwidget>
-   <class>qMRMLTreeView</class>
-   <extends>QTreeView</extends>
-   <header>qMRMLTreeView.h</header>
-  </customwidget>
- </customwidgets>
  <resources/>
  <connections/>
 </ui>

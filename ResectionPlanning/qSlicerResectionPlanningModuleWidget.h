@@ -23,6 +23,9 @@
 
 #include "qSlicerResectionPlanningModuleExport.h"
 
+#include <QString>
+#include "vtkMRMLResectionSurfaceNode.h"
+
 class qSlicerResectionPlanningModuleWidgetPrivate;
 class vtkMRMLNode;
 class qSlicerResectionPlanningModule;
@@ -36,7 +39,6 @@ class Q_SLICER_QTMODULES_RESECTIONPLANNING_EXPORT qSlicerResectionPlanningModule
   Q_OBJECT
 
 public:
-
   typedef qSlicerAbstractModuleWidget Superclass;
   qSlicerResectionPlanningModuleWidget(QWidget *parent=0);
   virtual ~qSlicerResectionPlanningModuleWidget();
@@ -46,7 +48,6 @@ public:
 
 public slots:
 
-
 protected:
   QScopedPointer<qSlicerResectionPlanningModuleWidgetPrivate> d_ptr;
 
@@ -55,6 +56,10 @@ protected:
 protected slots:
   void nodeSelectionChanged(vtkMRMLNode* node);
 
+  // propagate up to higher level widget
+  void OnAddTumorFromWidget(QPair<QString&,QString&>&);
+
+  // catch from logic
   void OnTumorAdded(vtkObject* object,
                         unsigned long event,
                         void *clientData,

@@ -21,6 +21,7 @@
 // FooBar Widgets includes
 #include "qSlicerResectionPlanningSurfacesWidget.h"
 #include "ui_qSlicerResectionPlanningSurfacesWidget.h"
+#include "vtkMRMLResectionSurfaceNode.h"
 
 #include <iostream>
 #include <string>
@@ -103,6 +104,7 @@ void qSlicerResectionPlanningSurfacesWidget
   new QListWidgetItem(nodeName, d->listTumorsToAdd);
 
 }
+
 //-----------------------------------------------------------------------------
 void qSlicerResectionPlanningSurfacesWidget
 ::OnAddSurfaceButtonClicked()
@@ -116,28 +118,53 @@ void qSlicerResectionPlanningSurfacesWidget
 {
   std::cout << "SurfacesWidget - On Remove Surface" << std::endl;
 }
+
 //-----------------------------------------------------------------------------
 void qSlicerResectionPlanningSurfacesWidget
 ::OnAddTumorButtonClicked()
 {
-  std::cout << "SurfacesWidget - On Add Tumor" << std::endl;
-
   // figure out which tumor is highlighted and add to the list related to the current resection node
   Q_D(qSlicerResectionPlanningSurfacesWidget);
 
-  new QListWidgetItem(d->listTumorsToAdd->currentItem()->text(), d->listTumorsAdded);
+  if(d->listTumorsToAdd->selectedItems().size() > 0) // check not null (something is selected)
+  {
+    // add tumor to list
+    new QListWidgetItem(d->listTumorsToAdd->currentItem()->text(), d->listTumorsAdded);
 
+    QString lastTumorAdded = d->listTumorsToAdd->currentItem()->text();
+    QString resectionName = "no_resection";
+    if(d->listResectionSurfaces->selectedItems().size() > 0) // check not null (something is selected)
+    {
+      resectionName = d->listResectionSurfaces->currentItem()->text();
+    }
+
+    QPair<QString&,QString&> myPair(lastTumorAdded, resectionName);
+
+    std::cout << "SurfacesWidget - Add Tumor button clicked: " << lastTumorAdded.toStdString() << std::endl;
+
+    emit AddTumorButtonClicked( myPair );
+  }
+  else
+  {
+    std::cout << "SurfacesWidget - Add Tumor button clicked: no tumor selected" << std::endl;
+  }
 }
 
 //-----------------------------------------------------------------------------
 void qSlicerResectionPlanningSurfacesWidget
 ::OnRemoveTumorButtonClicked()
 {
-  std::cout << "SurfacesWidget - On Remove Tumor" << std::endl;
-
   // figure out which tumor is highlighted and remove from the list related to the current resection node
   Q_D(qSlicerResectionPlanningSurfacesWidget);
 
-  delete d->listTumorsAdded->item(d->listTumorsAdded->currentRow());
-
+  if(d->listTumorsAdded->selectedItems().size() > 0) // check not null (something is selected)
+  {
+    std::cout << "SurfacesWidget - On Remove Tumor: " << d->listTumorsAdded->currentItem()->text().toStdString() << std::endl;
+    delete d->listTumorsAdded->item(d->listTumorsAdded->currentRow());
+  }
+  else
+  {
+    std::cout << "SurfacesWidget - On Remove Tumor: no tumor to remove " << std::endl;
+  }
 }
+

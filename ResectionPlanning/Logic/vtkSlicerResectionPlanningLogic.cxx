@@ -144,3 +144,25 @@ void vtkSlicerResectionPlanningLogic
 ::OnMRMLSceneNodeRemoved(vtkMRMLNode* vtkNotUsed(node))
 {
 }
+
+
+void vtkSlicerResectionPlanningLogic
+::SetTumorToResectionAssociation(std::string rsNodeName, std::string tumorNodeName)
+{
+  std::cout << "'Resection: " << rsNodeName << " associated to tumor: " << tumorNodeName << '\n';
+  resectionToTumorMap.insert(std::pair<std::string, std::string>(rsNodeName, tumorNodeName));
+}
+
+void vtkSlicerResectionPlanningLogic
+::RemoveTumorToResectionAssociation(std::string rsNodeName, std::string tumorNodeName)
+{
+  std::multimap<std::string, std::string>::iterator it;
+
+  for (it=resectionToTumorMap.begin(); it!=resectionToTumorMap.end(); ++it) {
+    if(((*it).first == rsNodeName) && ((*it).second == tumorNodeName))
+    {
+      std::cout << "'Resection: " << (*it).first << " removed association to tumor: " << (*it).second << '\n';
+      resectionToTumorMap.erase(it);
+    }
+  }
+}

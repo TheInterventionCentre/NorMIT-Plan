@@ -28,6 +28,7 @@
 #include "vtkSlicerModuleLogic.h"
 
 // MRML includes
+#include "vtkMRMLResectionSurfaceNode.h"
 
 // STD includes
 #include <cstdlib>
@@ -36,7 +37,6 @@
 
 class multimap;
 class list;
-class vtkMRMLResectionSurfaceNode;
 class vtkMRMLModelNode;
 
 
@@ -57,6 +57,9 @@ public:
   vtkTypeMacro(vtkSlicerResectionPlanningLogic, vtkSlicerModuleLogic);
   void PrintSelf(ostream& os, vtkIndent indent);
 
+  void SetTumorToResectionAssociation(std::string rsNodeName, std::string tumorNodeName);
+  void RemoveTumorToResectionAssociation(std::string rsNodeName, std::string tumorNodeName);
+
 protected:
   vtkSlicerResectionPlanningLogic();
   virtual ~vtkSlicerResectionPlanningLogic();
@@ -74,7 +77,7 @@ private:
 
   std::list<vtkMRMLResectionSurfaceNode*> resectionList;
   std::list<vtkMRMLModelNode*> tumorList;
-  std::multimap<vtkMRMLResectionSurfaceNode*, vtkMRMLModelNode*> resectionToTumorMap;
+  std::multimap<std::string, std::string> resectionToTumorMap;
 
 };
 

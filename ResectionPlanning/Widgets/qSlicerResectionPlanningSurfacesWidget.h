@@ -28,6 +28,7 @@
 #include "qSlicerResectionPlanningModuleWidgetsExport.h"
 
 class vtkMRMLScene;
+class vtkMRMLResectionSurfaceNode;
 class QString;
 class qSlicerResectionPlanningSurfacesWidgetPrivate;
 
@@ -42,6 +43,9 @@ public:
   virtual ~qSlicerResectionPlanningSurfacesWidget();
 
   void AddToTumorList(QString nodeName);
+
+signals:
+  void AddTumorButtonClicked(QPair<QString&,QString&>&);
 
 protected slots:
   void OnAddSurfaceButtonClicked();
