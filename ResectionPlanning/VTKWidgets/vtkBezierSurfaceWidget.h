@@ -332,7 +332,6 @@ class vtkBezierSurfaceWidget: public vtk3DWidget
    * @return pointer to vtkPolyData containing the tubed grid of connected
    * control points.
    */
-  Get the tubed polydata, this is, the connected grid of points as tubes.
   vtkPolyData* GetTubedWidgetPolyData() const;
 
   /**
