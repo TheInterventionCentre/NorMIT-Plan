@@ -33,35 +33,6 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 
-// .NAME vtkBezierSurfaceWidget - Interactive (deformable) Bézier Surface.
-// .SECTION Description
-// This 3D widget generates a Bézier surface (4x4 control points) which can be
-// deformed an translated by interaction on a net of control
-// points. Manipulation of control points occurs by direct interaction with
-// handles ether individually or by groups (right click); groups are defined so
-// any right-click manipulation of any of the interior points will produce
-// manipulation of all interior points (the same holds for exterior
-// points). Additionally, the whole widget/surface can be moved by left-clicking
-// and dragging the control polygon. Initially, the Bézier surface lies in a
-// plane of (1x1 units) centered at (0,0,0).
-//
-// As in other 3D widgets, this widgets requres invoking the SetInteractor()
-// method where the vtkRenderWindowInteractor must be provided. It is also
-// possible to call the PlaceWidget() method in order to place the widget by
-// defining a bounding box.
-//
-// Visualization of the different elements is possible through the
-// HandleOn/Off(), ControlPolygonOn/Off(), and BezierSurfaceOn/Off(). In
-// addition, visualization properties of these geometric elements can be set by
-// using SetHandleProperty(), SetSelectedHandleProperty(),
-// SetControlPolygonProperty(), SetSelectedControlPolygonProperty() and
-// SetBezierSurfaceProperty().
-//
-// The implementation of this widget is based on vtkBoxWidget.
-//
-// .SECTION See also
-// vtk3DWidget vtkBoxWidget
-
 #ifndef vtkBezierSurfaceWidget_h
 #define vtkBezierSurfaceWidget_h
 
@@ -83,135 +54,331 @@ class vtkCellPicker;
 class vtkTubeFilter;
 
 //------------------------------------------------------------------------------
+/**
+ * \ingroup ResectionPlanning
+ *
+ * \brief This class is used to create a network of control points associated to
+ * a Bézier surface. The control points can be interactively modified, thus
+ * producing a deformation of the Bézier surface.
+ *
+ * Visualization of the different elements is possible through the
+ * HandleOn/Off(), ControlPolygonOn/Off(), and BezierSurfaceOn/Off(). In
+ * addition, visualization properties of these geometric elements can be set by
+ * using SetHandleProperty(), SetSelectedHandleProperty(),
+ * SetControlPolygonProperty(), SetSelectedControlPolygonProperty() and
+ * SetBezierSurfaceProperty().
+ */
 class vtkBezierSurfaceWidget: public vtk3DWidget
 {
  public:
-  // Description:
-  // Instantiation of object.
+
+  /**
+   * Instantiation of a new object
+   */
   static vtkBezierSurfaceWidget *New();
 
   vtkTypeMacro(vtkBezierSurfaceWidget, vtk3DWidget);
 
-  // Description:
-  // Print properties of the object.
+  /**
+   *  Print properties of the object.
+   *
+   * @param os output stream
+   * @param indent indentation
+   */
   void PrintSelf(ostream &os, vtkIndent indent);
 
-  // Description:
-  // Enable/Disable the widget
-  virtual void SetEnabled(int);
+  /**
+   * Enable/Disable the widget
+   *
+   * @param enabled flag indicating whether the widget is enabled/disabled.
+   */
+  virtual void SetEnabled(int enabled);
 
-  // Description:
-  // Methods for placing the widget.
+  /**
+   * Place the widget within the given bounding box.
+   *
+   * @param bounds min-max values defining the aligned boundin box.
+   */
   virtual void PlaceWidget(double bounds[6]);
+
+  /**
+   * Place the widget within the given bounding box
+   *
+   */
   void PlaceWidget()
   {this->Superclass::PlaceWidget();}
+
+  /**
+   * Place the widget within the given bounding box
+   *
+   * @param xmin min coordinate in x axis.
+   * @param xmax max coordinate in x axis.
+   * @param ymin min coordinate in y axis.
+   * @param ymax max coordinate in y axis.
+   * @param zmin min coordinate in z axis.
+   * @param zmax max coordinate in z axis.
+   */
   void PlaceWidget(double xmin, double xmax,
                    double ymin, double ymax,
                    double zmin, double zmax)
   {this->Superclass::PlaceWidget(xmin, xmax, ymin, ymax, zmin, zmax);}
 
-  // Description:
-  // Set/Get the MultiPointInteraction flag. If the flag is != 0 (enabled) then
-  // multi-point interaction is enabled. MultiPointInteraction is enabled by
-  // default.
+
+  /**
+   * Get the MultiPointInteraction flag. If the flag is != 0 (enabled) then
+   * multi-point interaction is enabled. MultiPointInteraction is enabled by
+   * default.
+   *
+   * @return 0 if disabled, 1 otherwise.
+   */
   vtkGetMacro(MultiPointInteraction, int);
+
+  /**
+   * Set the MultiPointInteraction flag. If the flag is != 0 (enabled) then
+   * multi-point interaction is enabled. MultiPointInteraction is enabled by
+   * default.
+   */
   vtkSetMacro(MultiPointInteraction, int);
   vtkBooleanMacro(MultiPointInteraction, int);
 
-  // Description:
-  // Set/Get the TranslationInteraction flag. If the flag is != 0 (enabled) then
-  // the global translation of the control polygon and the surface is
-  // enabled. Translation interaction is enabled by default.
+
+ /**
+  * Get the TranslationInteraction flag. If the flag is != 0 (enabled) then
+  * the global translation of the control polygon and the surface is
+  * enabled. Translation interaction is enabled by default.
+  *
+  * @return 0 if disabled, 1 otherwise.
+  */
   vtkGetMacro(TranslationInteraction, int);
+
+  /**
+  * Set the TranslationInteraction flag. If the flag is != 0 (enabled) then
+  * the global translation of the control polygon and the surface is
+  * enabled. Translation interaction is enabled by default.
+  */
   vtkSetMacro(TranslationInteraction, int);
   vtkBooleanMacro(TranslationInteraction, int);
 
-  // Description:
-  // Set/Get the ContinuousBezierUpdate flag. If the flag is !=0 (enabled) then
-  // the update of the BézierSurface happens in a continuous way, this is,
-  // while the mouse is moving, rather than when the user releases the mouse (at
-  // the end of the interaction). Continuous Bézier interaction is enabled by default.
+ /**
+  * Get the ContinuousBezierUpdate flag. If the flag is !=0 (enabled) then
+  * the update of the BézierSurface happens in a continuous way, this is,
+  * while the mouse is moving, rather than when the user releases the mouse (at
+  * the end of the interaction). Continuous Bézier interaction is enabled by default.
+  *
+  * @return 0 if disabled, 1 otherwise.
+  */
   vtkGetMacro(ContinuousBezierUpdate, int);
+  /**
+  * Get the ContinuousBezierUpdate flag. If the flag is !=0 (enabled) then
+  * the update of the BézierSurface happens in a continuous way, this is,
+  * while the mouse is moving, rather than when the user releases the mouse (at
+  * the end of the interaction). Continuous Bézier interaction is enabled by
+  * default.
+  */
   vtkSetMacro(ContinuousBezierUpdate, int);
   vtkBooleanMacro(ContinuousBezierUpdate, int);
 
-  // Description:
-  // Set/Get the visual properties of the handle.
+  /**
+   * Get the visual properties of the handle.
+   *
+   * @return vtkProperty object containing the visual properties of the handle.
+   */
   vtkGetNewMacro(HandleProperty,vtkProperty);
+  /**
+   * Set the visual properties of the handle.
+   *
+   * @param prop vtkProperty property object containing the visual properties of
+   * the handle.
+   */
   void SetHandleProperty(vtkProperty *prop)
   {this->HandleProperty->DeepCopy(prop);}
 
-  // Description:
-  // Set/Get the visual properties of the handle while selected.
+  /**
+   * Get the visual properties of the handle while selected.
+   *
+   * @return vtkProperty object containing the visual properties of the handle
+   * when this is selected.
+   */
   vtkGetNewMacro(SelectedHandleProperty, vtkProperty);
+  /**
+   * Set the visual properties of the handle while selected.
+   *
+   * @param prop vtkProperty object containing the visual properties of the
+   * handle when this is selected
+   */
   void SetSelectedHandleProperty(vtkProperty *prop)
   {this->SelectedHandleProperty->DeepCopy(prop);}
 
-  // Description:
-  // Set/Get the visual properties of the control polygon.
+  /**
+   * Get the visual properties of the control polygon.
+   *
+   * @return vtkProperty object containing the visual properties of the control
+   * polygon (net of control points).
+   */
   vtkGetNewMacro(ControlPolygonProperty, vtkProperty);
+
+  /**
+   * Set the visual properties of the control polygon (net of control points).
+   *
+   * @param prop vtkProperty object containing the visual properties of the
+   * control polygon (net of control points).
+   */
   void SetControlPolygonProperty(vtkProperty *prop)
   {this->ControlPolygonProperty->DeepCopy(prop);}
 
-  // Descripion:
-  // Set/Get the visual properties of the control polygon while selected.
+
+  /**
+   * Get the visual properties of the control polygon while selected.
+   *
+   * @return pointer to  vtkProperty containing the visual properties of the control
+   * polygon while selected.
+   */
   vtkGetNewMacro(SelectedControlPolygonProperty, vtkProperty);
+
+  /**
+   * Set the visual properties of the control polygon while selected.
+   *
+   * @param prop pointer to vtkProperty containing the visual properties of the
+   * control polygon when this is selected.
+   */
   void SetSelectedControlPolygonProperty(vtkProperty *prop)
   {this->SelectedControlPolygonProperty->DeepCopy(prop);}
 
-  // Description:
-  // Set/Get the visual properties of the Bézier surface.
+  /**
+   * Get the visual properties of the Bézier surface.
+   *
+   * @return pointer to vtkProperty containing the visual properties of the
+   * Bézier surface.
+   */
   vtkGetNewMacro(BezierSurfaceProperty, vtkProperty);
+
+  /**
+   * Set hte visual properties of the Bézier surface.
+   *
+   * @param prop pointer to a vtkProperty containing the visual properties of
+   * the Bézier surface.
+   */
   void SetBezierSurfaceProperty(vtkProperty *prop)
   {this->BezierSurfaceProperty->DeepCopy(prop);}
 
-  // Description:
-  // Set/Get resizing factor for handles
+
+  /**
+   *  Get the resizing factor for handles.
+   *
+   * @return resizing factor.
+   */
   vtkGetMacro(HandleSizeFactor, double);
+
+  /**
+   * Set the resizing factor for handles.
+   *
+   * @param double resizing factor
+   */
   vtkSetMacro(HandleSizeFactor, double);
 
-  // Description:
-  // Set/Get resizing factor for control polygon (thickness factor).
+  /**
+   * Get resizing factor for control polygon (thickness factor).
+   *
+   * @return resizing factor for the control polygon.
+   */
   vtkGetMacro(ControlPolygonSizeFactor, double);
-  vtkSetMacro(ControlPolygonSizeFactor, double);
 
-  // Description:
-  // Set/Get resolution of the Bézier surface. Default is 40x40.
+  /**
+   * Set resizing factor for control polkygon (thickness factor).
+   *
+   * @param double resizing factor.
+   *
+   */vtkSetMacro(ControlPolygonSizeFactor, double);
+
+  /**
+   * Get resolution of the Bézier surface (X).
+   *
+   * @return  X resolution of the Bézier surface in number of quads.
+   */
   unsigned int GetSurfaceResolutionX() const;
+
+  /**
+   * Set resolution of the Bézier surface (X) in number of quads.
+   *
+   * @param resolutionX
+   */
   void SetSurfaceResolutionX(unsigned int resolutionX);
+
+  /**
+   * Get resolution of the Bézier surface (Y) in number of quads.
+   *
+   * @return Y resolution of the Bézier surface (Y) in number of quads.
+   */
   unsigned int GetSurfaceResolutionY() const;
+
+  /**
+   * Set resolution of Bézier surface (Y) in number of quads.
+   *
+   * @param resolutionY
+   */
   void SetSurfaceResolutionY(unsigned int resolutionY);
 
-  // Description:
-  // Get the widget polydata, this is, the connected grid of control points.
+  /**
+   * Get the widget polydata.
+   *
+   * @return pointer to vtkPolyData containing the grid of connected control points.
+   */
   vtkPolyData* GetWidgetPolyData() const
   {return this->ControlPolygonPolyData.GetPointer();}
 
-  // Description:
-  // Get the tubed polydata, this is, the connected grid of points as tubes.
+  /**
+   * Get the tubed widget polydata
+   *
+   * @return pointer to vtkPolyData containing the tubed grid of connected
+   * control points.
+   */
+  Get the tubed polydata, this is, the connected grid of points as tubes.
   vtkPolyData* GetTubedWidgetPolyData() const;
 
-  // Description:
-  // Get the control points.
+  /**
+   * Get the control points.
+   *
+   * @return pointer to vtkPoints containing the coordinates of the points of
+   * the grid of control points.
+   */
   vtkPoints* GetControlPoints() const;
 
-  // Description:
-  // Get the Bézier surface as polydata.
+  /**
+   * Get the Bézier surface as polydata.
+   *
+   * @return pointer to vtkPolyData containing the triangular representation of
+   * the Bézier surface.
+   */
   vtkPolyData* GetBezierSurfacePolyData() const;
 
-  // Description:
-  // Enable/Disable the handles.
+  /**
+   * Enable handles.
+   */
   void HandlesOn();
+
+  /**
+   * Disable handles.
+   */
   void HandlesOff();
 
-  // Description:
-  // Enable/Disable the control polygon.
+  /**
+   * Enable the control polygon
+   */
   void ControlPolygonOn();
+
+  /**
+   * Disable the control polygon.
+   */
   void ControlPolygonOff();
 
-  // Description:
-  // Enable/Disable the Bézier Surface.
+  /**
+   * Enable the Bézier surface
+   */
   void BezierSurfaceOn();
+
+  /**
+   * Disable the Bézier surface.
+   */
   void BezierSurfaceOff();
 
  protected:
@@ -223,125 +390,168 @@ class vtkBezierSurfaceWidget: public vtk3DWidget
   int State;
   enum WidgetState
   {
-    Start=0,
-    Deforming,
-    MultiDeforming,
-    Moving,
-    Outside
+    Start=0,          //!< Start interaction.
+    Deforming,        //!< Deformation interaction.
+    MultiDeforming,   //!< Multiple-point deformation interaction.
+    Moving,           //!< Moving (translation) interaction.
+    Outside           //!< Outside the widget.
   };
   //ETX
 
-  // Description:
-  // Processes the events related to the mouse movement for the widget.
+
+  /**
+   * Processes the events related to the mouse movement for the widget.
+   *
+   * @param object pointer to vtkObject initiating the event
+   * @param event event identifier
+   * @param clientdata client data
+   * @param calldata call data
+   */
   static void ProcessEvents(vtkObject *object,
                             unsigned long event,
                             void *clientdata,
                             void *calldata);
-
-
-  // Description:
-  // Methods defining actions to be performed on user interaction. These methods
-  // are dispatched by ProcessEvents()
+  /**
+   * Handling of mouse move interaction. This is dispatched by ProcessEvents().
+   */
   virtual void OnMouseMove();
+
+  /**
+   * Handling of mouse left click (down). This is dispatched by ProcessEvents().
+   */
   virtual void OnLeftButtonDown();
+
+  /**
+   * Handling of mouse left click (up). This is dispatched by ProcessEvents().
+   */
   virtual void OnLeftButtonUp();
-  virtual void OnMiddleButtonUp();
-  virtual void OnMiddleButtonDown();
-  virtual void OnRightButtonUp();
+
+  /**
+   * Handling of mouse right click (up). This is dispatched by ProcessEvents().
+   */
   virtual void OnRightButtonDown();
 
-  // Description:
+  /**
+   * Handling of mouse right click (down). This is dispatched by ProcessEvents().
+   */
+  virtual void OnRightButtonUp();
+
   // Elements defining the geometry and visualization of the control polygon.
   vtkNew<vtkActor> ControlPolygonActor;
   vtkNew<vtkPolyData> ControlPolygonPolyData;
   vtkNew<vtkPolyDataMapper> ControlPolygonMapper;
 
-  // Description:
   // Collections of elments defining the geometry and visualization of the handles.
   vtkNew<vtkCollection> HandleActorCollection;
   vtkNew<vtkCollection> HandleMapperCollection;
   vtkNew<vtkCollection> HandlePolyDataCollection;
 
-  // Description:
   // Tube filter employed to beautify the control polygon.
   vtkNew<vtkTubeFilter> TubeFilter;
 
-  // Description:
-  // Position the handles based on the coordinates of the control points in the
-  // control polygon.
+  /**
+   * Position the handles based on the coordinates of the control points in the
+   * control polygon.
+   */
   virtual void PositionHandles();
 
-  // Description:
-  // Resize the handles attending to the camera properties.
+  /**
+   * Resize the handles attending to the camera properties.
+   */
   virtual void SizeHandles();
 
-  // Description:
-  // Resize (thickness) the control polygon attending to the camera properties.
+  /**
+   * Resize (thickness) the control polygon attending to the camera properties.
+   */
   virtual void SizeControlPolygon();
 
-  // Description:
   // If a handle is clicked, this points to the actor that holds that handle.
   vtkWeakPointer<vtkActor> CurrentHandle;
 
-  // Description:
-  // Highlight the specified handle. If NULL is provided, no handle will be
-  // highlighted, this is, all handles will be set to the normal vtkProperty.
+  /**
+   * Highlight the specified handle. If NULL is provided, no handle will be
+   * highlighted, this is, all handles will be set to the normal vtkProperty.
+   *
+   * @param prop pointer to vtkProp (actor) to be highlighted.
+   */
   void HighlightHandle(vtkProp *prop);
 
-  // Description:
-  // Highlight groups of handles based on the specified handle (either internal
-  // handle or external handle). This un-highlighgs the other group of handles.
+  /**
+   * Highlight groups of handles based on the specified handle (either internal
+   * handle or external handle). This un-highlighgs the other group of handles.
+   *
+   * @param prop pointer to vtkProp (actor) in the group of actors  to be
+   * highlighted.
+   */
   void MultiHighlightHandle(vtkProp *prop);
 
-  // Description:
-  // Highlights the control polygon based on the specified value (0=
-  // not-highlighted, 1=highlighted). If the control polygon is highlighted, the
-  // rest of the properties will be automatically un-highlighted.
+  /**
+   *   Highlights the control polygon based on the specified value (0=
+   *   not-highlighted, 1=highlighted). If the control polygon is highlighted,
+   *   the rest of the properties will be automatically un-highlighted.
+   *
+   * @param highlight flag indicating whether the control polygon should be
+   * highlighted or not.
+   */
   void HighlightControlPolygon(int highlight);
 
-  // Description:
-  // Picker associated to the handles-
+  // Picker associated to the handles.
   vtkNew<vtkCellPicker> HandlePicker;
 
-  // Description:
   // Picker associated to the control polygon.
   vtkNew<vtkCellPicker> ControlPolygonPicker;
 
-  // Description:
-  // Register the handle picker and the control polygon picker.
+  /**
+   * Register the handle picker and the control polygon picker.
+   */
   virtual void RegisterPickers();
 
-  // Description:
-  // Moves the control polygon according to the motion vector
+  /**
+   * Moves the control polygon according to the motion vector.
+   *
+   * @param p1 starting point of the motion vector
+   * @param p2 ending point of the motion vector.
+   */
   virtual void MoveControlPolygon(double *p1, double *p2);
+
+  /**
+   * Moves the indicated control point according to the motion vector.
+   *
+   * @param cp index to a control point
+   * @param p1 starting point of the motion vector.
+   * @param p2 ending point of the motion vector.
+   */
   void MoveControlPoint(int cp, double *p1, double *p2);
+
+  /**
+   * Moves the group of control points indicated by the index. Note that the
+   * index can be to any control point contained in the target group of control points.
+   *
+   * @param cp index to control point.
+   * @param p1 starting point of the motion vector.
+   * @param p2 ending point of the motion vector.
+   */
   void MultiMoveControlPoint(int cp, double *p1, double *p2);
 
-  // Description:
   // Handles visual properties.
   vtkNew<vtkProperty> HandleProperty;
   vtkNew<vtkProperty> SelectedHandleProperty;
 
-  // Description:
   // Control polygon properties.
   vtkNew<vtkProperty> ControlPolygonProperty;
   vtkNew<vtkProperty> SelectedControlPolygonProperty;
 
-  // Description:
   // Bézier surface visual properties.
   vtkNew<vtkProperty> BezierSurfaceProperty;
 
-  // Description:
   // Create default properties.
   void CreateDefaultProperties();
 
-  // Description:
   // Interaction flags.
   int MultiPointInteraction;
   int TranslationInteraction;
   int ContinuousBezierUpdate;
 
-  // Description:
   // Parameters of Bézier surfaces. The reader should note that the number of
   // control points is fixed to 4 to facilitate the interaction (internal,
   // external). Therefore only resolution is availabe through Get/Set methods.
@@ -350,12 +560,10 @@ class vtkBezierSurfaceWidget: public vtk3DWidget
   unsigned int NumberOfControlPointsX;
   unsigned int NumberOfControlPointsY;
 
-  // Description:
   // Resizing factor for handles and control polygons
   double HandleSizeFactor;
   double ControlPolygonSizeFactor;
 
-  // Description:
   // Bézier surface elements
   vtkNew<vtkBezierSurfaceSource> BezierSurfaceSource;
   vtkNew<vtkPolyDataMapper> BezierSurfaceMapper;

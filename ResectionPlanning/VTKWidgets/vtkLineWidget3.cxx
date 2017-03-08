@@ -245,23 +245,7 @@ void vtkLineWidget3::SetEnabled(int enabling)
                                   this->EventCallbackCommand,
                                   this->Priority);
 
-    this->Interactor->AddObserver(vtkCommand::RightButtonPressEvent,
-                                  this->EventCallbackCommand,
-                                  this->Priority);
-
-    this->Interactor->AddObserver(vtkCommand::MiddleButtonPressEvent,
-                                  this->EventCallbackCommand,
-                                  this->Priority);
-
     this->Interactor->AddObserver(vtkCommand::LeftButtonReleaseEvent,
-                                  this->EventCallbackCommand,
-                                  this->Priority);
-
-    this->Interactor->AddObserver(vtkCommand::RightButtonReleaseEvent,
-                                  this->EventCallbackCommand,
-                                  this->Priority);
-
-    this->Interactor->AddObserver(vtkCommand::MiddleButtonReleaseEvent,
                                   this->EventCallbackCommand,
                                   this->Priority);
 
@@ -334,22 +318,6 @@ void vtkLineWidget3::ProcessEvents(vtkObject *vtkNotUsed(object),
 
     case vtkCommand::LeftButtonReleaseEvent:
       self->OnLeftButtonUp();
-      break;
-
-    case vtkCommand::RightButtonPressEvent:
-      self->OnRightButtonDown();
-      break;
-
-    case vtkCommand::RightButtonReleaseEvent:
-      self->OnRightButtonUp();
-      break;
-
-    case vtkCommand::MiddleButtonPressEvent:
-      self->OnMiddleButtonDown();
-      break;
-
-    case vtkCommand::MiddleButtonReleaseEvent:
-      self->OnMiddleButtonUp();
       break;
 
     case vtkCommand::MouseMoveEvent:
@@ -474,30 +442,6 @@ void vtkLineWidget3::OnLeftButtonUp()
   this->EndInteraction();
   this->InvokeEvent(vtkCommand::EndInteractionEvent, NULL);
   this->Interactor->Render();
-}
-
-//------------------------------------------------------------------------------
-void vtkLineWidget3::OnRightButtonDown()
-{
-
-}
-
-//------------------------------------------------------------------------------
-void vtkLineWidget3::OnRightButtonUp()
-{
-
-}
-
-//------------------------------------------------------------------------------
-void vtkLineWidget3::OnMiddleButtonDown()
-{
-
-}
-
-//------------------------------------------------------------------------------
-void vtkLineWidget3::OnMiddleButtonUp()
-{
-
 }
 
 //------------------------------------------------------------------------------
