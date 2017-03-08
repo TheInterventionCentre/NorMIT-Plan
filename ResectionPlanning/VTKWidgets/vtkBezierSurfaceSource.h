@@ -49,8 +49,8 @@ class vtkFloatArray;
  * \ingroup ResectionPlanning
  *
  * \brief This class generates the geometry of a Bézier surface
- * of degree $m+1\times n+1$ where $m$ and $n$ are number of control
- * points in the respective parametric directions $u$ and $v$.
+ * of degree \f$m+1\times n+1\f$ where \f$m\f$ and \f$n\f$ are number of control
+ * points in the respective parametric directions $u$ and \f$v\f$.
  */
 class vtkBezierSurfaceSource : public vtkPolyDataAlgorithm
 {

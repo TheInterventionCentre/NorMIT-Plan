@@ -42,29 +42,85 @@
 // MRML includes
 #include <vtkMRMLModelNode.h>
 
-//------------------------------------------------------------------------------
-class vtkMRMLResectionSurfaceDisplayNode;
+// VTK includes
+#include <vtkNew.h>
+#include <vtkCollection.h>
 
 //------------------------------------------------------------------------------
+class vtkMRMLResectionSurfaceDisplayNode;
+class vtkMRMLModelNode;
+class vtkCollection;
+
+//------------------------------------------------------------------------------
+
+/**
+ * \ingroup ResectionPlanning
+ *
+ * \brief This class represents the data model employed for resection. It
+ * contains all the information related to the resection like its relationship
+ * to other elements in the MRML scene.
+ */
 class VTK_SLICER_RESECTIONPLANNING_MODULE_MRML_EXPORT
 vtkMRMLResectionSurfaceNode: public vtkMRMLModelNode
 {
  public:
 
-  // Description:
-  // VTK Methods
+  /**
+   * Standard vtk object instantiation method.
+   *
+   * @return a pointer to a newly created vtkMRMLResectionSurfaceNode.
+   */
   static vtkMRMLResectionSurfaceNode *New();
+
   vtkTypeMacro(vtkMRMLResectionSurfaceNode, vtkMRMLModelNode);
+
+  /**
+   * Standard print object information method.
+   *
+   * @param os output stream to print the information to.
+   * @param indent indent value.
+   */
   void PrintSelf(ostream &os, vtkIndent indent);
 
-  // Description
-  // MRML requried methods.
+
+  /**
+   * Standard MRML method to create the node instance.
+   *
+   * @return a pointer to the newly created vtkMRMLNode.
+   */
   virtual vtkMRMLNode *CreateNodeInstance();
+
+  /**
+   * Get the tag name of the node
+   *
+   *
+   * @return string with the tag name of the node.
+   */
   virtual const char* GetNodeTagName() {return "ResectionSurface";}
+
+  /**
+   * Get the icon associated to the node.
+   *
+   *
+   * @return string pointing to the resource where the icon is allocated.
+   */
   virtual const char* GetIcon() {return "";}
 
-  // Get Resection display node.
+
+  /**
+   * Get the display node associated
+   *
+   *
+   * @return pointer to the vtkMRMLResectionSurfaceDisplayNode associated with
+   * this node.
+   */
   vtkMRMLResectionSurfaceDisplayNode* GetResectionSurfaceDisplayNode();
+
+  /**
+   * Get the collection of tumors associated to this resection.
+   *
+   */
+  vtkGetNewMacro(TargetTumors, vtkCollection);
 
  protected:
   vtkMRMLResectionSurfaceNode();
@@ -72,6 +128,9 @@ vtkMRMLResectionSurfaceNode: public vtkMRMLModelNode
 
   vtkMRMLResectionSurfaceNode(const vtkMRMLResectionSurfaceNode&);
   void operator=(const vtkMRMLResectionSurfaceNode&);
+
+  vtkNew<vtkCollection> TargetTumors;
+
 };
 
 #endif
