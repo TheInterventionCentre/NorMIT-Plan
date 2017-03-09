@@ -35,6 +35,7 @@
 
 // This modules includes
 #include "vtkMRMLResectionSurfaceNode.h"
+#include "ResectionPlanningModuleDefaultValues.h"
 
 // MRML includes
 #include <vtkMRMLCoreTestingMacros.h>
@@ -133,6 +134,30 @@ int vtkMRMLResectionSurfaceNodeTest1(int, char *[])
     }
 
   // END: Removing target tumor tests
+  //----------------------------------------------------------------------------
+
+  //----------------------------------------------------------------------------
+  // Changing resection margin tests
+
+  // Test resection maring by default.
+  if (node1->GetResectionMargin() != DEFAULT_RESECTION_MARGIN)
+    {
+    std::cerr << "Resection marin in initialization is different "
+              << "from the default resection margin" << std::endl;
+    return EXIT_FAILURE;
+    }
+
+  // Test changin the resection margin.
+  node1->SetResectionMargin(22.22);
+  if (node1->GetResectionMargin() != 22.22)
+    {
+    std::cerr << "Resection margin value not expected: "
+              << "obtained " << node1->GetResectionMargin()
+              << " expected 22.22" << std::endl;
+    return EXIT_FAILURE;
+    }
+
+  // END: Changing resection margin tests
   //----------------------------------------------------------------------------
 
   return EXIT_SUCCESS;

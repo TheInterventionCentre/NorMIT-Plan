@@ -13,10 +13,15 @@ set(KIT_TEST_SRCS
   vtkSlicerResectionPlanningLogicTest1.cxx
   )
 
+set(${KIT}_INCLUDE_DIRECTORIES
+  ${CMAKE_BINARY_DIR}/${MODULE_NAME}
+  )
+
 #-----------------------------------------------------------------------------
 slicerMacroConfigureModuleCxxTestDriver(
   NAME ${KIT}
   SOURCES ${KIT_TEST_SRCS}
+  INCLUDE_DIRECTORIES ${${KIT}_INCLUDE_DIRECTORIES}
   TARGET_LIBRARIES
   vtkSlicerResectionPlanningModuleMRML
   vtkSlicerResectionPlanningModuleLogic

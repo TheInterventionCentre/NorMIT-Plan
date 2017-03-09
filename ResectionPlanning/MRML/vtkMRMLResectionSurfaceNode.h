@@ -82,7 +82,6 @@ vtkMRMLResectionSurfaceNode: public vtkMRMLModelNode
    */
   void PrintSelf(ostream &os, vtkIndent indent);
 
-
   /**
    * Standard MRML method to create the node instance.
    *
@@ -105,7 +104,6 @@ vtkMRMLResectionSurfaceNode: public vtkMRMLModelNode
    * @return string pointing to the resource where the icon is allocated.
    */
   virtual const char* GetIcon() {return "";}
-
 
   /**
    * Get the display node associated
@@ -140,6 +138,21 @@ vtkMRMLResectionSurfaceNode: public vtkMRMLModelNode
    */
   int GetNumberOfTargetTumors() const;
 
+  /**
+   * Get the resection margin associated to the resection surface node
+   *
+   * @return resection margin.
+   */
+  vtkGetMacro(ResectionMargin, double);
+
+  /**
+   * Set the resection margin associated to the resection surface node
+   *
+   * @param ResectionMargin resection margin.
+   *
+   */
+  vtkSetMacro(ResectionMargin, double);
+
  protected:
   vtkMRMLResectionSurfaceNode();
   ~vtkMRMLResectionSurfaceNode();
@@ -148,6 +161,7 @@ vtkMRMLResectionSurfaceNode: public vtkMRMLModelNode
   void operator=(const vtkMRMLResectionSurfaceNode&);
 
   vtkNew<vtkCollection> TargetTumors;
+  double ResectionMargin;
 
 };
 

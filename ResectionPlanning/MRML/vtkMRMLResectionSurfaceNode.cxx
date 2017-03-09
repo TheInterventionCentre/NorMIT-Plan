@@ -36,6 +36,7 @@
 // This module includes
 #include "vtkMRMLResectionSurfaceNode.h"
 #include "vtkMRMLResectionSurfaceDisplayNode.h"
+#include "ResectionPlanningModuleDefaultValues.h"
 
 // MRML includes
 #include <vtkMRMLModelNode.h>
@@ -49,6 +50,7 @@ vtkMRMLNodeNewMacro(vtkMRMLResectionSurfaceNode);
 
 //------------------------------------------------------------------------------
 vtkMRMLResectionSurfaceNode::vtkMRMLResectionSurfaceNode()
+  :ResectionMargin(DEFAULT_RESECTION_MARGIN)
 {
 
 }
