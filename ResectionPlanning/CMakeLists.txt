@@ -5,6 +5,12 @@ set(MODULE_TITLE ${MODULE_NAME})
 
 string(TOUPPER ${MODULE_NAME} MODULE_NAME_UPPER)
 
+configure_file(
+  ResectionPlanningModuleDefaultValues.h.in
+  ${CMAKE_CURRENT_BINARY_DIR}/ResectionPlanningModuleDefaultValues.h
+  )
+
+
 #-----------------------------------------------------------------------------
 add_subdirectory(VTKWidgets)
 add_subdirectory(MRML)
@@ -17,6 +23,7 @@ set(MODULE_EXPORT_DIRECTIVE "Q_SLICER_QTMODULES_${MODULE_NAME_UPPER}_EXPORT")
 
 # Current_{source,binary} and Slicer_{Libs,Base} already included
 set(MODULE_INCLUDE_DIRECTORIES
+  ${CMAKE_CURRENT_BINARY_DIR}
   ${CMAKE_CURRENT_SOURCE_DIR}/Logic
   ${CMAKE_CURRENT_BINARY_DIR}/Logic
   ${CMAKE_CURRENT_SOURCE_DIR}/Widgets

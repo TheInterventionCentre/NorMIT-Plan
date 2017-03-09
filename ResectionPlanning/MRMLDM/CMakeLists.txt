@@ -14,6 +14,7 @@ set(${KIT}_INCLUDE_DIRECTORIES
   ${vtkSlicer${MODULE_NAME}ModuleMRML_BINARY_DIR}
   ${vtkSlicer${MODULE_NAME}ModuleVTKWidgets_SOURCE_DIR}
   ${vtkSlicer${MODULE_NAME}ModuleVTKWidgets_BINARY_DIR}
+  ${CMAKE_BINARY_DIR}/${MODULE_NAME}
 )
 
 set(displayable_manager_SRCS
