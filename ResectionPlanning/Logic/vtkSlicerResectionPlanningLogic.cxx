@@ -203,7 +203,7 @@ void vtkSlicerResectionPlanningLogic
 ::SetTumorToResectionAssociation(std::string rsNodeName, std::string tumorNodeName)
 {
   std::cout << "'Resection: " << rsNodeName << ", associated to tumor: " << tumorNodeName << '\n';
-  resectionToTumorMap.insert(std::pair<std::string, std::string>(rsNodeName, tumorNodeName));
+  this->resectionToTumorMap.insert(std::pair<std::string, std::string>(rsNodeName, tumorNodeName));
 }
 
 void vtkSlicerResectionPlanningLogic
@@ -215,7 +215,7 @@ void vtkSlicerResectionPlanningLogic
     if(((*it).first == rsNodeName) && ((*it).second == tumorNodeName))
     {
       std::cout << "'Resection: " << (*it).first << ", removed association to tumor: " << (*it).second << '\n';
-      resectionToTumorMap.erase(it);
+      this->resectionToTumorMap.erase(it);
     }
   }
 }

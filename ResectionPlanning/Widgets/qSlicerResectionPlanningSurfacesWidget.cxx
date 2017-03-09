@@ -33,6 +33,7 @@
 #include <string>
 
 #include <QListWidget>
+#include <QLabel>
 #include <QListWidgetItem>
 #include <QString>
 
@@ -108,9 +109,12 @@ void qSlicerResectionPlanningSurfacesWidget
   item->setText(nodeName);
   item->setToolTip(nodeID);
 
-  d->listTumorsToAdd->addItem(item);
+  d->listAvailableTumors->addItem(item);
 
-  std::cout << "SurfacesWidget - Added to tumor list: " << nodeName.toStdString() << std::endl;
+  // keep in map(s)
+  this->tumorIDtoItemMap.insert(std::pair<QString, QListWidgetItem*>(nodeID, item));
+
+  std::cout << "SurfacesWidget - Tumor added to scene, and to list: " << nodeName.toStdString() << std::endl;
 }
 
 void qSlicerResectionPlanningSurfacesWidget
@@ -118,21 +122,14 @@ void qSlicerResectionPlanningSurfacesWidget
 {
   Q_D(qSlicerResectionPlanningSurfacesWidget);
 
-  // find the right tumor to delete
-  for(int i = 0; i < d->listTumorsToAdd->count(); i++)
-  {
-    QString compareID = d->listTumorsToAdd->item(i)->toolTip();
+  QListWidgetItem *item = this->tumorIDtoItemMap.find(nodeID)->second;
 
-    std::string strCompareID = compareID.toStdString();
-    std::string strNodeID = nodeID.toStdString();
+  d->listAvailableTumors->removeItemWidget(item);
 
-    if(strNodeID.compare(strCompareID) == 0)
-    {
-      std::cout << "strings the same: " << i << " " << strNodeID << std::endl;
-      delete d->listTumorsToAdd->item(i);
-    }
-  }
-  std::cout << "SurfacesWidget - Removed from tumor list: " << nodeName.toStdString() << std::endl;
+  // erase from map(s)
+  this->tumorIDtoItemMap.erase(nodeID);
+
+  std::cout << "SurfacesWidget - Tumor removed from scene, and from list: " << nodeName.toStdString() << std::endl;
 }
 
 //-----------------------------------------------------------------------------
@@ -156,17 +153,17 @@ void qSlicerResectionPlanningSurfacesWidget
   // figure out which tumor is highlighted and add to the list related to the current resection node
   Q_D(qSlicerResectionPlanningSurfacesWidget);
 
-  if(d->listTumorsToAdd->selectedItems().size() > 0) // check not null (something is selected)
+  if(d->listAvailableTumors->selectedItems().size() > 0) // check not null (something is selected)
   {
     // add tumor to list
     QListWidgetItem *item = new QListWidgetItem();
-    item->setText(d->listTumorsToAdd->currentItem()->text());
-    item->setToolTip(d->listTumorsToAdd->currentItem()->toolTip());
-    d->listTumorsAdded->addItem(item);
+    item->setText(d->listAvailableTumors->currentItem()->text());
+    item->setToolTip(d->listAvailableTumors->currentItem()->toolTip());
+    d->listResectionTumors->addItem(item);
 
     // make item unselectable (in base list)
-    d->listTumorsToAdd->currentItem()->setFlags(d->listTumorsToAdd->currentItem()->flags() & ~Qt::ItemIsEnabled);
-    d->listTumorsToAdd->selectionModel()->select(d->listTumorsToAdd->selectionModel()->currentIndex(), QItemSelectionModel::Deselect);
+    d->listAvailableTumors->currentItem()->setFlags(d->listAvailableTumors->currentItem()->flags() & ~Qt::ItemIsEnabled);
+    d->listAvailableTumors->selectionModel()->select(d->listAvailableTumors->selectionModel()->currentIndex(), QItemSelectionModel::Deselect);
 
     QString lastTumorAdded = item->text();
     QString resectionName = "no_resection";
@@ -176,13 +173,13 @@ void qSlicerResectionPlanningSurfacesWidget
     }
     QPair<QString&,QString&> myPair(resectionName, lastTumorAdded);
 
-    std::cout << "SurfacesWidget - Add Tumor button clicked: " << lastTumorAdded.toStdString() << std::endl;
+    std::cout << "SurfacesWidget - Add Tumor to resection: " << lastTumorAdded.toStdString() << std::endl;
 
     emit AddTumorButtonClicked( myPair );
   }
   else
   {
-    std::cout << "SurfacesWidget - Add Tumor button clicked: no tumor selected" << std::endl;
+    std::cout << "SurfacesWidget - Add Tumor to resection: no tumor selected" << std::endl;
   }
 }
 
@@ -193,30 +190,21 @@ void qSlicerResectionPlanningSurfacesWidget
   // figure out which tumor is highlighted and remove from the list related to the current resection node
   Q_D(qSlicerResectionPlanningSurfacesWidget);
 
-  if(d->listTumorsAdded->selectedItems().size() > 0) // check not null (something is selected)
+  if(d->listResectionTumors->selectedItems().size() > 0) // check not null (something is selected)
   {
     // remove tumor from list
-    QListWidgetItem *item = d->listTumorsAdded->currentItem();
+    QListWidgetItem *item = d->listResectionTumors->currentItem();
     QString itemID = item->toolTip();
     QString tumorRemoved = item->text();
-    delete d->listTumorsAdded->item(d->listTumorsAdded->currentRow());
+    delete d->listResectionTumors->item(d->listResectionTumors->currentRow());
 
     // make item selectable again (in base list)
     // find the right tumor to enable
-    for(int i = 0; i < d->listTumorsToAdd->count(); i++)
-    {
-      QString compareID = d->listTumorsToAdd->item(i)->toolTip();
+    QListWidgetItem *item2 = this->tumorIDtoItemMap.find(itemID)->second;
 
-      std::string strCompareID = compareID.toStdString();
-      std::string strNodeID = itemID.toStdString();
-
-      if(strNodeID.compare(strCompareID) == 0)
-      {
-        std::cout << "strings the same: " << i << " " << strNodeID << std::endl;
-        d->listTumorsToAdd->item(i)->setFlags(d->listTumorsToAdd->currentItem()->flags() | Qt::ItemIsEnabled);
-        d->listTumorsToAdd->selectionModel()->select(d->listTumorsToAdd->selectionModel()->currentIndex(), QItemSelectionModel::Select);
-      }
-    }
+    item2->setFlags(item2->flags() | Qt::ItemIsEnabled);
+    d->listAvailableTumors->setCurrentItem(item2);
+    d->listAvailableTumors->selectionModel()->select(d->listAvailableTumors->selectionModel()->currentIndex(), QItemSelectionModel::Select);
 
     QString resectionName = "no_resection";
     if(d->listResectionSurfaces->selectedItems().size() > 0) // check not null (something is selected)
@@ -225,13 +213,13 @@ void qSlicerResectionPlanningSurfacesWidget
     }
     QPair<QString&,QString&> myPair(resectionName, tumorRemoved);
 
-    std::cout << "SurfacesWidget - Remove Tumor button clicked: " << tumorRemoved.toStdString() << std::endl;
+    std::cout << "SurfacesWidget - Remove Tumor from resection: " << tumorRemoved.toStdString() << std::endl;
 
     emit RemoveTumorButtonClicked( myPair );
   }
   else
   {
-    std::cout << "SurfacesWidget - On Remove Tumor: no tumor to remove " << std::endl;
+    std::cout << "SurfacesWidget - Remove Tumor from resection: no tumor to remove " << std::endl;
   }
 }
 

@@ -65,7 +65,7 @@
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout_2">
      <item>
-      <widget class="QListWidget" name="listTumorsToAdd"/>
+      <widget class="QListWidget" name="listAvailableTumors"/>
      </item>
      <item>
       <layout class="QVBoxLayout" name="verticalLayout">
@@ -98,7 +98,7 @@
       </layout>
      </item>
      <item>
-      <widget class="QListWidget" name="listTumorsAdded"/>
+      <widget class="QListWidget" name="listResectionTumors"/>
      </item>
     </layout>
    </item>

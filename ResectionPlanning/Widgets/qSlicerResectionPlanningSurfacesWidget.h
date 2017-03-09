@@ -30,12 +30,17 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Qt includes
 #include <QWidget>
+#include <QPointer>
+
+#include <map>
 
 // FooBar Widgets includes
 #include "qSlicerResectionPlanningModuleWidgetsExport.h"
 
 class qSlicerResectionPlanningSurfacesWidgetPrivate;
 class QString;
+class QListWidget;
+class QListWidgetItem;
 
 /* \ingroup ResectionPlanning
  *
@@ -109,6 +114,7 @@ private:
   Q_DECLARE_PRIVATE(qSlicerResectionPlanningSurfacesWidget);
   Q_DISABLE_COPY(qSlicerResectionPlanningSurfacesWidget);
 
+  std::map<QString, QListWidgetItem*> tumorIDtoItemMap;
 };
 
 #endif
