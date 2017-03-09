@@ -304,7 +304,6 @@ void vtkSlicerResectionPlanningLogic
     // Inform that a hepatic node was removed
     this->InvokeEvent(vtkSlicerResectionPlanningLogic::ParenchymaModelRemoved,
                       static_cast<void*>(&id_name));
-
     return;
     }
 
@@ -360,4 +359,24 @@ void vtkSlicerResectionPlanningLogic
                       static_cast<void*>(&id_name));
     return;
     }
+}
+
+//-------------------------------------------------------------------------------
+void vtkSlicerResectionPlanningLogic::AddResectionSurface()
+{
+  assert(this->GetMRMLScene() != 0);
+
+  // Add display node first
+  vtkSmartPointer<vtkMRMLResectionSurfaceDisplayNode> resectionDisplayNode =
+    vtkSmartPointer<vtkMRMLResectionSurfaceDisplayNode>::New();
+  resectionDisplayNode->SetScene(this->GetMRMLScene());
+  resectionDisplayNode->ScalarVisibilityOn();
+  this->GetMRMLScene()->AddNode(resectionDisplayNode);
+
+  // Then add resection node
+  vtkSmartPointer<vtkMRMLResectionSurfaceNode> resectionNode =
+    vtkSmartPointer<vtkMRMLResectionSurfaceNode>::New();
+  resectionNode->SetScene(this->GetMRMLScene());
+  resectionNode->SetAndObserveDisplayNodeID(resectionDisplayNode->GetID());
+  this->GetMRMLScene()->AddNode(resectionNode);
 }

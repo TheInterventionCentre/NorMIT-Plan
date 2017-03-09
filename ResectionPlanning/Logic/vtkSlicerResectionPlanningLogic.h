@@ -88,10 +88,7 @@ public vtkSlicerModuleLogic
                                 //!   logic.
     PortalModelRemoved,         //!< Portal node removed from MRML scene and
                                 //!not needed bytthe logic anymore.
-
-
   };
-
 
   /**
    * Standard vtk object instantiation method.
@@ -108,6 +105,13 @@ public vtkSlicerModuleLogic
    * @param indent indentation value.
    */
   void PrintSelf(ostream& os, vtkIndent indent);
+
+  /**
+   * Adds a new resection surface node and the associated display node to the
+   * scene. Default values are used (0 tumors associated, 10.00mm resection
+   * margin).
+   */
+  void AddResectionSurface();
 
  protected:
   vtkSlicerResectionPlanningLogic();

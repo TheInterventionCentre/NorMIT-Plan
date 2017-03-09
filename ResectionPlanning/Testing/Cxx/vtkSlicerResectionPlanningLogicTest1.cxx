@@ -453,5 +453,22 @@ int vtkSlicerResectionPlanningLogicTest1(int, char * [])
   //END: Testing models handling
   //----------------------------------------------------------------------------
 
+  //----------------------------------------------------------------------------
+  // Testing add resection surface from logic
+
+  modelsCommand2->Reset();
+  logic1->AddResectionSurface();
+  if (modelsCommand2->CurrentEventId == 0 ||
+      !modelsCommand2->CurrentModelID.compare("") ||
+      !modelsCommand2->CurrentModelName.compare(""))
+    {
+    std::cerr << "Error adding new resection surface from logic " << std::endl;
+    return EXIT_FAILURE;
+    }
+
+  // END: Testing add resection surface from logic
+  //----------------------------------------------------------------------------
+
+
   return EXIT_SUCCESS;
 }
