@@ -117,10 +117,28 @@ vtkMRMLResectionSurfaceNode: public vtkMRMLModelNode
   vtkMRMLResectionSurfaceDisplayNode* GetResectionSurfaceDisplayNode();
 
   /**
-   * Get the collection of tumors associated to this resection.
+   * Add target tumor.
    *
+   * @param tumorModelNode pointer to vtkMRMLModelNode representing the target
+   * tumor to be added. If the tumor is already in the internal collection, the
+   * operation will not take place.
    */
-  vtkGetNewMacro(TargetTumors, vtkCollection);
+  void AddTargetTumor(vtkMRMLModelNode *tumorModelNode);
+
+  /**
+   * Remove target tumor.
+   *
+   * @param tumorModelNode pointer to the vtkMRMLModelNode representing the
+   * target tumor to remove.
+   */
+  void RemoveTargetTumor(vtkMRMLModelNode *tumorModelNode);
+
+  /**
+   * Get number of target tumors.
+   *
+   * @return number of target tumors associated to the resection.
+   */
+  int GetNumberOfTargetTumors() const;
 
  protected:
   vtkMRMLResectionSurfaceNode();

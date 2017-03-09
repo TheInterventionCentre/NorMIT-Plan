@@ -77,3 +77,43 @@ vtkMRMLResectionSurfaceNode::GetResectionSurfaceDisplayNode()
     }
   return NULL;
 }
+
+//------------------------------------------------------------------------------
+void vtkMRMLResectionSurfaceNode::AddTargetTumor(vtkMRMLModelNode *tumorNode)
+{
+  if (!tumorNode)
+    {
+    return;
+    }
+
+  if (this->TargetTumors->IsItemPresent(tumorNode))
+    {
+    return;
+    }
+
+  this->TargetTumors->AddItem(tumorNode);
+  this->Modified();
+}
+
+//------------------------------------------------------------------------------
+void vtkMRMLResectionSurfaceNode::RemoveTargetTumor(vtkMRMLModelNode *tumorNode)
+{
+  if (!tumorNode)
+    {
+    return;
+    }
+
+  if (!this->TargetTumors->IsItemPresent(tumorNode))
+    {
+    return;
+    }
+
+  this->TargetTumors->RemoveItem(tumorNode);
+  this->Modified();
+}
+
+//------------------------------------------------------------------------------
+int vtkMRMLResectionSurfaceNode::GetNumberOfTargetTumors() const
+{
+  return this->TargetTumors->GetNumberOfItems();
+}
