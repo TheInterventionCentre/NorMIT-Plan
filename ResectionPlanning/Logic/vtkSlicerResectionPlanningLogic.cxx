@@ -110,9 +110,11 @@ void vtkSlicerResectionPlanningLogic
     {
       // get name of node
       const char* name = tempModelNode->GetName();
+      const char* ID = tempModelNode->GetID();
 
       std::string strNode (name);
-      QString index = name;
+      QString nameQ = name;
+      QString idQ = ID;
 
       std::cout << "Logic: model node name = " << strNode << std::endl;
 
@@ -121,9 +123,9 @@ void vtkSlicerResectionPlanningLogic
       {
         std::cout << "'Tumor' found at: " << found << '\n';
 
-        std::pair<vtkMRMLModelNode*, QString> pair;
-        pair.first = tempModelNode;
-        pair.second = name;
+        std::pair<QString, QString> pair;
+        pair.first = idQ;
+        pair.second = nameQ;
         this->InvokeEvent(vtkSlicerResectionPlanningLogic::TumorNodeAdded,
                           &pair);
         this->tumorList.push_back(tempModelNode);
@@ -133,9 +135,9 @@ void vtkSlicerResectionPlanningLogic
       {
         std::cout << "'tumor' found at: " << found << '\n';
 
-        std::pair<vtkMRMLModelNode*, QString> pair;
-        pair.first = tempModelNode;
-        pair.second = index;
+        std::pair<QString, QString> pair;
+        pair.first = idQ;
+        pair.second = nameQ;
         this->InvokeEvent(vtkSlicerResectionPlanningLogic::TumorNodeAdded,
                           &pair);
         this->tumorList.push_back(tempModelNode);
@@ -160,9 +162,11 @@ void vtkSlicerResectionPlanningLogic
      {
        // get name of node
        const char* name = tempModelNode->GetName();
+       const char* ID = tempModelNode->GetID();
 
        std::string strNode (name);
-       QString index = name;
+       QString nameQ = name;
+       QString idQ = ID;
 
        std::cout << "Logic: model node name = " << strNode << std::endl;
 
@@ -171,9 +175,9 @@ void vtkSlicerResectionPlanningLogic
        {
          std::cout << "'Tumor' found at: " << found << '\n';
 
-         std::pair<vtkMRMLModelNode*, QString> pair;
-         pair.first = tempModelNode;
-         pair.second = name;
+         std::pair<QString, QString> pair;
+         pair.first = idQ;
+         pair.second = nameQ;
          this->InvokeEvent(vtkSlicerResectionPlanningLogic::TumorNodeRemoved,
                            &pair);
          this->tumorList.remove(tempModelNode);
@@ -183,9 +187,9 @@ void vtkSlicerResectionPlanningLogic
        {
          std::cout << "'tumor' found at: " << found << '\n';
 
-         std::pair<vtkMRMLModelNode*, QString> pair;
-         pair.first = tempModelNode;
-         pair.second = index;
+         std::pair<QString, QString> pair;
+         pair.first = idQ;
+         pair.second = nameQ;
          this->InvokeEvent(vtkSlicerResectionPlanningLogic::TumorNodeRemoved,
                            &pair);
          this->tumorList.remove(tempModelNode);

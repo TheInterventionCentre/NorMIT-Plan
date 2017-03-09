@@ -35,8 +35,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "qSlicerResectionPlanningModuleWidgetsExport.h"
 
 class qSlicerResectionPlanningSurfacesWidgetPrivate;
-class vtkMRMLScene;
-class vtkMRMLResectionSurfaceNode;
 class QString;
 
 /* \ingroup ResectionPlanning
@@ -59,14 +57,14 @@ public:
    *
    * @param tumor node name
    */
-  void AddToTumorList(QString nodeName);
+  void AddToTumorList(QString nodeID, QString nodeName);
 
   /**
    * Removes a tumor to the list of available tumors (listTumorsToAdd)
    *
    * @param tumor node name
    */
-  void RemoveFromTumorList(QString nodeName);
+  void RemoveFromTumorList(QString nodeID, QString nodeName);
 
 signals:
   /**

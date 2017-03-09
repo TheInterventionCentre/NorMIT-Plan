@@ -29,15 +29,11 @@
 #include "qSlicerResectionPlanningSurfacesWidget.h"
 #include "ui_qSlicerResectionPlanningSurfacesWidget.h"
 
-#include "vtkMRMLResectionSurfaceNode.h"
-
 #include <iostream>
 #include <string>
 
-#include <vtkMRMLModelNode.h>
-#include <vtkMRMLScene.h>
-
 #include <QListWidget>
+#include <QListWidgetItem>
 #include <QString>
 
 //-----------------------------------------------------------------------------
@@ -82,16 +78,17 @@ qSlicerResectionPlanningSurfacesWidget
   Q_D(qSlicerResectionPlanningSurfacesWidget);
   d->setupUi(this);
 
+  // connect signals & slots for buttons to add & remove resection surface
   QObject::connect(d->AddSurfaceButton, SIGNAL(clicked()),
                    this, SLOT(OnAddSurfaceButtonClicked()));
   QObject::connect(d->RemoveSurfaceButton, SIGNAL(clicked()),
                    this, SLOT(OnRemoveSurfaceButtonClicked()));
 
+  // connect signals & slots for buttons to add & remove tumors from a resection surface
   QObject::connect(d->AddTumorButton, SIGNAL(clicked()),
                    this, SLOT(OnAddTumorButtonClicked()));
   QObject::connect(d->RemoveTumorButton, SIGNAL(clicked()),
                    this, SLOT(OnRemoveTumorButtonClicked()));
-
 }
 
 //-----------------------------------------------------------------------------
@@ -103,25 +100,42 @@ qSlicerResectionPlanningSurfacesWidget
 
 //-----------------------------------------------------------------------------
 void qSlicerResectionPlanningSurfacesWidget
-::AddToTumorList(QString nodeName)
+::AddToTumorList(QString nodeID, QString nodeName)
 {
-  std::cout << "SurfacesWidget - Add to tumor list: " << nodeName.toStdString() << std::endl;
-
   Q_D(qSlicerResectionPlanningSurfacesWidget);
 
-  new QListWidgetItem(nodeName, d->listTumorsToAdd);
+  QListWidgetItem *item = new QListWidgetItem();
+  item->setText(nodeName);
+  item->setToolTip(nodeID);
 
+  int c = d->listTumorsToAdd->count();
+  d->listTumorsToAdd->insertItem(c, item);
+  //new QListWidgetItem(nodeName, d->listTumorsToAdd);
+
+  std::cout << "SurfacesWidget - Added to tumor list: " << nodeName.toStdString() << std::endl;
 }
 
 void qSlicerResectionPlanningSurfacesWidget
-::RemoveFromTumorList(QString nodeName)
+::RemoveFromTumorList(QString nodeID, QString nodeName)
 {
-  std::cout << "SurfacesWidget - Remove from tumor list:" << nodeName.toStdString() << std::endl;
-
   Q_D(qSlicerResectionPlanningSurfacesWidget);
 
-  delete d->listTumorsToAdd->item(d->listTumorsToAdd->currentRow());
+  // find the right tumor to delete
+  for(int i = d->listTumorsToAdd->count()-1; i >= 0; i--)
+  {
+    QString compareID = d->listTumorsToAdd->item(i)->toolTip();
 
+    std::string strCompareID = compareID.toStdString();
+    std::string strNodeID = nodeID.toStdString();
+
+    if(strNodeID.compare(strCompareID) == 0)
+    {
+      std::cout << "strings the same: " << i << " " << strNodeID << std::endl;
+      delete d->listTumorsToAdd->item(i);
+    }
+  }
+  //delete d->listTumorsToAdd->item(d->listTumorsToAdd->currentRow());
+  std::cout << "SurfacesWidget - Removed from tumor list: " << nodeName.toStdString() << std::endl;
 }
 
 //-----------------------------------------------------------------------------

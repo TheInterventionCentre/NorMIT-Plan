@@ -63,7 +63,7 @@ public:
     ResectionNodeAdded = 16534,
     ResectionNodeRemoved = 16535,
     TumorNodeAdded = 16536,
-    TumorNodeRemoved = 16536,
+    TumorNodeRemoved = 16537,
   };
 
   /**

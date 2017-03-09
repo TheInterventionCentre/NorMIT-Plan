@@ -29,6 +29,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <QDebug>
 
 #include <vtkEventQtSlotConnect.h>
+
+#include <vtkMRMLNode.h>
+#include <vtkMRMLScene.h>
+#include <vtkMRMLModelNode.h>
+
 #include "vtkSlicerResectionPlanningLogic.h"
 #include "qSlicerResectionPlanningModule.h"
 
@@ -118,6 +123,16 @@ void qSlicerResectionPlanningModuleWidget::nodeSelectionChanged(vtkMRMLNode* nod
     std::cout << "Widget - Parenchyma Model node selection changed " << std::endl;
   }
 }
+//-----------------------------------------------------------------------------
+void qSlicerResectionPlanningModuleWidget::setMRMLScene(vtkMRMLScene* scene)
+{
+  Q_D(qSlicerResectionPlanningModuleWidget);
+
+  this->Superclass::setMRMLScene(scene);
+
+  std::cout << "Widget - Set MRML scene called " << std::endl;
+}
+
 
 void qSlicerResectionPlanningModuleWidget::OnAddTumorFromWidget(QPair<QString&,QString&> &myPair)
 {
@@ -137,12 +152,11 @@ void qSlicerResectionPlanningModuleWidget
 {
   Q_D(qSlicerResectionPlanningModuleWidget);
 
-  std::pair<vtkMRMLModelNode*, QString> *pair =
-    reinterpret_cast< std::pair<vtkMRMLModelNode*,
-                                QString> *>(callData);
+  std::pair<QString, QString> *pair =
+    reinterpret_cast< std::pair<QString,QString> *>(callData);
 
   // add tumor node to list
-  d->SurfacesWidget->AddToTumorList(pair->second);
+  d->SurfacesWidget->AddToTumorList(pair->first, pair->second);
 }
 
 void qSlicerResectionPlanningModuleWidget
@@ -153,12 +167,11 @@ void qSlicerResectionPlanningModuleWidget
 {
   Q_D(qSlicerResectionPlanningModuleWidget);
 
-  std::pair<vtkMRMLModelNode*, QString> *pair =
-    reinterpret_cast< std::pair<vtkMRMLModelNode*,
-                                QString> *>(callData);
+  std::pair<QString, QString> *pair =
+    reinterpret_cast< std::pair<QString,QString> *>(callData);
 
   // add tumor node to list
-  d->SurfacesWidget->RemoveFromTumorList(pair->second);
+  d->SurfacesWidget->RemoveFromTumorList(pair->first, pair->second);
 }
 
 

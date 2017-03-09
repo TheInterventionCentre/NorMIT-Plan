@@ -30,10 +30,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // SlicerQt includes
 #include "qSlicerAbstractModuleWidget.h"
-
 #include "qSlicerResectionPlanningModuleExport.h"
-
-#include "vtkMRMLResectionSurfaceNode.h"
 
 #include <QString>
 
@@ -73,6 +70,7 @@ protected:
 
 protected slots:
   void nodeSelectionChanged(vtkMRMLNode* node);
+  void setMRMLScene(vtkMRMLScene* scene);
 
   /**
    * Called when a tumor is added to a resection via the gui in the Surfaces widget
@@ -101,8 +99,8 @@ protected slots:
    * @param typically the vtk object that triggered the event (not used)
    * @param the event (not used)
    * @param client data (not used)
-   * @param callData passes a pair of vtkMRMLModelNode* and QString,
-   * which are the node that has been added, and the name of the node
+   * @param callData passes a pair of char* and QString,
+   * which are the ID of node that has been added, and the name of the node
    */
   void OnTumorAdded(vtkObject* object,
                         unsigned long event,
@@ -116,8 +114,8 @@ protected slots:
    * @param typically the vtk object that triggered the event (not used)
    * @param the event (not used)
    * @param client data (not used)
-   * @param callData passes a pair of vtkMRMLModelNode* and QString,
-   * which are the node that has been removed, and the name of the node
+   * @param callData passes a pair of char* and QString,
+   * which are the ID of node that has been removed, and the name of the node
    */
   void OnTumorRemoved(vtkObject* object,
                         unsigned long event,
