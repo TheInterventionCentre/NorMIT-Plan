@@ -101,7 +101,7 @@ qSlicerResectionPlanningSurfacesWidget
 
 //-----------------------------------------------------------------------------
 void qSlicerResectionPlanningSurfacesWidget
-::AddToTumorList(QString nodeID, QString nodeName)
+::AddToTumorList(const QString &nodeID, const QString &nodeName)
 {
   Q_D(qSlicerResectionPlanningSurfacesWidget);
 
@@ -118,7 +118,7 @@ void qSlicerResectionPlanningSurfacesWidget
 }
 
 void qSlicerResectionPlanningSurfacesWidget
-::RemoveFromTumorList(QString nodeID, QString nodeName)
+::RemoveFromTumorList(const QString &nodeID, const QString &nodeName)
 {
   Q_D(qSlicerResectionPlanningSurfacesWidget);
 

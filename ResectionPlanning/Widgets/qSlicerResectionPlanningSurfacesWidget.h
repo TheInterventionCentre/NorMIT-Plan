@@ -62,14 +62,14 @@ public:
    *
    * @param tumor node name
    */
-  void AddToTumorList(QString nodeID, QString nodeName);
+  void AddToTumorList(const QString &nodeID, const QString &nodeName);
 
   /**
    * Removes a tumor to the list of available tumors (listTumorsToAdd)
    *
    * @param tumor node name
    */
-  void RemoveFromTumorList(QString nodeID, QString nodeName);
+  void RemoveFromTumorList(const QString &nodeID, const QString &nodeName);
 
 signals:
   /**
