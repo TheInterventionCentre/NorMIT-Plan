@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program: NorMIT-Plan
-  Module: vtkBezierSurfaceWidgetTest1.cxx
+  Module: vtkLineWidget3Test1.cxx
 
   Copyright (c) 2017, The Intervention Centre, Oslo University Hospital
 
@@ -33,71 +33,93 @@
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   =========================================================================*/
 
+
+// Description:
+// This tests the creation and placement of a vtkLineWidget3 within
+// the bounds of another object.
+
 // This module includes
-#include "vtkBezierSurfaceWidget.h"
+#include "vtkLineWidget3.h"
 
 // VTK includes
 #include <vtkNew.h>
 #include <vtkRenderer.h>
 #include <vtkRenderWindow.h>
 #include <vtkRenderWindowInteractor.h>
-#include <vtkInteractorEventRecorder.h>
+#include <vtkPolyDataMapper.h>
+#include <vtkActor.h>
+#include <vtkMath.h>
+#include <vtkTimerLog.h>
+#include <vtkSphereSource.h>
+#include <vtkProperty.h>
+#include <vtkPNGReader.h>
 #include <vtkWindowToImageFilter.h>
 #include <vtkImageDifference.h>
-#include <vtkPNGReader.h>
 
 // STD includes
 #include <iostream>
 
 //------------------------------------------------------------------------------
-int vtkBezierSurfaceWidgetTest1(int argc, char *argv[])
+int vtkLineWidget3Test2(int argc, char *argv[])
 {
 
   //Check the arguments
-  if (argc != 3)
+  if (argc != 2)
     {
-    std::cerr << "This test expects 2 arguments" << std::endl;
+    std::cerr << "This test expects 1 argument" << std::endl;
     return EXIT_FAILURE;
     }
 
-  // Create the renderer, render window and render window interactor
+  // Initialize random number generator
+  vtkMath::RandomSeed(static_cast<int>( vtkTimerLog::GetUniversalTime()));
+
+  //Crate the sphere
+  vtkNew<vtkSphereSource> sphereSource;
+  sphereSource->SetRadius(vtkMath::Random( 0.1,1.0));
+  sphereSource->SetCenter(vtkMath::Random(-1.0,1.0),
+                          vtkMath::Random(-1.0,1.0),
+                          vtkMath::Random(-1.0,1.0));
+  sphereSource->Update();
+  vtkNew<vtkPolyDataMapper> sphereMapper;
+  sphereMapper->SetInputConnection(sphereSource->GetOutputPort());
+  vtkNew<vtkActor> sphereActor;
+  sphereActor->SetMapper(sphereMapper.GetPointer());
+
+  // Rendering and interaction
   vtkNew<vtkRenderer> renderer;
   vtkNew<vtkRenderWindow> renderWindow;
   renderWindow->AddRenderer(renderer.GetPointer());
   vtkNew<vtkRenderWindowInteractor> renderWindowInteractor;
   renderWindowInteractor->SetRenderWindow(renderWindow.GetPointer());
+  sphereActor->GetProperty()->SetOpacity(0.3);
 
-  // Create  and set the Bézier Surface Widget
-  vtkNew<vtkBezierSurfaceWidget> bezierSurfaceWidget;
-  bezierSurfaceWidget->SetInteractor(renderWindowInteractor.GetPointer());
-  bezierSurfaceWidget->On();
+  renderer->AddActor(sphereActor.GetPointer());
 
-  // Record events
-  vtkNew<vtkInteractorEventRecorder> recorder;
-  recorder->SetInteractor(renderWindowInteractor.GetPointer());
-  recorder->SetFileName(argv[1]);
-  recorder->On();
+  // Create the line widget
+  vtkNew<vtkLineWidget3> lineWidget;
+  lineWidget->SetInteractor(renderWindowInteractor.GetPointer());
+  lineWidget->SetHandleSizeFactor(10.0);
+  lineWidget->SetLineSizeFactor(5.0);
+  lineWidget->On();
+  lineWidget->PlaceWidget(sphereSource->GetOutput()->GetBounds());
 
-  // Initialize
-  renderWindowInteractor->Initialize();
   renderWindow->Render();
-  recorder->Play();
 
   // Take a screenshot
-  vtkNew<vtkWindowToImageFilter> screenShot;
-  screenShot->SetInput(renderWindow.GetPointer());
-  screenShot->SetInputBufferTypeToRGB();
-  screenShot->ReadFrontBufferOff();
-  screenShot->Update();
+  vtkNew<vtkWindowToImageFilter> screenshot;
+  screenshot->SetInput(renderWindow.GetPointer());
+  screenshot->SetInputBufferTypeToRGB();
+  screenshot->ReadFrontBufferOff();
+  screenshot->Update();
 
   // Read the reference image
   vtkNew<vtkPNGReader> pngReader;
-  pngReader->SetFileName(argv[2]);
+  pngReader->SetFileName(argv[1]);
   pngReader->Update();
 
   // Compute the difference between reference and the screenshot
   vtkNew<vtkImageDifference> imageDifference;
-  imageDifference->SetInputConnection(0, screenShot->GetOutputPort());
+  imageDifference->SetInputConnection(0, screenshot->GetOutputPort());
   imageDifference->SetInputConnection(1, pngReader->GetOutputPort());
   imageDifference->AllowShiftOn();
   imageDifference->AveragingOn();
@@ -105,7 +127,7 @@ int vtkBezierSurfaceWidgetTest1(int argc, char *argv[])
   // Compare the extents
   int ext1[6], ext2[6];
   pngReader->GetOutput()->GetExtent(ext1);
-  screenShot->GetOutput()->GetExtent(ext2);
+  screenshot->GetOutput()->GetExtent(ext2);
   if (ext1[0] != ext2[0] || ext1[1] != ext2[1] || ext1[2] != ext2[2] ||
       ext1[3] != ext2[3] || ext1[4] != ext2[4] || ext1[5] != ext2[5])
     {

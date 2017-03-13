@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program: NorMIT-Plan
-  Module: vtkBezierSurfaceWidgetTest1.cxx
+  Module: vtkLineWidget3Test1.cxx
 
   Copyright (c) 2017, The Intervention Centre, Oslo University Hospital
 
@@ -33,8 +33,9 @@
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   =========================================================================*/
 
+
 // This module includes
-#include "vtkBezierSurfaceWidget.h"
+#include "vtkLineWidget3.h"
 
 // VTK includes
 #include <vtkNew.h>
@@ -45,12 +46,13 @@
 #include <vtkWindowToImageFilter.h>
 #include <vtkImageDifference.h>
 #include <vtkPNGReader.h>
+#include <vtkPNGWriter.h>
 
 // STD includes
 #include <iostream>
 
 //------------------------------------------------------------------------------
-int vtkBezierSurfaceWidgetTest1(int argc, char *argv[])
+int vtkLineWidget3Test1(int argc, char *argv[])
 {
 
   //Check the arguments
@@ -68,11 +70,12 @@ int vtkBezierSurfaceWidgetTest1(int argc, char *argv[])
   renderWindowInteractor->SetRenderWindow(renderWindow.GetPointer());
 
   // Create  and set the Bézier Surface Widget
-  vtkNew<vtkBezierSurfaceWidget> bezierSurfaceWidget;
-  bezierSurfaceWidget->SetInteractor(renderWindowInteractor.GetPointer());
-  bezierSurfaceWidget->On();
+  vtkNew<vtkLineWidget3> lineWidget;
+  lineWidget->SetInteractor(renderWindowInteractor.GetPointer());
+  lineWidget->On();
 
-  // Record events
+
+    // Record events
   vtkNew<vtkInteractorEventRecorder> recorder;
   recorder->SetInteractor(renderWindowInteractor.GetPointer());
   recorder->SetFileName(argv[1]);

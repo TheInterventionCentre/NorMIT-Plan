@@ -43,10 +43,25 @@
 #include <vtkMRMLDisplayNode.h>
 
 //------------------------------------------------------------------------------
+
+/**
+ * \ingroup ResectionPlanning
+ *
+ * \brief This class represents the data model employed for resection. It
+ * contains all the information related to the resection like its relationship
+ * to other elements in the MRML scene.
+ */
 class VTK_SLICER_RESECTIONPLANNING_MODULE_MRML_EXPORT
 vtkMRMLResectionSurfaceDisplayNode : public vtkMRMLDisplayNode
 {
  public:
+
+  /**
+   * Standard vtk object instantiation method
+   *
+   *
+   * @return pointer to the newly vtkMRMLResectionSurfaceDisplayNode
+   */
   static vtkMRMLResectionSurfaceDisplayNode *New();
   vtkTypeMacro(vtkMRMLResectionSurfaceDisplayNode, vtkMRMLDisplayNode);
   void PrintSelf(ostream &os, vtkIndent indent);

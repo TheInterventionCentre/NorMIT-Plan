@@ -103,10 +103,10 @@ void qSlicerResectionPlanningModuleWidget::setup()
 
   // connections to the logic
   Connections->Connect(this->ModuleLogic,
-                       vtkSlicerResectionPlanningLogic::TumorNodeAdded,
+                       vtkSlicerResectionPlanningLogic::TumorModelAdded,
                        this, SLOT(OnTumorAdded(vtkObject*,unsigned long,void*,void*)));
   Connections->Connect(this->ModuleLogic,
-                       vtkSlicerResectionPlanningLogic::TumorNodeRemoved,
+                       vtkSlicerResectionPlanningLogic::TumorModelRemoved,
                        this, SLOT(OnTumorRemoved(vtkObject*,unsigned long,void*,void*)));
 
   this->Superclass::setup();

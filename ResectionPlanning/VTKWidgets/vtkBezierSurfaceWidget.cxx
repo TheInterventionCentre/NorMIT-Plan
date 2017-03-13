@@ -249,19 +249,11 @@ void vtkBezierSurfaceWidget::SetEnabled(int enabling)
                                   this->EventCallbackCommand,
                                   this->Priority);
 
-    this->Interactor->AddObserver(vtkCommand::MiddleButtonPressEvent,
-                                  this->EventCallbackCommand,
-                                  this->Priority);
-
     this->Interactor->AddObserver(vtkCommand::LeftButtonReleaseEvent,
                                   this->EventCallbackCommand,
                                   this->Priority);
 
     this->Interactor->AddObserver(vtkCommand::RightButtonReleaseEvent,
-                                  this->EventCallbackCommand,
-                                  this->Priority);
-
-    this->Interactor->AddObserver(vtkCommand::MiddleButtonReleaseEvent,
                                   this->EventCallbackCommand,
                                   this->Priority);
 
@@ -357,14 +349,6 @@ void vtkBezierSurfaceWidget::ProcessEvents(vtkObject *vtkNotUsed(object),
 
     case vtkCommand::RightButtonReleaseEvent:
       self->OnRightButtonUp();
-      break;
-
-    case vtkCommand::MiddleButtonPressEvent:
-      self->OnMiddleButtonDown();
-      break;
-
-    case vtkCommand::MiddleButtonReleaseEvent:
-      self->OnMiddleButtonUp();
       break;
 
     case vtkCommand::MouseMoveEvent:
@@ -761,18 +745,6 @@ void vtkBezierSurfaceWidget::OnRightButtonUp()
   this->EndInteraction();
   this->InvokeEvent(vtkCommand::EndInteractionEvent, NULL);
   this->Interactor->Render();
-}
-
-//------------------------------------------------------------------------------
-void vtkBezierSurfaceWidget::OnMiddleButtonDown()
-{
-
-}
-
-//-------------------------------------------------------------------------------
-void vtkBezierSurfaceWidget::OnMiddleButtonUp()
-{
-
 }
 
 //------------------------------------------------------------------------------

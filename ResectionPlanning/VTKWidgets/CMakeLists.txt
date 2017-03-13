@@ -15,6 +15,7 @@ set(${KIT}_EXPORT_DIRECTIVE "VTK_SLICER_${MODULE_NAME_UPPER}_MODULE_VTKWIDGETS_E
 set(${KIT}_SRCS
   vtkBezierSurfaceWidget.cxx
   vtkBezierSurfaceSource.cxx
+  vtkLineWidget3.cxx
   )
 
 set(${KIT}_TARGET_LIBRARIES

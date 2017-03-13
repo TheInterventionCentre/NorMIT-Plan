@@ -1,0 +1,5 @@
+/** \defgroup ResectionPlanning Resection planning module group
+ *
+ * This module provides functionality to peform planning of liver resections.
+ *
+ */
