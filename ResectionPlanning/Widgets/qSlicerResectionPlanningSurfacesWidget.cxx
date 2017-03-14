@@ -101,9 +101,12 @@ qSlicerResectionPlanningSurfacesWidget
 
 //-----------------------------------------------------------------------------
 void qSlicerResectionPlanningSurfacesWidget
-::AddToTumorList(const QString &nodeID, const QString &nodeName)
+::AddToTumorList(QPair<QString&,QString&> &myPair)
 {
   Q_D(qSlicerResectionPlanningSurfacesWidget);
+
+  QString nodeID = myPair.first;
+  QString nodeName = myPair.second;
 
   QListWidgetItem *item = new QListWidgetItem();
   item->setText(nodeName);
@@ -118,9 +121,12 @@ void qSlicerResectionPlanningSurfacesWidget
 }
 
 void qSlicerResectionPlanningSurfacesWidget
-::RemoveFromTumorList(const QString &nodeID, const QString &nodeName)
+::RemoveFromTumorList(QPair<QString&,QString&> &myPair)
 {
   Q_D(qSlicerResectionPlanningSurfacesWidget);
+
+  QString nodeID = myPair.first;
+  QString nodeName = myPair.second;
 
   QListWidgetItem *item = this->tumorIDtoItemMap.find(nodeID)->second;
 

@@ -33,6 +33,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "qSlicerResectionPlanningModuleExport.h"
 
 #include <QString>
+#include <string>
 
 class qSlicerResectionPlanningModuleWidgetPrivate;
 class qSlicerResectionPlanningModule;
@@ -59,6 +60,32 @@ public:
   virtual ~qSlicerResectionPlanningModuleWidget();
 
 public slots:
+/**
+ * Called when a tumor is added to a resection via the gui in the Surfaces widget
+ * connected to signal from surfaces widget: AddTumorButtonClicked
+ * This function sends the parameter information up to the Logic
+ *
+ * @param resection node name
+ * @param tumor node name
+ */
+void OnAddTumorFromWidget(QPair<QString&,QString&>&);
+
+/**
+ * Called when a tumor is removed from a resection via the gui in the Surfaces widget
+ * connected to signal from surfaces widget: RemoveTumorButtonClicked
+ * This function sends the parameter information up to the Logic
+ *
+ * @param resection node name
+ * @param tumor node name
+ */
+void OnRemoveTumorFromWidget(QPair<QString&,QString&>&);
+
+/**
+ * Called when Volumes button is clicked
+ * connected to signal from volumes widget: VolumesButtonClicked
+ */
+void OnVolumesButtonClicked(QString&);
+
 
 protected:
   QScopedPointer<qSlicerResectionPlanningModuleWidgetPrivate> d_ptr;
@@ -71,26 +98,6 @@ protected:
 protected slots:
   void nodeSelectionChanged(vtkMRMLNode* node);
   void setMRMLScene(vtkMRMLScene* scene);
-
-  /**
-   * Called when a tumor is added to a resection via the gui in the Surfaces widget
-   * connected to signal from surfaces widget: AddTumorButtonClicked
-   * This function sends the parameter information up to the Logic
-   *
-   * @param resection node name
-   * @param tumor node name
-   */
-  void OnAddTumorFromWidget(QPair<QString&,QString&>&);
-
-  /**
-   * Called when a tumor is removed from a resection via the gui in the Surfaces widget
-   * connected to signal from surfaces widget: RemoveTumorButtonClicked
-   * This function sends the parameter information up to the Logic
-   *
-   * @param resection node name
-   * @param tumor node name
-   */
-  void OnRemoveTumorFromWidget(QPair<QString&,QString&>&);
 
   /**
    * Called when a model node, that is identified as a tumor, is added in the logic

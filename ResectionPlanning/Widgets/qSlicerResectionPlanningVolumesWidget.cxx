@@ -70,10 +70,26 @@ qSlicerResectionPlanningVolumesWidget
 {
   Q_D(qSlicerResectionPlanningVolumesWidget);
   d->setupUi(this);
+
+  QObject::connect(d->calculateVolumetryButton, SIGNAL(clicked()),
+                   this, SLOT(OnCalculateVolumetryClicked()));
 }
 
 //-----------------------------------------------------------------------------
 qSlicerResectionPlanningVolumesWidget
 ::~qSlicerResectionPlanningVolumesWidget()
 {
+}
+
+
+//-----------------------------------------------------------------------------
+void qSlicerResectionPlanningVolumesWidget
+::OnCalculateVolumetryClicked()
+{
+  // figure out which tumor is highlighted and remove from the list related to the current resection node
+  Q_D(qSlicerResectionPlanningVolumesWidget);
+
+  QString test("test_string");
+
+  emit VolumesButtonClicked(test);
 }

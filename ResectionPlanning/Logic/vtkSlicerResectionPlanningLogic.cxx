@@ -53,7 +53,6 @@
 #include <iostream>
 #include <map>
 #include <list>
-#include <QString>
 #include <string>
 
 
@@ -167,11 +166,11 @@ void vtkSlicerResectionPlanningLogic
       }
 
     // get name of node
-    QString Qname = modelNode->GetName();
-    QString Qid = modelNode->GetID();
+    std::string Qname = modelNode->GetName();
+    std::string Qid = modelNode->GetID();
 
     //Inform about the tumor model added.
-    std::pair<QString, QString> pair;
+    std::pair<std::string, std::string> pair;
     pair.first = Qid;
     pair.second = Qname;
     this->InvokeEvent(vtkSlicerResectionPlanningLogic::TumorModelAdded,
@@ -298,11 +297,11 @@ void vtkSlicerResectionPlanningLogic
       }
 
     // get name of node
-    QString Qname = modelNode->GetName();
-    QString Qid = modelNode->GetID();
+    std::string Qname = modelNode->GetName();
+    std::string Qid = modelNode->GetID();
 
     //Inform about the tumor model removed.
-    std::pair<QString, QString> pair;
+    std::pair<std::string, std::string> pair;
     pair.first = Qid;
     pair.second = Qname;
     this->InvokeEvent(vtkSlicerResectionPlanningLogic::TumorModelRemoved,

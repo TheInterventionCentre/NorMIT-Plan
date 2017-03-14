@@ -62,16 +62,17 @@ public:
    *
    * @param tumor node name
    */
-  void AddToTumorList(const QString &nodeID, const QString &nodeName);
+  void AddToTumorList(QPair<QString&,QString&>&);
 
   /**
    * Removes a tumor to the list of available tumors (listTumorsToAdd)
    *
    * @param tumor node name
    */
-  void RemoveFromTumorList(const QString &nodeID, const QString &nodeName);
+  void RemoveFromTumorList(QPair<QString&,QString&>&);
 
 signals:
+
   /**
    * Signal emited when the button to add tumors to a resection is clicked
    *

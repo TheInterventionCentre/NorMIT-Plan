@@ -101,6 +101,12 @@ void qSlicerResectionPlanningModuleWidget::setup()
                      this,
                      SLOT(OnAddTumorFromWidget(QPair<QString&,QString&>&)));
 
+  QObject::connect(d->VolumesWidget,
+                     SIGNAL(VolumesButtonClicked(QString&)),
+                     this,
+                     SLOT(OnVolumesButtonClicked(QString&)));
+
+
   // connections to the logic
   Connections->Connect(this->ModuleLogic,
                        vtkSlicerResectionPlanningLogic::TumorModelAdded,
@@ -144,6 +150,11 @@ void qSlicerResectionPlanningModuleWidget::OnRemoveTumorFromWidget(QPair<QString
    this->ModuleLogic->RemoveTumorToResectionAssociation(myPair.first.toStdString(), myPair.second.toStdString());
 }
 
+void qSlicerResectionPlanningModuleWidget::OnVolumesButtonClicked(QString& test)
+{
+  std::cout << "Widget - Volumes button clicked " << std::endl;
+}
+
 void qSlicerResectionPlanningModuleWidget
 ::OnTumorAdded(vtkObject* vtkNotUsed(object),
                    unsigned long vtkNotUsed(event),
@@ -152,11 +163,16 @@ void qSlicerResectionPlanningModuleWidget
 {
   Q_D(qSlicerResectionPlanningModuleWidget);
 
-  std::pair<QString, QString> *pair =
-    reinterpret_cast< std::pair<QString,QString> *>(callData);
+  std::pair<std::string, std::string> *pair =
+    reinterpret_cast< std::pair<std::string,std::string> *>(callData);
+
+  QString Qid = QString::fromStdString(pair->first);
+  QString Qname = QString::fromStdString(pair->second);
+
+  QPair<QString&,QString&> myPair(Qid, Qname);
 
   // add tumor node to list
-  d->SurfacesWidget->AddToTumorList(pair->first, pair->second);
+  d->SurfacesWidget->AddToTumorList(myPair);
 }
 
 void qSlicerResectionPlanningModuleWidget
@@ -167,12 +183,14 @@ void qSlicerResectionPlanningModuleWidget
 {
   Q_D(qSlicerResectionPlanningModuleWidget);
 
-  std::pair<QString, QString> *pair =
-    reinterpret_cast< std::pair<QString,QString> *>(callData);
+  std::pair<std::string, std::string> *pair =
+    reinterpret_cast< std::pair<std::string,std::string> *>(callData);
 
-  // add tumor node to list
-  d->SurfacesWidget->RemoveFromTumorList(pair->first, pair->second);
+  QString Qid = QString::fromStdString(pair->first);
+  QString Qname = QString::fromStdString(pair->second);
+
+  QPair<QString&,QString&> myPair(Qid, Qname);
+
+  // remove tumor node to list
+  d->SurfacesWidget->RemoveFromTumorList(myPair);
 }
-
-
-

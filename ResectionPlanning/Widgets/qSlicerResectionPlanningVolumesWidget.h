@@ -30,6 +30,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Qt includes
 #include <QWidget>
+#include <QString>
 
 // FooBar Widgets includes
 #include "qSlicerResectionPlanningModuleWidgetsExport.h"
@@ -52,7 +53,18 @@ public:
   qSlicerResectionPlanningVolumesWidget(QWidget *parent=0);
   virtual ~qSlicerResectionPlanningVolumesWidget();
 
+signals:
+  /**
+   * Signal emited when the button to calculate the volumes is clicked
+   */
+void VolumesButtonClicked(QString&);
+
+
 protected slots:
+  /**
+   * Triggered when the button for calculating volumetry is clicked
+   */
+  void OnCalculateVolumetryClicked();
 
 protected:
   QScopedPointer<qSlicerResectionPlanningVolumesWidgetPrivate> d_ptr;
