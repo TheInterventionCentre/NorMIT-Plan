@@ -214,7 +214,7 @@ AddWidget(vtkMRMLResectionInitializationNode *initializationNode)
   vtkDebugMacro("AddWidget: saved to helper.");
 
   this->SetAndObserveNode(initializationNode);
-  this->RequestRender();
+  this->RequestRender( );
 
   return true;
 }
