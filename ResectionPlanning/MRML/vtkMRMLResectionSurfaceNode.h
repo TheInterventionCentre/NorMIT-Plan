@@ -36,7 +36,7 @@
 #ifndef __vtkMRMLResectionSurfaceNode_h
 #define __vtkMRMLResectionSurfaceNode_h
 
-// This modules includes.
+// This module includes.
 #include "vtkSlicerResectionPlanningModuleMRMLExport.h"
 
 // MRML includes
@@ -85,12 +85,12 @@ vtkMRMLResectionSurfaceNode: public vtkMRMLModelNode
   /**
    * Standard MRML method to create the node instance.
    *
-   * @return a pointer to the newly created vtkMRMLNode.
+   * @return a pointer to the new created vtkMRMLNode.
    */
   virtual vtkMRMLNode *CreateNodeInstance();
 
   /**
-   * Get the tag name of the node
+   * Get the tag name of the node.
    *
    *
    * @return string with the tag name of the node.
@@ -101,7 +101,7 @@ vtkMRMLResectionSurfaceNode: public vtkMRMLModelNode
    * Get the icon associated to the node.
    *
    *
-   * @return string pointing to the resource where the icon is allocated.
+   * @return string pointing to the resource where the icon is located.
    */
   virtual const char* GetIcon() {return "";}
 
