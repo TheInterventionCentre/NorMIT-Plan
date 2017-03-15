@@ -57,7 +57,7 @@ signals:
   /**
    * Signal emited when the button to calculate the volumes is clicked
    */
-void VolumesButtonClicked(QString&);
+   void VolumesButtonClicked();
 
 
 protected slots:

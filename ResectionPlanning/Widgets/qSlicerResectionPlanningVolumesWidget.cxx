@@ -89,7 +89,5 @@ void qSlicerResectionPlanningVolumesWidget
   // figure out which tumor is highlighted and remove from the list related to the current resection node
   Q_D(qSlicerResectionPlanningVolumesWidget);
 
-  QString test("test_string");
-
-  emit VolumesButtonClicked(test);
+  emit VolumesButtonClicked();
 }

@@ -119,7 +119,6 @@ void vtkSlicerResectionPlanningLogic::RegisterNodes()
   vtkMRMLScene *scene = this->GetMRMLScene();
   scene->RegisterNodeClass(vtkSmartPointer<vtkMRMLResectionSurfaceNode>::New());
   scene->RegisterNodeClass(vtkSmartPointer<vtkMRMLResectionSurfaceDisplayNode>::New());
-
 }
 
 //---------------------------------------------------------------------------
@@ -165,18 +164,9 @@ void vtkSlicerResectionPlanningLogic
       tumorModelDisplayNode->ScalarVisibilityOn();
       }
 
-    // get name of node
-    std::string Qname = modelNode->GetName();
-    std::string Qid = modelNode->GetID();
-
     //Inform about the tumor model added.
-    std::pair<std::string, std::string> pair;
-    pair.first = Qid;
-    pair.second = Qname;
     this->InvokeEvent(vtkSlicerResectionPlanningLogic::TumorModelAdded,
-                      &pair);
-    this->tumorList.push_back(modelNode);
-
+                      &id_name);
     return;
     }
 
@@ -197,7 +187,6 @@ void vtkSlicerResectionPlanningLogic
     // Inform that a hepatic node was added
     this->InvokeEvent(vtkSlicerResectionPlanningLogic::ParenchymaModelAdded,
                       static_cast<void*>(&id_name));
-
     return;
     }
 
@@ -251,9 +240,6 @@ void vtkSlicerResectionPlanningLogic
     // Inform that a resedtion node was added
     this->InvokeEvent(vtkSlicerResectionPlanningLogic::ResectionNodeAdded,
                       static_cast<void*>(&id_name));
-
-    this->resectionList.push_back(resectionNode);
-
     return;
     }
 }
@@ -296,18 +282,9 @@ void vtkSlicerResectionPlanningLogic
       tumorModelDisplayNode->ScalarVisibilityOn();
       }
 
-    // get name of node
-    std::string Qname = modelNode->GetName();
-    std::string Qid = modelNode->GetID();
-
     //Inform about the tumor model removed.
-    std::pair<std::string, std::string> pair;
-    pair.first = Qid;
-    pair.second = Qname;
     this->InvokeEvent(vtkSlicerResectionPlanningLogic::TumorModelRemoved,
-                      &pair);
-    this->tumorList.remove(modelNode);
-
+                      &id_name);
     return;
     }
 
@@ -328,7 +305,6 @@ void vtkSlicerResectionPlanningLogic
     // Inform that a hepatic node was removed
     this->InvokeEvent(vtkSlicerResectionPlanningLogic::ParenchymaModelRemoved,
                       static_cast<void*>(&id_name));
-
     return;
     }
 
@@ -382,31 +358,6 @@ void vtkSlicerResectionPlanningLogic
     // Inform that a resedtion node was removed
     this->InvokeEvent(vtkSlicerResectionPlanningLogic::ResectionNodeRemoved,
                       static_cast<void*>(&id_name));
-
-    this->resectionList.remove(resectionNode);
-
     return;
     }
-}
-
-
-void vtkSlicerResectionPlanningLogic
-::SetTumorToResectionAssociation(std::string rsNodeName, std::string tumorNodeName)
-{
-  std::cout << "'Resection: " << rsNodeName << ", associated to tumor: " << tumorNodeName << '\n';
-  this->resectionToTumorMap.insert(std::pair<std::string, std::string>(rsNodeName, tumorNodeName));
-}
-
-void vtkSlicerResectionPlanningLogic
-::RemoveTumorToResectionAssociation(std::string rsNodeName, std::string tumorNodeName)
-{
-  std::multimap<std::string, std::string>::iterator it;
-
-  for (it=resectionToTumorMap.begin(); it!=resectionToTumorMap.end(); ++it) {
-    if(((*it).first == rsNodeName) && ((*it).second == tumorNodeName))
-    {
-      std::cout << "'Resection: " << (*it).first << ", removed association to tumor: " << (*it).second << '\n';
-      this->resectionToTumorMap.erase(it);
-    }
-  }
 }

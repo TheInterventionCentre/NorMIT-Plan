@@ -6,9 +6,15 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>535</width>
-    <height>630</height>
+    <width>489</width>
+    <height>645</height>
    </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
   </property>
   <property name="windowTitle">
    <string>Form</string>
@@ -41,6 +47,9 @@
       </item>
       <item>
        <widget class="qSlicerResectionPlanningSurfacesWidget" name="SurfacesWidget" native="true"/>
+      </item>
+      <item>
+       <widget class="qSlicerResectionPlanningTumorsWidget" name="TumorsWidget" native="true"/>
       </item>
       <item>
        <spacer name="verticalSpacer_2">
@@ -136,6 +145,12 @@
    <class>qSlicerResectionPlanningVolumesWidget</class>
    <extends>QWidget</extends>
    <header>qslicerresectionplanningvolumeswidget.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>qSlicerResectionPlanningTumorsWidget</class>
+   <extends>QWidget</extends>
+   <header>qslicerresectionplanningtumorswidget.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

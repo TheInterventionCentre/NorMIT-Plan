@@ -1,6 +1,6 @@
 /*=========================================================================
 Program: NorMIT-Nav
-Module: qSlicerResectionPlanningSurfacesWidget.h
+Module: qSlicerResectionPlanningTumorsWidget.h
 Copyright (c) 2017 The Intervention Centre, Oslo University Hospital
 All rights reserved.
 Redistribution and use in source and binary forms, with or without
@@ -25,8 +25,8 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 
-#ifndef __qSlicerResectionPlanningSurfacesWidget_h
-#define __qSlicerResectionPlanningSurfacesWidget_h
+#ifndef __qSlicerResectionPlanningTumorsWidget_h
+#define __qSlicerResectionPlanningTumorsWidget_h
 
 // Qt includes
 #include <QWidget>
@@ -37,7 +37,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // FooBar Widgets includes
 #include "qSlicerResectionPlanningModuleWidgetsExport.h"
 
-class qSlicerResectionPlanningSurfacesWidgetPrivate;
+class qSlicerResectionPlanningTumorsWidgetPrivate;
 class QString;
 class QListWidget;
 class QListWidgetItem;
@@ -48,38 +48,71 @@ class QListWidgetItem;
  *
  * This class sends and receives information to/from qSlicerResectionPlanningModuleWidget
  */
-class Q_SLICER_MODULE_RESECTIONPLANNING_WIDGETS_EXPORT qSlicerResectionPlanningSurfacesWidget
+class Q_SLICER_MODULE_RESECTIONPLANNING_WIDGETS_EXPORT qSlicerResectionPlanningTumorsWidget
   : public QWidget
 {
   Q_OBJECT
 public:
   typedef QWidget Superclass;
-  qSlicerResectionPlanningSurfacesWidget(QWidget *parent=0);
-  virtual ~qSlicerResectionPlanningSurfacesWidget();
+  qSlicerResectionPlanningTumorsWidget(QWidget *parent=0);
+  virtual ~qSlicerResectionPlanningTumorsWidget();
 
 public slots:
+  /**
+   * Functions for exposing functionality for testing
+   */
+  QString SelectItemInAvailableTumors(QString&);
+  QString SelectItemInResectionTumors(QString&);
+
+  /**
+   * Adds a tumor to the list of available tumors (listTumorsToAdd)
+   *
+   * @param tumor node name
+   */
+  void AddToTumorList(QString&,QString&);
+
+  /**
+   * Removes a tumor to the list of available tumors (listTumorsToAdd)
+   *
+   * @param tumor node name
+   */
+  void RemoveFromTumorList(QString&,QString&);
 
 signals:
+  /**
+   * Signal emited when the button to add tumors to a resection is clicked
+   *
+   * @param first string is resection node name, second string is tumor node name
+   */
+  void AddTumorButtonClicked(QString&,QString&);
+
+  /**
+   * Signal emited when the button to remove tumors from a resection is clicked
+   *
+   * @param first string is resection node name, second string is tumor node name
+   */
+  void RemoveTumorButtonClicked(QString&,QString&);
 
 protected slots:
   /**
-   * Triggered when the button for adding a resection surface is clicked
+   * Triggered when the button for adding a tumor to the resection is clicked
    */
-  void OnAddSurfaceButtonClicked();
+  void OnAddTumorButtonClicked();
 
   /**
-   * Triggered when the button for removing a resection surface is clicked
+   * Triggered when the button for removing a tumor to the resection surface is clicked
    */
-  void OnRemoveSurfaceButtonClicked();
-
+  void OnRemoveTumorButtonClicked();
 
 protected:
-  QScopedPointer<qSlicerResectionPlanningSurfacesWidgetPrivate> d_ptr;
+  QScopedPointer<qSlicerResectionPlanningTumorsWidgetPrivate> d_ptr;
 
 private:
-  Q_DECLARE_PRIVATE(qSlicerResectionPlanningSurfacesWidget);
-  Q_DISABLE_COPY(qSlicerResectionPlanningSurfacesWidget);
+  Q_DECLARE_PRIVATE(qSlicerResectionPlanningTumorsWidget);
+  Q_DISABLE_COPY(qSlicerResectionPlanningTumorsWidget);
 
+  std::map<QString, QListWidgetItem*> tumorIDtoItemMap;
+  std::multimap<std::string, std::string> resectionToTumorMap;
 };
 
 #endif

@@ -68,7 +68,7 @@ public slots:
  * @param resection node name
  * @param tumor node name
  */
-void OnAddTumorFromWidget(QPair<QString&,QString&>&);
+void OnAddTumorFromWidget(QString&,QString&);
 
 /**
  * Called when a tumor is removed from a resection via the gui in the Surfaces widget
@@ -78,13 +78,13 @@ void OnAddTumorFromWidget(QPair<QString&,QString&>&);
  * @param resection node name
  * @param tumor node name
  */
-void OnRemoveTumorFromWidget(QPair<QString&,QString&>&);
+void OnRemoveTumorFromWidget(QString&,QString&);
 
 /**
  * Called when Volumes button is clicked
  * connected to signal from volumes widget: VolumesButtonClicked
  */
-void OnVolumesButtonClicked(QString&);
+void OnVolumesButtonClicked();
 
 
 protected:

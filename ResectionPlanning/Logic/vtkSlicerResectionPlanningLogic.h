@@ -99,25 +99,10 @@ public vtkSlicerModuleLogic
    * Standard vtk object instantiation method.
    *
    * @return a pointer to the newly created object.
-   */static vtkSlicerResectionPlanningLogic *New();
+   */
+  static vtkSlicerResectionPlanningLogic *New();
 
   vtkTypeMacro(vtkSlicerResectionPlanningLogic, vtkSlicerModuleLogic);
-
-  /**
-   * Set an association between a resection and a tumor
-   *
-   * @param resection node name
-   * @param tumor node name
-   */
-  void SetTumorToResectionAssociation(std::string rsNodeName, std::string tumorNodeName);
-
-  /**
-   * Remove an association between a resection and a tumor
-   *
-   * @param resection node name
-   * @param tumor node name
-   */
-  void RemoveTumorToResectionAssociation(std::string rsNodeName, std::string tumorNodeName);
 
   /**
    * Standard vtk object function to print the properties of the object.
@@ -168,11 +153,6 @@ public vtkSlicerModuleLogic
   void operator=(const vtkSlicerResectionPlanningLogic&); // Not implemented
 
   vtkSmartPointer<vtkAppendPolyData> AppendTumors;
-
-  std::list<vtkMRMLResectionSurfaceNode*> resectionList;
-  std::list<vtkMRMLModelNode*> tumorList;
-  std::multimap<std::string, std::string> resectionToTumorMap;
-
 };
 
 #endif

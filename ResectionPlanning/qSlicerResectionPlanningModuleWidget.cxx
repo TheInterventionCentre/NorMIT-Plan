@@ -93,18 +93,18 @@ void qSlicerResectionPlanningModuleWidget::setup()
 
   // connections to lower level widgets (surfaces, volumes)
   QObject::connect(d->SurfacesWidget,
-                     SIGNAL(AddTumorButtonClicked(QPair<QString&,QString&>&)),
+                     SIGNAL(AddTumorButtonClicked(QString&,QString&)),
                      this,
-                     SLOT(OnAddTumorFromWidget(QPair<QString&,QString&>&)));
+                     SLOT(OnAddTumorFromWidget(QString&,QString&)));
   QObject::connect(d->SurfacesWidget,
-                     SIGNAL(RemoveTumorButtonClicked(QPair<QString&,QString&>&)),
+                     SIGNAL(RemoveTumorButtonClicked(QString&,QString&)),
                      this,
-                     SLOT(OnAddTumorFromWidget(QPair<QString&,QString&>&)));
+                     SLOT(OnAddTumorFromWidget(QString&,QString&)));
 
   QObject::connect(d->VolumesWidget,
-                     SIGNAL(VolumesButtonClicked(QString&)),
+                     SIGNAL(VolumesButtonClicked()),
                      this,
-                     SLOT(OnVolumesButtonClicked(QString&)));
+                     SLOT(OnVolumesButtonClicked()));
 
 
   // connections to the logic
@@ -140,17 +140,17 @@ void qSlicerResectionPlanningModuleWidget::setMRMLScene(vtkMRMLScene* scene)
 }
 
 
-void qSlicerResectionPlanningModuleWidget::OnAddTumorFromWidget(QPair<QString&,QString&> &myPair)
+void qSlicerResectionPlanningModuleWidget::OnAddTumorFromWidget(QString &nodeID, QString &nodeName)
 {
-   this->ModuleLogic->SetTumorToResectionAssociation(myPair.first.toStdString(), myPair.second.toStdString());
+
 }
 
-void qSlicerResectionPlanningModuleWidget::OnRemoveTumorFromWidget(QPair<QString&,QString&> &myPair)
+void qSlicerResectionPlanningModuleWidget::OnRemoveTumorFromWidget(QString &nodeID, QString &nodeName)
 {
-   this->ModuleLogic->RemoveTumorToResectionAssociation(myPair.first.toStdString(), myPair.second.toStdString());
+
 }
 
-void qSlicerResectionPlanningModuleWidget::OnVolumesButtonClicked(QString& test)
+void qSlicerResectionPlanningModuleWidget::OnVolumesButtonClicked()
 {
   std::cout << "Widget - Volumes button clicked " << std::endl;
 }
@@ -169,10 +169,10 @@ void qSlicerResectionPlanningModuleWidget
   QString Qid = QString::fromStdString(pair->first);
   QString Qname = QString::fromStdString(pair->second);
 
-  QPair<QString&,QString&> myPair(Qid, Qname);
+  std::cout << "Widget - add tumor to list " << pair->second << std::endl;
 
   // add tumor node to list
-  d->SurfacesWidget->AddToTumorList(myPair);
+  d->TumorsWidget->AddToTumorList(Qid, Qname);
 }
 
 void qSlicerResectionPlanningModuleWidget
@@ -189,8 +189,8 @@ void qSlicerResectionPlanningModuleWidget
   QString Qid = QString::fromStdString(pair->first);
   QString Qname = QString::fromStdString(pair->second);
 
-  QPair<QString&,QString&> myPair(Qid, Qname);
+  std::cout << "Widget - remove tumor from list " << pair->second << std::endl;
 
   // remove tumor node to list
-  d->SurfacesWidget->RemoveFromTumorList(myPair);
+  d->TumorsWidget->RemoveFromTumorList(Qid, Qname);
 }
