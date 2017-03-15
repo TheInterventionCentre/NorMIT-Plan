@@ -383,4 +383,11 @@ void vtkSlicerResectionPlanningLogic::AddResectionSurface()
   resectionNode->SetScene(this->GetMRMLScene());
   resectionNode->SetAndObserveDisplayNodeID(resectionDisplayNode->GetID());
   this->GetMRMLScene()->AddNode(resectionNode);
+
+  std::pair<std::string, std::string> id_name;
+  id_name.first = std::string(resectionNode->GetID());
+  id_name.second = std::string(resectionNode->GetName());
+  this->InvokeEvent(vtkSlicerResectionPlanningLogic::ResectionNodeAdded,
+                    static_cast<void*>(&id_name));
+
 }

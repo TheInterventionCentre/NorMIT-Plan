@@ -171,6 +171,10 @@ int vtkSlicerResectionPlanningLogicTest1(int, char * [])
                       modelsCommand2);
   logic1->AddObserver(vtkSlicerResectionPlanningLogic::HepaticModelRemoved,
                       modelsCommand2);
+  logic1->AddObserver(vtkSlicerResectionPlanningLogic::ResectionNodeAdded,
+                      modelsCommand2);
+  logic1->AddObserver(vtkSlicerResectionPlanningLogic::ResectionNodeRemoved,
+                      modelsCommand2);
 
   //Adding a parenchyma model -- correct naming
   modelsCommand2->Reset();
