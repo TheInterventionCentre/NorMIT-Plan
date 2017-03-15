@@ -10,6 +10,7 @@ set(KIT_TEST_SRCS
   vtkLineWidget3Test2.cxx
   vtkMRMLResectionSurfaceNodeTest1.cxx
   vtkMRMLResectionSurfaceDisplayNodeTest1.cxx
+  vtkMRMLResectionInitializationNodeTest1.cxx
   vtkSlicerResectionPlanningLogicTest1.cxx
   )
 
@@ -51,6 +52,9 @@ simple_test(vtkMRMLResectionSurfaceNodeTest1)
 
 # Test resection surface display node
 simple_test(vtkMRMLResectionSurfaceDisplayNodeTest1)
+
+# Test resection initialization
+simple_test(vtkMRMLResectionInitializationNodeTest1)
 
 # Test resection planning logic
 simple_test(vtkSlicerResectionPlanningLogicTest1)
