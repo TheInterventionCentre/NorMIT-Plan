@@ -47,6 +47,7 @@ vtkStandardNewMacro(vtkMRMLResectionInitializationNode);
 vtkMRMLResectionInitializationNode::vtkMRMLResectionInitializationNode()
 {
   this->HideFromEditorsOn();
+  this->SaveWithSceneOff();
 }
 
 //------------------------------------------------------------------------------
@@ -57,7 +58,7 @@ vtkMRMLResectionInitializationNode::~vtkMRMLResectionInitializationNode()
 
 //------------------------------------------------------------------------------
 void vtkMRMLResectionInitializationNode::PrintSelf(ostream &vtkNotUsed(os),
-                                              vtkIndent vtkNotUsed(indent))
+                                                   vtkIndent vtkNotUsed(indent))
 {
 
 }

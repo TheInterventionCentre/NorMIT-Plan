@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program: NorMIT-Plan
-  Module: vtkResectionDisplayableManager3D.h
+  Module: vtkMRMLResectionInitializationDisplayableManager3D.h
 
   Copyright (c) 2017, The Intervention Centre, Oslo University Hospital
 
@@ -33,8 +33,8 @@
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   =========================================================================*/
 
-#ifndef __vtkMRMLResectionDisplayableManager3D_h
-#define __vtkMRMLResectionDisplayableManager3D_h
+#ifndef __vtkMRMLResectionInitializationDisplayableManager3D_h
+#define __vtkMRMLResectionInitializationDisplayableManager3D_h
 
 // This module includes
 #include "vtkSlicerResectionPlanningModuleMRMLDisplayableManagerExport.h"
@@ -43,29 +43,32 @@
 #include <vtkMRMLAbstractThreeDViewDisplayableManager.h>
 
 // VTK includes
-#include <vtkNew.h>
+#include <vtkSmartPointer.h>
+
+// STD includes
+#include <map>
 
 //------------------------------------------------------------------------------
-class vtkMRMLResectionDisplayableManager3DHelper;
-class vtkMRMLResectionSurfaceNode;
-
-class vtk3DWidget;
+class vtkMRMLResectionInitializationNode;
+class vtkCollection;
+class vtkLineWidget3;
 
 //------------------------------------------------------------------------------
 class VTK_SLICER_RESECTIONPLANNING_MODULE_MRMLDISPLAYABLEMANAGER_EXPORT
-vtkMRMLResectionDisplayableManager3D :
+vtkMRMLResectionInitializationDisplayableManager3D:
 public vtkMRMLAbstractThreeDViewDisplayableManager
 {
  public:
 
-  /**
+    /**
    * Standard VTK object creation macro.
    *
    *
    * @return a pointer to the new created object.
    */
-  static vtkMRMLResectionDisplayableManager3D *New();
-  vtkTypeMacro(vtkMRMLResectionDisplayableManager3D,
+  static vtkMRMLResectionInitializationDisplayableManager3D* New();
+
+  vtkTypeMacro(vtkMRMLResectionInitializationDisplayableManager3D,
                vtkMRMLAbstractThreeDViewDisplayableManager);
 
   /**
@@ -76,19 +79,9 @@ public vtkMRMLAbstractThreeDViewDisplayableManager
    */
   void PrintSelf(ostream &os, vtkIndent indent);
 
-  /**
-   * This method creates a new widget for the resection surface node and
-   * registers it with the helper.
-   *
-   * @param node base node to create the widget from.
-   *
-   * @return true if the widget was successfully added, false otherwise.
-   */
-  bool AddWidget(vtkMRMLResectionSurfaceNode *node);
-
  protected:
-  vtkMRMLResectionDisplayableManager3D();
-  virtual ~vtkMRMLResectionDisplayableManager3D();
+  vtkMRMLResectionInitializationDisplayableManager3D();
+  ~ vtkMRMLResectionInitializationDisplayableManager3D();
 
   /**
    * Sets a new scene.
@@ -102,7 +95,7 @@ public vtkMRMLAbstractThreeDViewDisplayableManager
    *
    * @param node pointer to the node to be observed.
    */
-  void SetAndObserveNode(vtkMRMLResectionSurfaceNode* node);
+  void SetAndObserveNode(vtkMRMLResectionInitializationNode* node);
 
   /**
    * Update manager based on the MRML node if UpdateFromMRMLRequested is true
@@ -111,7 +104,7 @@ public vtkMRMLAbstractThreeDViewDisplayableManager
    */
   virtual void UpdateFromMRML();
 
-  /**
+    /**
    * Update manager from MRMLScene.
    *
    */
@@ -137,16 +130,27 @@ public vtkMRMLAbstractThreeDViewDisplayableManager
    */
   virtual void OnMRMLSceneNodeRemoved(vtkMRMLNode* node);
 
-  // Description:
-  // Helper class.
-  vtkNew<vtkMRMLResectionDisplayableManager3DHelper> Helper;
+  /**
+   * Add a new widget to the scene
+   *
+   * @param node pointer to mrml node which will be used as a base for the
+   * widget creation.
+   *
+   * @return true if the widget was added, false otherwise.
+   */
+  bool AddWidget(vtkMRMLResectionInitializationNode *node);
 
  private:
+    vtkMRMLResectionInitializationDisplayableManager3D(
+      const vtkMRMLResectionInitializationDisplayableManager3D&);
+    void operator=(const vtkMRMLResectionInitializationDisplayableManager3D&);
 
-  // Description:
-  // Copy constructor and copy operator
-  vtkMRMLResectionDisplayableManager3D(const vtkMRMLResectionDisplayableManager3D&);
-  void operator=(const vtkMRMLResectionDisplayableManager3D&);
+    // Map holding the association between node and widget.
+    std::map<vtkMRMLResectionInitializationNode*,
+      vtkSmartPointer<vtkLineWidget3> > NodeWidgetMap;
+    typedef std::map<vtkMRMLResectionInitializationNode*,
+      vtkSmartPointer<vtkLineWidget3> >::iterator
+      NodeWidgetMapIt;
 };
 
 #endif

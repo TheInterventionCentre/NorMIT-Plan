@@ -32,7 +32,7 @@
 Q_EXPORT_PLUGIN2(qSlicerResectionPlanningModule, qSlicerResectionPlanningModule);
 
 //-----------------------------------------------------------------------------
-/// \ingroup Slicer_QtModules_ExtensionTemplate
+/// \ingroup ResectionPlanning
 class qSlicerResectionPlanningModulePrivate
 {
 public:
@@ -109,6 +109,8 @@ void qSlicerResectionPlanningModule::setup()
   // 3D
   vtkMRMLThreeDViewDisplayableManagerFactory::GetInstance()->
     RegisterDisplayableManager("vtkMRMLResectionDisplayableManager3D");
+  vtkMRMLThreeDViewDisplayableManagerFactory::GetInstance()->
+    RegisterDisplayableManager("vtkMRMLResectionInitializationDisplayableManager3D");
 }
 
 //-----------------------------------------------------------------------------

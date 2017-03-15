@@ -20,6 +20,7 @@ set(${KIT}_INCLUDE_DIRECTORIES
 set(displayable_manager_SRCS
   vtkMRMLResectionDisplayableManager3D.cxx
   vtkMRMLResectionDisplayableManager3DHelper.cxx
+  vtkMRMLResectionInitializationDisplayableManager3D.cxx
   )
 
 VTK_MAKE_INSTANTIATOR3("${MODULE_NAME}Instantiator"
@@ -28,7 +29,7 @@ VTK_MAKE_INSTANTIATOR3("${MODULE_NAME}Instantiator"
   "${${KIT}_EXPORT_DIRECTIVE}"
   ${CMAKE_CURRENT_BINARY_DIR}
   "${KIT}Export.h"
-)
+  )
 
 set(${KIT}_SRCS
   ${displayable_manager_instantiator_SRCS}
@@ -40,7 +41,7 @@ set(${KIT}_TARGET_LIBRARIES
   vtkSlicer${MODULE_NAME}ModuleLogic
   vtkSlicer${MODULE_NAME}ModuleMRML
   vtkSlicer${MODULE_NAME}ModuleVTKWidgets
-)
+  )
 
 #-----------------------------------------------------------------------------
 SlicerMacroBuildModuleLogic(
@@ -49,4 +50,4 @@ SlicerMacroBuildModuleLogic(
   INCLUDE_DIRECTORIES ${${KIT}_INCLUDE_DIRECTORIES}
   SRCS ${${KIT}_SRCS}
   TARGET_LIBRARIES ${${KIT}_TARGET_LIBRARIES}
-)
+  )

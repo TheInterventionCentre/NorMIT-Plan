@@ -37,6 +37,7 @@
 #include "vtkSlicerResectionPlanningLogic.h"
 #include "vtkMRMLResectionSurfaceNode.h"
 #include "vtkMRMLResectionSurfaceDisplayNode.h"
+#include "vtkMRMLResectionInitializationNode.h"
 
 // MRML includes
 #include <vtkMRMLScene.h>
@@ -114,7 +115,10 @@ void vtkSlicerResectionPlanningLogic::RegisterNodes()
 
   vtkMRMLScene *scene = this->GetMRMLScene();
   scene->RegisterNodeClass(vtkSmartPointer<vtkMRMLResectionSurfaceNode>::New());
-  scene->RegisterNodeClass(vtkSmartPointer<vtkMRMLResectionSurfaceDisplayNode>::New());
+  scene->
+    RegisterNodeClass(vtkSmartPointer<vtkMRMLResectionSurfaceDisplayNode>::New());
+  scene->
+    RegisterNodeClass(vtkSmartPointer<vtkMRMLResectionInitializationNode>::New());
 
 }
 

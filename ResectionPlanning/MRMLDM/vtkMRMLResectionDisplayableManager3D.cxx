@@ -50,6 +50,7 @@
 // VTK includes
 #include <vtkObjectFactory.h>
 
+// STD includes
 #include <iostream>
 
 //------------------------------------------------------------------------------
@@ -65,7 +66,7 @@ vtkMRMLResectionDisplayableManager3D::vtkMRMLResectionDisplayableManager3D()
 //------------------------------------------------------------------------------
 vtkMRMLResectionDisplayableManager3D::~vtkMRMLResectionDisplayableManager3D()
 {
-
+  vtkDebugMacro("Deleting vtkMRMLResectionDisplayableManager3D");
 }
 
 //------------------------------------------------------------------------------
@@ -106,11 +107,11 @@ SetAndObserveNode(vtkMRMLResectionSurfaceNode* resectionNode)
 bool vtkMRMLResectionDisplayableManager3D::
 AddWidget(vtkMRMLResectionSurfaceNode *resectionNode)
 {
-  vtkDebugMacro("AddWidget: calling createWidget");
+  vtkDebugMacro("AddWidget: create widget.");
 
   if (!resectionNode)
     {
-    vtkErrorMacro("CreateWdiget: Node not set!");
+    vtkErrorMacro("AddWidget: Node not set!");
     return false;
     }
 
@@ -123,7 +124,7 @@ AddWidget(vtkMRMLResectionSurfaceNode *resectionNode)
   this->Helper->RecordWidgetForNode(surfaceWidget.GetPointer(),
                                     resectionNode);
 
-  vtkDebugMacro("AddWidget: saved to helper ");
+  vtkDebugMacro("AddWidget: saved to helper.");
 
   this->SetAndObserveNode(resectionNode);
   this->RequestRender();
@@ -149,9 +150,10 @@ void vtkMRMLResectionDisplayableManager3D::OnMRMLSceneEndClose()
   vtkDebugMacro("OnMRMLSceneEndClose");
 }
 
-void vtkMRMLResectionDisplayableManager3D::OnMRMLSceneNodeAdded(vtkMRMLNode *node)
+//------------------------------------------------------------------------------
+void vtkMRMLResectionDisplayableManager3D::
+OnMRMLSceneNodeAdded(vtkMRMLNode *node)
 {
-  vtkDebugMacro("Adding node");
   vtkMRMLScene *scene = this->GetMRMLScene();
   if (!node || !scene)
     {
@@ -196,7 +198,7 @@ void vtkMRMLResectionDisplayableManager3D::OnMRMLSceneNodeAdded(vtkMRMLNode *nod
   if (it != this->Helper->ResectionSurfaceNodeList.end())
     {
     vtkErrorMacro("OnMRMLSceneNodeAdded: "
-                  << "The node is already associated to "
+                  << "the node is already associated to "
                   << "the displayable manager");
     return;
     }
@@ -214,11 +216,9 @@ void vtkMRMLResectionDisplayableManager3D::OnMRMLSceneNodeAdded(vtkMRMLNode *nod
     vtkErrorMacro("OnMRMLSceneNodeAddedEvent: widget not created");
     return;
     }
-  else
-    {
-    vtkDebugMacro("OnMRMLSceneNodeAddedEvent: widget was created and "
-                  << "saved to helper records");
-    }
+
+  vtkDebugMacro("OnMRMLSceneNodeAddedEvent: widget was created and "
+                << "saved to helper records");
 
   this->RequestRender();
 }
