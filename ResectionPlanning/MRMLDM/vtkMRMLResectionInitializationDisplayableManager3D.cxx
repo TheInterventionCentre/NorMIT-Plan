@@ -199,6 +199,8 @@ AddWidget(vtkMRMLResectionInitializationNode *initializationNode)
     vtkSmartPointer<vtkLineWidget3>::New();
   lineWidget->SetInteractor(this->GetInteractor());
   lineWidget->SetCurrentRenderer(this->GetRenderer());
+
+  lineWidget->On();
   if (initializationNode->GetTargetParenchyma())
     {
     if (initializationNode->GetTargetParenchyma()->GetPolyData())
@@ -207,7 +209,8 @@ AddWidget(vtkMRMLResectionInitializationNode *initializationNode)
                               ->GetPolyData()->GetBounds());
       }
     }
-  lineWidget->On();
+  lineWidget->SetCuttingTarget(initializationNode->
+                               GetTargetParenchyma()->GetPolyData());
 
   // Register the node-widget associatio
   this->NodeWidgetMap[initializationNode] = lineWidget;
