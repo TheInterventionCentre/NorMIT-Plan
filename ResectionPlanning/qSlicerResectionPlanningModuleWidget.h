@@ -34,6 +34,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <QString>
 #include <string>
+#include <map>
 
 class qSlicerResectionPlanningModuleWidgetPrivate;
 class qSlicerResectionPlanningModule;
@@ -61,24 +62,41 @@ public:
 
 public slots:
 /**
- * Called when a tumor is added to a resection via the gui in the Surfaces widget
- * connected to signal from surfaces widget: AddTumorButtonClicked
+ * Called when a tumor is added to a resection via the gui in the tumors widget
+ * connected to signal from tumors widget: AddTumorButtonClicked
  * This function sends the parameter information up to the Logic
  *
- * @param resection node name
- * @param tumor node name
+ * @param resection node ID
+ * @param tumor node ID
  */
-void OnAddTumorFromWidget(QString&,QString&);
+void OnAddTumorToResection(QString&,QString&);
 
 /**
- * Called when a tumor is removed from a resection via the gui in the Surfaces widget
- * connected to signal from surfaces widget: RemoveTumorButtonClicked
+ * Called when a tumor is removed from a resection via the gui in the tumors widget
+ * connected to signal from tumors widget: RemoveTumorButtonClicked
  * This function sends the parameter information up to the Logic
  *
- * @param resection node name
- * @param tumor node name
+ * @param resection node ID
+ * @param tumor node ID
  */
-void OnRemoveTumorFromWidget(QString&,QString&);
+void OnRemoveTumorToResection(QString&,QString&);
+
+/**
+ * Called when a resection is added via the gui from the surfaces widget
+ * connected to signal from surfaces widget: AddSurfaceButtonClicked
+ * This function sends the parameter information up to the Logic
+ */
+void OnAddResection();
+
+/**
+ * Called when a resection is removed via the gui from the surfaces widget
+ * connected to signal from surfaces widget: RemoveSurfaceButtonClicked
+ * This function sends the parameter information up to the Logic
+ *
+ * @param resection ID
+ * @param resection name
+ */
+void OnRemoveResection(QString&,QString&);
 
 /**
  * Called when Volumes button is clicked
@@ -101,7 +119,7 @@ protected slots:
 
   /**
    * Called when a model node, that is identified as a tumor, is added in the logic
-   * connected to the event: vtkSlicerResectionPlanningLogic::TumorNodeAdded
+   * connected to the event: vtkSlicerResectionPlanningLogic::TumorModelAdded
    *
    * @param typically the vtk object that triggered the event (not used)
    * @param the event (not used)
@@ -116,7 +134,7 @@ protected slots:
 
   /**
    * Called when a model node, that is identified as a tumor, is removed in the logic
-   * connected to the event: vtkSlicerResectionPlanningLogic::TumorNodeRemoved
+   * connected to the event: vtkSlicerResectionPlanningLogic::TumorModelRemoved
    *
    * @param typically the vtk object that triggered the event (not used)
    * @param the event (not used)
@@ -129,6 +147,36 @@ protected slots:
                         void *clientData,
                         void *callData);
 
+  /**
+   * Called when a resection node is added in the logic
+   * connected to the event: vtkSlicerResectionPlanningLogic::ResectionNodeAdded
+   *
+   * @param typically the vtk object that triggered the event (not used)
+   * @param the event (not used)
+   * @param client data (not used)
+   * @param callData passes a pair of char* and QString,
+   * which are the ID of node that has been added, and the name of the node
+   */
+  void OnResectionAdded(vtkObject* object,
+                        unsigned long event,
+                        void *clientData,
+                        void *callData);
+
+  /**
+   * Called when a resection node is removed in the logic
+   * connected to the event: vtkSlicerResectionPlanningLogic::ResectionNodeRemoved
+   *
+   * @param typically the vtk object that triggered the event (not used)
+   * @param the event (not used)
+   * @param client data (not used)
+   * @param callData passes a pair of char* and QString,
+   * which are the ID of node that has been removed, and the name of the node
+   */
+  void OnResectionRemoved(vtkObject* object,
+                        unsigned long event,
+                        void *clientData,
+                        void *callData);
+
 private:
   Q_DECLARE_PRIVATE(qSlicerResectionPlanningModuleWidget);
   Q_DISABLE_COPY(qSlicerResectionPlanningModuleWidget);
@@ -136,6 +184,8 @@ private:
   qSlicerResectionPlanningModule *Module;
   vtkSlicerResectionPlanningLogic *ModuleLogic;
   vtkEventQtSlotConnect *Connections;
+
+  std::multimap<std::string, std::string> resectionToTumorMap;
 };
 
 #endif

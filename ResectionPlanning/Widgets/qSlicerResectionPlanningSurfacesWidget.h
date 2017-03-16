@@ -59,7 +59,36 @@ public:
 
 public slots:
 
+  /**
+   * Adds a resection to the list of resections (listResectionSurfaces)
+   *
+   * @param resection node ID
+   * @param resection node name
+   */
+   void AddToResectionList(QString&,QString&);
+
+  /**
+   * Removes a resection from the list of resections (listResectionSurfaces)
+   *
+   * @param resection node ID
+   * @param resection node name
+   */
+   void RemoveFromResectionList(QString&,QString&);
+
 signals:
+  /**
+   * Signal emited when the button to add a resection is clicked
+   * No parameters, since no resection node exists yet
+   */
+   void AddSurfaceButtonClicked();
+
+  /**
+   * Signal emited when the button to remove a resection is clicked
+   *
+   * @param resection node ID
+   * @param resection node name
+   */
+   void RemoveSurfaceButtonClicked(QString&,QString&);
 
 protected slots:
   /**
@@ -80,6 +109,8 @@ private:
   Q_DECLARE_PRIVATE(qSlicerResectionPlanningSurfacesWidget);
   Q_DISABLE_COPY(qSlicerResectionPlanningSurfacesWidget);
 
+  std::map<QString, QListWidgetItem*> resectionIDtoItemMap;
+  std::map<QListWidgetItem*, QString> itemToResectionIDMap;
 };
 
 #endif

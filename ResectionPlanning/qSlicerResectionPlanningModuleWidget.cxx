@@ -91,29 +91,48 @@ void qSlicerResectionPlanningModuleWidget::setup()
   QObject::connect(d->ActiveParenchymaModelNodeSelector, SIGNAL(currentNodeChanged(vtkMRMLNode*)), this, SLOT(nodeSelectionChanged(vtkMRMLNode*)));
   //QObject::connect(this, SIGNAL(mrmlSceneChanged(vtkMRMLScene*)), d->ActiveParenchymaModelNodeSelector, SLOT(setMRMLScene(vtkMRMLScene*)));
 
-  // connections to lower level widgets (surfaces, volumes)
-  QObject::connect(d->SurfacesWidget,
-                     SIGNAL(AddTumorButtonClicked(QString&,QString&)),
+  // connections to lower level widgets (TUMORS)
+  QObject::connect(d->TumorsWidget,
+                     SIGNAL(AddTumorToResectionButtonClicked(QString&,QString&)),
                      this,
-                     SLOT(OnAddTumorFromWidget(QString&,QString&)));
-  QObject::connect(d->SurfacesWidget,
-                     SIGNAL(RemoveTumorButtonClicked(QString&,QString&)),
+                     SLOT(OnAddTumorToResection(QString&,QString&)));
+  QObject::connect(d->TumorsWidget,
+                     SIGNAL(RemoveTumorToResectionButtonClicked(QString&,QString&)),
                      this,
-                     SLOT(OnAddTumorFromWidget(QString&,QString&)));
+                     SLOT(OnRemoveTumorToResection(QString&,QString&)));
 
+  // connections to lower level widgets (SURFACES)
+  QObject::connect(d->SurfacesWidget,
+                     SIGNAL(AddSurfaceButtonClicked()),
+                     this,
+                     SLOT(OnAddResection()));
+  QObject::connect(d->SurfacesWidget,
+                     SIGNAL(RemoveSurfaceButtonClicked(QString&,QString&)),
+                     this,
+                     SLOT(OnRemoveResection(QString&,QString&)));
+
+  // connections to lower level widgets (VOLUMES)
   QObject::connect(d->VolumesWidget,
                      SIGNAL(VolumesButtonClicked()),
                      this,
                      SLOT(OnVolumesButtonClicked()));
 
 
-  // connections to the logic
+  // connections to the logic (TUMORS)
   Connections->Connect(this->ModuleLogic,
                        vtkSlicerResectionPlanningLogic::TumorModelAdded,
                        this, SLOT(OnTumorAdded(vtkObject*,unsigned long,void*,void*)));
   Connections->Connect(this->ModuleLogic,
                        vtkSlicerResectionPlanningLogic::TumorModelRemoved,
                        this, SLOT(OnTumorRemoved(vtkObject*,unsigned long,void*,void*)));
+
+  // connections to the logic (SURFACES)
+  Connections->Connect(this->ModuleLogic,
+                       vtkSlicerResectionPlanningLogic::ResectionNodeAdded,
+                       this, SLOT(OnResectionAdded(vtkObject*,unsigned long,void*,void*)));
+  Connections->Connect(this->ModuleLogic,
+                       vtkSlicerResectionPlanningLogic::ResectionNodeRemoved,
+                       this, SLOT(OnResectionRemoved(vtkObject*,unsigned long,void*,void*)));
 
   this->Superclass::setup();
 }
@@ -139,15 +158,57 @@ void qSlicerResectionPlanningModuleWidget::setMRMLScene(vtkMRMLScene* scene)
   std::cout << "Widget - Set MRML scene called " << std::endl;
 }
 
-
-void qSlicerResectionPlanningModuleWidget::OnAddTumorFromWidget(QString &nodeID, QString &nodeName)
+//-----------------------------------------------------------------------------
+void qSlicerResectionPlanningModuleWidget::OnAddTumorToResection(QString &resectionID, QString &tumorID)
 {
+  std::cout << "Widget - Resection: " << resectionID.toStdString() << ", associated to tumor: " << tumorID.toStdString() << '\n';
+  this->resectionToTumorMap.insert(std::pair<std::string, std::string>(resectionID.toStdString(), tumorID.toStdString()));
 
+  // TODO: Communicate up to LOGIC
 }
 
-void qSlicerResectionPlanningModuleWidget::OnRemoveTumorFromWidget(QString &nodeID, QString &nodeName)
+void qSlicerResectionPlanningModuleWidget::OnRemoveTumorToResection(QString &resectionID, QString &tumorID)
 {
+  std::multimap<std::string, std::string>::iterator it;
 
+  for (it=this->resectionToTumorMap.begin(); it!=this->resectionToTumorMap.end(); it++) {
+    if(((*it).first == resectionID.toStdString()) && ((*it).second == tumorID.toStdString()))
+    {
+      std::cout << "Widget - Resection: " << (*it).first << ", removed association to tumor: " << (*it).second << '\n';
+      this->resectionToTumorMap.erase(it);
+    }
+  }
+
+  // TODO: Communicate up to LOGIC
+}
+
+/*
+std::list<std::string> vtkSlicerResectionPlanningLogic::GetTumorsAssociatedWithResection(std::string resectionName)
+{
+  std::list<std::string> tumorList;
+  std::multimap<std::string, std::string>::iterator it;
+
+  for (it=this->resectionToTumorMap.begin(); it!=this->resectionToTumorMap.end(); ++it) {
+    if((*it).first == resectionName)
+    {
+      tumorList.push_back((*it).second);
+    }
+  }
+  return tumorList;
+}*/
+
+void qSlicerResectionPlanningModuleWidget::OnAddResection()
+{
+  std::cout << "Widget - Resection added called " << '\n';
+
+  // TODO: Communicate up to LOGIC
+}
+
+void qSlicerResectionPlanningModuleWidget::OnRemoveResection(QString &resectionID, QString &resectionName)
+{
+  std::cout << "Widget - Resection: " << resectionID.toStdString() << " removed " << '\n';
+
+  // TODO: Communicate up to LOGIC
 }
 
 void qSlicerResectionPlanningModuleWidget::OnVolumesButtonClicked()
@@ -171,7 +232,7 @@ void qSlicerResectionPlanningModuleWidget
 
   std::cout << "Widget - add tumor to list " << pair->second << std::endl;
 
-  // add tumor node to list
+  // add tumor node to list in TUMORS WIDGET
   d->TumorsWidget->AddToTumorList(Qid, Qname);
 }
 
@@ -191,6 +252,46 @@ void qSlicerResectionPlanningModuleWidget
 
   std::cout << "Widget - remove tumor from list " << pair->second << std::endl;
 
-  // remove tumor node to list
+  // remove tumor node to list in TUMORS WIDGET
   d->TumorsWidget->RemoveFromTumorList(Qid, Qname);
+}
+
+void qSlicerResectionPlanningModuleWidget
+::OnResectionAdded(vtkObject* vtkNotUsed(object),
+                   unsigned long vtkNotUsed(event),
+                   void * vtkNotUsed(clientData),
+                   void *callData)
+{
+  Q_D(qSlicerResectionPlanningModuleWidget);
+
+  std::pair<std::string, std::string> *pair =
+    reinterpret_cast< std::pair<std::string,std::string> *>(callData);
+
+  QString Qid = QString::fromStdString(pair->first);
+  QString Qname = QString::fromStdString(pair->second);
+
+  std::cout << "Widget - add resection to list " << pair->second << std::endl;
+
+  // add tumor node to list in TUMORS WIDGET
+  d->SurfacesWidget->AddToResectionList(Qid, Qname);
+}
+
+void qSlicerResectionPlanningModuleWidget
+::OnResectionRemoved(vtkObject* vtkNotUsed(object),
+                   unsigned long vtkNotUsed(event),
+                   void * vtkNotUsed(clientData),
+                   void *callData)
+{
+  Q_D(qSlicerResectionPlanningModuleWidget);
+
+  std::pair<std::string, std::string> *pair =
+    reinterpret_cast< std::pair<std::string,std::string> *>(callData);
+
+  QString Qid = QString::fromStdString(pair->first);
+  QString Qname = QString::fromStdString(pair->second);
+
+  std::cout << "Widget - remove resection from list " << pair->second << std::endl;
+
+  // remove tumor node to list in TUMORS WIDGET
+  d->SurfacesWidget->RemoveFromResectionList(Qid, Qname);
 }

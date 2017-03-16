@@ -67,14 +67,16 @@ public slots:
   /**
    * Adds a tumor to the list of available tumors (listTumorsToAdd)
    *
-   * @param tumor node name
+   * @param tumor model ID
+   * @param tumor model name
    */
   void AddToTumorList(QString&,QString&);
 
   /**
-   * Removes a tumor to the list of available tumors (listTumorsToAdd)
+   * Removes a tumor from the list of available tumors (listTumorsToAdd)
    *
-   * @param tumor node name
+   * @param tumor model ID
+   * @param tumor model name
    */
   void RemoveFromTumorList(QString&,QString&);
 
@@ -82,27 +84,29 @@ signals:
   /**
    * Signal emited when the button to add tumors to a resection is clicked
    *
-   * @param first string is resection node name, second string is tumor node name
+   * @param resection node ID
+   * @param tumor model ID
    */
-  void AddTumorButtonClicked(QString&,QString&);
+  void AddTumorToResectionButtonClicked(QString&,QString&);
 
   /**
    * Signal emited when the button to remove tumors from a resection is clicked
    *
-   * @param first string is resection node name, second string is tumor node name
+   * @param resection node ID
+   * @param tumor model ID
    */
-  void RemoveTumorButtonClicked(QString&,QString&);
+  void RemoveTumorToResectionButtonClicked(QString&,QString&);
 
 protected slots:
   /**
    * Triggered when the button for adding a tumor to the resection is clicked
    */
-  void OnAddTumorButtonClicked();
+  void OnAddTumorToResectionButtonClicked();
 
   /**
    * Triggered when the button for removing a tumor to the resection surface is clicked
    */
-  void OnRemoveTumorButtonClicked();
+  void OnRemoveTumorToResectionButtonClicked();
 
 protected:
   QScopedPointer<qSlicerResectionPlanningTumorsWidgetPrivate> d_ptr;
@@ -111,8 +115,11 @@ private:
   Q_DECLARE_PRIVATE(qSlicerResectionPlanningTumorsWidget);
   Q_DISABLE_COPY(qSlicerResectionPlanningTumorsWidget);
 
-  std::map<QString, QListWidgetItem*> tumorIDtoItemMap;
-  std::multimap<std::string, std::string> resectionToTumorMap;
+  std::map<QString, QListWidgetItem*> IDtoItemMap_availableTumors;
+  std::map<QListWidgetItem*, QString> itemToIDMap_availableTumors;
+
+  std::map<QString, QListWidgetItem*> IDtoItemMap_resectionTumors;
+  std::map<QListWidgetItem*, QString> itemToIDMap_resectionTumors;
 };
 
 #endif

@@ -81,9 +81,9 @@ qSlicerResectionPlanningTumorsWidget
 
   // connect signals & slots for buttons to add & remove tumors from a resection surface
   QObject::connect(d->AddTumorButton, SIGNAL(clicked()),
-                   this, SLOT(OnAddTumorButtonClicked()));
+                   this, SLOT(OnAddTumorToResectionButtonClicked()));
   QObject::connect(d->RemoveTumorButton, SIGNAL(clicked()),
-                   this, SLOT(OnRemoveTumorButtonClicked()));
+                   this, SLOT(OnRemoveTumorToResectionButtonClicked()));
 }
 
 //-----------------------------------------------------------------------------
@@ -92,41 +92,6 @@ qSlicerResectionPlanningTumorsWidget
 {
 
 }
-/*
-void vtkSlicerResectionPlanningLogic
-::SetTumorToResectionAssociation(std::string rsNodeName, std::string tumorNodeName)
-{
-  std::cout << "'Resection: " << rsNodeName << ", associated to tumor: " << tumorNodeName << '\n';
-  this->resectionToTumorMap.insert(std::pair<std::string, std::string>(rsNodeName, tumorNodeName));
-}
-
-void vtkSlicerResectionPlanningLogic
-::RemoveTumorToResectionAssociation(std::string rsNodeName, std::string tumorNodeName)
-{
-  std::multimap<std::string, std::string>::iterator it;
-
-  for (it=this->resectionToTumorMap.begin(); it!=this->resectionToTumorMap.end(); ++it) {
-    if(((*it).first == rsNodeName) && ((*it).second == tumorNodeName))
-    {
-      std::cout << "'Resection: " << (*it).first << ", removed association to tumor: " << (*it).second << '\n';
-      this->resectionToTumorMap.erase(it);
-    }
-  }
-}
-
-std::list<std::string> vtkSlicerResectionPlanningLogic::GetTumorsAssociatedWithResection(std::string resectionName)
-{
-  std::list<std::string> tumorList;
-  std::multimap<std::string, std::string>::iterator it;
-
-  for (it=this->resectionToTumorMap.begin(); it!=this->resectionToTumorMap.end(); ++it) {
-    if((*it).first == resectionName)
-    {
-      tumorList.push_back((*it).second);
-    }
-  }
-  return tumorList;
-}*/
 
 QString qSlicerResectionPlanningTumorsWidget::SelectItemInAvailableTumors(QString &id)
 {
@@ -134,14 +99,12 @@ QString qSlicerResectionPlanningTumorsWidget::SelectItemInAvailableTumors(QStrin
 
   // find the right tumor to select
   std::map<QString, QListWidgetItem*>::iterator it;
-  it = this->tumorIDtoItemMap.find(id);
-  if (it == this->tumorIDtoItemMap.end())
+  it = this->IDtoItemMap_availableTumors.find(id);
+  if (it == this->IDtoItemMap_availableTumors.end())
   {
-    std::cout << "TumorsWidget - return" << std::endl;
     QString test("nothing");
-    return test;
+    return test; // did not find node in map
   }
-  std::cout << "TumorsWidget - don't return" << std::endl;
   d->listAvailableTumors->setCurrentItem(it->second);
   d->listAvailableTumors->selectionModel()->select(d->listAvailableTumors->selectionModel()->currentIndex(), QItemSelectionModel::Select);
 
@@ -155,12 +118,11 @@ QString qSlicerResectionPlanningTumorsWidget::SelectItemInResectionTumors(QStrin
 
   // find the right tumor to select
   std::map<QString, QListWidgetItem*>::iterator it;
-  it = this->tumorIDtoItemMap.find(id);
-  if (it == this->tumorIDtoItemMap.end())
+  it = this->IDtoItemMap_resectionTumors.find(id);
+  if (it == this->IDtoItemMap_resectionTumors.end())
   {
-    std::cout << "TumorsWidget - return" << std::endl;
     QString test("nothing");
-    return test;
+    return test; // did not find node in map
   }
   d->listAvailableTumors->setCurrentItem(it->second);
   d->listAvailableTumors->selectionModel()->select(d->listAvailableTumors->selectionModel()->currentIndex(), QItemSelectionModel::Select);
@@ -179,12 +141,14 @@ void qSlicerResectionPlanningTumorsWidget
   item->setText(nodeName);
   item->setToolTip(nodeID);
 
+  // add to widget
   d->listAvailableTumors->addItem(item);
 
-  // keep in map(s)
-  this->tumorIDtoItemMap.insert(std::pair<QString, QListWidgetItem*>(nodeID, item));
+  // keep in map
+  this->IDtoItemMap_availableTumors.insert(std::pair<QString, QListWidgetItem*>(nodeID, item));
+  this->itemToIDMap_availableTumors.insert(std::pair<QListWidgetItem*, QString>(item, nodeID));
 
-  std::cout << "TumorsWidget - Tumor added to scene, and to list: " << nodeName.toStdString() << std::endl;
+  std::cout << "TumorsWidget - Tumor added to list: " << nodeID.toStdString() << std::endl;
 }
 
 void qSlicerResectionPlanningTumorsWidget
@@ -192,47 +156,62 @@ void qSlicerResectionPlanningTumorsWidget
 {
   Q_D(qSlicerResectionPlanningTumorsWidget);
 
+  // find item with right ID
   std::map<QString, QListWidgetItem*>::iterator it;
-  it = this->tumorIDtoItemMap.find(nodeID);
-  if (it == this->tumorIDtoItemMap.end())
+  it = this->IDtoItemMap_availableTumors.find(nodeID);
+  if (it == this->IDtoItemMap_availableTumors.end())
   {
-    return;
+    return; // cannot find in map
   }
+  // erase from map
+  this->IDtoItemMap_availableTumors.erase(nodeID);
+  this->itemToIDMap_availableTumors.erase(it->second);
 
+  // remove from widget
   d->listAvailableTumors->removeItemWidget(it->second);
 
-  // erase from map(s)
-  this->tumorIDtoItemMap.erase(nodeID);
-
-  std::cout << "TumorsWidget - Tumor removed from scene, and from list: " << nodeName.toStdString() << std::endl;
+  std::cout << "TumorsWidget - Tumor removed from list: " << nodeID.toStdString() << std::endl;
 }
 
 //-----------------------------------------------------------------------------
 void qSlicerResectionPlanningTumorsWidget
-::OnAddTumorButtonClicked()
+::OnAddTumorToResectionButtonClicked()
 {
   // figure out which tumor is highlighted and add to the list related to the current resection node
   Q_D(qSlicerResectionPlanningTumorsWidget);
 
   if(d->listAvailableTumors->selectedItems().size() > 0) // check not null (something is selected)
   {
+    // find ID of selected item
+    std::map<QListWidgetItem*, QString>::iterator it;
+    it = this->itemToIDMap_availableTumors.find(d->listAvailableTumors->currentItem());
+    if (it == this->itemToIDMap_availableTumors.end())
+    {
+      return; // cannot find in map
+    }
+    QString tumorID = it->second;
+
     // add tumor to list
     QListWidgetItem *item = new QListWidgetItem();
     item->setText(d->listAvailableTumors->currentItem()->text());
-    item->setToolTip(d->listAvailableTumors->currentItem()->toolTip());
+    item->setToolTip(tumorID);
     d->listResectionTumors->addItem(item);
+
+    // keep in map
+    this->IDtoItemMap_resectionTumors.insert(std::pair<QString, QListWidgetItem*>(tumorID, item));
+    this->itemToIDMap_resectionTumors.insert(std::pair<QListWidgetItem*, QString>(item, tumorID));
 
     // make item unselectable (in base list)
     d->listAvailableTumors->currentItem()->setFlags(d->listAvailableTumors->currentItem()->flags() & ~Qt::ItemIsEnabled);
     d->listAvailableTumors->selectionModel()->select(d->listAvailableTumors->selectionModel()->currentIndex(), QItemSelectionModel::Deselect);
 
-    QString tumorAdded = item->text();
-    QString resectionName = "no_resection";
+    QString resectionID = "no_resectionID";
     // TODO: get current resection from resectionWidget
 
-    std::cout << "TumorsWidget - Add Tumor to resection: " << tumorAdded.toStdString() << std::endl;
+    std::cout << "TumorsWidget - Add Tumor to resection: " << tumorID.toStdString() << std::endl;
 
-    emit AddTumorButtonClicked(resectionName, tumorAdded);
+    // EMIT SIGNAL
+    emit AddTumorToResectionButtonClicked(resectionID, tumorID);
   }
   else
   {
@@ -242,38 +221,48 @@ void qSlicerResectionPlanningTumorsWidget
 
 //-----------------------------------------------------------------------------
 void qSlicerResectionPlanningTumorsWidget
-::OnRemoveTumorButtonClicked()
+::OnRemoveTumorToResectionButtonClicked()
 {
   // figure out which tumor is highlighted and remove from the list related to the current resection node
   Q_D(qSlicerResectionPlanningTumorsWidget);
 
   if(d->listResectionTumors->selectedItems().size() > 0) // check not null (something is selected)
   {
-    // remove tumor from list
-    QListWidgetItem *item = d->listResectionTumors->currentItem();
-    QString itemID = item->toolTip();
-    QString tumorRemoved = item->text();
-    delete d->listResectionTumors->item(d->listResectionTumors->currentRow());
-
-    // make item selectable again (in base list)
-    // find the right tumor to enable
-    std::map<QString, QListWidgetItem*>::iterator it;
-    it = this->tumorIDtoItemMap.find(itemID);
-    if (it == this->tumorIDtoItemMap.end())
+    // find ID of selected item
+    std::map<QListWidgetItem*, QString>::iterator it_rt;
+    it_rt = this->itemToIDMap_resectionTumors.find(d->listResectionTumors->currentItem());
+    if (it_rt == this->itemToIDMap_resectionTumors.end())
     {
-      return;
+      return; // cannot find in map
     }
+    QString tumorID = it_rt->second;
+    // remove tumor from list
+    delete d->listResectionTumors->item(d->listResectionTumors->currentRow());
+    // or d->listResectionTumors->removeItemWidget(it_rt->first);
 
-    it->second->setFlags(it->second->flags() | Qt::ItemIsEnabled);
-    d->listAvailableTumors->setCurrentItem(it->second);
+    // erase from map
+    this->IDtoItemMap_resectionTumors.erase(tumorID);
+    this->itemToIDMap_resectionTumors.erase(it_rt->first);
+
+    // find item with right ID
+    std::map<QString, QListWidgetItem*>::iterator it_at;
+    it_at = this->IDtoItemMap_availableTumors.find(tumorID);
+    if (it_at == this->IDtoItemMap_availableTumors.end())
+    {
+      return; // cannot find in map
+    }
+    // make item selectable again (in base list)
+    it_at->second->setFlags(it_at->second->flags() | Qt::ItemIsEnabled);
+    d->listAvailableTumors->setCurrentItem(it_at->second);
     d->listAvailableTumors->selectionModel()->select(d->listAvailableTumors->selectionModel()->currentIndex(), QItemSelectionModel::Select);
 
-    QString resectionName = "no_resection";
+    QString resectionID = "no_resectionID";
     // TODO: get current resection from resectionWidget
 
-    std::cout << "TumorsWidget - Remove Tumor from resection: " << tumorRemoved.toStdString() << std::endl;
+    std::cout << "TumorsWidget - Remove Tumor from resection: " << tumorID.toStdString() << std::endl;
 
-    emit RemoveTumorButtonClicked(resectionName, tumorRemoved);
+    // EMIT SIGNAL
+    emit RemoveTumorToResectionButtonClicked(resectionID, tumorID);
   }
   else
   {

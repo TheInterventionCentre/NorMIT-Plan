@@ -95,14 +95,79 @@ qSlicerResectionPlanningSurfacesWidget
 
 //-----------------------------------------------------------------------------
 void qSlicerResectionPlanningSurfacesWidget
+::AddToResectionList(QString &nodeID,QString &nodeName)
+{
+  Q_D(qSlicerResectionPlanningSurfacesWidget);
+
+  QListWidgetItem *item = new QListWidgetItem();
+  item->setText(nodeName);
+  item->setToolTip(nodeID);
+
+  d->listResectionSurfaces->addItem(item);
+
+  // keep in map(s)
+  this->resectionIDtoItemMap.insert(std::pair<QString, QListWidgetItem*>(nodeID, item));
+  this->itemToResectionIDMap.insert(std::pair<QListWidgetItem*, QString>(item, nodeID));
+
+  std::cout << "SurfacesWidget - Surface added to scene, and to list: " << nodeName.toStdString() << std::endl;
+}
+
+void qSlicerResectionPlanningSurfacesWidget
+::RemoveFromResectionList(QString &nodeID,QString &nodeName)
+{
+  Q_D(qSlicerResectionPlanningSurfacesWidget);
+
+  std::map<QString, QListWidgetItem*>::iterator it;
+  it = this->resectionIDtoItemMap.find(nodeID);
+  if (it == this->resectionIDtoItemMap.end())
+  {
+    return; // cannot find in map
+  }
+  // erase from map(s)
+  this->resectionIDtoItemMap.erase(nodeID);
+  this->itemToResectionIDMap.erase(it->second);
+
+  d->listResectionSurfaces->removeItemWidget(it->second);
+
+  std::cout << "SurfacesWidget - Surface removed from scene, and from list: " << nodeName.toStdString() << std::endl;
+}
+
+
+//-----------------------------------------------------------------------------
+void qSlicerResectionPlanningSurfacesWidget
 ::OnAddSurfaceButtonClicked()
 {
   std::cout << "SurfacesWidget - On Add Surface" << std::endl;
+
+  // EMIT SIGNAL
+  emit AddSurfaceButtonClicked();
 }
 
 //-----------------------------------------------------------------------------
 void qSlicerResectionPlanningSurfacesWidget
 ::OnRemoveSurfaceButtonClicked()
 {
+  Q_D(qSlicerResectionPlanningSurfacesWidget);
+
   std::cout << "SurfacesWidget - On Remove Surface" << std::endl;
+
+  if(d->listResectionSurfaces->selectedItems().size() > 0) // check not null (something is selected)
+  {
+    // find which one is currently highlighted
+    QListWidgetItem *item = d->listResectionSurfaces->currentItem();
+    std::map<QListWidgetItem*, QString>::iterator it;
+    it = this->itemToResectionIDMap.find(item);
+    if (it == this->itemToResectionIDMap.end())
+    {
+      return; // cannot find in map
+    }
+    QString resectionName = it->first->text();
+
+    // EMIT SIGNAL
+    emit RemoveSurfaceButtonClicked(it->second, resectionName);
+  }
+  else
+  {
+    std::cout << "SurfacesWidget - No resection selected for deletion" << std::endl;
+  }
 }
