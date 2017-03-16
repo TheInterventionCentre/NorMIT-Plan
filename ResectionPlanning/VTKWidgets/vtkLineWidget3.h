@@ -163,6 +163,9 @@ class vtkLineWidget3: public vtk3DWidget
    */
   vtkPolyData *GetCuttingTarget() const;
 
+  vtkGetVector3Macro(Point1, double);
+  vtkGetVector3Macro(Point2, double);
+
  protected:
 
   // Description:

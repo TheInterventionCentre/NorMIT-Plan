@@ -45,6 +45,7 @@
 #include <vtkObjectFactory.h>
 #include <vtkSmartPointer.h>
 #include <vtkPolyData.h>
+#include <vtkCallbackCommand.h>
 
 //------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkMRMLResectionInitializationDisplayableManager3D);
@@ -53,7 +54,6 @@ vtkStandardNewMacro(vtkMRMLResectionInitializationDisplayableManager3D);
 vtkMRMLResectionInitializationDisplayableManager3D::
 vtkMRMLResectionInitializationDisplayableManager3D()
 {
-
   vtkDebugMacro("Creating vtkMRMLResectionInitializationDisplayableManager3D");
 }
 
@@ -171,6 +171,8 @@ OnMRMLSceneNodeAdded(vtkMRMLNode *node)
   vtkDebugMacro("OnMRMLSceneNodeAddedEvent: widget was created and "
                 << "saved to helper records");
 
+  this->SetAndObserveNode(initializationNode);
+
   this->RequestRender();
 }
 
@@ -212,12 +214,47 @@ AddWidget(vtkMRMLResectionInitializationNode *initializationNode)
   lineWidget->SetCuttingTarget(initializationNode->
                                GetTargetParenchyma()->GetPolyData());
 
-  // Register the node-widget associatio
+  // Register the node-widget association
   this->NodeWidgetMap[initializationNode] = lineWidget;
   vtkDebugMacro("AddWidget: saved to helper.");
 
-  this->SetAndObserveNode(initializationNode);
-  this->RequestRender( );
+  vtkSmartPointer<vtkCallbackCommand> lineWidgetChanged =
+    vtkSmartPointer<vtkCallbackCommand>::New();
+  lineWidgetChanged->SetCallback(this->UpdateMRML);
+  lineWidgetChanged->SetClientData(initializationNode);
+
+  lineWidget->AddObserver(vtkCommand::StartInteractionEvent,
+                           lineWidgetChanged);
+  lineWidget->AddObserver(vtkCommand::EndInteractionEvent,
+                          lineWidgetChanged);
 
   return true;
+}
+
+//------------------------------------------------------------------------------
+void vtkMRMLResectionInitializationDisplayableManager3D::
+UpdateMRML(vtkObject *caller,
+           long unsigned int eventId,
+           void *clientData,
+           void *vtkNotUsed(callData))
+{
+  vtkLineWidget3 *widget = vtkLineWidget3::SafeDownCast(caller);
+
+  if (!widget)
+    {
+    std::cerr << "UpdateMRML from a non vtkLineWidget3" << std::endl;
+    return;
+    }
+
+  vtkMRMLResectionInitializationNode *node =
+    static_cast<vtkMRMLResectionInitializationNode*>(clientData);
+  if (!node)
+    {
+    std::cerr << "Client data (initialization node) not valid" << std::endl;
+    return;
+    }
+
+  node->SetPoint1(widget->GetPoint1());
+  node->SetPoint2(widget->GetPoint2());
+  node->Modified();
 }

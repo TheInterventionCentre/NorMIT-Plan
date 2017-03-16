@@ -104,7 +104,7 @@ public vtkMRMLAbstractThreeDViewDisplayableManager
    */
   virtual void UpdateFromMRML();
 
-    /**
+  /**
    * Update manager from MRMLScene.
    *
    */
@@ -139,6 +139,19 @@ public vtkMRMLAbstractThreeDViewDisplayableManager
    * @return true if the widget was added, false otherwise.
    */
   bool AddWidget(vtkMRMLResectionInitializationNode *node);
+
+  /**
+   * Update MRML node according to the widget interaction
+   *
+   * @param caller object triggering the event (typically the widget).
+   * @param id Identification of the triggered event.
+   * @param clientData Additional data
+   * @param callerData Additional data (not used).
+   */
+  static void UpdateMRML(vtkObject *caller,
+                         unsigned long int id,
+                         void *clientData,
+                         void *callerData);
 
  private:
     vtkMRMLResectionInitializationDisplayableManager3D(

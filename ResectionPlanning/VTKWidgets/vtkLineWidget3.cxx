@@ -557,7 +557,6 @@ void vtkLineWidget3::MoveHandle(vtkProp *prop, double *p1, double *p2)
 
   this->CuttingPlane->SetNormal(normal);
   this->CuttingPlane->SetOrigin(midPoint);
-//  this->Cutter->Update();
 }
 
 //------------------------------------------------------------------------------
