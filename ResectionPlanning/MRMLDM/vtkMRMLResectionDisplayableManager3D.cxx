@@ -38,7 +38,6 @@
 #include "vtkMRMLResectionDisplayableManager3DHelper.h"
 #include "vtkMRMLResectionSurfaceNode.h"
 #include "vtkMRMLResectionSurfaceDisplayNode.h"
-
 #include "vtkBezierSurfaceWidget.h"
 
 // MRML includes
@@ -49,6 +48,8 @@
 
 // VTK includes
 #include <vtkObjectFactory.h>
+#include <vtkRenderWindow.h>
+#include <vtkRenderWindowInteractor.h>
 
 // STD includes
 #include <iostream>
@@ -104,6 +105,42 @@ SetAndObserveNode(vtkMRMLResectionSurfaceNode* resectionNode)
 
 
 //------------------------------------------------------------------------------
+void vtkMRMLResectionDisplayableManager3D::
+ProcessMRMLNodesEvents(vtkObject *object,
+                       unsigned long int eventId,
+                       void *vtkNotUsed(data))
+{
+
+  vtkMRMLResectionSurfaceNode *node =
+    vtkMRMLResectionSurfaceNode::SafeDownCast(object);
+
+  if (!node)
+    {
+    return;
+    }
+
+  bool isUpdating = this->GetMRMLScene()->IsBatchProcessing();
+
+  switch(eventId)
+    {
+
+    case vtkMRMLDisplayableNode::DisplayModifiedEvent:
+      this->SetUpdateFromMRMLRequested(1);
+      break;
+
+    default:
+      break;
+
+    }
+
+  if (!isUpdating)
+    {
+    this->RequestRender();
+    }
+
+}
+
+//------------------------------------------------------------------------------
 bool vtkMRMLResectionDisplayableManager3D::
 AddWidget(vtkMRMLResectionSurfaceNode *resectionNode)
 {
@@ -121,13 +158,7 @@ AddWidget(vtkMRMLResectionSurfaceNode *resectionNode)
   surfaceWidget->SetCurrentRenderer(this->GetRenderer());
   surfaceWidget->On();
 
-  this->Helper->RecordWidgetForNode(surfaceWidget.GetPointer(),
-                                    resectionNode);
-
-  vtkDebugMacro("AddWidget: saved to helper.");
-
-  this->SetAndObserveNode(resectionNode);
-  this->RequestRender();
+  this->NodeWidgetMap[resectionNode] = surfaceWidget;
 
   return true;
 }
@@ -135,13 +166,28 @@ AddWidget(vtkMRMLResectionSurfaceNode *resectionNode)
 //-------------------------------------------------------------------------------
 void vtkMRMLResectionDisplayableManager3D::UpdateFromMRMLScene()
 {
-  //this->UpdateFromMRML();
+  std::cout << "UpdateFROMMRMLScene()" << std::endl;
+
+  this->RequestRender();
 }
 
 //-------------------------------------------------------------------------------
 void vtkMRMLResectionDisplayableManager3D::UpdateFromMRML()
 {
 
+  if ( this->GetInteractor() &&
+       this->GetInteractor()->GetRenderWindow() &&
+       this->GetInteractor()->GetRenderWindow()->CheckInRenderStatus())
+    {
+    vtkDebugMacro("skipping update during render");
+    return;
+    }
+
+  std::cout << "UpdateFROMMRML()" << std::endl;
+
+  this->UpdateVisibility();
+
+  this->SetUpdateFromMRMLRequested(0);
 }
 
 //-------------------------------------------------------------------------------
@@ -171,12 +217,6 @@ OnMRMLSceneNodeAdded(vtkMRMLNode *node)
   if (node->IsA("vtkMRMLInteractionNode"))
     {
     // TODO this->AddObserversToInteractionNode();
-    return;
-    }
-
-  if (node->IsA("vtkMRMLResectionSurfaceDisplayNode"))
-    {
-    vtkObserveMRMLNodeMacro(node);
     return;
     }
 
@@ -220,12 +260,71 @@ OnMRMLSceneNodeAdded(vtkMRMLNode *node)
   vtkDebugMacro("OnMRMLSceneNodeAddedEvent: widget was created and "
                 << "saved to helper records");
 
+  this->SetAndObserveNode(resectionSurfaceNode);
+
   this->RequestRender();
 }
 
 //------------------------------------------------------------------------------
 void vtkMRMLResectionDisplayableManager3D::
-OnMRMLSceneNodeRemoved(vtkMRMLNode *vtkNotUsed(node))
+OnMRMLSceneNodeRemoved(vtkMRMLNode *node)
 {
+  vtkDebugMacro("From vtkMRMLResectionDisplayableManager3D: "
+                << "node removed from scene.");
 
+  vtkMRMLResectionSurfaceNode *resectionNode =
+    vtkMRMLResectionSurfaceNode::SafeDownCast(node);
+  if (!resectionNode)
+    {
+    return;
+    }
+
+  this->SetUpdateFromMRMLRequested(1);
+
+  if (this->GetMRMLScene()->IsBatchProcessing())
+    {
+    return;
+    }
+
+  NodeWidgetIt it = this->NodeWidgetMap.find(resectionNode);
+  if (it == this->NodeWidgetMap.end())
+    {
+    return;
+    }
+
+  it->second->Off();
+  this->NodeWidgetMap.erase(it);
+
+  this->RequestRender();
+}
+
+
+//------------------------------------------------------------------------------
+void vtkMRMLResectionDisplayableManager3D::UpdateVisibility()
+{
+  vtkMRMLScene *scene = this->GetMRMLScene();
+
+  std::vector<vtkMRMLNode*> dNodes;
+  int nNodes =
+    scene ? scene->GetNodesByClass("vtkMRMLResectionSurfaceNode", dNodes):0;
+  for(int n=0; n<nNodes; n++)
+    {
+
+    vtkMRMLResectionSurfaceNode *resectionNode =
+      vtkMRMLResectionSurfaceNode::SafeDownCast(dNodes[n]);
+
+    vtkMRMLResectionSurfaceDisplayNode *resectionDisplayNode =
+      vtkMRMLResectionSurfaceDisplayNode::SafeDownCast(resectionNode->GetDisplayNode());
+
+    if (resectionDisplayNode)
+      {
+      NodeWidgetIt it = this->NodeWidgetMap.find(resectionNode);
+
+      if (it != this->NodeWidgetMap.end())
+        {
+        vtkBezierSurfaceWidget *widget = it->second;
+        widget->SetEnabled(resectionDisplayNode->GetVisibility());
+        }
+      }
+    }
 }
