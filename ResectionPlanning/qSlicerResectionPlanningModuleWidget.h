@@ -60,6 +60,13 @@ public:
   qSlicerResectionPlanningModuleWidget(QWidget *parent=0);
   virtual ~qSlicerResectionPlanningModuleWidget();
 
+/**
+ * Get a list of tumors associated with a particular resection
+ *
+ * @parap resection ID
+ */
+ std::list<QString> GetTumorsAssociatedWithResection(QString &resectionID);
+
 public slots:
 /**
  * Called when a tumor is added to a resection via the gui in the tumors widget
@@ -69,7 +76,7 @@ public slots:
  * @param resection node ID
  * @param tumor node ID
  */
-void OnAddTumorToResection(QString&,QString&);
+void OnAddTumorToResection(QString&);
 
 /**
  * Called when a tumor is removed from a resection via the gui in the tumors widget
@@ -79,7 +86,7 @@ void OnAddTumorToResection(QString&,QString&);
  * @param resection node ID
  * @param tumor node ID
  */
-void OnRemoveTumorToResection(QString&,QString&);
+void OnRemoveTumorToResection(QString&);
 
 /**
  * Called when a resection is added via the gui from the surfaces widget
@@ -97,6 +104,13 @@ void OnAddResection();
  * @param resection name
  */
 void OnRemoveResection(QString&,QString&);
+
+/**
+ * Called when the selected resection is changed
+ *
+ * @param resection ID
+ */
+void OnActiveResectionChanged(QString&);
 
 /**
  * Called when Volumes button is clicked
@@ -186,6 +200,7 @@ private:
   vtkEventQtSlotConnect *Connections;
 
   std::multimap<std::string, std::string> resectionToTumorMap;
+  std::string activeResectionID;
 };
 
 #endif

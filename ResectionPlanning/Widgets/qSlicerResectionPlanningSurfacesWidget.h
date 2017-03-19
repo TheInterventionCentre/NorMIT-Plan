@@ -57,6 +57,12 @@ public:
   qSlicerResectionPlanningSurfacesWidget(QWidget *parent=0);
   virtual ~qSlicerResectionPlanningSurfacesWidget();
 
+  /**
+   * Get currently selected resection
+   * returns null if nothing selected
+   */
+   QString GetCurrentResectionID();
+
 public slots:
 
   /**
@@ -90,6 +96,13 @@ signals:
    */
    void RemoveSurfaceButtonClicked(QString&,QString&);
 
+   /**
+    * Signal emited when the selected resection is changed
+    *
+    * @param resection node ID
+    */
+    void CurrentResectionSurfaceChanged(QString&);
+
 protected slots:
   /**
    * Triggered when the button for adding a resection surface is clicked
@@ -100,6 +113,11 @@ protected slots:
    * Triggered when the button for removing a resection surface is clicked
    */
   void OnRemoveSurfaceButtonClicked();
+
+  /**
+   * Triggered when the selection of current resection surface is changed
+   */
+  void OnCurrentResectionSurfaceChanged(QListWidgetItem*,QListWidgetItem*);
 
 
 protected:

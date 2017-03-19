@@ -31,6 +31,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Qt includes
 #include <QWidget>
 #include <QPointer>
+#include <QMap>
 
 #include <map>
 
@@ -60,6 +61,7 @@ public:
 public slots:
   /**
    * Functions for exposing functionality for testing
+   * returns an empty string if did not find item
    */
   QString SelectItemInAvailableTumors(QString&);
   QString SelectItemInResectionTumors(QString&);
@@ -84,18 +86,16 @@ signals:
   /**
    * Signal emited when the button to add tumors to a resection is clicked
    *
-   * @param resection node ID
    * @param tumor model ID
    */
-  void AddTumorToResectionButtonClicked(QString&,QString&);
+  void AddTumorToResectionButtonClicked(QString&);
 
   /**
    * Signal emited when the button to remove tumors from a resection is clicked
    *
-   * @param resection node ID
    * @param tumor model ID
    */
-  void RemoveTumorToResectionButtonClicked(QString&,QString&);
+  void RemoveTumorToResectionButtonClicked(QString&);
 
 protected slots:
   /**
@@ -115,11 +115,9 @@ private:
   Q_DECLARE_PRIVATE(qSlicerResectionPlanningTumorsWidget);
   Q_DISABLE_COPY(qSlicerResectionPlanningTumorsWidget);
 
-  std::map<QString, QListWidgetItem*> IDtoItemMap_availableTumors;
-  std::map<QListWidgetItem*, QString> itemToIDMap_availableTumors;
+  QMap<QString, QListWidgetItem*> IDtoItemMap_availTumors;
 
-  std::map<QString, QListWidgetItem*> IDtoItemMap_resectionTumors;
-  std::map<QListWidgetItem*, QString> itemToIDMap_resectionTumors;
+  QMap<QString, QListWidgetItem*> IDtoItemMap_resecTumors;
 };
 
 #endif

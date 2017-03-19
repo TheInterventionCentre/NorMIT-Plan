@@ -71,5 +71,22 @@
   </layout>
  </widget>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>listResectionSurfaces</sender>
+   <signal>currentItemChanged(QListWidgetItem*,QListWidgetItem*)</signal>
+   <receiver>qSlicerResectionPlanningSurfacesWidget</receiver>
+   <slot>OnCurrentResectionSurfaceChanged(QListWidgetItem*,QListWidgetItem*)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>308</x>
+     <y>190</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>308</x>
+     <y>280</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>

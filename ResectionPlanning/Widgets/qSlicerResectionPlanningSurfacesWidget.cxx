@@ -94,6 +94,28 @@ qSlicerResectionPlanningSurfacesWidget
 }
 
 //-----------------------------------------------------------------------------
+QString qSlicerResectionPlanningSurfacesWidget::GetCurrentResectionID()
+{
+  Q_D(qSlicerResectionPlanningSurfacesWidget);
+
+  if(d->listResectionSurfaces->selectedItems().size() > 0) // check not null (something is selected)
+  {
+    QListWidgetItem *item = d->listResectionSurfaces->currentItem();
+    std::map<QListWidgetItem*, QString>::iterator it;
+    it = this->itemToResectionIDMap.find(item);
+    if (it == this->itemToResectionIDMap.end())
+    {
+      return NULL; // cannot find in map
+    }
+    QString resectionID = it->second;
+  }
+  else
+  {
+    return NULL;
+  }
+}
+
+//-----------------------------------------------------------------------------
 void qSlicerResectionPlanningSurfacesWidget
 ::AddToResectionList(QString &nodeID,QString &nodeName)
 {
@@ -170,4 +192,15 @@ void qSlicerResectionPlanningSurfacesWidget
   {
     std::cout << "SurfacesWidget - No resection selected for deletion" << std::endl;
   }
+}
+
+void qSlicerResectionPlanningSurfacesWidget
+::OnCurrentResectionSurfaceChanged(QListWidgetItem* current, QListWidgetItem* previous)
+{
+   if(current->text() != NULL)
+   {
+     std::cout << "SurfacesWidget - Selected surface changed: " << current->text().toStdString() << std::endl;
+     QString resectionID = current->text();
+     emit CurrentResectionSurfaceChanged(resectionID);
+   }
 }
