@@ -40,6 +40,7 @@
 #include "vtkSlicerResectionPlanningModuleMRMLExport.h"
 
 // MRML includes
+#include <vtkMRMLDisplayableNode.h>
 #include <vtkMRMLModelNode.h>
 
 // VTK includes
@@ -49,12 +50,12 @@
 /**
  * \ingroup ResectionPlanning
  *
- * This class holds hte information related to the initialization node, which is
+ * This class holds the information related to the initialization node, which is
  * represented by a line, two end points (movable) and a slicing contour around
  * a target polydata.
  */
 class VTK_SLICER_RESECTIONPLANNING_MODULE_MRML_EXPORT
-vtkMRMLResectionInitializationNode: public vtkMRMLNode
+vtkMRMLResectionInitializationNode: public vtkMRMLDisplayableNode
 {
  public:
 
@@ -74,7 +75,7 @@ vtkMRMLResectionInitializationNode: public vtkMRMLNode
    */
   static vtkMRMLResectionInitializationNode* New();
 
-  vtkTypeMacro(vtkMRMLResectionInitializationNode, vtkMRMLNode);
+  vtkTypeMacro(vtkMRMLResectionInitializationNode, vtkMRMLDisplayableNode);
 
   /**
    * Standard print object information method.
@@ -104,7 +105,7 @@ vtkMRMLResectionInitializationNode: public vtkMRMLNode
    * Get the icon associated to the node
    *
    *
-   * @return string pointing to the reseource where the icon is located.
+   * @return string pointing to the resource where the icon is located.
    */
   virtual const char* GetIcon() {return "";}
 
