@@ -71,8 +71,6 @@ vtkMRMLResectionSurfaceNode::vtkMRMLResectionSurfaceNode()
       this->ControlPoints->InsertNextPoint(point);
       }
     }
-
-
 }
 
 //------------------------------------------------------------------------------

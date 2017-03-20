@@ -150,10 +150,18 @@ public vtkMRMLAbstractThreeDViewDisplayableManager
   virtual void OnMRMLSceneNodeRemoved(vtkMRMLNode* node);
 
   /**
+   * Update the geometry of the Bézier surface and the control points.
+   *
+   * @param pointer to vtkMRMLResectionSurfaceNode to update.
+   */
+  void UpdateGeometry(vtkMRMLResectionSurfaceNode *node);
+
+  /**
    * Update visibilty property of the models
    *
+   * @param pointer to vtkMRMLResectionSurfaceNode to update.
    */
-  void UpdateVisibility();
+  void UpdateVisibility(vtkMRMLResectionSurfaceNode *node);
 
   // Description:
   // Helper class.

@@ -38,7 +38,6 @@
 
 #include <vtkObjectFactory.h>
 #include <vtkCallbackCommand.h>
-#include <vtkPlaneSource.h>
 #include <vtkSphereSource.h>
 #include <vtkTubeFilter.h>
 #include <vtkCleanPolyData.h>
@@ -198,6 +197,29 @@ vtkBezierSurfaceWidget::vtkBezierSurfaceWidget()
 vtkBezierSurfaceWidget::~vtkBezierSurfaceWidget()
 {
 
+}
+
+//------------------------------------------------------------------------------
+void vtkBezierSurfaceWidget::SetControlPoints(vtkPoints *points)
+{
+  this->ControlPoints->DeepCopy(points);
+  this->BezierSurfaceSource->SetControlPoints(points);
+  this->ControlPolygonPolyData->SetPoints(points);
+  for(unsigned int i = 0; i<this->NumberOfControlPointsX; ++i)
+    {
+    for(unsigned int j = 0; j<this->NumberOfControlPointsY; ++j)
+      {
+      vtkSphereSource *source =
+        vtkSphereSource::SafeDownCast(
+          this->HandlePolyDataCollection->
+          GetItemAsObject(i*NumberOfControlPointsX+j));
+
+      source->SetCenter(points->GetPoint(i*this->NumberOfControlPointsX+j));
+      source->Update();
+      }
+    }
+
+  this->Modified();
 }
 
 //------------------------------------------------------------------------------
