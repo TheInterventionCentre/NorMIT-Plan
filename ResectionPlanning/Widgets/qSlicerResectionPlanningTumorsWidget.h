@@ -33,13 +33,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <QPointer>
 #include <QMap>
 
-#include <map>
-
 // FooBar Widgets includes
 #include "qSlicerResectionPlanningModuleWidgetsExport.h"
 
 class qSlicerResectionPlanningTumorsWidgetPrivate;
-class QString;
 class QListWidget;
 class QListWidgetItem;
 
@@ -60,11 +57,41 @@ public:
 
 public slots:
   /**
-   * Functions for exposing functionality for testing
-   * returns an empty string if did not find item
+   * functions created for software testing, to programmatically click buttons
    */
-  QString SelectItemInAvailableTumors(QString&);
-  QString SelectItemInResectionTumors(QString&);
+  void ClickButtonAddTumor();
+  void ClickButtonRemoveTumor();
+
+  /**
+   * Function for selecting a tumor in the available tumor list
+   *
+   * @param ID of tumor to be selected
+   * @return boolean if successfully found/selected
+   */
+  bool SelectItemInAvailableTumors(QString&);
+
+  /**
+   * Function for selecting a tumor in the resection tumor list
+   *
+   * @param ID of tumor to be selected
+   * @return boolean if successfully found/selected
+   */
+  bool SelectItemInResectionTumors(QString&);
+
+  /**
+   * Check if a tumor is in the available tumor list
+   *
+   * @return boolean if successfully found
+   */
+  bool CheckIfInAvailableTumors(QString&);
+
+  /**
+   * Check if a tumor is in the resection tumor list
+   *
+   * @return boolean if successfully found
+   */
+  bool CheckIfInResectionTumors(QString&);
+
 
   /**
    * Adds a tumor to the list of available tumors (listTumorsToAdd)

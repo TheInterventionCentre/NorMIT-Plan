@@ -94,7 +94,23 @@ qSlicerResectionPlanningTumorsWidget
 
 }
 
-QString qSlicerResectionPlanningTumorsWidget::SelectItemInAvailableTumors(QString &id)
+///-----------------------------------------------------------------------------
+// Functions used currently for software testing
+//-----------------------------------------------------------------------------
+void qSlicerResectionPlanningTumorsWidget::ClickButtonAddTumor()
+{
+  Q_D(qSlicerResectionPlanningTumorsWidget);
+
+  d->AddTumorButton->click();
+}
+void qSlicerResectionPlanningTumorsWidget::ClickButtonRemoveTumor()
+{
+  Q_D(qSlicerResectionPlanningTumorsWidget);
+
+  d->RemoveTumorButton->click();
+}
+
+bool qSlicerResectionPlanningTumorsWidget::SelectItemInAvailableTumors(QString &id)
 {
   Q_D(qSlicerResectionPlanningTumorsWidget);
 
@@ -103,18 +119,17 @@ QString qSlicerResectionPlanningTumorsWidget::SelectItemInAvailableTumors(QStrin
   qit = this->IDtoItemMap_availTumors.find(id);
   if (qit == this->IDtoItemMap_availTumors.end())
   {
-    QString empty("");
-    return empty; // did not find node in map
+    return false; // did not find node in map
   }
 
   d->listAvailableTumors->setCurrentItem(qit.value());
   d->listAvailableTumors->selectionModel()->select(d->listAvailableTumors->selectionModel()->currentIndex(), QItemSelectionModel::Select);
 
   std::cout << "TumorsWidget - select item: " << qit.value()->text().toStdString() << std::endl;
-  return qit.value()->text();
+  return true;
 }
 
-QString qSlicerResectionPlanningTumorsWidget::SelectItemInResectionTumors(QString &id)
+bool qSlicerResectionPlanningTumorsWidget::SelectItemInResectionTumors(QString &id)
 {
   Q_D(qSlicerResectionPlanningTumorsWidget);
 
@@ -123,15 +138,46 @@ QString qSlicerResectionPlanningTumorsWidget::SelectItemInResectionTumors(QStrin
   qit = this->IDtoItemMap_resecTumors.find(id);
   if (qit == this->IDtoItemMap_resecTumors.end())
   {
-    QString empty("");
-    return empty; // did not find node in map
+    return false; // did not find node in map
   }
 
   d->listAvailableTumors->setCurrentItem(qit.value());
   d->listAvailableTumors->selectionModel()->select(d->listAvailableTumors->selectionModel()->currentIndex(), QItemSelectionModel::Select);
 
   std::cout << "TumorsWidget - select item: " << qit.value()->text().toStdString() << std::endl;
-  return qit.value()->text();
+  return true;
+}
+
+bool qSlicerResectionPlanningTumorsWidget::CheckIfInAvailableTumors(QString &tumorID)
+{
+  Q_D(qSlicerResectionPlanningTumorsWidget);
+
+  // loop through the list
+  QMap<QString, QListWidgetItem*>::iterator qit;
+  for(qit = this->IDtoItemMap_availTumors.begin(); qit != this->IDtoItemMap_availTumors.end(); ++qit)
+  {
+    if(qit.key() == tumorID)
+    {
+      return true;
+    }
+  }
+  return false;
+}
+
+bool qSlicerResectionPlanningTumorsWidget::CheckIfInResectionTumors(QString &tumorID)
+{
+  Q_D(qSlicerResectionPlanningTumorsWidget);
+
+  // loop through the list
+  QMap<QString, QListWidgetItem*>::iterator qit;
+  for(qit = this->IDtoItemMap_resecTumors.begin(); qit != this->IDtoItemMap_resecTumors.end(); ++qit)
+  {
+    if(qit.key() == tumorID)
+    {
+      return true;
+    }
+  }
+  return false;
 }
 
 //-----------------------------------------------------------------------------

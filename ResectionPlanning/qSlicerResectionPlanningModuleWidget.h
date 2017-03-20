@@ -33,6 +33,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "qSlicerResectionPlanningModuleExport.h"
 
 #include <QString>
+#include <QList>
 #include <string>
 #include <map>
 
@@ -60,12 +61,12 @@ public:
   qSlicerResectionPlanningModuleWidget(QWidget *parent=0);
   virtual ~qSlicerResectionPlanningModuleWidget();
 
-/**
- * Get a list of tumors associated with a particular resection
- *
- * @parap resection ID
- */
- std::list<QString> GetTumorsAssociatedWithResection(QString &resectionID);
+  /**
+   * Get a list of tumors associated with a particular resection
+   *
+   * @param resection ID
+   */
+   std::list<QString> GetTumorsAssociatedWithResection(QString &resectionID);
 
 public slots:
 /**
