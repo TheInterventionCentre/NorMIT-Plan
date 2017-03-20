@@ -44,6 +44,7 @@
 
 // VTK includes
 #include <vtkObjectFactory.h>
+#include <vtkPoints.h>
 
 //------------------------------------------------------------------------------
 vtkMRMLNodeNewMacro(vtkMRMLResectionSurfaceNode);
@@ -52,6 +53,25 @@ vtkMRMLNodeNewMacro(vtkMRMLResectionSurfaceNode);
 vtkMRMLResectionSurfaceNode::vtkMRMLResectionSurfaceNode()
   :ResectionMargin(DEFAULT_RESECTION_MARGIN)
 {
+
+  // Initialization of control points
+  double startX = -0.5;
+  double startY = -0.5;
+  double endX = 0.5;
+  double endY = 0.5;
+  double incX = (endX - startX)/4.0;
+  double incY = (endY - startY)/4.0;
+
+  //Generate geometry;
+  for(int i=0; i<4; ++i)
+    {
+    for(int j=0; j<4; ++j)
+      {
+      double point[3] = {startX+i*incX, startY+j*incY, 0.0};
+      this->ControlPoints->InsertNextPoint(point);
+      }
+    }
+
 
 }
 
@@ -118,4 +138,11 @@ void vtkMRMLResectionSurfaceNode::RemoveTargetTumor(vtkMRMLModelNode *tumorNode)
 int vtkMRMLResectionSurfaceNode::GetNumberOfTargetTumors() const
 {
   return this->TargetTumors->GetNumberOfItems();
+}
+
+//------------------------------------------------------------------------------
+void vtkMRMLResectionSurfaceNode::SetControlPoints(vtkPoints *points)
+{
+  this->ControlPoints->DeepCopy(points);
+  this->Modified();
 }

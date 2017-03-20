@@ -45,6 +45,7 @@
 #include <vtkNew.h>
 #include <vtkSmartPointer.h>
 #include <vtkCollection.h>
+#include <vtkPoints.h>
 
 // STD includes
 #include <iostream>
@@ -158,6 +159,67 @@ int vtkMRMLResectionSurfaceNodeTest1(int, char *[])
     }
 
   // END: Changing resection margin tests
+  //----------------------------------------------------------------------------
+
+  //----------------------------------------------------------------------------
+  // Changing control points
+
+  vtkNew<vtkMRMLResectionSurfaceNode> node2;
+
+  // Test the initialization values
+  double startX = -0.5;
+  double startY = -0.5;
+  double endX = 0.5;
+  double endY = 0.5;
+  double incX = (endX - startX)/4.0;
+  double incY = (endY - startY)/4.0;
+
+  vtkPoints *nodePoints = node2->GetControlPoints();
+
+  for(int i=0; i<4; ++i)
+    {
+    for(int j=0; j<4; ++j)
+      {
+      double genPoint[3] = {startX+i*incX, startY+j*incY, 0.0};
+      double nodePoint[3];
+      nodePoints->GetPoint(i*4+j,nodePoint);
+      if (genPoint[0] != nodePoint[0] ||
+          genPoint[1] != nodePoint[1] ||
+          genPoint[2] != nodePoint[2])
+        {
+        std::cerr << "Initialization points in node are different "
+                  << "from the expected points" << std::endl;
+        return EXIT_FAILURE;
+        }
+      }
+    }
+
+  // Test changing the control points
+  vtkSmartPointer<vtkPoints> genPoints =
+    vtkSmartPointer<vtkPoints>::New();
+
+  for(int i=0; i<16; ++i)
+    {
+    genPoints->InsertNextPoint(i,i,i);
+    }
+
+  node2->SetControlPoints(genPoints);
+
+  nodePoints = node2->GetControlPoints();
+  for(int i=0; i<16; ++i)
+    {
+    double nodePoint[3];
+    nodePoints->GetPoint(i,nodePoint);
+
+    if (nodePoint[0] != (double)i ||
+        nodePoint[1] != (double)i ||
+        nodePoint[2] != (double)i)
+      {
+      std::cerr << "Error setting new control points" << std::endl;
+      return EXIT_FAILURE;
+      }
+    }
+  // END: Changing control points
   //----------------------------------------------------------------------------
 
   return EXIT_SUCCESS;
