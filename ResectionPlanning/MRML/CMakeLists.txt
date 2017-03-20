@@ -12,6 +12,7 @@ set(${KIT}_SRCS
   vtkMRMLResectionSurfaceNode.cxx
   vtkMRMLResectionSurfaceDisplayNode.cxx
   vtkMRMLResectionInitializationNode.cxx
+  vtkMRMLResectionInitializationDisplayNode.cxx
   #vtkMRMLResectionSurfaceStorageNode.cxx
   )
 
