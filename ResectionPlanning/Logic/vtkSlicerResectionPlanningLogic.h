@@ -46,12 +46,16 @@
 
 // VTK includes
 #include <vtkSmartPointer.h>
+#include <vtkWeakPointer.h>
 
 // STD includes
 #include <cstdlib>
 
 //------------------------------------------------------------------------------
 class vtkAppendPolyData;
+class vtkMRMLModelNode;
+class vtkMRMLResectionSurfaceNode;
+class vtkMRMLResectionInitializationNode;
 
 //------------------------------------------------------------------------------
 
@@ -149,12 +153,55 @@ public vtkSlicerModuleLogic
    */
   virtual void OnMRMLSceneNodeRemoved(vtkMRMLNode* node);
 
+  /**
+   * Process nodes events (particularly for resection and resection initialization)
+   *
+   * @param object object triggering the event.
+   * @param eventId event id
+   * @param data additional data (not used).
+   */
+  virtual void ProcessMRMLNodesEvents(vtkObject *object,
+                                      unsigned long int eventId,
+                                      void *data);
+
+  /**
+   * Update the Bezier widget according to the initialization interaction.
+   *
+   * @param initNode pointer to initialization node.
+   */
+  void UpdateBezierWidgetOnInitialization(vtkMRMLResectionInitializationNode *initNode);
+
+  /**
+   * Turn off the visibilty of the resection widget for initiailzation purposes.
+   *
+   * @param initNode pointer to initialization node.
+   */
+  void HideResectionSurfaceOnInitialization(vtkMRMLResectionInitializationNode
+                                            *initNode);
+
+  /**
+   * Turn off the visibility of the initialization widget.
+   *
+   * @param initNode pointer to initialization node.
+   */
+  void HideInitializationOnResectionModification(vtkMRMLResectionSurfaceNode
+                                                 *initNode);
+
  private:
   vtkSlicerResectionPlanningLogic(const vtkSlicerResectionPlanningLogic&); // Not implemented
   void operator=(const vtkSlicerResectionPlanningLogic&); // Not implemented
 
   vtkSmartPointer<vtkAppendPolyData> AppendTumors;
 
+  // Pointer to the parenchyma node. The reader should note that there is only
+  // one valid parenchyma.
+  vtkWeakPointer<vtkMRMLModelNode> ParenchymaModelNode;
+
+  // Resection initialization and resection node map
+  std::map<vtkMRMLResectionInitializationNode*, vtkMRMLResectionSurfaceNode*>
+    ResectionInitializationMap;
+  typedef std::map<vtkMRMLResectionInitializationNode*, vtkMRMLResectionSurfaceNode *>
+    ::iterator ResectionInitializationIt;
 };
 
 #endif

@@ -163,6 +163,21 @@ public vtkMRMLAbstractThreeDViewDisplayableManager
    */
   void UpdateVisibility(vtkMRMLResectionSurfaceNode *node);
 
+  /**
+   * Update MRML node values based on modifications from interactions with the
+   * widget.
+   *
+   * @param object pointer to widget triggering the event.
+   * @param eventId id of the event.
+   * @param clientData pointer to surface node to be modified.
+   * @param callData Not used.
+   *
+   */
+  static void UpdateMRML(vtkObject *object,
+                         unsigned long int eventId,
+                         void *clientData,
+                         void *callData);
+
   // Description:
   // Helper class.
   vtkNew<vtkMRMLResectionDisplayableManager3DHelper> Helper;

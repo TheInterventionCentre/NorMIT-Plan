@@ -36,6 +36,7 @@
 // This module includes
 #include "vtkMRMLResectionInitializationDisplayableManager3D.h"
 #include "vtkMRMLResectionInitializationNode.h"
+#include "vtkMRMLResectionInitializationDisplayNode.h"
 #include "vtkLineWidget3.h"
 
 // MRML includes
@@ -66,10 +67,9 @@ vtkMRMLResectionInitializationDisplayableManager3D::
 
 //------------------------------------------------------------------------------
 void vtkMRMLResectionInitializationDisplayableManager3D::
-PrintSelf(ostream &vtkNotUsed(os),
-          vtkIndent vtkNotUsed(indent))
+PrintSelf(ostream &os, vtkIndent indent)
 {
-
+  this->Superclass::PrintSelf(os, indent);
 }
 
 //------------------------------------------------------------------------------
@@ -92,9 +92,46 @@ SetAndObserveNode(vtkMRMLResectionInitializationNode *initializationNode)
 
   vtkNew<vtkIntArray> nodeEvents;
   nodeEvents->InsertNextValue(vtkCommand::ModifiedEvent);
+  nodeEvents->InsertNextValue(vtkMRMLDisplayableNode::DisplayModifiedEvent);
 
   vtkUnObserveMRMLNodeMacro(initializationNode);
   vtkObserveMRMLNodeEventsMacro(initializationNode, nodeEvents.GetPointer());
+}
+
+//------------------------------------------------------------------------------
+void vtkMRMLResectionInitializationDisplayableManager3D::
+ProcessMRMLNodesEvents(vtkObject *object,
+                       unsigned long int eventId,
+                       void *vtkNotUsed(data))
+{
+  vtkMRMLResectionInitializationNode *node =
+    vtkMRMLResectionInitializationNode::SafeDownCast(object);
+
+  if (!node)
+    {
+    return;
+    }
+
+  bool isUpdating = this->GetMRMLScene()->IsBatchProcessing();
+
+  switch(eventId)
+    {
+    case vtkMRMLDisplayableNode::DisplayModifiedEvent:
+      this->UpdateVisibility(node);
+      break;
+
+    case vtkCommand::ModifiedEvent:
+      this->UpdateLineWidget(node);
+      break;
+
+    default:
+      break;
+    }
+
+  if (!isUpdating)
+    {
+    this->RequestRender();
+    }
 }
 
 //------------------------------------------------------------------------------
@@ -152,7 +189,7 @@ OnMRMLSceneNodeAdded(vtkMRMLNode *node)
   vtkDebugMacro("OnMRMLSceneNodeAddedEvent: node " << node->GetID());
 
   // There should not be any widget for the new node
-  vtkMRMLResectionInitializationDisplayableManager3D::NodeWidgetMapIt it;
+  vtkMRMLResectionInitializationDisplayableManager3D::NodeWidgetIt it;
   it = this->NodeWidgetMap.find(initializationNode);
   if (it != this->NodeWidgetMap.end())
     {
@@ -228,6 +265,9 @@ AddWidget(vtkMRMLResectionInitializationNode *initializationNode)
   lineWidget->AddObserver(vtkCommand::EndInteractionEvent,
                           lineWidgetChanged);
 
+  initializationNode->SetPoint1(lineWidget->GetPoint1());
+  initializationNode->SetPoint2(lineWidget->GetPoint2());
+
   return true;
 }
 
@@ -257,4 +297,59 @@ UpdateMRML(vtkObject *caller,
   node->SetPoint1(widget->GetPoint1());
   node->SetPoint2(widget->GetPoint2());
   node->Modified();
+
+  if (eventId == vtkCommand::StartInteractionEvent)
+    {
+    node->InvokeEvent(vtkCommand::StartInteractionEvent);
+    }
+
+  if (eventId == vtkCommand::EndInteractionEvent)
+    {
+    node->InvokeEvent(vtkCommand::EndInteractionEvent);
+    }
+}
+
+//------------------------------------------------------------------------------
+void vtkMRMLResectionInitializationDisplayableManager3D::
+UpdateLineWidget(vtkMRMLResectionInitializationNode *node)
+{
+  if (!node)
+    {
+    vtkErrorMacro("Error: no node passed.");
+    return;
+    }
+
+  NodeWidgetIt it = this->NodeWidgetMap.find(node);
+  if (it != this->NodeWidgetMap.end())
+    {
+    vtkLineWidget3 *widget = it->second;
+    widget->SetPoint1(node->GetPoint1());
+    widget->SetPoint2(node->GetPoint2());
+    }
+}
+
+//------------------------------------------------------------------------------
+void vtkMRMLResectionInitializationDisplayableManager3D::
+UpdateVisibility(vtkMRMLResectionInitializationNode *node)
+{
+  if (!node)
+    {
+    return;
+    }
+
+  vtkMRMLResectionInitializationDisplayNode *displayNode =
+    vtkMRMLResectionInitializationDisplayNode::SafeDownCast(
+      node->GetDisplayNode());
+
+  if (!displayNode)
+    {
+    return;
+    }
+
+  NodeWidgetIt it = this->NodeWidgetMap.find(node);
+  if (it != this->NodeWidgetMap.end())
+    {
+    vtkLineWidget3 *widget = it->second;
+    widget->SetEnabled(displayNode->GetVisibility());
+    }
 }

@@ -60,7 +60,7 @@ public vtkMRMLAbstractThreeDViewDisplayableManager
 {
  public:
 
-    /**
+  /**
    * Standard VTK object creation macro.
    *
    *
@@ -79,6 +79,17 @@ public vtkMRMLAbstractThreeDViewDisplayableManager
    */
   void PrintSelf(ostream &os, vtkIndent indent);
 
+  /**
+   * Process MRML nodes events
+   *
+   * @param object object which triggered the event.
+   * @param eventId Id of the event.
+   * @param data additional data.
+   *
+   */
+  void ProcessMRMLNodesEvents(vtkObject *object,
+                             unsigned long int eventId,
+                             void *data);
  protected:
   vtkMRMLResectionInitializationDisplayableManager3D();
   ~ vtkMRMLResectionInitializationDisplayableManager3D();
@@ -153,6 +164,24 @@ public vtkMRMLAbstractThreeDViewDisplayableManager
                          void *clientData,
                          void *callerData);
 
+  /**
+   * Update the visibility properties of the widget based on the node
+   * information.
+   *
+   * @param node pointer to a resection initialization node to update the
+   * visibility from.
+   */
+  void UpdateVisibility(vtkMRMLResectionInitializationNode *node);
+
+  /**
+   * Update the line widget
+   *
+   * @param node pointer to a resection initialization node to update the
+   * visibility from.
+   */
+  void UpdateLineWidget(vtkMRMLResectionInitializationNode *node);
+
+
  private:
     vtkMRMLResectionInitializationDisplayableManager3D(
       const vtkMRMLResectionInitializationDisplayableManager3D&);
@@ -163,7 +192,7 @@ public vtkMRMLAbstractThreeDViewDisplayableManager
       vtkSmartPointer<vtkLineWidget3> > NodeWidgetMap;
     typedef std::map<vtkMRMLResectionInitializationNode*,
       vtkSmartPointer<vtkLineWidget3> >::iterator
-      NodeWidgetMapIt;
+      NodeWidgetIt;
 };
 
 #endif

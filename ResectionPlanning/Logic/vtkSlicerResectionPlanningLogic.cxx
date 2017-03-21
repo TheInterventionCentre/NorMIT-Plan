@@ -50,6 +50,13 @@
 #include <vtkObjectFactory.h>
 #include <vtksys/RegularExpression.hxx>
 #include <vtkAppendPolyData.h>
+#include <vtkPlane.h>
+#include <vtkPlaneSource.h>
+#include <vtkCutter.h>
+#include <vtkDoubleArray.h>
+#include <vtkCenterOfMass.h>
+#include <vtkTable.h>
+#include <vtkPCAStatistics.h>
 
 // STD includes
 #include <cassert>
@@ -197,6 +204,8 @@ void vtkSlicerResectionPlanningLogic
       parenchymaModelDisplayNode->ScalarVisibilityOn();
       }
 
+    this->ParenchymaModelNode = modelNode;
+
     // Inform that a hepatic node was added
     this->InvokeEvent(vtkSlicerResectionPlanningLogic::ParenchymaModelAdded,
                       static_cast<void*>(&id_name));
@@ -317,7 +326,7 @@ void vtkSlicerResectionPlanningLogic
       parenchymaModelDisplayNode->ScalarVisibilityOn();
       }
 
-    // Inform that a hepatic node was removed
+    // Inform that a parenchuma node was removed
     this->InvokeEvent(vtkSlicerResectionPlanningLogic::ParenchymaModelRemoved,
                       static_cast<void*>(&id_name));
     return;
@@ -382,24 +391,347 @@ void vtkSlicerResectionPlanningLogic::AddResectionSurface()
 {
   assert(this->GetMRMLScene() != 0);
 
+  if (!this->ParenchymaModelNode)
+    {
+    vtkErrorMacro("LRPParenchymaModel node needed to add a resection");
+    return;
+    }
+
+  vtkMRMLScene *scene = this->GetMRMLScene();
+
+  // Add a resection initialization node
+  vtkSmartPointer<vtkMRMLResectionInitializationDisplayNode>
+    resectionInitializationDisplayNode =
+    vtkSmartPointer<vtkMRMLResectionInitializationDisplayNode>::New();
+  scene->AddNode(resectionInitializationDisplayNode);
+
+  vtkSmartPointer<vtkMRMLResectionInitializationNode> resectionInitializationNode =
+    vtkSmartPointer<vtkMRMLResectionInitializationNode>::New();
+  resectionInitializationNode->SetTargetParenchyma(this->ParenchymaModelNode);
+  resectionInitializationNode->HideFromEditorsOn();
+  resectionInitializationNode->SaveWithSceneOff();
+  resectionInitializationNode->SetAndObserveDisplayNodeID(
+    resectionInitializationDisplayNode->GetID());
+  scene->AddNode(resectionInitializationNode);
+
   // Add display node first
   vtkSmartPointer<vtkMRMLResectionSurfaceDisplayNode> resectionDisplayNode =
     vtkSmartPointer<vtkMRMLResectionSurfaceDisplayNode>::New();
   resectionDisplayNode->SetScene(this->GetMRMLScene());
   resectionDisplayNode->ScalarVisibilityOn();
-  this->GetMRMLScene()->AddNode(resectionDisplayNode);
+  scene->AddNode(resectionDisplayNode);
 
   // Then add resection node
   vtkSmartPointer<vtkMRMLResectionSurfaceNode> resectionNode =
     vtkSmartPointer<vtkMRMLResectionSurfaceNode>::New();
   resectionNode->SetScene(this->GetMRMLScene());
   resectionNode->SetAndObserveDisplayNodeID(resectionDisplayNode->GetID());
-  this->GetMRMLScene()->AddNode(resectionNode);
+  scene->AddNode(resectionNode);
 
+  // Link the resection initialization node with the resection
+  ResectionInitializationMap[resectionInitializationNode] = resectionNode;
+
+  // Observe the interaction events
+  vtkNew<vtkIntArray> nodeEvents;
+  nodeEvents->InsertNextValue(vtkCommand::StartInteractionEvent);
+  nodeEvents->InsertNextValue(vtkCommand::EndInteractionEvent);
+  vtkUnObserveMRMLNodeMacro(resectionNode);
+  vtkUnObserveMRMLNodeMacro(resectionInitializationNode);
+  vtkObserveMRMLNodeEventsMacro(resectionNode, nodeEvents.GetPointer());
+  vtkObserveMRMLNodeEventsMacro(resectionInitializationNode,
+                                nodeEvents.GetPointer());
+
+  // Update the bezier surface
+  this->UpdateBezierWidgetOnInitialization(resectionInitializationNode);
+
+  // Inform that resection was added
   std::pair<std::string, std::string> id_name;
   id_name.first = std::string(resectionNode->GetID());
   id_name.second = std::string(resectionNode->GetName());
   this->InvokeEvent(vtkSlicerResectionPlanningLogic::ResectionNodeAdded,
                     static_cast<void*>(&id_name));
+}
 
+//------------------------------------------------------------------------------
+void vtkSlicerResectionPlanningLogic::
+ProcessMRMLNodesEvents(vtkObject *object,
+                       unsigned long int eventId,
+                       void *vtkNotUsed(data))
+{
+  vtkMRMLResectionInitializationNode *initializationNode =
+    vtkMRMLResectionInitializationNode::SafeDownCast(object);
+
+  if (initializationNode)
+    {
+    switch(eventId)
+      {
+      case vtkCommand::EndInteractionEvent:
+        this->UpdateBezierWidgetOnInitialization(initializationNode);
+        break;
+
+      case vtkCommand::StartInteractionEvent:
+        this->HideResectionSurfaceOnInitialization(initializationNode);
+        break;
+      }
+    }
+
+  vtkMRMLResectionSurfaceNode *resectionNode =
+    vtkMRMLResectionSurfaceNode::SafeDownCast(object);
+
+  if (resectionNode)
+    {
+    if (eventId ==  vtkCommand::StartInteractionEvent)
+      {
+        this->HideInitializationOnResectionModification(resectionNode);
+      }
+    }
+
+  return;
+}
+
+//------------------------------------------------------------------------------
+void vtkSlicerResectionPlanningLogic::
+UpdateBezierWidgetOnInitialization(vtkMRMLResectionInitializationNode *initNode)
+{
+  if (!initNode)
+    {
+    vtkErrorMacro("Error: no initialization node passed");
+    return;
+    }
+
+  // Check for parenchyma node
+  if (!this->ParenchymaModelNode)
+    {
+    vtkErrorMacro("Error: no parenchyma model node is selected.");
+    return;
+    }
+
+  // Check for parenchyma polydata
+  if (!this->ParenchymaModelNode->GetPolyData())
+    {
+    vtkErrorMacro("Error: parenchyma model node does not contain poly data.");
+    return;
+    }
+
+  // Check for association between initalization node and resection node
+  ResectionInitializationIt it =
+    this->ResectionInitializationMap.find(initNode);
+  if (it == this->ResectionInitializationMap.end())
+    {
+    vtkErrorMacro("Error: initialization node is not "
+                  << "associated with any resection node");
+    return;
+    }
+
+  vtkMRMLResectionSurfaceNode *resectionNode = it->second;
+
+  double point1[3];
+  double point2[3];
+  double midPoint[3];
+  double normal[3];
+
+  initNode->GetPoint1(point1);
+  initNode->GetPoint2(point2);
+
+  midPoint[0] = (point1[0] + point2[0]) / 2.0;
+  midPoint[1] = (point1[1] + point2[1]) / 2.0;
+  midPoint[2] = (point1[2] + point2[2]) / 2.0;
+
+  normal[0] = point2[0] - point1[0];
+  normal[1] = point2[1] - point1[1];
+  normal[2] = point2[2] - point1[2];
+
+  // Cut the parenchyma (generate contour).
+  vtkNew<vtkPlane> cuttingPlane;
+  cuttingPlane->SetOrigin(midPoint);
+  cuttingPlane->SetNormal(normal);
+  vtkNew<vtkCutter> cutter;
+  cutter->SetInputData(this->ParenchymaModelNode->GetPolyData());
+  cutter->SetCutFunction(cuttingPlane.GetPointer());
+  cutter->Update();
+
+  vtkPolyData *contour = cutter->GetOutput();
+
+  // Perform Principal Component Analysis
+  vtkNew<vtkDoubleArray> xArray;
+  xArray->SetNumberOfComponents(1);
+  xArray->SetName("x");
+  vtkNew<vtkDoubleArray> yArray;
+  yArray->SetNumberOfComponents(1);
+  yArray->SetName("y");
+  vtkNew<vtkDoubleArray> zArray;
+  zArray->SetNumberOfComponents(1);
+  zArray->SetName("z");
+
+  vtkNew<vtkCenterOfMass> centerOfMass;
+  centerOfMass->SetInputData(contour);
+  centerOfMass->Update();
+  double com[3]={0};
+  centerOfMass->GetCenter(com);
+
+  for(unsigned int i=0; i<contour->GetNumberOfPoints(); i++)
+    {
+    double point[3];
+    contour->GetPoint(i, point);
+    xArray->InsertNextValue(point[0]);
+    yArray->InsertNextValue(point[1]);
+    zArray->InsertNextValue(point[2]);
+    }
+
+  vtkNew<vtkTable> dataTable;
+  dataTable->AddColumn(xArray.GetPointer());
+  dataTable->AddColumn(yArray.GetPointer());
+  dataTable->AddColumn(zArray.GetPointer());
+
+  vtkNew<vtkPCAStatistics> pcaStatistics;
+  pcaStatistics->SetInputData(vtkStatisticsAlgorithm::INPUT_DATA,
+                              dataTable.GetPointer());
+  pcaStatistics->SetColumnStatus("x", 1);
+  pcaStatistics->SetColumnStatus("y", 1);
+  pcaStatistics->SetColumnStatus("z", 1);
+  pcaStatistics->RequestSelectedColumns();
+  pcaStatistics->SetDeriveOption(true);
+  pcaStatistics->SetFixedBasisSize(3);
+  pcaStatistics->Update();
+
+  vtkNew<vtkDoubleArray> eigenvalues;
+  pcaStatistics->GetEigenvalues(eigenvalues.GetPointer());
+  vtkNew<vtkDoubleArray> eigenvector1;
+  pcaStatistics->GetEigenvector(0, eigenvector1.GetPointer());
+  vtkNew<vtkDoubleArray> eigenvector2;
+  pcaStatistics->GetEigenvector(1, eigenvector2.GetPointer());
+  vtkNew<vtkDoubleArray> eigenvector3;
+  pcaStatistics->GetEigenvector(2, eigenvector3.GetPointer());
+
+  double length1 = 4.0*sqrt(pcaStatistics->GetEigenvalue(0,0));
+  double length2 = 4.0*sqrt(pcaStatistics->GetEigenvalue(0,1));
+
+  double v1[3] =
+    {
+      eigenvector1->GetValue(0),
+      eigenvector1->GetValue(1),
+      eigenvector1->GetValue(2)
+    };
+
+  double v2[3] =
+    {
+      eigenvector2->GetValue(0),
+      eigenvector2->GetValue(1),
+      eigenvector2->GetValue(2)
+    };
+
+  double origin[3] =
+    {
+      com[0] - v1[0]*length1/2.0 - v2[0]*length2/2.0,
+      com[1] - v1[1]*length1/2.0 - v2[1]*length2/2.0,
+      com[2] - v1[2]*length1/2.0 - v2[2]*length2/2.0,
+    };
+
+  point1[0] = origin[0] + v1[0]*length1;
+  point1[1] = origin[1] + v1[1]*length1;
+  point1[2] = origin[2] + v1[2]*length1;
+
+  point2[0] = origin[0] + v2[0]*length2;
+  point2[1] = origin[1] + v2[1]*length2;
+  point2[2] = origin[2] + v2[2]*length2;
+
+  //Create bezier surface according to initial plane
+  vtkNew<vtkPlaneSource> planeSource;
+  planeSource->SetOrigin(origin);
+  planeSource->SetPoint1(point1);
+  planeSource->SetPoint2(point2);
+  planeSource->SetXResolution(3);
+  planeSource->SetYResolution(3);
+  planeSource->Update();
+
+  vtkMRMLResectionSurfaceDisplayNode *displayNode =
+    vtkMRMLResectionSurfaceDisplayNode::SafeDownCast(
+      resectionNode->GetDisplayNode());
+
+  if (!displayNode)
+    {
+    vtkErrorMacro("Error: no display node associated with the resectio node");
+    return;
+    }
+
+  displayNode->VisibilityOn();
+  resectionNode->SetControlPoints(planeSource->GetOutput()->GetPoints());
+}
+
+//------------------------------------------------------------------------------
+void vtkSlicerResectionPlanningLogic::
+HideResectionSurfaceOnInitialization(vtkMRMLResectionInitializationNode* initNode)
+{
+  if (!initNode)
+    {
+    vtkErrorMacro("Error: no initialization node passed");
+    return;
+    }
+
+  // Check for association between initalization node and resection node
+  ResectionInitializationIt it =
+    this->ResectionInitializationMap.find(initNode);
+  if (it == this->ResectionInitializationMap.end())
+    {
+    vtkErrorMacro("Error: initialization node is not "
+                  << "associated with any resection node");
+    return;
+    }
+
+  vtkMRMLResectionSurfaceNode *resectionNode = it->second;
+  vtkMRMLResectionSurfaceDisplayNode *displayNode =
+    vtkMRMLResectionSurfaceDisplayNode::SafeDownCast(
+      resectionNode->GetDisplayNode());
+
+  if (!displayNode)
+    {
+    vtkErrorMacro("Error: no display node associated with the resection node.");
+    return;
+    }
+
+  displayNode->VisibilityOff();
+}
+
+//------------------------------------------------------------------------------
+void vtkSlicerResectionPlanningLogic::
+HideInitializationOnResectionModification(vtkMRMLResectionSurfaceNode* node)
+{
+  if (!node)
+    {
+    vtkErrorMacro("Error: no initialization node passed.");
+    return;
+    }
+
+
+  // Find the initializatio node
+  ResectionInitializationIt it = ResectionInitializationMap.begin();
+  for(it; it!=ResectionInitializationMap.end(); it++)
+    {
+    if (it->second == node)
+      {
+      break;
+      }
+    }
+
+  if (it == ResectionInitializationMap.end())
+    {
+    vtkErrorMacro("Error: Resection surface node does not have the "
+                  << "corresponding resection initialization node.");
+    return;
+    }
+
+  vtkMRMLResectionInitializationNode *initializationNode  = it->first;
+
+  vtkMRMLResectionInitializationDisplayNode *displayNode =
+    vtkMRMLResectionInitializationDisplayNode::SafeDownCast(
+      initializationNode->GetDisplayNode());
+
+  if (!displayNode)
+    {
+    vtkErrorMacro("Error: no display node associated "
+                  << "with the initialization node.");
+    return;
+    }
+
+  displayNode->VisibilityOff();
 }

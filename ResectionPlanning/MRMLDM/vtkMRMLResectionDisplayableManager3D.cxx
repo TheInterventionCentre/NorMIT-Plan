@@ -50,6 +50,7 @@
 #include <vtkObjectFactory.h>
 #include <vtkRenderWindow.h>
 #include <vtkRenderWindowInteractor.h>
+#include <vtkCallbackCommand.h>
 
 // STD includes
 #include <iostream>
@@ -159,7 +160,19 @@ AddWidget(vtkMRMLResectionSurfaceNode *resectionNode)
   surfaceWidget->SetControlPoints(resectionNode->GetControlPoints());
   surfaceWidget->On();
 
+  // Register the node-widget association.
   this->NodeWidgetMap[resectionNode] = surfaceWidget;
+
+  vtkSmartPointer<vtkCallbackCommand> bezierWidgetChanged =
+    vtkSmartPointer<vtkCallbackCommand>::New();
+  bezierWidgetChanged->SetCallback(this->UpdateMRML);
+  bezierWidgetChanged->SetClientData(resectionNode);
+  surfaceWidget->AddObserver(vtkCommand::StartInteractionEvent,
+                             bezierWidgetChanged);
+  surfaceWidget->AddObserver(vtkCommand::EndInteractionEvent,
+                             bezierWidgetChanged);
+
+  resectionNode->SetControlPoints(surfaceWidget->GetControlPoints());
 
   return true;
 }
@@ -350,5 +363,45 @@ UpdateVisibility(vtkMRMLResectionSurfaceNode *node){
       vtkBezierSurfaceWidget *widget = it->second;
       widget->SetEnabled(resectionDisplayNode->GetVisibility());
       }
+    }
+}
+
+
+//------------------------------------------------------------------------------
+void vtkMRMLResectionDisplayableManager3D::
+UpdateMRML(vtkObject *caller,
+           unsigned long int eventId,
+           void *clientData,
+           void *vtkNotUsed(callData()))
+{
+  vtkBezierSurfaceWidget *widget =
+    vtkBezierSurfaceWidget::SafeDownCast(caller);
+
+  if (!widget)
+    {
+    std::cerr << "Update from a non vtkBezierWidget" << std::endl;
+    return;
+    }
+
+  vtkMRMLResectionSurfaceNode *node =
+    static_cast<vtkMRMLResectionSurfaceNode*>(clientData);
+
+  if (!node)
+    {
+    std::cerr << "Client data (surface node) not valid" << std::endl;
+    return;
+    }
+
+  node->SetControlPoints(widget->GetControlPoints());
+  node->Modified();
+
+  if (eventId == vtkCommand::StartInteractionEvent)
+    {
+    node->InvokeEvent(vtkCommand::StartInteractionEvent);
+    }
+
+  if (eventId == vtkCommand::EndInteractionEvent)
+    {
+    node->InvokeEvent(vtkCommand::EndInteractionEvent);
     }
 }
