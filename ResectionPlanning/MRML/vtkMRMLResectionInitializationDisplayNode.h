@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program: NorMIT-Plan
-  Module: vtkMRMLResectionInitializationNode.cxx
+  Module: vtkMRMLResectionInitializationDisplayNode.h
 
   Copyright (c) 2017, The Intervention Centre, Oslo University Hospital
 
@@ -32,39 +32,75 @@
   OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   =========================================================================*/
+#ifndef __vtkMRMLResectionInitializationDisplayNode_h
+#define __vtkMRMLResectionInitializationDisplayNode_h
 
-// This module includes.
-#include "vtkMRMLResectionInitializationNode.h"
+// This module includes
+#include "vtkSlicerResectionPlanningModuleMRMLExport.h"
+
+// MRML includes
+#include <vtkMRMLDisplayNode.h>
+
 
 // VTK includes
-#include <vtkObjectFactory.h>
 
-//------------------------------------------------------------------------------
-vtkStandardNewMacro(vtkMRMLResectionInitializationNode);
-
-//------------------------------------------------------------------------------
-vtkMRMLResectionInitializationNode::vtkMRMLResectionInitializationNode()
-: CurrentInteractionState(vtkMRMLResectionInitializationNode::None)
+/**
+ * \ingroup ResectionPlanning
+ *
+ * This class holds the information related to the visualization of the
+ * initialization node.
+ */
+class VTK_SLICER_RESECTIONPLANNING_MODULE_MRML_EXPORT
+vtkMRMLResectionInitializationDisplayNode: public vtkMRMLDisplayNode
 {
-  this->Point1[0] = 0.0; this->Point1[1] = 0.0; this->Point1[2] = 0.0;
-  this->Point2[0] = 0.0; this->Point2[1] = 0.0; this->Point2[2] = 0.0;
-}
+ public:
 
-//------------------------------------------------------------------------------
-vtkMRMLResectionInitializationNode::~vtkMRMLResectionInitializationNode()
-{
+  /**
+   * Standard VTK object instantiation method
+   *
+   *
+   * @return a pointer to a new crated vtkMRMLResectionSurfaceNode.
+   */
+  static vtkMRMLResectionInitializationDisplayNode *New();
+  vtkTypeMacro(vtkMRMLResectionInitializationDisplayNode, vtkMRMLDisplayNode);
 
-}
+  /**
+   * Standard print object information method.
+   *
+   * @param os output stream to print the information to.
+   * @param indent indent value.
+   */
+  void PrintSelf(ostream &os, vtkIndent indent);
 
-//------------------------------------------------------------------------------
-void vtkMRMLResectionInitializationNode::PrintSelf(ostream &vtkNotUsed(os),
-                                                   vtkIndent vtkNotUsed(indent))
-{
+  /**
+   * Get the tag name of the node.
+   *
+   *
+   * @return
+   */
+  virtual const char* GetNodeTagName()
+  {return "ResectionInitializationDisplay";}
 
-}
+  /**
+   * Get the icon associated to the node.
+   *
+   *
+   * @return string pointing to the resource where the icon is located.
+   */
+  virtual const char* GetIcon() {return "";}
 
-//------------------------------------------------------------------------------
-vtkMRMLNode* vtkMRMLResectionInitializationNode::CreateNodeInstance()
-{
-  return vtkMRMLResectionInitializationNode::New();
-}
+  virtual vtkMRMLNode* CreateNodeInstance();
+
+ protected:
+  vtkMRMLResectionInitializationDisplayNode();
+  ~vtkMRMLResectionInitializationDisplayNode();
+
+ private:
+
+  vtkMRMLResectionInitializationDisplayNode(
+    const vtkMRMLResectionInitializationDisplayNode&);
+  void operator=(const vtkMRMLResectionInitializationDisplayNode&);
+
+};
+
+#endif

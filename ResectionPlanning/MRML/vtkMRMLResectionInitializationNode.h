@@ -40,17 +40,32 @@
 #include "vtkSlicerResectionPlanningModuleMRMLExport.h"
 
 // MRML includes
+#include <vtkMRMLDisplayableNode.h>
 #include <vtkMRMLModelNode.h>
 
 // VTK includes
 #include <vtkWeakPointer.h>
 
 //------------------------------------------------------------------------------
-
+/**
+ * \ingroup ResectionPlanning
+ *
+ * This class holds the information related to the initialization node, which is
+ * represented by a line, two end points (movable) and a slicing contour around
+ * a target polydata.
+ */
 class VTK_SLICER_RESECTIONPLANNING_MODULE_MRML_EXPORT
-vtkMRMLResectionInitializationNode: public vtkMRMLNode
+vtkMRMLResectionInitializationNode: public vtkMRMLDisplayableNode
 {
  public:
+
+  enum InteractionState
+  {
+    None = 0,
+    InteractionStarted,  //!< Interaction started (typically mouse click)
+    InteractionEnded     //!< Interaction ended (typically mouse release)
+  };
+
 
   /**
    * Standard VTK object instantiation method
@@ -60,7 +75,7 @@ vtkMRMLResectionInitializationNode: public vtkMRMLNode
    */
   static vtkMRMLResectionInitializationNode* New();
 
-  vtkTypeMacro(vtkMRMLResectionInitializationNode, vtkMRMLNode);
+  vtkTypeMacro(vtkMRMLResectionInitializationNode, vtkMRMLDisplayableNode);
 
   /**
    * Standard print object information method.
@@ -90,7 +105,7 @@ vtkMRMLResectionInitializationNode: public vtkMRMLNode
    * Get the icon associated to the node
    *
    *
-   * @return string pointing to the reseource where the icon is located.
+   * @return string pointing to the resource where the icon is located.
    */
   virtual const char* GetIcon() {return "";}
 
@@ -112,6 +127,15 @@ vtkMRMLResectionInitializationNode: public vtkMRMLNode
   vtkMRMLModelNode* GetTargetParenchyma() const
   {return this->TargetParenchyma;}
 
+  vtkSetClampMacro(CurrentInteractionState, int, 0, 2);
+  vtkGetMacro(CurrentInteractionState, int);
+
+  vtkSetVector3Macro(Point1, double);
+  vtkGetVector3Macro(Point1, double);
+
+  vtkSetVector3Macro(Point2, double);
+  vtkGetVector3Macro(Point2, double);
+
  protected:
   vtkMRMLResectionInitializationNode();
   ~vtkMRMLResectionInitializationNode();
@@ -120,6 +144,10 @@ vtkMRMLResectionInitializationNode: public vtkMRMLNode
   void operator=(const vtkMRMLResectionInitializationNode&);
 
   vtkWeakPointer<vtkMRMLModelNode> TargetParenchyma;
+
+  int CurrentInteractionState;
+  double Point1[3];
+  double Point2[3];
 };
 
 #endif

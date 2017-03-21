@@ -43,7 +43,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <vtkProperty.h>
 #include <vtkBezierSurfaceSource.h>
 
-
 //------------------------------------------------------------------------------
 class vtkActor;
 class vtkPolyData;
@@ -52,6 +51,7 @@ class vtkProp;
 class vtkPolyDataMapper;
 class vtkCellPicker;
 class vtkTubeFilter;
+class vtkPoints;
 
 //------------------------------------------------------------------------------
 /**
@@ -380,6 +380,15 @@ class vtkBezierSurfaceWidget: public vtk3DWidget
    */
   void BezierSurfaceOff();
 
+  vtkGetNewMacro(ControlPoints, vtkPoints);
+
+  /**
+   * Set control points
+   *
+   * @param points pointer to vtkPoints.
+   */
+  void SetControlPoints(vtkPoints *points);
+
  protected:
 
   vtkBezierSurfaceWidget();
@@ -567,6 +576,9 @@ class vtkBezierSurfaceWidget: public vtk3DWidget
   vtkNew<vtkBezierSurfaceSource> BezierSurfaceSource;
   vtkNew<vtkPolyDataMapper> BezierSurfaceMapper;
   vtkNew<vtkActor> BezierSurfaceActor;
+
+  // Control points
+  vtkNew<vtkPoints> ControlPoints;
 
  private:
   vtkBezierSurfaceWidget( const vtkBezierSurfaceWidget &) VTK_DELETE_FUNCTION;

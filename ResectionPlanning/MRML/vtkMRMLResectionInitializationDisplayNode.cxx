@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program: NorMIT-Plan
-  Module: vtkMRMLResectionInitializationNode.cxx
+  Module: vtkMRMLResectionInitializationDisplayNode.cxx
 
   Copyright (c) 2017, The Intervention Centre, Oslo University Hospital
 
@@ -33,38 +33,32 @@
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   =========================================================================*/
 
-// This module includes.
-#include "vtkMRMLResectionInitializationNode.h"
+// This module includes
+#include "vtkMRMLResectionInitializationDisplayNode.h"
 
 // VTK includes
 #include <vtkObjectFactory.h>
 
 //------------------------------------------------------------------------------
-vtkStandardNewMacro(vtkMRMLResectionInitializationNode);
+vtkMRMLNodeNewMacro(vtkMRMLResectionInitializationDisplayNode);
 
 //------------------------------------------------------------------------------
-vtkMRMLResectionInitializationNode::vtkMRMLResectionInitializationNode()
-: CurrentInteractionState(vtkMRMLResectionInitializationNode::None)
-{
-  this->Point1[0] = 0.0; this->Point1[1] = 0.0; this->Point1[2] = 0.0;
-  this->Point2[0] = 0.0; this->Point2[1] = 0.0; this->Point2[2] = 0.0;
-}
-
-//------------------------------------------------------------------------------
-vtkMRMLResectionInitializationNode::~vtkMRMLResectionInitializationNode()
+vtkMRMLResectionInitializationDisplayNode::
+vtkMRMLResectionInitializationDisplayNode()
 {
 
 }
 
 //------------------------------------------------------------------------------
-void vtkMRMLResectionInitializationNode::PrintSelf(ostream &vtkNotUsed(os),
-                                                   vtkIndent vtkNotUsed(indent))
+vtkMRMLResectionInitializationDisplayNode::
+~vtkMRMLResectionInitializationDisplayNode()
 {
 
 }
 
 //------------------------------------------------------------------------------
-vtkMRMLNode* vtkMRMLResectionInitializationNode::CreateNodeInstance()
+void vtkMRMLResectionInitializationDisplayNode::
+PrintSelf(ostream &os, vtkIndent indent)
 {
-  return vtkMRMLResectionInitializationNode::New();
+  this->Superclass::PrintSelf(os,indent);
 }

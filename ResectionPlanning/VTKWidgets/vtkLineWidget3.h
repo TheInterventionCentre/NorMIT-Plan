@@ -163,6 +163,23 @@ class vtkLineWidget3: public vtk3DWidget
    */
   vtkPolyData *GetCuttingTarget() const;
 
+  vtkGetVector3Macro(Point1, double);
+  vtkGetVector3Macro(Point2, double);
+
+  /**
+   * Set the coordinates of the Point1.
+   *
+   * @param point1
+   */
+  void SetPoint1(double point1[3]);
+
+  /**
+   * Set the coordinates of the Point2.
+   *
+   * @param point2
+   */
+  void SetPoint2(double point2[3]);
+
  protected:
 
   // Description:
@@ -309,7 +326,6 @@ private:
   // Description:
   // Resizing factor for the line.
   double LineSizeFactor;
-
 
 };
 

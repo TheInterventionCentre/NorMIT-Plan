@@ -44,11 +44,12 @@
 
 // VTK includes
 #include <vtkNew.h>
+#include <vtkSmartPointer.h>
 
 //------------------------------------------------------------------------------
 class vtkMRMLResectionDisplayableManager3DHelper;
 class vtkMRMLResectionSurfaceNode;
-
+class vtkBezierSurfaceWidget;
 class vtk3DWidget;
 
 //------------------------------------------------------------------------------
@@ -105,6 +106,17 @@ public vtkMRMLAbstractThreeDViewDisplayableManager
   void SetAndObserveNode(vtkMRMLResectionSurfaceNode* node);
 
   /**
+   * Process MRML nodes events
+   *
+   * @param object node triggering the event.
+   * @param eventId id of the event triggered.-
+   * @param data associated data to the event.
+   */
+  virtual void ProcessMRMLNodesEvents(vtkObject *object,
+                                      unsigned long int eventId,
+                                      void *data);
+
+  /**
    * Update manager based on the MRML node if UpdateFromMRMLRequested is true
    * \sa RequestRender() SetUpdateFromMRMLRequested().
    *
@@ -137,6 +149,35 @@ public vtkMRMLAbstractThreeDViewDisplayableManager
    */
   virtual void OnMRMLSceneNodeRemoved(vtkMRMLNode* node);
 
+  /**
+   * Update the geometry of the Bézier surface and the control points.
+   *
+   * @param pointer to vtkMRMLResectionSurfaceNode to update.
+   */
+  void UpdateGeometry(vtkMRMLResectionSurfaceNode *node);
+
+  /**
+   * Update visibilty property of the models
+   *
+   * @param pointer to vtkMRMLResectionSurfaceNode to update.
+   */
+  void UpdateVisibility(vtkMRMLResectionSurfaceNode *node);
+
+  /**
+   * Update MRML node values based on modifications from interactions with the
+   * widget.
+   *
+   * @param object pointer to widget triggering the event.
+   * @param eventId id of the event.
+   * @param clientData pointer to surface node to be modified.
+   * @param callData Not used.
+   *
+   */
+  static void UpdateMRML(vtkObject *object,
+                         unsigned long int eventId,
+                         void *clientData,
+                         void *callData);
+
   // Description:
   // Helper class.
   vtkNew<vtkMRMLResectionDisplayableManager3DHelper> Helper;
@@ -147,6 +188,12 @@ public vtkMRMLAbstractThreeDViewDisplayableManager
   // Copy constructor and copy operator
   vtkMRMLResectionDisplayableManager3D(const vtkMRMLResectionDisplayableManager3D&);
   void operator=(const vtkMRMLResectionDisplayableManager3D&);
+
+  // Map and iterator holding ResectionNode-BézierWidget relationship.
+  std::map<vtkMRMLResectionSurfaceNode*,
+    vtkSmartPointer<vtkBezierSurfaceWidget> > NodeWidgetMap;
+  typedef std::map<vtkMRMLResectionSurfaceNode*,
+    vtkSmartPointer<vtkBezierSurfaceWidget> >::iterator NodeWidgetIt;
 };
 
 #endif

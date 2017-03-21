@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program: NorMIT-Plan
-  Module: vtkMRMLResectionInitializationNode.cxx
+  Module: vtkMRMLResectionInitializationDisplayNodeTest1.cxx
 
   Copyright (c) 2017, The Intervention Centre, Oslo University Hospital
 
@@ -33,38 +33,19 @@
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   =========================================================================*/
 
-// This module includes.
-#include "vtkMRMLResectionInitializationNode.h"
+// MRML includes
+#include "vtkMRMLCoreTestingMacros.h"
+#include "vtkMRMLResectionInitializationDisplayNode.h"
 
 // VTK includes
-#include <vtkObjectFactory.h>
+#include <vtkNew.h>
 
 //------------------------------------------------------------------------------
-vtkStandardNewMacro(vtkMRMLResectionInitializationNode);
-
-//------------------------------------------------------------------------------
-vtkMRMLResectionInitializationNode::vtkMRMLResectionInitializationNode()
-: CurrentInteractionState(vtkMRMLResectionInitializationNode::None)
+int vtkMRMLResectionInitializationDisplayNodeTest1(int, char *[])
 {
-  this->Point1[0] = 0.0; this->Point1[1] = 0.0; this->Point1[2] = 0.0;
-  this->Point2[0] = 0.0; this->Point2[1] = 0.0; this->Point2[2] = 0.0;
-}
+  vtkNew<vtkMRMLResectionInitializationDisplayNode> node1;
 
-//------------------------------------------------------------------------------
-vtkMRMLResectionInitializationNode::~vtkMRMLResectionInitializationNode()
-{
+  EXERCISE_ALL_BASIC_MRML_METHODS(node1.GetPointer());
 
-}
-
-//------------------------------------------------------------------------------
-void vtkMRMLResectionInitializationNode::PrintSelf(ostream &vtkNotUsed(os),
-                                                   vtkIndent vtkNotUsed(indent))
-{
-
-}
-
-//------------------------------------------------------------------------------
-vtkMRMLNode* vtkMRMLResectionInitializationNode::CreateNodeInstance()
-{
-  return vtkMRMLResectionInitializationNode::New();
+  return EXIT_SUCCESS;
 }

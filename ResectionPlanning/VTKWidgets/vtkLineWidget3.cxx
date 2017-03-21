@@ -165,6 +165,20 @@ void vtkLineWidget3::PlaceWidget(double bds[6])
   this->LineSource->SetPoint2(this->Point2);
   this->LineSource->Update();
 
+  // Set slicing contour
+  double normal[3];
+  normal[0] = this->Point2[0] - this->Point1[0];
+  normal[1] = this->Point2[1] - this->Point1[1];
+  normal[2] = this->Point2[2] - this->Point1[2];
+
+  double midPoint[3];
+  midPoint[0] = (this->Point1[0] + this->Point2[0]) / 2.0;
+  midPoint[1] = (this->Point1[1] + this->Point2[1]) / 2.0;
+  midPoint[2] = (this->Point1[2] + this->Point2[2]) / 2.0;
+
+  this->CuttingPlane->SetNormal(normal);
+  this->CuttingPlane->SetOrigin(midPoint);
+
   for(int i=0; i<6; ++i)
     {
     this->InitialBounds[i] = bounds[i];
@@ -346,8 +360,6 @@ void vtkLineWidget3::SetEnabled(int enabling)
     this->InvokeEvent(vtkCommand::DisableEvent, NULL);
     this->SetCurrentRenderer(NULL);
     }
-
-  this->PlaceWidget();
 
   this->SizeHandles();
   this->SizeLine();
@@ -546,18 +558,17 @@ void vtkLineWidget3::MoveHandle(vtkProp *prop, double *p1, double *p2)
 
   // Move the slicing contour
   double normal[3];
-  normal[0] = Point2[0] - Point1[0];
-  normal[1] = Point2[1] - Point1[1];
-  normal[2] = Point2[2] - Point1[2];
+  normal[0] = this->Point2[0] - this->Point1[0];
+  normal[1] = this->Point2[1] - this->Point1[1];
+  normal[2] = this->Point2[2] - this->Point1[2];
 
   double midPoint[3];
-  midPoint[0] = (Point1[0] + Point2[0]) / 2.0;
-  midPoint[1] = (Point1[1] + Point2[1]) / 2.0;
-  midPoint[2] = (Point1[2] + Point2[2]) / 2.0;
+  midPoint[0] = (this->Point1[0] + this->Point2[0]) / 2.0;
+  midPoint[1] = (this->Point1[1] + this->Point2[1]) / 2.0;
+  midPoint[2] = (this->Point1[2] + this->Point2[2]) / 2.0;
 
   this->CuttingPlane->SetNormal(normal);
   this->CuttingPlane->SetOrigin(midPoint);
-//  this->Cutter->Update();
 }
 
 //------------------------------------------------------------------------------
@@ -580,4 +591,54 @@ void vtkLineWidget3::HighlightHandle(vtkProp *prop)
       actor->SetProperty(this->SelectedHandle2Property.GetPointer());
       }
     }
+}
+
+//------------------------------------------------------------------------------
+void vtkLineWidget3::SetPoint1(double point[3])
+{
+  this->Point1[0] = point[0];
+  this->Point1[1] = point[1];
+  this->Point1[2] = point[2];
+
+  this->Handle1Source->SetCenter(this->Point1);
+
+// Move the slicing contour
+  double normal[3];
+  normal[0] = this->Point2[0] - this->Point1[0];
+  normal[1] = this->Point2[1] - this->Point1[1];
+  normal[2] = this->Point2[2] - this->Point1[2];
+
+  double midPoint[3];
+  midPoint[0] = (this->Point1[0] + this->Point2[0]) / 2.0;
+  midPoint[1] = (this->Point1[1] + this->Point2[1]) / 2.0;
+  midPoint[2] = (this->Point1[2] + this->Point2[2]) / 2.0;
+
+  this->CuttingPlane->SetNormal(normal);
+  this->CuttingPlane->SetOrigin(midPoint);
+  this->Modified();
+}
+
+//------------------------------------------------------------------------------
+void vtkLineWidget3::SetPoint2(double point[3])
+{
+  this->Point2[0] = point[0];
+  this->Point2[1] = point[1];
+  this->Point2[2] = point[2];
+
+  this->Handle2Source->SetCenter(this->Point2);
+
+// Move the slicing contour
+  double normal[3];
+  normal[0] = this->Point2[0] - this->Point1[0];
+  normal[1] = this->Point2[1] - this->Point1[1];
+  normal[2] = this->Point2[2] - this->Point1[2];
+
+  double midPoint[3];
+  midPoint[0] = (this->Point1[0] + this->Point2[0]) / 2.0;
+  midPoint[1] = (this->Point1[1] + this->Point2[1]) / 2.0;
+  midPoint[2] = (this->Point1[2] + this->Point2[2]) / 2.0;
+
+  this->CuttingPlane->SetNormal(normal);
+  this->CuttingPlane->SetOrigin(midPoint);
+  this->Modified();
 }

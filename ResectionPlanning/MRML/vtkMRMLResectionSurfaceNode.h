@@ -50,6 +50,7 @@
 class vtkMRMLResectionSurfaceDisplayNode;
 class vtkMRMLModelNode;
 class vtkCollection;
+class vtkPoints;
 
 //------------------------------------------------------------------------------
 
@@ -153,6 +154,15 @@ vtkMRMLResectionSurfaceNode: public vtkMRMLModelNode
    */
   vtkSetMacro(ResectionMargin, double);
 
+  vtkGetNewMacro(ControlPoints, vtkPoints);
+
+  /**
+   * Set control points
+   *
+   * @param newControlPoints
+   */
+  void SetControlPoints(vtkPoints *newControlPoints);
+
  protected:
   vtkMRMLResectionSurfaceNode();
   ~vtkMRMLResectionSurfaceNode();
@@ -161,8 +171,8 @@ vtkMRMLResectionSurfaceNode: public vtkMRMLModelNode
   void operator=(const vtkMRMLResectionSurfaceNode&);
 
   vtkNew<vtkCollection> TargetTumors;
+  vtkNew<vtkPoints> ControlPoints;
   double ResectionMargin;
-
 };
 
 #endif
