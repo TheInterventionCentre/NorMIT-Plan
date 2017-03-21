@@ -165,6 +165,20 @@ void vtkLineWidget3::PlaceWidget(double bds[6])
   this->LineSource->SetPoint2(this->Point2);
   this->LineSource->Update();
 
+  // Set slicing contour
+  double normal[3];
+  normal[0] = this->Point2[0] - this->Point1[0];
+  normal[1] = this->Point2[1] - this->Point1[1];
+  normal[2] = this->Point2[2] - this->Point1[2];
+
+  double midPoint[3];
+  midPoint[0] = (this->Point1[0] + this->Point2[0]) / 2.0;
+  midPoint[1] = (this->Point1[1] + this->Point2[1]) / 2.0;
+  midPoint[2] = (this->Point1[2] + this->Point2[2]) / 2.0;
+
+  this->CuttingPlane->SetNormal(normal);
+  this->CuttingPlane->SetOrigin(midPoint);
+
   for(int i=0; i<6; ++i)
     {
     this->InitialBounds[i] = bounds[i];
@@ -346,8 +360,6 @@ void vtkLineWidget3::SetEnabled(int enabling)
     this->InvokeEvent(vtkCommand::DisableEvent, NULL);
     this->SetCurrentRenderer(NULL);
     }
-
-  //this->PlaceWidget();
 
   this->SizeHandles();
   this->SizeLine();
