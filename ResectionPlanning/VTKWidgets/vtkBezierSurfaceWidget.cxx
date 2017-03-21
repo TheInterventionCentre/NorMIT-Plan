@@ -205,6 +205,7 @@ void vtkBezierSurfaceWidget::SetControlPoints(vtkPoints *points)
   this->ControlPoints->DeepCopy(points);
   this->BezierSurfaceSource->SetControlPoints(points);
   this->ControlPolygonPolyData->SetPoints(points);
+
   for(unsigned int i = 0; i<this->NumberOfControlPointsX; ++i)
     {
     for(unsigned int j = 0; j<this->NumberOfControlPointsY; ++j)
@@ -218,8 +219,10 @@ void vtkBezierSurfaceWidget::SetControlPoints(vtkPoints *points)
       source->Update();
       }
     }
-
-  this->Modified();
+  this->ValidPick = 1;
+  this->SizeHandles();
+  this->SizeControlPolygon();
+  this->Interactor->Render();
 }
 
 //------------------------------------------------------------------------------
@@ -686,6 +689,8 @@ void vtkBezierSurfaceWidget::OnLeftButtonUp()
 
   this->BezierSurfaceSource->SetControlPoints(this->ControlPolygonPolyData->GetPoints());
 
+  this->ControlPoints->DeepCopy(this->ControlPolygonPolyData->GetPoints());
+
   this->EventCallbackCommand->SetAbortFlag(1);
   this->EndInteraction();
   this->InvokeEvent(vtkCommand::EndInteractionEvent, NULL);
@@ -761,7 +766,10 @@ void vtkBezierSurfaceWidget::OnRightButtonUp()
   this->HighlightControlPolygon(0);
   this->CurrentHandle = NULL;
 
-  this->BezierSurfaceSource->SetControlPoints(this->ControlPolygonPolyData->GetPoints());
+  this->BezierSurfaceSource
+    ->SetControlPoints(this->ControlPolygonPolyData->GetPoints());
+
+  this->ControlPoints->DeepCopy(this->ControlPolygonPolyData->GetPoints());
 
   this->EventCallbackCommand->SetAbortFlag(1);
   this->EndInteraction();
