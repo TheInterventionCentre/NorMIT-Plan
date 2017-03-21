@@ -132,6 +132,7 @@ vtkMRMLResectionInitializationNode: public vtkMRMLDisplayableNode
 
   vtkSetVector3Macro(Point1, double);
   vtkGetVector3Macro(Point1, double);
+
   vtkSetVector3Macro(Point2, double);
   vtkGetVector3Macro(Point2, double);
 

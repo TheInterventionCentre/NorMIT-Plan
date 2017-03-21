@@ -47,10 +47,7 @@ vtkMRMLResectionInitializationNode::vtkMRMLResectionInitializationNode()
 : CurrentInteractionState(vtkMRMLResectionInitializationNode::None)
 {
   this->Point1[0] = 0.0; this->Point1[1] = 0.0; this->Point1[2] = 0.0;
-  this->Point1[0] = 0.0; this->Point1[1] = 0.0; this->Point1[2] = 0.0;
-
-  this->HideFromEditorsOn();
-  this->SaveWithSceneOff();
+  this->Point2[0] = 0.0; this->Point2[1] = 0.0; this->Point2[2] = 0.0;
 }
 
 //------------------------------------------------------------------------------

@@ -613,18 +613,18 @@ void vtkLineWidget3::SetPoint2(double point[3])
   this->Point2[1] = point[1];
   this->Point2[2] = point[2];
 
-  this->Handle1Source->SetCenter(this->Point2);
+  this->Handle2Source->SetCenter(this->Point2);
 
 // Move the slicing contour
   double normal[3];
-  normal[0] = this->Point2[0] - this->Point2[0];
-  normal[1] = this->Point2[1] - this->Point2[1];
-  normal[2] = this->Point2[2] - this->Point2[2];
+  normal[0] = this->Point2[0] - this->Point1[0];
+  normal[1] = this->Point2[1] - this->Point1[1];
+  normal[2] = this->Point2[2] - this->Point1[2];
 
   double midPoint[3];
-  midPoint[0] = (this->Point2[0] + this->Point2[0]) / 2.0;
-  midPoint[1] = (this->Point2[1] + this->Point2[1]) / 2.0;
-  midPoint[2] = (this->Point2[2] + this->Point2[2]) / 2.0;
+  midPoint[0] = (this->Point1[0] + this->Point2[0]) / 2.0;
+  midPoint[1] = (this->Point1[1] + this->Point2[1]) / 2.0;
+  midPoint[2] = (this->Point1[2] + this->Point2[2]) / 2.0;
 
   this->CuttingPlane->SetNormal(normal);
   this->CuttingPlane->SetOrigin(midPoint);
