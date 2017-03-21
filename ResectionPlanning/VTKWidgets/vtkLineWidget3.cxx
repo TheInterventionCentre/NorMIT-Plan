@@ -347,7 +347,7 @@ void vtkLineWidget3::SetEnabled(int enabling)
     this->SetCurrentRenderer(NULL);
     }
 
-  this->PlaceWidget();
+  //this->PlaceWidget();
 
   this->SizeHandles();
   this->SizeLine();
