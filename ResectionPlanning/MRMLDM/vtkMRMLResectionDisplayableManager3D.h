@@ -47,7 +47,6 @@
 #include <vtkSmartPointer.h>
 
 //------------------------------------------------------------------------------
-class vtkMRMLResectionDisplayableManager3DHelper;
 class vtkMRMLResectionSurfaceNode;
 class vtkBezierSurfaceWidget;
 class vtk3DWidget;
@@ -177,11 +176,6 @@ public vtkMRMLAbstractThreeDViewDisplayableManager
                          unsigned long int eventId,
                          void *clientData,
                          void *callData);
-
-  // Description:
-  // Helper class.
-  vtkNew<vtkMRMLResectionDisplayableManager3DHelper> Helper;
-
  private:
 
   // Description:

@@ -35,7 +35,6 @@
 
 // This module includes
 #include "vtkMRMLResectionDisplayableManager3D.h"
-#include "vtkMRMLResectionDisplayableManager3DHelper.h"
 #include "vtkMRMLResectionSurfaceNode.h"
 #include "vtkMRMLResectionSurfaceDisplayNode.h"
 #include "vtkBezierSurfaceWidget.h"
@@ -255,28 +254,14 @@ OnMRMLSceneNodeAdded(vtkMRMLNode *node)
 
   vtkDebugMacro("OnMRMLSceneNodeAddedEvent: node" << node->GetID());
 
-  // Check if the node already exists in the list of associated nodes
-  vtkMRMLResectionDisplayableManager3DHelper::ResectionSurfaceNodeListIt it;
-  it = std::find(this->Helper->ResectionSurfaceNodeList.begin(),
-                 this->Helper->ResectionSurfaceNodeList.end(),
-                 resectionSurfaceNode);
-
-  if (it != this->Helper->ResectionSurfaceNodeList.end())
+  // Check that the node does not have any widget associated.
+  NodeWidgetIt it = NodeWidgetMap.find(resectionSurfaceNode);
+  if (it == NodeWidgetMap.end())
     {
-    vtkErrorMacro("OnMRMLSceneNodeAdded: "
-                  << "the node is already associated to "
-                  << "the displayable manager");
     return;
     }
 
-  // There should not be a widget for the new node
-  if (this->Helper->GetWidget(resectionSurfaceNode))
-    {
-    vtkErrorMacro("OnMRMLSceneNodeAddedEvent: "
-                  << "A widget is already associated to this node.");
-    return;
-    }
-
+  // Add a widget
   if (!this->AddWidget(resectionSurfaceNode))
     {
     vtkErrorMacro("OnMRMLSceneNodeAddedEvent: widget not created");

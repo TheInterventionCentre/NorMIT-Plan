@@ -19,7 +19,6 @@ set(${KIT}_INCLUDE_DIRECTORIES
 
 set(displayable_manager_SRCS
   vtkMRMLResectionDisplayableManager3D.cxx
-  vtkMRMLResectionDisplayableManager3DHelper.cxx
   vtkMRMLResectionInitializationDisplayableManager3D.cxx
   )
 
