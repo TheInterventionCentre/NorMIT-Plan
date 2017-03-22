@@ -11,6 +11,8 @@ set(KIT_TEST_SRCS
   vtkMRMLResectionSurfaceNodeTest1.cxx
   vtkMRMLResectionSurfaceDisplayNodeTest1.cxx
   vtkSlicerResectionPlanningLogicTest1.cxx
+  qSlicerTumorWidgetTest.cxx
+  qSlicerSurfaceWidgetTest.cxx
   )
 
 #-----------------------------------------------------------------------------
@@ -50,3 +52,9 @@ simple_test(vtkMRMLResectionSurfaceDisplayNodeTest1)
 
 # Test resection planning logic
 simple_test(vtkSlicerResectionPlanningLogicTest1)
+
+# Test tumor widget
+simple_test(qSlicerTumorWidgetTest)
+
+# Test associating tumors to a resection
+simple_test(qSlicerSurfaceWidgetTest)

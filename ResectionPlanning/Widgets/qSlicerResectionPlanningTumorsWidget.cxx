@@ -36,7 +36,6 @@
 #include <QLabel>
 #include <QListWidgetItem>
 #include <QString>
-#include <QList>
 
 //-----------------------------------------------------------------------------
 /// \ingroup Slicer_QtModules_ResectionPlanning
@@ -141,43 +140,55 @@ bool qSlicerResectionPlanningTumorsWidget::SelectItemInResectionTumors(QString &
     return false; // did not find node in map
   }
 
-  d->listAvailableTumors->setCurrentItem(qit.value());
-  d->listAvailableTumors->selectionModel()->select(d->listAvailableTumors->selectionModel()->currentIndex(), QItemSelectionModel::Select);
+  d->listResectionTumors->setCurrentItem(qit.value());
+  d->listResectionTumors->selectionModel()->select(d->listResectionTumors->selectionModel()->currentIndex(), QItemSelectionModel::Select);
 
   std::cout << "TumorsWidget - select item: " << qit.value()->text().toStdString() << std::endl;
   return true;
 }
 
-bool qSlicerResectionPlanningTumorsWidget::CheckIfInAvailableTumors(QString &tumorID)
+QList<QString> qSlicerResectionPlanningTumorsWidget::GetAvailableTumors()
 {
   Q_D(qSlicerResectionPlanningTumorsWidget);
 
+  QList<QString> tumorList;
+
+  std::cout << "TumorsWidget - length available tumors: " << d->listAvailableTumors->count() << std::endl;
   // loop through the list
-  QMap<QString, QListWidgetItem*>::iterator qit;
-  for(qit = this->IDtoItemMap_availTumors.begin(); qit != this->IDtoItemMap_availTumors.end(); ++qit)
+  for(int row = 0; row < d->listAvailableTumors->count(); row++)
   {
-    if(qit.key() == tumorID)
-    {
-      return true;
-    }
+     QListWidgetItem *item = d->listAvailableTumors->item(row);
+     // find the id of the tumor
+     QList<QString> ql = this->IDtoItemMap_availTumors.keys(item);
+     if (ql.size() > 0)
+     {
+       QString tumorID = ql[0]; // found in map
+       tumorList.push_back(tumorID);
+     }
   }
-  return false;
+  return tumorList;
 }
 
-bool qSlicerResectionPlanningTumorsWidget::CheckIfInResectionTumors(QString &tumorID)
+QList<QString> qSlicerResectionPlanningTumorsWidget::GetResectionTumors()
 {
   Q_D(qSlicerResectionPlanningTumorsWidget);
 
+  QList<QString> tumorList;
+
+  std::cout << "TumorsWidget - length resection tumors: " << d->listResectionTumors->count() << std::endl;
   // loop through the list
-  QMap<QString, QListWidgetItem*>::iterator qit;
-  for(qit = this->IDtoItemMap_resecTumors.begin(); qit != this->IDtoItemMap_resecTumors.end(); ++qit)
+  for(int row = 0; row < d->listResectionTumors->count(); row++)
   {
-    if(qit.key() == tumorID)
-    {
-      return true;
-    }
+     QListWidgetItem *item = d->listResectionTumors->item(row);
+     // find the id of the tumor
+     QList<QString> ql = this->IDtoItemMap_resecTumors.keys(item);
+     if (ql.size() > 0)
+     {
+       QString tumorID = ql[0]; // found in map
+       tumorList.push_back(tumorID);
+     }
   }
-  return false;
+  return tumorList;
 }
 
 //-----------------------------------------------------------------------------
@@ -218,7 +229,8 @@ void qSlicerResectionPlanningTumorsWidget
   int itemsRemoved = this->IDtoItemMap_availTumors.remove(nodeID);
 
   // remove from widget
-  d->listAvailableTumors->removeItemWidget(qit.value());
+  int row = d->listAvailableTumors->row(*qit);
+  d->listAvailableTumors->takeItem(row);
 
   std::cout << "TumorsWidget - Tumor removed from list: " << nodeID.toStdString() << " # " << itemsRemoved << std::endl;
 }
@@ -258,7 +270,7 @@ void qSlicerResectionPlanningTumorsWidget
     std::cout << "TumorsWidget - Add Tumor to resection: " << tumorID.toStdString() << std::endl;
 
     // EMIT SIGNAL
-    emit AddTumorToResectionButtonClicked(ql[0]);
+    emit AddTumorToResectionButtonClicked(tumorID);
   }
   else
   {
@@ -284,11 +296,11 @@ void qSlicerResectionPlanningTumorsWidget
     }
     QString tumorID = ql[0];
 
-    // remove tumor from list
-    delete d->listResectionTumors->item(d->listResectionTumors->currentRow());
-
     // erase from map
     int itemsRemoved = this->IDtoItemMap_resecTumors.remove(tumorID);
+
+    // remove tumor from list
+    d->listResectionTumors->takeItem(d->listResectionTumors->currentRow());
 
     // find item with right ID
     // make item selectable again (in base list)

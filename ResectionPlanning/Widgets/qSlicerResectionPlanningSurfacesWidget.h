@@ -31,8 +31,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Qt includes
 #include <QWidget>
 #include <QPointer>
-
-#include <map>
+#include <QMap>
 
 // FooBar Widgets includes
 #include "qSlicerResectionPlanningModuleWidgetsExport.h"
@@ -42,7 +41,8 @@ class QString;
 class QListWidget;
 class QListWidgetItem;
 
-/* \ingroup ResectionPlanning
+/**
+ *  \ingroup ResectionPlanning
  *
  * \brief Contains widgets for adding/removing resections, and changing which tumors are associated with those resections
  *
@@ -58,13 +58,27 @@ public:
   virtual ~qSlicerResectionPlanningSurfacesWidget();
 
   /**
+   * Selects a resection in the list of resections (listResectionSurfaces)
+   *
+   * @param resection node ID
+   * @return boolean if found / selected
+   */
+   bool SelectResection(QString&);
+
+  /**
    * Get currently selected resection
    * returns null if nothing selected
    */
    QString GetCurrentResectionID();
 
-public slots:
+   /**
+    * Get list of resections
+    *
+    * @return list of resection IDs
+    */
+   QList<QString> GetResections();
 
+public slots:
   /**
    * Adds a resection to the list of resections (listResectionSurfaces)
    *
@@ -127,8 +141,7 @@ private:
   Q_DECLARE_PRIVATE(qSlicerResectionPlanningSurfacesWidget);
   Q_DISABLE_COPY(qSlicerResectionPlanningSurfacesWidget);
 
-  std::map<QString, QListWidgetItem*> resectionIDtoItemMap;
-  std::map<QListWidgetItem*, QString> itemToResectionIDMap;
+  QMap<QString, QListWidgetItem*> resectionIDtoItemMap;
 };
 
 #endif

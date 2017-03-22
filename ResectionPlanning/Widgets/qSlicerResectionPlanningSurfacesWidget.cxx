@@ -67,10 +67,6 @@ void qSlicerResectionPlanningSurfacesWidgetPrivate
   this->Ui_qSlicerResectionPlanningSurfacesWidget::setupUi(widget);
 }
 
-//-----------------------------------------------------------------------------
-// qSlicerResectionPlanningFooBarWidget methods
-
-//-----------------------------------------------------------------------------
 qSlicerResectionPlanningSurfacesWidget
 ::qSlicerResectionPlanningSurfacesWidget(QWidget* parentWidget)
   : Superclass( parentWidget )
@@ -94,20 +90,43 @@ qSlicerResectionPlanningSurfacesWidget
 }
 
 //-----------------------------------------------------------------------------
+// Current resection methods
+//-----------------------------------------------------------------------------
+bool qSlicerResectionPlanningSurfacesWidget::SelectResection(QString &resectionID)
+{
+  Q_D(qSlicerResectionPlanningSurfacesWidget);
+
+  // find the right tumor to select
+  QMap<QString, QListWidgetItem*>::iterator it;
+  it = this->resectionIDtoItemMap.find(resectionID);
+  if(it == this->resectionIDtoItemMap.end())
+  {
+    return false; // did not find node in map
+  }
+
+  d->listResectionSurfaces->setCurrentItem(it.value());
+  d->listResectionSurfaces->selectionModel()->select(d->listResectionSurfaces->selectionModel()->currentIndex(), QItemSelectionModel::Select);
+
+  std::cout << "SurfacesWidget - select item: " << it.value()->text().toStdString() << std::endl;
+  return true;
+}
+
+//-----------------------------------------------------------------------------
 QString qSlicerResectionPlanningSurfacesWidget::GetCurrentResectionID()
 {
   Q_D(qSlicerResectionPlanningSurfacesWidget);
 
   if(d->listResectionSurfaces->selectedItems().size() > 0) // check not null (something is selected)
   {
-    QListWidgetItem *item = d->listResectionSurfaces->currentItem();
-    std::map<QListWidgetItem*, QString>::iterator it;
-    it = this->itemToResectionIDMap.find(item);
-    if (it == this->itemToResectionIDMap.end())
+    std::cout << "SurfacesWidget - current resection, map length: " << this->resectionIDtoItemMap.size() << '\n';
+
+    QList<QString> ql = this->resectionIDtoItemMap.keys(d->listResectionSurfaces->currentItem());
+    if (ql.size() == 0)
     {
-      return NULL; // cannot find in map
+      return NULL; // did not find node in map
     }
-    QString resectionID = it->second;
+    QString resectionID = ql[0];
+    return resectionID;
   }
   else
   {
@@ -115,6 +134,30 @@ QString qSlicerResectionPlanningSurfacesWidget::GetCurrentResectionID()
   }
 }
 
+QList<QString> qSlicerResectionPlanningSurfacesWidget::GetResections()
+{
+  Q_D(qSlicerResectionPlanningSurfacesWidget);
+
+  QList<QString> resectionList;
+
+  std::cout << "SurfacesWidget - length resections: " << d->listResectionSurfaces->count() << std::endl;
+  // loop through the list
+  for(int row = 0; row < d->listResectionSurfaces->count(); row++)
+  {
+     QListWidgetItem *item = d->listResectionSurfaces->item(row);
+     // find the id of the resection
+     QList<QString> ql = this->resectionIDtoItemMap.keys(item);
+     if (ql.size() > 0)
+     {
+       QString tumorID = ql[0]; // found in map
+       resectionList.push_back(tumorID);
+     }
+  }
+  return resectionList;
+}
+
+//-----------------------------------------------------------------------------
+// Add / remove from resection list
 //-----------------------------------------------------------------------------
 void qSlicerResectionPlanningSurfacesWidget
 ::AddToResectionList(QString &nodeID,QString &nodeName)
@@ -128,8 +171,7 @@ void qSlicerResectionPlanningSurfacesWidget
   d->listResectionSurfaces->addItem(item);
 
   // keep in map(s)
-  this->resectionIDtoItemMap.insert(std::pair<QString, QListWidgetItem*>(nodeID, item));
-  this->itemToResectionIDMap.insert(std::pair<QListWidgetItem*, QString>(item, nodeID));
+  this->resectionIDtoItemMap.insert(nodeID, item);
 
   std::cout << "SurfacesWidget - Surface added to scene, and to list: " << nodeName.toStdString() << std::endl;
 }
@@ -139,22 +181,23 @@ void qSlicerResectionPlanningSurfacesWidget
 {
   Q_D(qSlicerResectionPlanningSurfacesWidget);
 
-  std::map<QString, QListWidgetItem*>::iterator it;
+  QMap<QString, QListWidgetItem*>::iterator it;
   it = this->resectionIDtoItemMap.find(nodeID);
   if (it == this->resectionIDtoItemMap.end())
   {
     return; // cannot find in map
   }
   // erase from map(s)
-  this->resectionIDtoItemMap.erase(nodeID);
-  this->itemToResectionIDMap.erase(it->second);
+  this->resectionIDtoItemMap.remove(nodeID);
 
-  d->listResectionSurfaces->removeItemWidget(it->second);
+  int row = d->listResectionSurfaces->row(*it);
+  d->listResectionSurfaces->takeItem(row);
 
   std::cout << "SurfacesWidget - Surface removed from scene, and from list: " << nodeName.toStdString() << std::endl;
 }
 
-
+//-----------------------------------------------------------------------------
+// Create / remove resections
 //-----------------------------------------------------------------------------
 void qSlicerResectionPlanningSurfacesWidget
 ::OnAddSurfaceButtonClicked()
@@ -165,7 +208,6 @@ void qSlicerResectionPlanningSurfacesWidget
   emit AddSurfaceButtonClicked();
 }
 
-//-----------------------------------------------------------------------------
 void qSlicerResectionPlanningSurfacesWidget
 ::OnRemoveSurfaceButtonClicked()
 {
@@ -176,17 +218,16 @@ void qSlicerResectionPlanningSurfacesWidget
   if(d->listResectionSurfaces->selectedItems().size() > 0) // check not null (something is selected)
   {
     // find which one is currently highlighted
-    QListWidgetItem *item = d->listResectionSurfaces->currentItem();
-    std::map<QListWidgetItem*, QString>::iterator it;
-    it = this->itemToResectionIDMap.find(item);
-    if (it == this->itemToResectionIDMap.end())
+    QList<QString> ql = this->resectionIDtoItemMap.keys(d->listResectionSurfaces->currentItem());
+    if (ql.size() == 0)
     {
-      return; // cannot find in map
+      return; // did not find node in map
     }
-    QString resectionName = it->first->text();
+    QString resectionID = ql[0];
+    QString resectionName = d->listResectionSurfaces->currentItem()->text();
 
     // EMIT SIGNAL
-    emit RemoveSurfaceButtonClicked(it->second, resectionName);
+    emit RemoveSurfaceButtonClicked(resectionID, resectionName);
   }
   else
   {
@@ -194,6 +235,9 @@ void qSlicerResectionPlanningSurfacesWidget
   }
 }
 
+//-----------------------------------------------------------------------------
+// Callback for selected resection changing
+//-----------------------------------------------------------------------------
 void qSlicerResectionPlanningSurfacesWidget
 ::OnCurrentResectionSurfaceChanged(QListWidgetItem* current, QListWidgetItem* previous)
 {

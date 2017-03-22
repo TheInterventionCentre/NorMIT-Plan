@@ -32,6 +32,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <QWidget>
 #include <QPointer>
 #include <QMap>
+#include <QList>
 
 // FooBar Widgets includes
 #include "qSlicerResectionPlanningModuleWidgetsExport.h"
@@ -40,7 +41,8 @@ class qSlicerResectionPlanningTumorsWidgetPrivate;
 class QListWidget;
 class QListWidgetItem;
 
-/* \ingroup ResectionPlanning
+/**
+ *  \ingroup ResectionPlanning
  *
  * \brief Contains widgets for adding/removing resections, and changing which tumors are associated with those resections
  *
@@ -55,7 +57,6 @@ public:
   qSlicerResectionPlanningTumorsWidget(QWidget *parent=0);
   virtual ~qSlicerResectionPlanningTumorsWidget();
 
-public slots:
   /**
    * functions created for software testing, to programmatically click buttons
    */
@@ -79,19 +80,20 @@ public slots:
   bool SelectItemInResectionTumors(QString&);
 
   /**
-   * Check if a tumor is in the available tumor list
+   * Get list of available tumors
    *
-   * @return boolean if successfully found
+   * @return list of tumor IDs
    */
-  bool CheckIfInAvailableTumors(QString&);
+  QList<QString> GetAvailableTumors();
 
   /**
-   * Check if a tumor is in the resection tumor list
+   * Get list of resection tumors
    *
-   * @return boolean if successfully found
+   * @return list of tumor IDs
    */
-  bool CheckIfInResectionTumors(QString&);
+  QList<QString> GetResectionTumors();
 
+public slots:
 
   /**
    * Adds a tumor to the list of available tumors (listTumorsToAdd)

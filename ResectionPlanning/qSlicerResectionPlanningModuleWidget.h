@@ -65,59 +65,61 @@ public:
    * Get a list of tumors associated with a particular resection
    *
    * @param resection ID
+   * @return list of tumor IDs
    */
-   std::list<QString> GetTumorsAssociatedWithResection(QString &resectionID);
+   std::list<std::string> GetTumorsAssociatedWithResection(std::string &resectionID);
 
 public slots:
-/**
- * Called when a tumor is added to a resection via the gui in the tumors widget
- * connected to signal from tumors widget: AddTumorButtonClicked
- * This function sends the parameter information up to the Logic
- *
- * @param resection node ID
- * @param tumor node ID
- */
-void OnAddTumorToResection(QString&);
 
-/**
- * Called when a tumor is removed from a resection via the gui in the tumors widget
- * connected to signal from tumors widget: RemoveTumorButtonClicked
- * This function sends the parameter information up to the Logic
- *
- * @param resection node ID
- * @param tumor node ID
- */
-void OnRemoveTumorToResection(QString&);
+  /**
+  * Called when a tumor is added to a resection via the gui in the tumors widget
+  * connected to signal from tumors widget: AddTumorButtonClicked
+  * This function sends the parameter information up to the Logic
+  *
+  * @param resection node ID
+  * @param tumor node ID
+  */
+  void OnAddTumorToResection(QString&);
 
-/**
- * Called when a resection is added via the gui from the surfaces widget
- * connected to signal from surfaces widget: AddSurfaceButtonClicked
- * This function sends the parameter information up to the Logic
- */
-void OnAddResection();
+  /**
+   * Called when a tumor is removed from a resection via the gui in the tumors widget
+   * connected to signal from tumors widget: RemoveTumorButtonClicked
+   * This function sends the parameter information up to the Logic
+   *
+   * @param resection node ID
+   * @param tumor node ID
+   */
+  void OnRemoveTumorToResection(QString&);
 
-/**
- * Called when a resection is removed via the gui from the surfaces widget
- * connected to signal from surfaces widget: RemoveSurfaceButtonClicked
- * This function sends the parameter information up to the Logic
- *
- * @param resection ID
- * @param resection name
- */
-void OnRemoveResection(QString&,QString&);
+  /**
+   * Called when a resection is added via the gui from the surfaces widget
+   * connected to signal from surfaces widget: AddSurfaceButtonClicked
+   * This function sends the parameter information up to the Logic
+   */
+  void OnAddResection();
 
-/**
- * Called when the selected resection is changed
- *
- * @param resection ID
- */
-void OnActiveResectionChanged(QString&);
+  /**
+   * Called when a resection is removed via the gui from the surfaces widget
+   * connected to signal from surfaces widget: RemoveSurfaceButtonClicked
+   * This function sends the parameter information up to the Logic
+   *
+   * @param resection ID
+   * @param resection name
+   */
+  void OnRemoveResection(QString&,QString&);
 
-/**
- * Called when Volumes button is clicked
- * connected to signal from volumes widget: VolumesButtonClicked
- */
-void OnVolumesButtonClicked();
+  /**
+   * Called when the selected resection is changed
+   *
+   * @param resection ID
+   */
+  void OnActiveResectionChanged(QString&);
+
+  /**
+   * Called when Volumes button is clicked
+   * connected to signal from volumes widget: VolumesButtonClicked
+   */
+  void OnVolumesButtonClicked();
 
 
 protected:

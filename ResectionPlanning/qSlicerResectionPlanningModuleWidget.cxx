@@ -163,16 +163,18 @@ void qSlicerResectionPlanningModuleWidget::setMRMLScene(vtkMRMLScene* scene)
   std::cout << "Widget - Set MRML scene called " << std::endl;
 }
 
-std::list<QString> qSlicerResectionPlanningModuleWidget::GetTumorsAssociatedWithResection(QString &resectionID)
+std::list<std::string> qSlicerResectionPlanningModuleWidget::GetTumorsAssociatedWithResection(std::string &resectionID)
 {
-  std::list<QString> tumorList;
+  std::list<std::string> tumorList;
+
+  std::cout << "Widget - length of resection-tumor map " << resectionToTumorMap.size() << '\n';
 
   typedef std::multimap<std::string, std::string>::iterator iterator;
-  std::pair<iterator, iterator> iterpair = this->resectionToTumorMap.equal_range(resectionID.toStdString());
+  std::pair<iterator, iterator> iterpair = this->resectionToTumorMap.equal_range(resectionID);
 
   iterator it = iterpair.first;
   for (; it != iterpair.second; ++it) {
-    QString tumor = QString::fromStdString(it->second);
+    std::string tumor = it->second;
     tumorList.push_back(tumor);
   }
   return tumorList;
@@ -185,12 +187,15 @@ void qSlicerResectionPlanningModuleWidget::OnAddTumorToResection(QString &tumorI
 {
   Q_D(qSlicerResectionPlanningModuleWidget);
 
+  std::cout << "Widget - OnAddTumorToResection " << tumorID.toStdString() << '\n';
+
   if(this->activeResectionID.length() < 1)
   {
     // get the active resection from the surfaces widget
     QString resectionID = d->SurfacesWidget->GetCurrentResectionID();
     if(resectionID == NULL)
     {
+      std::cout << "Widget - cannot associate resection to tumor " << tumorID.toStdString() << '\n';
       return;
     }
     else
