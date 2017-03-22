@@ -20,6 +20,7 @@ set(${KIT}_INCLUDE_DIRECTORIES
 set(displayable_manager_SRCS
   vtkMRMLResectionDisplayableManager3D.cxx
   vtkMRMLResectionInitializationDisplayableManager3D.cxx
+  vtkMRMLResectionDisplayableManager2D.cxx
   )
 
 VTK_MAKE_INSTANTIATOR3("${MODULE_NAME}Instantiator"

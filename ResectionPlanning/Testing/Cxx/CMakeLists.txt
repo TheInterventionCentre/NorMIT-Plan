@@ -12,6 +12,7 @@ set(KIT_TEST_SRCS
   vtkMRMLResectionSurfaceDisplayNodeTest1.cxx
   vtkMRMLResectionInitializationNodeTest1.cxx
   vtkMRMLResectionInitializationDisplayNodeTest1.cxx
+  vtkMRMLResectionDisplayableManager2DTest1.cxx
   vtkSlicerResectionPlanningLogicTest1.cxx
   )
 
@@ -26,6 +27,7 @@ slicerMacroConfigureModuleCxxTestDriver(
   INCLUDE_DIRECTORIES ${${KIT}_INCLUDE_DIRECTORIES}
   TARGET_LIBRARIES
   vtkSlicerResectionPlanningModuleMRML
+  vtkSlicerResectionPlanningModuleMRMLDisplayableManager
   vtkSlicerResectionPlanningModuleLogic
   vtkSlicerResectionPlanningModuleVTKWidgets
   WITH_VTK_DEBUG_LEAKS_CHECK
@@ -59,6 +61,9 @@ simple_test(vtkMRMLResectionInitializationNodeTest1)
 
 # Test resection initialization display
 simple_test(vtkMRMLResectionInitializationDisplayNodeTest1)
+
+# Test the resection surface displayable manager 2D
+simple_test(vtkMRMLResectionDisplayableManager2DTest1)
 
 # Test resection planning logic
 simple_test(vtkSlicerResectionPlanningLogicTest1)

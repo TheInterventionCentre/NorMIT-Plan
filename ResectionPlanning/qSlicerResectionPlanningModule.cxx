@@ -45,6 +45,7 @@
 
 // MRMLDisplayableManager includes
 #include <vtkMRMLThreeDViewDisplayableManagerFactory.h>
+#include <vtkMRMLSliceViewDisplayableManagerFactory.h>
 
 //-----------------------------------------------------------------------------
 Q_EXPORT_PLUGIN2(qSlicerResectionPlanningModule, qSlicerResectionPlanningModule);
@@ -123,12 +124,15 @@ void qSlicerResectionPlanningModule::setup()
 {
   this->Superclass::setup();
 
-  // Register displayable managers
-  // 3D
+  // Register displayable managers 3D
   vtkMRMLThreeDViewDisplayableManagerFactory::GetInstance()->
     RegisterDisplayableManager("vtkMRMLResectionDisplayableManager3D");
   vtkMRMLThreeDViewDisplayableManagerFactory::GetInstance()->
     RegisterDisplayableManager("vtkMRMLResectionInitializationDisplayableManager3D");
+
+  // Register displayable managers 2D
+  vtkMRMLSliceViewDisplayableManagerFactory::GetInstance()->
+    RegisterDisplayableManager("vtkMRMLResectionDisplayableManager2D");
 }
 
 //-----------------------------------------------------------------------------
