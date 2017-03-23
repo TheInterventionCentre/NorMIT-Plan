@@ -13,6 +13,7 @@ set(KIT_TEST_SRCS
   vtkMRMLResectionInitializationNodeTest1.cxx
   vtkMRMLResectionInitializationDisplayNodeTest1.cxx
   vtkMRMLResectionDisplayableManager2DTest1.cxx
+  vtkMRMLResectionDisplayableManager2DTest2.cxx
   vtkSlicerResectionPlanningLogicTest1.cxx
   )
 
@@ -64,6 +65,9 @@ simple_test(vtkMRMLResectionInitializationDisplayNodeTest1)
 
 # Test the resection surface displayable manager 2D
 simple_test(vtkMRMLResectionDisplayableManager2DTest1)
+
+# Test the resection surface displayable manager 2D
+simple_test(vtkMRMLResectionDisplayableManager2DTest2)
 
 # Test resection planning logic
 simple_test(vtkSlicerResectionPlanningLogicTest1)

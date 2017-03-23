@@ -42,9 +42,13 @@
 // MRML includes
 #include <vtkMRMLAbstractSliceViewDisplayableManager.h>
 
+// VTK includes
+#include <vtkSmartPointer.h>
+
 //------------------------------------------------------------------------------
 class vtkMRMLScene;
 class vtkMRMLResectionSurfaceNode;
+class vtkActor2D;
 
 //------------------------------------------------------------------------------
 /**
@@ -91,18 +95,51 @@ vtkMRMLResectionDisplayableManager2D
   virtual void SetMRMLSceneInternal(vtkMRMLScene *newScene);
 
   /**
-   * Actions when a node gets added to the mrml scene
+   * Actions when a node gets added to the mrml scene.
    *
-   * @param node node added to the scene
+   * @param node node added to the scene.
    */
   void OnMRMLSceneNodeAdded(vtkMRMLNode *node);
 
   /**
-   * Observe the interesting events for the given node
+   * Actiosn when a node gets removed from the mrml scene.
+   *
+   * @param node pointer to a resection node to be removed.
+   */
+  void OnMRMLSceneNodeRemoved(vtkMRMLNode *node);
+
+  /**
+   * Observe the interesting events for the given node.
    *
    * @param node pointer to a resection node to be observed.
    */
   void SetAndObserveNode(vtkMRMLResectionSurfaceNode *node);
+
+
+  /**
+   * Actions to be performed on observed nodes.
+   *
+   * @param object node triggering the action.
+   * @param eventId id of the triggered event.
+   * @param callData extra data (not used).
+   */
+  void ProcessMRMLNodesEvents(vtkObject *object,
+                              unsigned long int eventId,
+                              void *callData);
+
+  /**
+   * Creates the projection of the resection onto the slice
+   *
+   * @param node resection node holding the geometry of the resection
+   *
+   * @return true if the representation was successfully created, false otherwise.
+   */
+  bool AddRepresentation(vtkMRMLResectionSurfaceNode *node);
+
+  std::map<vtkMRMLResectionSurfaceNode *,
+    vtkSmartPointer<vtkActor2D> > ResectionActorMap;
+  typedef std::map<vtkMRMLResectionSurfaceNode *,
+    vtkSmartPointer<vtkActor2D> >::iterator ResectionActorIt;
 
  private:
   vtkMRMLResectionDisplayableManager2D(
