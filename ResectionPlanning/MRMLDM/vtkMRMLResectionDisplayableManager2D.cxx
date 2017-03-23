@@ -342,6 +342,8 @@ AddRepresentation(vtkMRMLResectionSurfaceNode *node)
 void vtkMRMLResectionDisplayableManager2D::
 UpdateGeometry(vtkMRMLResectionSurfaceNode *node)
 {
+  vtkDebugMacro("UpdateGeometry");
+
   if (!node)
     {
     vtkErrorMacro("No node passed");
