@@ -36,12 +36,23 @@
 // This module includes
 #include "vtkMRMLResectionDisplayableManager2D.h"
 #include "vtkMRMLResectionSurfaceNode.h"
+#include "vtkBezierSurfaceSource.h"
 
 // MRML includes
 #include <vtkMRMLScene.h>
+#include <vtkMRMLSliceNode.h>
 
 // VTK includes
 #include <vtkObjectFactory.h>
+#include <vtkPlane.h>
+#include <vtkMatrix4x4.h>
+#include <vtkCutter.h>
+#include <vtkTransform.h>
+#include <vtkTransformPolyDataFilter.h>
+#include <vtkPolyDataMapper2D.h>
+#include <vtkActor2D.h>
+#include <vtkRenderer.h>
+#include <vtkProperty2D.h>
 
 //------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkMRMLResectionDisplayableManager2D);
@@ -112,10 +123,66 @@ OnMRMLSceneNodeAdded(vtkMRMLNode *node)
   // Check this is a resection node (we do not care about the others)
   vtkMRMLResectionSurfaceNode *resectionNode =
     vtkMRMLResectionSurfaceNode::SafeDownCast(node);
-  if (resectionNode)
+  if (!resectionNode)
     {
-    vtkObserveMRMLNodeMacro(node);
+    return;
     }
+
+  // Check whether the node has an associated representation
+  ResectionActorIt it = ResectionActorMap.find(resectionNode);
+  if (it == ResectionActorMap.end())
+    {
+    return;
+    }
+
+  if (!this->AddRepresentation(resectionNode))
+    {
+    return;
+    }
+
+  vtkObserveMRMLNodeMacro(node);
+
+  this->RequestRender();
+}
+
+//------------------------------------------------------------------------------
+void vtkMRMLResectionDisplayableManager2D::
+OnMRMLSceneNodeRemoved(vtkMRMLNode *node)
+{
+  if (!node)
+    {
+    vtkErrorMacro("No node passed");
+    return;
+    }
+
+  if (!this->GetRenderer())
+    {
+    vtkErrorMacro("No renderer");
+    }
+
+  vtkMRMLResectionSurfaceNode *resectionNode =
+    vtkMRMLResectionSurfaceNode::SafeDownCast(node);
+  if (!resectionNode)
+    {
+    return;
+    }
+
+  // Check if the node is in our association list
+  ResectionActorIt it = this->ResectionActorMap.find(resectionNode);
+  if (it == this->ResectionActorMap.end())
+    {
+    return;
+    }
+
+  // Remove the corresponding actor from the scene
+  vtkActor2D *actor = it->second;
+  this->GetRenderer()->RemoveActor(actor);
+
+  // Remove the association
+  this->ResectionActorMap.erase(it);
+
+  // Remove the observations from the node
+  vtkUnObserveMRMLNodeMacro(resectionNode);
 }
 
 //------------------------------------------------------------------------------
@@ -134,4 +201,117 @@ SetAndObserveNode(vtkMRMLResectionSurfaceNode *node)
 
   vtkUnObserveMRMLNodeMacro(node);
   vtkObserveMRMLNodeEventsMacro(node, nodeEvents.GetPointer());
+}
+
+//------------------------------------------------------------------------------
+void vtkMRMLResectionDisplayableManager2D::
+ProcessMRMLNodesEvents(vtkObject *caller,
+                       unsigned long int eventId,
+                       void *callData)
+{
+  vtkMRMLResectionSurfaceNode *resectionNode =
+    vtkMRMLResectionSurfaceNode::SafeDownCast(caller);
+
+  if (!resectionNode)
+    {
+    return;
+    }
+
+  switch(eventId)
+    {
+    case vtkCommand::ModifiedEvent:
+      std::cout << "Modified Event" << std::endl;
+      break;
+    case vtkMRMLDisplayableNode::DisplayModifiedEvent:
+      std::cout << "Display Modified Event" << std::endl;
+      break;
+
+    default:
+      break;
+    }
+}
+
+//------------------------------------------------------------------------------
+bool vtkMRMLResectionDisplayableManager2D::
+AddRepresentation(vtkMRMLResectionSurfaceNode *node)
+{
+  if (!node)
+    {
+    vtkErrorMacro("No resection surface node passed");
+    return false;
+    }
+
+  if (!this->GetMRMLSliceNode())
+    {
+    vtkErrorMacro("No slice node.");
+    return false;
+    }
+
+  if (!this->GetRenderer())
+    {
+    vtkErrorMacro("No renderer.");
+    return false;
+    }
+
+    // Compute the slice normal
+  vtkMatrix4x4 *sliceToRASMatrix =
+    this->GetMRMLSliceNode()->GetSliceToRAS();
+
+  double slicePlaneNormal[3];
+  slicePlaneNormal[0] = sliceToRASMatrix->GetElement(0,2);
+  slicePlaneNormal[1] = sliceToRASMatrix->GetElement(1,2);
+  slicePlaneNormal[2] = sliceToRASMatrix->GetElement(2,2);
+
+  //Set up the cutter
+  vtkSmartPointer<vtkPlane> cutPlane =
+    vtkSmartPointer<vtkPlane>::New();
+  cutPlane->SetNormal(slicePlaneNormal);
+
+  vtkSmartPointer<vtkBezierSurfaceSource> bezierSource =
+    vtkSmartPointer<vtkBezierSurfaceSource>::New();
+  bezierSource->SetNumberOfControlPoints(4,4);
+  bezierSource->SetResolution(300,300);
+  bezierSource->SetControlPoints(node->GetControlPoints());
+
+  vtkSmartPointer<vtkCutter> cutter =
+    vtkSmartPointer<vtkCutter>::New();
+  cutter->SetInputConnection(bezierSource->GetOutputPort());
+  cutter->SetCutFunction(cutPlane);
+  cutter->GenerateValues(1,
+                         this->GetMRMLSliceNode()->GetSliceOffset(),
+                         this->GetMRMLSliceNode()->GetSliceOffset());
+  cutter->GenerateCutScalarsOff();
+  cutter->GenerateTrianglesOn();
+
+  // Transformation (3d to 2d)
+  vtkSmartPointer<vtkMatrix4x4> invertedRASToXYMatrix =
+    vtkSmartPointer<vtkMatrix4x4>::New();
+  invertedRASToXYMatrix->DeepCopy(this->GetMRMLSliceNode()->GetXYToRAS());
+
+  vtkSmartPointer<vtkTransform> rasToXYTrasnform =
+    vtkSmartPointer<vtkTransform>::New();
+  rasToXYTrasnform->SetMatrix(invertedRASToXYMatrix);
+
+  // Set the transformation filter
+  vtkSmartPointer<vtkTransformPolyDataFilter> transformFilter =
+    vtkSmartPointer<vtkTransformPolyDataFilter>::New();
+  transformFilter->SetInputConnection(cutter->GetOutputPort());
+  transformFilter->SetTransform(rasToXYTrasnform);
+
+  // Set the mapper, actor and add it to the scene
+  vtkSmartPointer<vtkPolyDataMapper2D> mapper =
+    vtkSmartPointer<vtkPolyDataMapper2D>::New();
+  mapper->SetInputConnection(transformFilter->GetOutputPort());
+
+  vtkSmartPointer<vtkActor2D> actor =
+    vtkSmartPointer<vtkActor2D>::New();
+  actor->SetMapper(mapper);
+  actor->GetProperty()->SetLineWidth(3);
+
+  this->GetRenderer()->AddActor2D(actor);
+
+  // Keep track of the association between actor and resection
+  this->ResectionActorMap[node] = actor;
+
+  return true;
 }
