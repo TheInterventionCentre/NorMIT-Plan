@@ -107,6 +107,12 @@ OnMRMLSceneNodeAdded(vtkMRMLNode *node)
     return;
     }
 
+  if (!this->GetRenderer())
+    {
+    vtkErrorMacro("No renderer.");
+    return;
+    }
+
   vtkMRMLSliceNode *sliceNode = this->GetMRMLSliceNode();
   if (!sliceNode)
     {
@@ -151,13 +157,19 @@ OnMRMLSceneNodeRemoved(vtkMRMLNode *node)
 {
   if (!node)
     {
-    vtkErrorMacro("No node passed");
+    vtkErrorMacro("No node passed.");
     return;
     }
 
   if (!this->GetRenderer())
     {
-    vtkErrorMacro("No renderer");
+    vtkErrorMacro("No renderer.");
+    return;
+    }
+
+  if (!this->GetMRMLScene())
+    {
+    vtkErrorMacro("No MRML scene.");
     }
 
   vtkMRMLResectionSurfaceNode *resectionNode =
@@ -166,6 +178,13 @@ OnMRMLSceneNodeRemoved(vtkMRMLNode *node)
     {
     return;
     }
+
+  // this->SetUpdateFromMRMLRequested(1);
+
+  // if (this->GetMRMLScene()->IsBatchProcessing())
+  //   {
+  //   return;
+  //   }
 
   // Check if the node is in our association list
   ResectionActorIt it = this->ResectionActorMap.find(resectionNode);
@@ -235,6 +254,8 @@ ProcessMRMLNodesEvents(vtkObject *caller,
 bool vtkMRMLResectionDisplayableManager2D::
 AddRepresentation(vtkMRMLResectionSurfaceNode *node)
 {
+  vtkDebugMacro("AddRepresentation");
+
   if (!node)
     {
     vtkErrorMacro("No resection surface node passed");
