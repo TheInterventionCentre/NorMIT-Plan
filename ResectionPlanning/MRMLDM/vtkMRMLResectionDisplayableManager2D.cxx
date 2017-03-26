@@ -35,6 +35,7 @@
 
 // This module includes
 #include "vtkMRMLResectionDisplayableManager2D.h"
+#include "vtkMRMLResectionSurfaceDisplayNode.h"
 #include "vtkMRMLResectionSurfaceNode.h"
 #include "vtkBezierSurfaceSource.h"
 
@@ -53,6 +54,9 @@
 #include <vtkActor2D.h>
 #include <vtkRenderer.h>
 #include <vtkProperty2D.h>
+#include <vtkRenderWindowInteractor.h>
+#include <vtkRenderWindow.h>
+
 
 //------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkMRMLResectionDisplayableManager2D);
@@ -87,6 +91,60 @@ SetMRMLSceneInternal(vtkMRMLScene *newScene)
   this->Superclass::SetMRMLSceneInternal(newScene);
 
   this->OnMRMLSceneEndClose();
+}
+
+//------------------------------------------------------------------------------
+void vtkMRMLResectionDisplayableManager2D::
+OnMRMLSceneEndClose()
+{
+  vtkDebugMacro("OnMRMLSceneEndClose");
+
+  if (!this->GetRenderer())
+    {
+    vtkErrorMacro("No renderer");
+    return;
+    }
+
+  // Removing actors and node observations
+  ResectionActorIt actorIt;
+  for(actorIt=this->ResectionActorMap.begin();
+      actorIt!=this->ResectionActorMap.end(); actorIt++)
+    {
+    this->GetRenderer()->RemoveActor(actorIt->second);
+    vtkUnObserveMRMLNodeMacro(actorIt->first);
+    this->ResectionActorMap.erase(actorIt);
+    }
+
+  // Removing transform filters
+  ResectionTransformFilterIt transformIt;
+  for(transformIt=ResectionTransformFilterMap.begin();
+      transformIt!=ResectionTransformFilterMap.end();
+      transformIt++)
+    {
+    this->ResectionTransformFilterMap.erase(transformIt);
+    }
+
+  // Removing cutters
+  ResectionCutterIt cutterIt;
+  for(cutterIt=ResectionCutterMap.begin();
+      cutterIt!=ResectionCutterMap.end();
+      cutterIt++)
+    {
+    this->ResectionCutterMap.erase(cutterIt);
+    }
+
+  // Removing Bézier surfaces
+  ResectionBezierIt bezierIt;
+  for(bezierIt=ResectionBezierMap.begin();
+      bezierIt!=ResectionBezierMap.end();
+      bezierIt++)
+    {
+    this->ResectionBezierMap.erase(bezierIt);
+    }
+
+
+  this->SetUpdateFromMRMLRequested(1);
+  this->RequestRender();
 }
 
 //------------------------------------------------------------------------------
@@ -202,6 +260,53 @@ OnMRMLSceneNodeRemoved(vtkMRMLNode *node)
 
   // Remove the observations from the node
   vtkUnObserveMRMLNodeMacro(resectionNode);
+}
+
+//------------------------------------------------------------------------------
+void vtkMRMLResectionDisplayableManager2D::UpdateFromMRMLScene()
+{
+  vtkDebugMacro("UpdateFromMRMLScene");
+  this->RequestRender();
+}
+
+//------------------------------------------------------------------------------
+void vtkMRMLResectionDisplayableManager2D::UpdateFromMRML()
+{
+  vtkDebugMacro("UpdateFromMRML");
+
+  vtkMRMLScene *scene = this->GetMRMLScene();
+  if (!scene)
+    {
+    vtkErrorMacro("No MRML scene.");
+    return;
+    }
+
+  if ( this->GetInteractor() &&
+       this->GetInteractor()->GetRenderWindow() &&
+       this->GetInteractor()->GetRenderWindow()->CheckInRenderStatus())
+    {
+    vtkDebugMacro("skipping update during render");
+    return;
+    }
+  std::vector<vtkMRMLNode*> dNodes;
+  int nNodes =
+    scene ? scene->GetNodesByClass("vtkMRMLResectionSurfaceNode", dNodes):0;
+
+  for(int n=0; n<nNodes; n++)
+    {
+
+    vtkMRMLResectionSurfaceNode *resectionNode =
+      vtkMRMLResectionSurfaceNode::SafeDownCast(dNodes[n]);
+
+    ResectionActorIt it = this->ResectionActorMap.find(resectionNode);
+    if (it != this->ResectionActorMap.end())
+      {
+      this->UpdateGeometry(resectionNode);
+      this->UpdateVisibility(resectionNode);
+      }
+    }
+
+  this->SetUpdateFromMRMLRequested(0);
 }
 
 //------------------------------------------------------------------------------
@@ -426,5 +531,30 @@ UpdateGeometry(vtkMRMLResectionSurfaceNode *node)
 void vtkMRMLResectionDisplayableManager2D::
 UpdateVisibility(vtkMRMLResectionSurfaceNode *node)
 {
+  vtkDebugMacro("UpdateVisibility.");
 
+  if (!node)
+    {
+    vtkErrorMacro("No node passed.");
+    return;
+    }
+
+  vtkMRMLResectionSurfaceDisplayNode *resectionDisplayNode =
+    vtkMRMLResectionSurfaceDisplayNode::SafeDownCast(node->GetDisplayNode());
+
+  if (!resectionDisplayNode)
+    {
+    vtkErrorMacro("Node resection node does not have a display node.");
+    return;
+    }
+
+  ResectionActorIt actorIt = this->ResectionActorMap.find(node);
+  if (actorIt == this->ResectionActorMap.end())
+    {
+    vtkErrorMacro("Node not handled by the displayable manager.");
+    return;
+    }
+
+  vtkActor2D *actor = actorIt->second;
+  actor->SetVisibility(resectionDisplayNode->GetVisibility());
 }

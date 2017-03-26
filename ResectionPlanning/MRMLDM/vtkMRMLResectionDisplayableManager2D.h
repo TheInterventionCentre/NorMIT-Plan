@@ -90,12 +90,19 @@ vtkMRMLResectionDisplayableManager2D
   vtkMRMLResectionDisplayableManager2D();
   ~vtkMRMLResectionDisplayableManager2D();
 
+
   /**
    * Set a new MRML scene
    *
    * @param newScene
    */
   virtual void SetMRMLSceneInternal(vtkMRMLScene *newScene);
+
+  /**
+   * Actions to be performed when the MRML scene is going to close.
+   *
+   */
+  void OnMRMLSceneEndClose();
 
   /**
    * Actions when a node gets added to the mrml scene.
@@ -118,6 +125,17 @@ vtkMRMLResectionDisplayableManager2D
    */
   void SetAndObserveNode(vtkMRMLResectionSurfaceNode *node);
 
+  /**
+   * Render the scene due to changes in MRML scene.
+   *
+   */
+  void UpdateFromMRMLScene();
+
+  /**
+   * Update all the resection projections based on the resection nodes
+   *
+   */
+  void UpdateFromMRML();
 
   /**
    * Actions to be performed on observed nodes.
@@ -168,7 +186,8 @@ vtkMRMLResectionDisplayableManager2D
 
   // Map ResectionNode -- Transform Filter
   std::map<vtkMRMLResectionSurfaceNode *,
-    vtkSmartPointer<vtkTransformPolyDataFilter> >  ResectionTransformFilterMap;
+    vtkSmartPointer<vtkTransformPolyDataFilter> >
+    ResectionTransformFilterMap;
   typedef std::map<vtkMRMLResectionSurfaceNode *,
     vtkSmartPointer<vtkTransformPolyDataFilter> >::iterator
     ResectionTransformFilterIt;
