@@ -73,7 +73,6 @@ vtkMRMLResectionDisplayableManager2D()
 vtkMRMLResectionDisplayableManager2D::
 ~vtkMRMLResectionDisplayableManager2D()
 {
-
 }
 
 
@@ -490,6 +489,13 @@ UpdateGeometry(vtkMRMLResectionSurfaceNode *node)
     }
 
   resIt->second->SetControlPoints(node->GetControlPoints());
+
+  // Check for slice node
+  if (!this->GetMRMLSliceNode())
+    {
+    vtkErrorMacro("No slice node.");
+    return;
+    }
 
   // Compute the slice normal
   vtkMatrix4x4 *sliceToRASMatrix = this->GetMRMLSliceNode()->GetSliceToRAS();

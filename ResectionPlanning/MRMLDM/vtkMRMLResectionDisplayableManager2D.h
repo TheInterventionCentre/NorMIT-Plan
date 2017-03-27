@@ -90,7 +90,6 @@ vtkMRMLResectionDisplayableManager2D
   vtkMRMLResectionDisplayableManager2D();
   ~vtkMRMLResectionDisplayableManager2D();
 
-
   /**
    * Set a new MRML scene
    *
