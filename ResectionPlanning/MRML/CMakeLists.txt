@@ -13,7 +13,7 @@ set(${KIT}_SRCS
   vtkMRMLResectionSurfaceDisplayNode.cxx
   vtkMRMLResectionInitializationNode.cxx
   vtkMRMLResectionInitializationDisplayNode.cxx
-  #vtkMRMLResectionSurfaceStorageNode.cxx
+  vtkMRMLResectionSurfaceStorageNode.cxx
   )
 
 set(${KIT}_TARGET_LIBRARIES
