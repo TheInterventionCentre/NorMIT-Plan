@@ -33,7 +33,7 @@ slicerMacroConfigureModuleCxxTestDriver(
   vtkSlicerResectionPlanningModuleLogic
   vtkSlicerResectionPlanningModuleVTKWidgets
   WITH_VTK_DEBUG_LEAKS_CHECK
-  WITH_VTK_ERROR_OUTPUT_CHECK
+  WITH_VTK_DEBUG_ERROR_CHECK
   )
 
 #-----------------------------------------------------------------------------

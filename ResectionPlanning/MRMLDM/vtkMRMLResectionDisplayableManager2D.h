@@ -49,6 +49,9 @@
 class vtkMRMLScene;
 class vtkMRMLResectionSurfaceNode;
 class vtkActor2D;
+class vtkBezierSurfaceSource;
+class vtkCutter;
+class vtkTransformPolyDataFilter;
 
 //------------------------------------------------------------------------------
 /**
@@ -95,6 +98,12 @@ vtkMRMLResectionDisplayableManager2D
   virtual void SetMRMLSceneInternal(vtkMRMLScene *newScene);
 
   /**
+   * Actions to be performed when the MRML scene is going to close.
+   *
+   */
+  void OnMRMLSceneEndClose();
+
+  /**
    * Actions when a node gets added to the mrml scene.
    *
    * @param node node added to the scene.
@@ -115,6 +124,17 @@ vtkMRMLResectionDisplayableManager2D
    */
   void SetAndObserveNode(vtkMRMLResectionSurfaceNode *node);
 
+  /**
+   * Render the scene due to changes in MRML scene.
+   *
+   */
+  void UpdateFromMRMLScene();
+
+  /**
+   * Update all the resection projections based on the resection nodes
+   *
+   */
+  void UpdateFromMRML();
 
   /**
    * Actions to be performed on observed nodes.
@@ -136,6 +156,42 @@ vtkMRMLResectionDisplayableManager2D
    */
   bool AddRepresentation(vtkMRMLResectionSurfaceNode *node);
 
+  /**
+   * Update the geometry of the projection of the resection surface.
+   *
+   * @param node pointer to resection node to be used for the update.
+   */
+  void UpdateGeometry(vtkMRMLResectionSurfaceNode *node);
+
+  /**
+   * Update the visibilty of the projection of the resection surface.
+   *
+   * @param node poitner to resection node to be used for the update.
+   */
+  void UpdateVisibility(vtkMRMLResectionSurfaceNode *node);
+
+
+  // Map ResectionNode -- BézierSurfaceSource
+  std::map<vtkMRMLResectionSurfaceNode *,
+    vtkSmartPointer<vtkBezierSurfaceSource> > ResectionBezierMap;
+  typedef std::map<vtkMRMLResectionSurfaceNode *,
+    vtkSmartPointer<vtkBezierSurfaceSource> >::iterator ResectionBezierIt;
+
+  // Map ResectionNode -- Cutter
+  std::map<vtkMRMLResectionSurfaceNode *,
+    vtkSmartPointer<vtkCutter> >  ResectionCutterMap;
+  typedef std::map<vtkMRMLResectionSurfaceNode *,
+    vtkSmartPointer<vtkCutter> >::iterator ResectionCutterIt;
+
+  // Map ResectionNode -- Transform Filter
+  std::map<vtkMRMLResectionSurfaceNode *,
+    vtkSmartPointer<vtkTransformPolyDataFilter> >
+    ResectionTransformFilterMap;
+  typedef std::map<vtkMRMLResectionSurfaceNode *,
+    vtkSmartPointer<vtkTransformPolyDataFilter> >::iterator
+    ResectionTransformFilterIt;
+
+  // Map ResectionNode -- Actor
   std::map<vtkMRMLResectionSurfaceNode *,
     vtkSmartPointer<vtkActor2D> > ResectionActorMap;
   typedef std::map<vtkMRMLResectionSurfaceNode *,
@@ -145,7 +201,6 @@ vtkMRMLResectionDisplayableManager2D
   vtkMRMLResectionDisplayableManager2D(
     const vtkMRMLResectionDisplayableManager2D&);
   void operator=(const vtkMRMLResectionDisplayableManager2D&);
-
 };
 
 #endif
