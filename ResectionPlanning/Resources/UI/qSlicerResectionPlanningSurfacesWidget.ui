@@ -53,7 +53,10 @@
     </layout>
    </item>
    <item>
-    <widget class="QListWidget" name="listResectionSurfaces">
+    <widget class="QListView" name="listResectionSurfaces"/>
+   </item>
+   <item>
+    <widget class="QListWidget" name="listResectionSurfaces2">
      <property name="minimumSize">
       <size>
        <width>0</width>
@@ -80,7 +83,7 @@
  <resources/>
  <connections>
   <connection>
-   <sender>listResectionSurfaces</sender>
+   <sender>listResectionSurfaces2</sender>
    <signal>currentItemChanged(QListWidgetItem*,QListWidgetItem*)</signal>
    <receiver>qSlicerResectionPlanningSurfacesWidget</receiver>
    <slot>OnCurrentResectionSurfaceChanged(QListWidgetItem*,QListWidgetItem*)</slot>

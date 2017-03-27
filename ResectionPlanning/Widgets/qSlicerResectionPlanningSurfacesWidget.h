@@ -32,6 +32,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <QWidget>
 #include <QPointer>
 #include <QMap>
+#include <QStandardItemModel>
 
 // FooBar Widgets includes
 #include "qSlicerResectionPlanningModuleWidgetsExport.h"
@@ -142,6 +143,7 @@ private:
   Q_DISABLE_COPY(qSlicerResectionPlanningSurfacesWidget);
 
   QMap<QString, QListWidgetItem*> resectionIDtoItemMap;
+  QStandardItemModel * model;
 };
 
 #endif

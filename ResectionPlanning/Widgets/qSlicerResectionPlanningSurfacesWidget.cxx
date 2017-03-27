@@ -29,13 +29,19 @@
 #include "qSlicerResectionPlanningSurfacesWidget.h"
 #include "ui_qSlicerResectionPlanningSurfacesWidget.h"
 
+#include "qSlicerListWidgetItemDelegate.h"
+#include "qSlicerListWidgetItem.h"
+
 #include <iostream>
 #include <string>
 
+#include <QListView>
+#include <QStandardItem>
 #include <QListWidget>
-#include <QLabel>
 #include <QListWidgetItem>
+#include <QLabel>
 #include <QString>
+#include <QTreeView>
 
 //-----------------------------------------------------------------------------
 /// \ingroup Slicer_QtModules_ResectionPlanning
@@ -80,6 +86,32 @@ qSlicerResectionPlanningSurfacesWidget
                    this, SLOT(OnAddSurfaceButtonClicked()));
   QObject::connect(d->RemoveSurfaceButton, SIGNAL(clicked()),
                    this, SLOT(OnRemoveSurfaceButtonClicked()));
+
+  model = new QStandardItemModel();
+
+
+
+  model->setItemPrototype(new qSlicerListWidgetItem());
+  d->listResectionSurfaces->setModel(model);
+
+  /*
+  QStandardItem *item2 = new QStandardItem();
+  item2->setText("xxxxxxxxxx");
+  model->appendRow(item2);*/
+
+  qSlicerListWidgetItem *item = new qSlicerListWidgetItem();
+  QString name = "test";
+  item->setText(name);
+  model->appendRow(item);
+
+  d->listResectionSurfaces->setItemDelegate(new qSlicerListWidgetItemDelegate(d->listResectionSurfaces));
+
+  d->listResectionSurfaces->setItemDelegateForRow(0, new qSlicerListWidgetItemDelegate(d->listResectionSurfaces));
+
+  //d->listResectionSurfaces2->addItem(item);
+  //d->listResectionSurfaces2->setItemWidget(item, new qSlicerListWidgetItem());
+
+  std::cout << "SurfacesWidget - instatiation: " << model->itemPrototype() << std::endl;
 }
 
 //-----------------------------------------------------------------------------
@@ -103,9 +135,10 @@ bool qSlicerResectionPlanningSurfacesWidget::SelectResection(QString &resectionI
   {
     return false; // did not find node in map
   }
-
+  /*
   d->listResectionSurfaces->setCurrentItem(it.value());
   d->listResectionSurfaces->selectionModel()->select(d->listResectionSurfaces->selectionModel()->currentIndex(), QItemSelectionModel::Select);
+  */
 
   std::cout << "SurfacesWidget - select item: " << it.value()->text().toStdString() << std::endl;
   return true;
@@ -115,7 +148,7 @@ bool qSlicerResectionPlanningSurfacesWidget::SelectResection(QString &resectionI
 QString qSlicerResectionPlanningSurfacesWidget::GetCurrentResectionID()
 {
   Q_D(qSlicerResectionPlanningSurfacesWidget);
-
+  /*
   if(d->listResectionSurfaces->selectedItems().size() > 0) // check not null (something is selected)
   {
     std::cout << "SurfacesWidget - current resection, map length: " << this->resectionIDtoItemMap.size() << '\n';
@@ -131,7 +164,7 @@ QString qSlicerResectionPlanningSurfacesWidget::GetCurrentResectionID()
   else
   {
     return NULL;
-  }
+  }*/
 }
 
 QList<QString> qSlicerResectionPlanningSurfacesWidget::GetResections()
@@ -140,6 +173,7 @@ QList<QString> qSlicerResectionPlanningSurfacesWidget::GetResections()
 
   QList<QString> resectionList;
 
+  /*
   std::cout << "SurfacesWidget - length resections: " << d->listResectionSurfaces->count() << std::endl;
   // loop through the list
   for(int row = 0; row < d->listResectionSurfaces->count(); row++)
@@ -152,7 +186,8 @@ QList<QString> qSlicerResectionPlanningSurfacesWidget::GetResections()
        QString tumorID = ql[0]; // found in map
        resectionList.push_back(tumorID);
      }
-  }
+  }*/
+
   return resectionList;
 }
 
@@ -168,7 +203,7 @@ void qSlicerResectionPlanningSurfacesWidget
   item->setText(nodeName);
   item->setToolTip(nodeID);
 
-  d->listResectionSurfaces->addItem(item);
+  //d->listResectionSurfaces->addItem(item);
 
   // keep in map(s)
   this->resectionIDtoItemMap.insert(nodeID, item);
@@ -190,8 +225,10 @@ void qSlicerResectionPlanningSurfacesWidget
   // erase from map(s)
   this->resectionIDtoItemMap.remove(nodeID);
 
+  /*
   int row = d->listResectionSurfaces->row(*it);
   d->listResectionSurfaces->takeItem(row);
+  */
 
   std::cout << "SurfacesWidget - Surface removed from scene, and from list: " << nodeName.toStdString() << std::endl;
 }
@@ -214,7 +251,7 @@ void qSlicerResectionPlanningSurfacesWidget
   Q_D(qSlicerResectionPlanningSurfacesWidget);
 
   std::cout << "SurfacesWidget - On Remove Surface" << std::endl;
-
+  /*
   if(d->listResectionSurfaces->selectedItems().size() > 0) // check not null (something is selected)
   {
     // find which one is currently highlighted
@@ -233,6 +270,7 @@ void qSlicerResectionPlanningSurfacesWidget
   {
     std::cout << "SurfacesWidget - No resection selected for deletion" << std::endl;
   }
+  */
 }
 
 //-----------------------------------------------------------------------------

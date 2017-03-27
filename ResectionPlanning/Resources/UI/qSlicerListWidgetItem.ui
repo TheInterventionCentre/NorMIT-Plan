@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>qSlicerListWidgetItem</class>
- <widget class="QWidget" name="qSlicerListWidgetItem">
+ <class>qSlicerListItem</class>
+ <widget class="QWidget" name="qSlicerListItem">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -9,6 +9,12 @@
     <width>447</width>
     <height>83</height>
    </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>100</width>
+    <height>50</height>
+   </size>
   </property>
   <property name="windowTitle">
    <string>Form</string>

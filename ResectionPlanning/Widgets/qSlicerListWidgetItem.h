@@ -9,22 +9,31 @@
 #define RESECTIONPLANNING_WIDGETS_QSLICERLISTWIDGETITEM_H_
 
 // Qt includes
-#include <QItemDelegate>
-#include <QModelIndex>
+#include <QStandardItem>
+#include <QListWidgetItem>
+#include <QString>
+#include <QWidget>
 
 #include "ui_qSlicerListWidgetItem.h"
 
 // MRMLWidgets includes
 #include "qSlicerResectionPlanningModuleWidgetsExport.h"
 
-class Q_SLICER_MODULE_RESECTIONPLANNING_WIDGETS_EXPORT qSlicerListWidgetItem : public QItemDelegate
+class Q_SLICER_MODULE_RESECTIONPLANNING_WIDGETS_EXPORT qSlicerListWidgetItem : public QWidget, public QStandardItem
 {
   Q_OBJECT
+
 public:
-  qSlicerListWidgetItem(QObject *parent = 0);
+  qSlicerListWidgetItem(QWidget *parent = 0);
+
+  int type() const;
+
+  virtual QStandardItem *clone() const;
+
+  void setText(QString&);
 
 private:
-  Ui::qSlicerListWidgetItem ui;
+  Ui::qSlicerListItem ui;
 
 };
 
