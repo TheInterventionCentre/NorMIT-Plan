@@ -56,6 +56,7 @@
 #include <vtkActor2D.h>
 #include <vtkCutter.h>
 #include <vtkTransformPolyDataFilter.h>
+#include <vtkPolyDataMapper2D.h>
 
 //------------------------------------------------------------------------------
 class vtkMRMLResectionDisplayableManager2DTest:
@@ -793,6 +794,57 @@ public:
     vtkSmartPointer<vtkTransformPolyDataFilter> transformPolyDataFilter =
       vtkSmartPointer<vtkTransformPolyDataFilter>::New();
 
+    vtkSmartPointer<vtkPolyDataMapper2D> mapper =
+      vtkSmartPointer<vtkPolyDataMapper2D>::New();
+
+    scene->AddNode(sliceNode);
+
+    this->Superclass::SetRenderer(renderer);
+    this->Superclass::SetAndObserveMRMLDisplayableNode(sliceNode);
+    this->Superclass::ResectionBezierMap[resectionNode] = bezierSource;
+    this->Superclass::ResectionCutterMap[resectionNode] = cutter;
+    this->Superclass::ResectionTransformFilterMap[resectionNode] =
+      transformPolyDataFilter;
+    this->Superclass::ResectionMapperMap[resectionNode] = mapper;
+
+    TESTING_OUTPUT_RESET();
+    TESTING_OUTPUT_ASSERT_ERRORS_BEGIN();
+    this->Superclass::UpdateGeometry(resectionNode);
+    TESTING_OUTPUT_ASSERT_ERRORS_END();
+  }
+
+    void UpdateGeometryTest8()
+  {
+    vtkSmartPointer<vtkRenderer> renderer =
+      vtkSmartPointer<vtkRenderer>::New();
+    vtkSmartPointer<vtkRenderWindow> renderWindow =
+      vtkSmartPointer<vtkRenderWindow>::New();
+    renderWindow->AddRenderer(renderer);
+    vtkSmartPointer<vtkRenderWindowInteractor> renderWindowInteractor =
+      vtkSmartPointer<vtkRenderWindowInteractor>::New();
+    renderWindowInteractor->SetRenderWindow(renderWindow);
+
+    vtkSmartPointer<vtkMRMLResectionSurfaceNode> resectionNode =
+      vtkSmartPointer<vtkMRMLResectionSurfaceNode>::New();
+
+    vtkSmartPointer<vtkMRMLScene> scene =
+      vtkSmartPointer<vtkMRMLScene>::New();
+
+    vtkSmartPointer<vtkMRMLSliceNode> sliceNode =
+      vtkSmartPointer<vtkMRMLSliceNode>::New();
+
+    vtkSmartPointer<vtkBezierSurfaceSource> bezierSource =
+      vtkSmartPointer<vtkBezierSurfaceSource>::New();
+
+    vtkSmartPointer<vtkCutter> cutter =
+      vtkSmartPointer<vtkCutter>::New();
+
+    vtkSmartPointer<vtkTransformPolyDataFilter> transformPolyDataFilter =
+      vtkSmartPointer<vtkTransformPolyDataFilter>::New();
+
+    vtkSmartPointer<vtkPolyDataMapper2D> mapper =
+      vtkSmartPointer<vtkPolyDataMapper2D>::New();
+
     vtkSmartPointer<vtkActor2D> actor =
       vtkSmartPointer<vtkActor2D>::New();
 
@@ -804,6 +856,7 @@ public:
     this->Superclass::ResectionCutterMap[resectionNode] = cutter;
     this->Superclass::ResectionTransformFilterMap[resectionNode] =
       transformPolyDataFilter;
+    this->Superclass::ResectionMapperMap[resectionNode] = mapper;
     this->Superclass::ResectionActorMap[resectionNode] = actor;
 
     TESTING_OUTPUT_RESET();
@@ -811,6 +864,7 @@ public:
     TESTING_OUTPUT_ASSERT_ERRORS(0);
     TESTING_OUTPUT_RESET();
   }
+
 
   void UpdateVisibilityTest1()
   {
