@@ -57,7 +57,6 @@
 #include <vtkRenderWindowInteractor.h>
 #include <vtkRenderWindow.h>
 
-
 //------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkMRMLResectionDisplayableManager2D);
 
@@ -112,6 +111,14 @@ OnMRMLSceneEndClose()
     this->GetRenderer()->RemoveActor(actorIt->second);
     vtkUnObserveMRMLNodeMacro(actorIt->first);
     this->ResectionActorMap.erase(actorIt);
+    }
+
+  // Removing mappers
+  ResectionMapperIt mapIt;
+  for(mapIt=this->ResectionMapperMap.begin();
+      mapIt!=this->ResectionMapperMap.end(); mapIt++)
+    {
+    this->ResectionMapperMap.erase(mapIt);
     }
 
   // Removing transform filters
@@ -243,19 +250,46 @@ OnMRMLSceneNodeRemoved(vtkMRMLNode *node)
   //   return;
   //   }
 
-  // Check if the node is in our association list
-  ResectionActorIt it = this->ResectionActorMap.find(resectionNode);
-  if (it == this->ResectionActorMap.end())
+  // Check if the node is in our association map (actors)
+  ResectionActorIt actorIt = this->ResectionActorMap.find(resectionNode);
+  if (actorIt != this->ResectionActorMap.end())
     {
-    return;
+    // Remove the corresponding actor from the scene
+    vtkActor2D *actor = actorIt->second;
+    this->GetRenderer()->RemoveActor(actor);
+
+    // Remove the association
+    this->ResectionActorMap.erase(actorIt);
     }
 
-  // Remove the corresponding actor from the scene
-  vtkActor2D *actor = it->second;
-  this->GetRenderer()->RemoveActor(actor);
+  // Check if the node is in our association map (mapper)
+  ResectionMapperIt mapIt = this->ResectionMapperMap.find(resectionNode);
+  if (mapIt != this->ResectionMapperMap.end())
+    {
+    this->ResectionMapperMap.erase(mapIt);
+    }
 
-  // Remove the association
-  this->ResectionActorMap.erase(it);
+  // Check if the node is in our association map (transform filter)
+  ResectionTransformFilterIt trIt =
+    this->ResectionTransformFilterMap.find(resectionNode);
+  if (trIt != this->ResectionTransformFilterMap.end())
+    {
+    this->ResectionTransformFilterMap.erase(trIt);
+    }
+
+  // Check inf the node is in our association map (cutter)
+  ResectionCutterIt cutIt =
+    this->ResectionCutterMap.find(resectionNode);
+  if (cutIt != this->ResectionCutterMap.end())
+    {
+    this->ResectionCutterMap.erase(cutIt);
+    }
+
+  ResectionBezierIt bezierIt = this->ResectionBezierMap.find(resectionNode);
+  if (bezierIt != this->ResectionBezierMap.end())
+    {
+    this->ResectionBezierMap.erase(bezierIt);
+    }
 
   // Remove the observations from the node
   vtkUnObserveMRMLNodeMacro(resectionNode);
@@ -392,7 +426,7 @@ AddRepresentation(vtkMRMLResectionSurfaceNode *node)
   vtkSmartPointer<vtkBezierSurfaceSource> bezierSource =
     vtkSmartPointer<vtkBezierSurfaceSource>::New();
   bezierSource->SetNumberOfControlPoints(4,4);
-  bezierSource->SetResolution(300,300);
+  bezierSource->SetResolution(40,40);
 
   // Register bezier source
   this->ResectionBezierMap[node] = bezierSource;
@@ -421,7 +455,11 @@ AddRepresentation(vtkMRMLResectionSurfaceNode *node)
   vtkSmartPointer<vtkPolyDataMapper2D> mapper =
     vtkSmartPointer<vtkPolyDataMapper2D>::New();
   mapper->SetInputConnection(transformFilter->GetOutputPort());
+  mapper->SetInputConnection(cutter->GetOutputPort());
   mapper->GlobalWarningDisplayOff();
+
+  // Register the mapper
+  this->ResectionMapperMap[node] = mapper;
 
   // Set the actor
   vtkSmartPointer<vtkActor2D> actor =
@@ -432,12 +470,9 @@ AddRepresentation(vtkMRMLResectionSurfaceNode *node)
   // Register the actor
   this->ResectionActorMap[node] = actor;
 
-  this->UpdateGeometry(node);
-
   this->GetRenderer()->AddActor2D(actor);
 
-  // Keep track of the association between actor and resection
-
+  this->UpdateGeometry(node);
 
   return true;
 }
@@ -472,6 +507,13 @@ UpdateGeometry(vtkMRMLResectionSurfaceNode *node)
   if (trIt == this->ResectionTransformFilterMap.end())
     {
     vtkErrorMacro("No transform filter associated to the resection node provided.");
+    return;
+    }
+
+  ResectionMapperIt mapIt = this->ResectionMapperMap.find(node);
+  if (mapIt == this->ResectionMapperMap.end())
+    {
+    vtkErrorMacro("No mapper associated to the resection node provided.");
     return;
     }
 
@@ -525,12 +567,7 @@ UpdateGeometry(vtkMRMLResectionSurfaceNode *node)
 
   trIt->second->SetTransform(rasToXYTrasnform);
 
-  // Set the mapper, actor and add it to the scene
-  vtkSmartPointer<vtkPolyDataMapper2D> mapper =
-    vtkSmartPointer<vtkPolyDataMapper2D>::New();
-  mapper->SetInputConnection(trIt->second->GetOutputPort());
-
-  actorIt->second->SetMapper(mapper);
+  mapIt->second->SetInputConnection(trIt->second->GetOutputPort());
 }
 
 //------------------------------------------------------------------------------

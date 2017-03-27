@@ -52,7 +52,7 @@ class vtkActor2D;
 class vtkBezierSurfaceSource;
 class vtkCutter;
 class vtkTransformPolyDataFilter;
-
+class vtkPolyDataMapper2D;
 //------------------------------------------------------------------------------
 /**
  * \ingroup ResectionPlanning
@@ -190,6 +190,12 @@ vtkMRMLResectionDisplayableManager2D
   typedef std::map<vtkMRMLResectionSurfaceNode *,
     vtkSmartPointer<vtkTransformPolyDataFilter> >::iterator
     ResectionTransformFilterIt;
+
+  //Map ResectionNode -- Mapper
+  std::map<vtkMRMLResectionSurfaceNode*,
+    vtkSmartPointer<vtkPolyDataMapper2D> > ResectionMapperMap;
+  typedef std::map<vtkMRMLResectionSurfaceNode*,
+    vtkSmartPointer<vtkPolyDataMapper2D> >::iterator ResectionMapperIt;
 
   // Map ResectionNode -- Actor
   std::map<vtkMRMLResectionSurfaceNode *,
