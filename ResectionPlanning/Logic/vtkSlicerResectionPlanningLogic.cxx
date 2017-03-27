@@ -37,6 +37,7 @@
 #include "vtkSlicerResectionPlanningLogic.h"
 #include "vtkMRMLResectionSurfaceNode.h"
 #include "vtkMRMLResectionSurfaceDisplayNode.h"
+#include "vtkMRMLResectionSurfaceStorageNode.h"
 #include "vtkMRMLResectionInitializationNode.h"
 #include "vtkMRMLResectionInitializationDisplayNode.h"
 
@@ -57,6 +58,11 @@
 #include <vtkCenterOfMass.h>
 #include <vtkTable.h>
 #include <vtkPCAStatistics.h>
+#include <vtkCacheManager.h>
+
+/// ITK includes
+#include <itksys/Directory.hxx>
+#include <itksys/SystemTools.hxx>
 
 // STD includes
 #include <cassert>
@@ -450,6 +456,98 @@ void vtkSlicerResectionPlanningLogic::AddResectionSurface()
   id_name.second = std::string(resectionNode->GetName());
   this->InvokeEvent(vtkSlicerResectionPlanningLogic::ResectionNodeAdded,
                     static_cast<void*>(&id_name));
+}
+
+//----------------------------------------------------------------------------
+vtkMRMLResectionSurfaceNode* vtkSlicerResectionPlanningLogic::AddResectionSurface(const char* filename)
+{
+  std::cout << "Logic - AddResectionSurface" << std::endl;
+
+  if (this->GetMRMLScene() == 0 || filename == 0)
+  {
+    return 0;
+  }
+  vtkNew<vtkMRMLResectionSurfaceNode> resectionNode;
+  vtkNew<vtkMRMLResectionSurfaceDisplayNode> resectionDisplayNode;
+  vtkNew<vtkMRMLResectionSurfaceStorageNode> resectionStorageNode;
+  vtkSmartPointer<vtkMRMLStorageNode> storageNode;
+
+  // check for local or remote files
+  int useURI = 0; // false;
+  if (this->GetMRMLScene()->GetCacheManager() != NULL)
+  {
+    useURI = this->GetMRMLScene()->GetCacheManager()->IsRemoteReference(filename);
+    vtkDebugMacro("AddResectionSurface: file name is remote: " << filename);
+  }
+  const char *localFile=0;
+  if (useURI)
+  {
+    resectionStorageNode->SetURI(filename);
+    // reset filename to the local file name
+    localFile = ((this->GetMRMLScene())->GetCacheManager())->GetFilenameFromURI(filename);
+  }
+  else
+  {
+    resectionStorageNode->SetFileName(filename);
+    localFile = filename;
+  }
+  const std::string fname(localFile?localFile:"");
+  // the model name is based on the file name (itksys call should work even if
+  // file is not on disk yet)
+  std::string name = itksys::SystemTools::GetFilenameName(fname);
+  vtkDebugMacro("AddResectionSurface: got resection name = " << name.c_str());
+
+  // check to see which node can read this type of file
+  if (resectionStorageNode->SupportedFileType(name.c_str()))
+  {
+    storageNode = resectionStorageNode.GetPointer();
+  }
+
+  if (storageNode != NULL)
+    {
+    std::string baseName = itksys::SystemTools::GetFilenameWithoutExtension(fname);
+    std::string uname( this->GetMRMLScene()->GetUniqueNameByString(baseName.c_str()));
+    resectionNode->SetName(uname.c_str());
+
+    this->GetMRMLScene()->SaveStateForUndo();
+
+    this->GetMRMLScene()->AddNode(resectionStorageNode.GetPointer());
+    this->GetMRMLScene()->AddNode(resectionDisplayNode.GetPointer());
+
+    // Set the scene so that SetAndObserve[Display|Storage]NodeID can find the
+    // node in the scene (so that DisplayNodes return something not empty)
+    resectionNode->SetScene(this->GetMRMLScene());
+    resectionNode->SetAndObserveStorageNodeID(resectionStorageNode->GetID());
+    resectionNode->SetAndObserveDisplayNodeID(resectionDisplayNode->GetID());
+
+    this->GetMRMLScene()->AddNode(resectionNode.GetPointer());
+
+    // now set up the reading
+    vtkDebugMacro("AddModel: calling read on the storage node");
+    int retval = storageNode->ReadData(resectionNode.GetPointer());
+    if (retval != 1)
+      {
+      vtkErrorMacro("AddModel: error reading " << filename);
+      this->GetMRMLScene()->RemoveNode(resectionNode.GetPointer());
+      return 0;
+      }
+    }
+  else
+    {
+    vtkErrorMacro("Couldn't read file: " << filename);
+    return 0;
+    }
+
+  /*
+  // Inform that resection was added
+  std::pair<std::string, std::string> id_name;
+  id_name.first = std::string(resectionNode->GetID());
+  id_name.second = std::string(resectionNode->GetName());
+  this->InvokeEvent(vtkSlicerResectionPlanningLogic::ResectionNodeAdded,
+                    static_cast<void*>(&id_name));
+  */
+
+  return resectionNode.GetPointer();
 }
 
 //------------------------------------------------------------------------------

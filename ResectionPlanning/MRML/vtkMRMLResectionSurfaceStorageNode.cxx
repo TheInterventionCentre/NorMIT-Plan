@@ -45,10 +45,10 @@
 #include <vtkPolyData.h>
 #include <vtkSmartPointer.h>
 #include <vtkFieldData.h>
+#include <vtksys/SystemTools.hxx>
 
 #include <vtkPolyDataReader.h>
 #include <vtkPolyDataWriter.h>
-
 
 //----------------------------------------------------------------------------
 vtkMRMLNodeNewMacro(vtkMRMLResectionSurfaceStorageNode);
@@ -86,26 +86,41 @@ int vtkMRMLResectionSurfaceStorageNode::ReadDataInternal(vtkMRMLNode *refNode)
   result = this->Superclass::ReadDataInternal(refNode);
 
   // cast the input node
-  vtkMRMLResectionSurfaceNode *resectionSurfaceNode =  vtkMRMLResectionSurfaceNode::SafeDownCast(refNode);
+  //vtkMRMLResectionSurfaceNode *resectionSurfaceNode =  vtkMRMLResectionSurfaceNode::SafeDownCast(refNode);
+  vtkMRMLResectionSurfaceNode *resectionSurfaceNode =  dynamic_cast < vtkMRMLResectionSurfaceNode *> (refNode);
+  vtkPoints* controlPoints = NULL;
 
-  vtkPolyData *tempPolyData = resectionSurfaceNode->GetPolyData();
+  std::string fullName = this->GetFullNameFromFileName();
+  if (fullName.empty())
+  {
+    vtkErrorMacro("ReadDataInternal: File name not specified");
+    return 0;
+  }
+
+  vtkPolyData* tempPolyData = resectionSurfaceNode->GetPolyData();
   assert(tempPolyData);
-  //tempPolyData->Print(std::cout);
+  vtkDataSet* vtkData = vtkDataSet::SafeDownCast(tempPolyData);
 
-  // Get the data back out
-  //http://www.vtk.org/Wiki/VTK/Examples/Cxx/PolyData/FieldData
-  // Could use this for string passed in? resectionSurfaceNode->GetNodeTagName()
-  vtkIntArray* retrievedArray = vtkIntArray::SafeDownCast(tempPolyData->GetFieldData()->GetAbstractArray("controlPoints"));
+  std::cout << "Field data: " << vtkData->GetFieldData() << std::endl;
+  if(vtkData != NULL)
+  {
+    // Get the data back out
+    //http://www.vtk.org/Wiki/VTK/Examples/Cxx/PolyData/FieldData
+    vtkDataArray* temp = vtkData->GetFieldData()->GetArray("controlPoints");
+    controlPoints = vtkPoints::New();
+    controlPoints->SetData(temp);
+  }
 
-  if(retrievedArray != nullptr)
+  if(controlPoints != NULL)
   {
     // Do something with the retrieved array
     // to set it back to the variables needed in vtkMRMLResectionSurfaceNode
     std::cout << "RP -StorageNode - ReadDataInternal: field data not nullptr " << std::endl;
-    std::cout << retrievedArray->GetValue(0) << std::endl;
+
+    resectionSurfaceNode->SetControlPoints(controlPoints);
   }
   // if have not found any extra polydata to represent the control points
-  else if(retrievedArray == nullptr)
+  else if(controlPoints == NULL)
   {
     std::cout << "RP-StorageNode - ReadDataInternal: field data nullptr " << std::endl;
     // do something else?
@@ -129,6 +144,8 @@ int vtkMRMLResectionSurfaceStorageNode::WriteDataInternal(vtkMRMLNode *refNode)
   tempPolyData->GetFieldData()->AddArray(controlPoints->GetData());
 
   int result = this->Superclass::WriteDataInternal(refNode);
+
+  std::cout << "RP -StorageNode - WriteDataInternal: " << result << std::endl;
 
   return result;
 }

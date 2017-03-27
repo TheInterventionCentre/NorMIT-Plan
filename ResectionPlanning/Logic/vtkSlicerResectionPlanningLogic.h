@@ -117,6 +117,14 @@ public vtkSlicerModuleLogic
    */
   void AddResectionSurface();
 
+  /**
+   * Adds a new resection surface node (called from the reader)
+   *
+   * @param the file name of the resection being loaded
+   * @return the resection node that has been added to the scene
+   */
+  vtkMRMLResectionSurfaceNode* AddResectionSurface(const char* filename);
+
  protected:
   vtkSlicerResectionPlanningLogic();
   virtual ~vtkSlicerResectionPlanningLogic();
