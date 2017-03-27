@@ -37,6 +37,7 @@
 #include "vtkMRMLResectionDisplayableManager2D.h"
 #include "vtkMRMLResectionSurfaceNode.h"
 #include "vtkMRMLResectionSurfaceDisplayNode.h"
+#include "vtkBezierSurfaceSource.h"
 
 // MRML includes
 #include <vtkMRMLScene.h>
@@ -52,6 +53,9 @@
 #include <vtkRenderWindow.h>
 #include <vtkRenderWindowInteractor.h>
 #include <vtkObjectFactory.h>
+#include <vtkActor2D.h>
+#include <vtkCutter.h>
+#include <vtkTransformPolyDataFilter.h>
 
 //------------------------------------------------------------------------------
 class vtkMRMLResectionDisplayableManager2DTest:
@@ -535,79 +539,47 @@ public:
     TESTING_OUTPUT_RESET();
   }
 
-  void SetSceneInternalTest1()
+  void SetMRMLSceneInternalTest1()
   {
-        vtkSmartPointer<vtkRenderer> renderer =
-      vtkSmartPointer<vtkRenderer>::New();
-    vtkSmartPointer<vtkRenderWindow> renderWindow =
-      vtkSmartPointer<vtkRenderWindow>::New();
-    renderWindow->AddRenderer(renderer);
-    vtkSmartPointer<vtkRenderWindowInteractor> renderWindowInteractor =
-      vtkSmartPointer<vtkRenderWindowInteractor>::New();
-    renderWindowInteractor->SetRenderWindow(renderWindow);
-
-    vtkSmartPointer<vtkMRMLScene> scene =
+    vtkSmartPointer<vtkMRMLScene> mrmlScene =
       vtkSmartPointer<vtkMRMLScene>::New();
 
-    vtkSmartPointer<vtkMRMLInteractionNode> interaction =
-      vtkSmartPointer<vtkMRMLInteractionNode>::New();
-    scene->AddNode(interaction);
-
-    vtkSmartPointer<vtkMRMLSelectionNode> selection =
-      vtkSmartPointer<vtkMRMLSelectionNode>::New();
-    scene->AddNode(selection);
-
-    vtkSmartPointer<vtkMRMLSliceNode> sliceNode =
-      vtkSmartPointer<vtkMRMLSliceNode>::New();
-    scene->AddNode(sliceNode);
-
-    this->Superclass::SetRenderer(renderer);
-    this->Superclass::SetMRMLScene(scene);
-    this->Superclass::SetAndObserveMRMLDisplayableNode(sliceNode);
-
-    vtkSmartPointer<vtkMRMLResectionSurfaceNode> resectionNode =
-      vtkSmartPointer<vtkMRMLResectionSurfaceNode>::New();
-    scene->AddNode(resectionNode);
-
     TESTING_OUTPUT_RESET();
-    this->Superclass::SetMRMLSceneInternal(scene);
+    this->Superclass::SetMRMLSceneInternal(mrmlScene);
     TESTING_OUTPUT_ASSERT_ERRORS(0);
     TESTING_OUTPUT_RESET();
   }
 
   void ProcessMRMLNodesEventsTest1()
   {
-    TESTING_OUTPUT_RESET();
 
     vtkSmartPointer<vtkMRMLSliceNode> node =
       vtkSmartPointer<vtkMRMLSliceNode>::New();
 
+    TESTING_OUTPUT_RESET();
     this->Superclass::ProcessMRMLNodesEvents(node,
                                              vtkCommand::ModifiedEvent,
                                              NULL);
-
-    TESTING_OUTPUT_ASSERT_WARNINGS_ERRORS(0);
+    TESTING_OUTPUT_ASSERT_ERRORS(0);
+    TESTING_OUTPUT_RESET();
   }
 
   void ProcessMRMLNodesEventsTest2()
   {
-    TESTING_OUTPUT_RESET();
 
     vtkSmartPointer<vtkMRMLResectionSurfaceNode> resectionNode =
       vtkSmartPointer<vtkMRMLResectionSurfaceNode>::New();
 
-
-
+    TESTING_OUTPUT_RESET();
     this->Superclass::ProcessMRMLNodesEvents(resectionNode,
                                              vtkCommand::ModifiedEvent,
                                              NULL);
-    TESTING_OUTPUT_ASSERT_ERRORS(1);
+    TESTING_OUTPUT_ASSERT_ERRORS(0);
+    TESTING_OUTPUT_RESET();
   }
 
   void ProcessMRMLNodesEventsTest3()
   {
-    TESTING_OUTPUT_RESET();
-
     vtkSmartPointer<vtkRenderer> renderer =
       vtkSmartPointer<vtkRenderer>::New();
     vtkSmartPointer<vtkRenderWindow> renderWindow =
@@ -645,6 +617,7 @@ public:
     resectionNode->SetAndObserveDisplayNodeID(resectionDisplayNode->GetID());
     scene->AddNode(resectionNode);
 
+    TESTING_OUTPUT_RESET();
     this->Superclass::ProcessMRMLNodesEvents(resectionNode,
                                              vtkCommand::StartInteractionEvent,
                                              NULL);
@@ -658,6 +631,7 @@ public:
                                              DisplayModifiedEvent,
                                              NULL);
     TESTING_OUTPUT_ASSERT_ERRORS(0);
+    TESTING_OUTPUT_RESET();
   }
 
   void PrintSelfTest1()
@@ -667,32 +641,92 @@ public:
     this->Superclass::PrintSelf(std::cout, vtkIndent(0));
 
     TESTING_OUTPUT_ASSERT_ERRORS(0);
+    TESTING_OUTPUT_RESET();
   }
 
   void UpdateGeometryTest1()
   {
+    this->Superclass::GlobalWarningDisplayOn();
     TESTING_OUTPUT_RESET();
-
+    TESTING_OUTPUT_ASSERT_ERRORS_BEGIN();
     this->Superclass::UpdateGeometry(NULL);
-
-    TESTING_OUTPUT_ASSERT_ERRORS(1);
+    TESTING_OUTPUT_ASSERT_ERRORS_END();
   }
 
   void UpdateGeometryTest2()
   {
-    TESTING_OUTPUT_RESET();
-
     vtkSmartPointer<vtkMRMLResectionSurfaceNode> resectionNode =
       vtkSmartPointer<vtkMRMLResectionSurfaceNode>::New();
-    this->Superclass::UpdateGeometry(resectionNode);
 
-    TESTING_OUTPUT_ASSERT_ERRORS(1);
+    TESTING_OUTPUT_RESET();
+    TESTING_OUTPUT_ASSERT_ERRORS_BEGIN();
+    this->Superclass::UpdateGeometry(resectionNode);
+    TESTING_OUTPUT_ASSERT_ERRORS_END();
   }
 
   void UpdateGeometryTest3()
   {
-    TESTING_OUTPUT_RESET();
+    vtkSmartPointer<vtkMRMLResectionSurfaceNode> resectionNode =
+      vtkSmartPointer<vtkMRMLResectionSurfaceNode>::New();
 
+    vtkSmartPointer<vtkBezierSurfaceSource> bezierSource =
+      vtkSmartPointer<vtkBezierSurfaceSource>::New();
+
+    this->Superclass::ResectionBezierMap[resectionNode] = bezierSource;
+
+    TESTING_OUTPUT_RESET();
+    TESTING_OUTPUT_ASSERT_ERRORS_BEGIN();
+    this->Superclass::UpdateGeometry(resectionNode);
+    TESTING_OUTPUT_ASSERT_ERRORS_END();
+  }
+
+  void UpdateGeometryTest4()
+  {
+    vtkSmartPointer<vtkMRMLResectionSurfaceNode> resectionNode =
+      vtkSmartPointer<vtkMRMLResectionSurfaceNode>::New();
+
+    vtkSmartPointer<vtkBezierSurfaceSource> bezierSource =
+      vtkSmartPointer<vtkBezierSurfaceSource>::New();
+
+    vtkSmartPointer<vtkCutter> cutter =
+      vtkSmartPointer<vtkCutter>::New();
+
+    this->Superclass::ResectionBezierMap[resectionNode] = bezierSource;
+    this->Superclass::ResectionCutterMap[resectionNode] = cutter;
+
+    TESTING_OUTPUT_RESET();
+    TESTING_OUTPUT_ASSERT_ERRORS_BEGIN();
+    this->Superclass::UpdateGeometry(resectionNode);
+    TESTING_OUTPUT_ASSERT_ERRORS_END();
+  }
+
+  void UpdateGeometryTest5()
+  {
+    vtkSmartPointer<vtkMRMLResectionSurfaceNode> resectionNode =
+      vtkSmartPointer<vtkMRMLResectionSurfaceNode>::New();
+
+    vtkSmartPointer<vtkBezierSurfaceSource> bezierSource =
+      vtkSmartPointer<vtkBezierSurfaceSource>::New();
+
+    vtkSmartPointer<vtkCutter> cutter =
+      vtkSmartPointer<vtkCutter>::New();
+
+    vtkSmartPointer<vtkTransformPolyDataFilter> transformPolyDataFilter =
+      vtkSmartPointer<vtkTransformPolyDataFilter>::New();
+
+    this->Superclass::ResectionBezierMap[resectionNode] = bezierSource;
+    this->Superclass::ResectionCutterMap[resectionNode] = cutter;
+    this->Superclass::ResectionTransformFilterMap[resectionNode] =
+      transformPolyDataFilter;
+
+    TESTING_OUTPUT_RESET();
+    TESTING_OUTPUT_ASSERT_ERRORS_BEGIN();
+    this->Superclass::UpdateGeometry(resectionNode);
+    TESTING_OUTPUT_ASSERT_ERRORS_END();
+  }
+
+  void UpdateGeometryTest6()
+  {
     vtkSmartPointer<vtkRenderer> renderer =
       vtkSmartPointer<vtkRenderer>::New();
     vtkSmartPointer<vtkRenderWindow> renderWindow =
@@ -702,105 +736,106 @@ public:
       vtkSmartPointer<vtkRenderWindowInteractor>::New();
     renderWindowInteractor->SetRenderWindow(renderWindow);
 
-    vtkSmartPointer<vtkMRMLScene> scene =
-      vtkSmartPointer<vtkMRMLScene>::New();
+    vtkSmartPointer<vtkMRMLResectionSurfaceNode> resectionNode =
+      vtkSmartPointer<vtkMRMLResectionSurfaceNode>::New();
 
-    vtkSmartPointer<vtkMRMLInteractionNode> interaction =
-      vtkSmartPointer<vtkMRMLInteractionNode>::New();
-    scene->AddNode(interaction);
+    vtkSmartPointer<vtkBezierSurfaceSource> bezierSource =
+      vtkSmartPointer<vtkBezierSurfaceSource>::New();
 
-    vtkSmartPointer<vtkMRMLSelectionNode> selection =
-      vtkSmartPointer<vtkMRMLSelectionNode>::New();
-    scene->AddNode(selection);
+    vtkSmartPointer<vtkCutter> cutter =
+      vtkSmartPointer<vtkCutter>::New();
 
-    vtkSmartPointer<vtkMRMLSliceNode> sliceNode =
-      vtkSmartPointer<vtkMRMLSliceNode>::New();
-    scene->AddNode(sliceNode);
+    vtkSmartPointer<vtkTransformPolyDataFilter> transformPolyDataFilter =
+      vtkSmartPointer<vtkTransformPolyDataFilter>::New();
+
+    vtkSmartPointer<vtkActor2D> actor =
+      vtkSmartPointer<vtkActor2D>::New();
 
     this->Superclass::SetRenderer(renderer);
-    this->Superclass::SetMRMLScene(scene);
-    this->Superclass::SetAndObserveMRMLDisplayableNode(sliceNode);
+    this->Superclass::ResectionBezierMap[resectionNode] = bezierSource;
+    this->Superclass::ResectionCutterMap[resectionNode] = cutter;
+    this->Superclass::ResectionTransformFilterMap[resectionNode] =
+      transformPolyDataFilter;
+    this->Superclass::ResectionActorMap[resectionNode] = actor;
+
+    TESTING_OUTPUT_RESET();
+    TESTING_OUTPUT_ASSERT_ERRORS_BEGIN();
+    this->Superclass::UpdateGeometry(resectionNode);
+    TESTING_OUTPUT_ASSERT_ERRORS_END();
+  }
+
+  void UpdateGeometryTest7()
+  {
+    vtkSmartPointer<vtkRenderer> renderer =
+      vtkSmartPointer<vtkRenderer>::New();
+    vtkSmartPointer<vtkRenderWindow> renderWindow =
+      vtkSmartPointer<vtkRenderWindow>::New();
+    renderWindow->AddRenderer(renderer);
+    vtkSmartPointer<vtkRenderWindowInteractor> renderWindowInteractor =
+      vtkSmartPointer<vtkRenderWindowInteractor>::New();
+    renderWindowInteractor->SetRenderWindow(renderWindow);
 
     vtkSmartPointer<vtkMRMLResectionSurfaceNode> resectionNode =
       vtkSmartPointer<vtkMRMLResectionSurfaceNode>::New();
-    scene->AddNode(resectionNode);
-    this->Superclass::UpdateGeometry(resectionNode);
 
+    vtkSmartPointer<vtkMRMLScene> scene =
+      vtkSmartPointer<vtkMRMLScene>::New();
+
+    vtkSmartPointer<vtkMRMLSliceNode> sliceNode =
+      vtkSmartPointer<vtkMRMLSliceNode>::New();
+
+    vtkSmartPointer<vtkBezierSurfaceSource> bezierSource =
+      vtkSmartPointer<vtkBezierSurfaceSource>::New();
+
+    vtkSmartPointer<vtkCutter> cutter =
+      vtkSmartPointer<vtkCutter>::New();
+
+    vtkSmartPointer<vtkTransformPolyDataFilter> transformPolyDataFilter =
+      vtkSmartPointer<vtkTransformPolyDataFilter>::New();
+
+    vtkSmartPointer<vtkActor2D> actor =
+      vtkSmartPointer<vtkActor2D>::New();
+
+    scene->AddNode(sliceNode);
+
+    this->Superclass::SetRenderer(renderer);
+    this->Superclass::SetAndObserveMRMLDisplayableNode(sliceNode);
+    this->Superclass::ResectionBezierMap[resectionNode] = bezierSource;
+    this->Superclass::ResectionCutterMap[resectionNode] = cutter;
+    this->Superclass::ResectionTransformFilterMap[resectionNode] =
+      transformPolyDataFilter;
+    this->Superclass::ResectionActorMap[resectionNode] = actor;
+
+    TESTING_OUTPUT_RESET();
+    this->Superclass::UpdateGeometry(resectionNode);
     TESTING_OUTPUT_ASSERT_ERRORS(0);
+    TESTING_OUTPUT_RESET();
   }
 
   void UpdateVisibilityTest1()
   {
     TESTING_OUTPUT_RESET();
 
+    TESTING_OUTPUT_ASSERT_ERRORS_BEGIN();
     this->Superclass::UpdateVisibility(NULL);
-
-    TESTING_OUTPUT_ASSERT_ERRORS(1);
+    TESTING_OUTPUT_ASSERT_ERRORS_END();
   }
 
   void UpdateVisibilityTest2()
   {
-    TESTING_OUTPUT_RESET();
-
     vtkSmartPointer<vtkMRMLResectionSurfaceNode> resectionNode =
       vtkSmartPointer<vtkMRMLResectionSurfaceNode>::New();
 
+    TESTING_OUTPUT_RESET();
+    TESTING_OUTPUT_ASSERT_ERRORS_BEGIN();
     this->Superclass::UpdateVisibility(resectionNode);
-
-    TESTING_OUTPUT_ASSERT_ERRORS(1);
+    TESTING_OUTPUT_ASSERT_ERRORS_END();
   }
 
   void UpdateVisibilityTest3()
   {
-    TESTING_OUTPUT_RESET();
-
     vtkSmartPointer<vtkMRMLScene> scene =
       vtkSmartPointer<vtkMRMLScene>::New();
-
-    vtkSmartPointer<vtkMRMLResectionSurfaceDisplayNode> resectionDisplayNode =
-      vtkSmartPointer<vtkMRMLResectionSurfaceDisplayNode>::New();
-    scene->AddNode(resectionDisplayNode);
-
-    vtkSmartPointer<vtkMRMLResectionSurfaceNode> resectionNode =
-      vtkSmartPointer<vtkMRMLResectionSurfaceNode>::New();
-    resectionNode->SetAndObserveDisplayNodeID(resectionDisplayNode->GetID());
-
-    this->Superclass::UpdateVisibility(resectionNode);
-
-    TESTING_OUTPUT_ASSERT_ERRORS(1);
-  }
-
-  void UpdateVisibilityTest4()
-  {
-    TESTING_OUTPUT_RESET();
-
-    vtkSmartPointer<vtkRenderer> renderer =
-      vtkSmartPointer<vtkRenderer>::New();
-    vtkSmartPointer<vtkRenderWindow> renderWindow =
-      vtkSmartPointer<vtkRenderWindow>::New();
-    renderWindow->AddRenderer(renderer);
-    vtkSmartPointer<vtkRenderWindowInteractor> renderWindowInteractor =
-      vtkSmartPointer<vtkRenderWindowInteractor>::New();
-    renderWindowInteractor->SetRenderWindow(renderWindow);
-
-    vtkSmartPointer<vtkMRMLScene> scene =
-      vtkSmartPointer<vtkMRMLScene>::New();
-
-    vtkSmartPointer<vtkMRMLInteractionNode> interaction =
-      vtkSmartPointer<vtkMRMLInteractionNode>::New();
-    scene->AddNode(interaction);
-
-    vtkSmartPointer<vtkMRMLSelectionNode> selection =
-      vtkSmartPointer<vtkMRMLSelectionNode>::New();
-    scene->AddNode(selection);
-
-    vtkSmartPointer<vtkMRMLSliceNode> sliceNode =
-      vtkSmartPointer<vtkMRMLSliceNode>::New();
-    scene->AddNode(sliceNode);
-
-    this->Superclass::SetRenderer(renderer);
-    this->Superclass::SetMRMLScene(scene);
-    this->Superclass::SetAndObserveMRMLDisplayableNode(sliceNode);
 
     vtkSmartPointer<vtkMRMLResectionSurfaceDisplayNode> resectionDisplayNode =
       vtkSmartPointer<vtkMRMLResectionSurfaceDisplayNode>::New();
@@ -811,10 +846,37 @@ public:
     resectionNode->SetAndObserveDisplayNodeID(resectionDisplayNode->GetID());
     scene->AddNode(resectionNode);
 
+    TESTING_OUTPUT_RESET();
+    TESTING_OUTPUT_ASSERT_ERRORS_BEGIN();
     this->Superclass::UpdateVisibility(resectionNode);
-
-    TESTING_OUTPUT_ASSERT_ERRORS(0);
+    TESTING_OUTPUT_ASSERT_ERRORS_END();
   }
+
+  void UpdateVisibilityTest4()
+  {
+    vtkSmartPointer<vtkMRMLScene> scene =
+      vtkSmartPointer<vtkMRMLScene>::New();
+
+    vtkSmartPointer<vtkMRMLResectionSurfaceDisplayNode> resectionDisplayNode =
+      vtkSmartPointer<vtkMRMLResectionSurfaceDisplayNode>::New();
+    scene->AddNode(resectionDisplayNode);
+
+    vtkSmartPointer<vtkMRMLResectionSurfaceNode> resectionNode =
+      vtkSmartPointer<vtkMRMLResectionSurfaceNode>::New();
+    resectionNode->SetAndObserveDisplayNodeID(resectionDisplayNode->GetID());
+    scene->AddNode(resectionNode);
+
+    vtkSmartPointer<vtkActor2D> actor =
+      vtkSmartPointer<vtkActor2D>::New();
+
+    this->Superclass::ResectionActorMap[resectionNode] = actor;
+
+    TESTING_OUTPUT_RESET();
+    this->Superclass::UpdateVisibility(resectionNode);
+    TESTING_OUTPUT_ASSERT_ERRORS(0);
+    TESTING_OUTPUT_RESET();
+  }
+
 
 protected:
   vtkMRMLResectionDisplayableManager2DTest(){}
@@ -919,65 +981,69 @@ int vtkMRMLResectionDisplayableManager2DTest1(int, char *[])
     vtkSmartPointer<vtkMRMLResectionDisplayableManager2DTest>::New();
   displayableManagerTest->OnMRMLSceneEndCloseTest2();
 
-  // displayableManagerTest =
-  //   vtkSmartPointer<vtkMRMLResectionDisplayableManager2DTest>::New();
-  // displayableManagerTest->DebugOn();
-  // displayableManagerTest->SetSceneInternalTest1();
+  displayableManagerTest =
+    vtkSmartPointer<vtkMRMLResectionDisplayableManager2DTest>::New();
+  displayableManagerTest->SetMRMLSceneInternalTest1();
 
-  // displayableManagerTest =
-  //   vtkSmartPointer<vtkMRMLResectionDisplayableManager2DTest>::New();
-  // displayableManagerTest->DebugOn();
-  // displayableManagerTest->ProcessMRMLNodesEventsTest1();
+  displayableManagerTest =
+    vtkSmartPointer<vtkMRMLResectionDisplayableManager2DTest>::New();
+  displayableManagerTest->ProcessMRMLNodesEventsTest1();
 
-  // displayableManagerTest =
-  //   vtkSmartPointer<vtkMRMLResectionDisplayableManager2DTest>::New();
-  // displayableManagerTest->DebugOn();
-  // displayableManagerTest->ProcessMRMLNodesEventsTest2();
+  displayableManagerTest =
+    vtkSmartPointer<vtkMRMLResectionDisplayableManager2DTest>::New();
+  displayableManagerTest->ProcessMRMLNodesEventsTest2();
 
-  // displayableManagerTest =
-  //   vtkSmartPointer<vtkMRMLResectionDisplayableManager2DTest>::New();
-  // displayableManagerTest->DebugOn();
-  // displayableManagerTest->ProcessMRMLNodesEventsTest3();
+  displayableManagerTest =
+    vtkSmartPointer<vtkMRMLResectionDisplayableManager2DTest>::New();
+  displayableManagerTest->ProcessMRMLNodesEventsTest3();
 
-  // displayableManagerTest =
-  //   vtkSmartPointer<vtkMRMLResectionDisplayableManager2DTest>::New();
-  // displayableManagerTest->DebugOn();
-  // displayableManagerTest->PrintSelfTest1();
+  displayableManagerTest =
+    vtkSmartPointer<vtkMRMLResectionDisplayableManager2DTest>::New();
+  displayableManagerTest->PrintSelfTest1();
 
-  // displayableManagerTest =
-  //   vtkSmartPointer<vtkMRMLResectionDisplayableManager2DTest>::New();
-  // displayableManagerTest->DebugOn();
-  // displayableManagerTest->UpdateGeometryTest1();
+  displayableManagerTest =
+    vtkSmartPointer<vtkMRMLResectionDisplayableManager2DTest>::New();
+  displayableManagerTest->UpdateGeometryTest1();
 
-  // displayableManagerTest =
-  //   vtkSmartPointer<vtkMRMLResectionDisplayableManager2DTest>::New();
-  // displayableManagerTest->DebugOn();
-  // displayableManagerTest->UpdateGeometryTest2();
+  displayableManagerTest =
+    vtkSmartPointer<vtkMRMLResectionDisplayableManager2DTest>::New();
+  displayableManagerTest->UpdateGeometryTest2();
 
-  // displayableManagerTest =
-  //   vtkSmartPointer<vtkMRMLResectionDisplayableManager2DTest>::New();
-  // displayableManagerTest->DebugOn();
-  // displayableManagerTest->UpdateGeometryTest3();
+  displayableManagerTest =
+    vtkSmartPointer<vtkMRMLResectionDisplayableManager2DTest>::New();
+  displayableManagerTest->UpdateGeometryTest3();
 
-  // displayableManagerTest =
-  //   vtkSmartPointer<vtkMRMLResectionDisplayableManager2DTest>::New();
-  // displayableManagerTest->DebugOn();
-  // displayableManagerTest->UpdateVisibilityTest1();
+  displayableManagerTest =
+    vtkSmartPointer<vtkMRMLResectionDisplayableManager2DTest>::New();
+  displayableManagerTest->UpdateGeometryTest4();
 
-  // displayableManagerTest =
-  //   vtkSmartPointer<vtkMRMLResectionDisplayableManager2DTest>::New();
-  // displayableManagerTest->DebugOn();
-  // displayableManagerTest->UpdateVisibilityTest2();
+  displayableManagerTest =
+    vtkSmartPointer<vtkMRMLResectionDisplayableManager2DTest>::New();
+  displayableManagerTest->UpdateGeometryTest5();
 
-  // displayableManagerTest =
-  //   vtkSmartPointer<vtkMRMLResectionDisplayableManager2DTest>::New();
-  // displayableManagerTest->DebugOn();
-  // displayableManagerTest->UpdateVisibilityTest3();
+  displayableManagerTest =
+    vtkSmartPointer<vtkMRMLResectionDisplayableManager2DTest>::New();
+  displayableManagerTest->UpdateGeometryTest6();
 
-  // displayableManagerTest =
-  //   vtkSmartPointer<vtkMRMLResectionDisplayableManager2DTest>::New();
-  // displayableManagerTest->DebugOn();
-  // displayableManagerTest->UpdateVisibilityTest4();
+  displayableManagerTest =
+    vtkSmartPointer<vtkMRMLResectionDisplayableManager2DTest>::New();
+  displayableManagerTest->UpdateGeometryTest7();
+
+  displayableManagerTest =
+    vtkSmartPointer<vtkMRMLResectionDisplayableManager2DTest>::New();
+  displayableManagerTest->UpdateVisibilityTest1();
+
+  displayableManagerTest =
+    vtkSmartPointer<vtkMRMLResectionDisplayableManager2DTest>::New();
+  displayableManagerTest->UpdateVisibilityTest2();
+
+  displayableManagerTest =
+    vtkSmartPointer<vtkMRMLResectionDisplayableManager2DTest>::New();
+  displayableManagerTest->UpdateVisibilityTest3();
+
+  displayableManagerTest =
+    vtkSmartPointer<vtkMRMLResectionDisplayableManager2DTest>::New();
+  displayableManagerTest->UpdateVisibilityTest4();
 
   // END: UNIT Tests
   //----------------------------------------------------------------------------
