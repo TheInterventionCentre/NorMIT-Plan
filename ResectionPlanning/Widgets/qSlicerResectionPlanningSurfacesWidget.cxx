@@ -29,13 +29,17 @@
 #include "qSlicerResectionPlanningSurfacesWidget.h"
 #include "ui_qSlicerResectionPlanningSurfacesWidget.h"
 
+#include "qSlicerTableItemWidget.h"
+
 #include <iostream>
 #include <string>
 
 #include <QListWidget>
+#include <QTableWidget>
 #include <QLabel>
 #include <QListWidgetItem>
 #include <QString>
+
 
 //-----------------------------------------------------------------------------
 /// \ingroup Slicer_QtModules_ResectionPlanning
@@ -75,6 +79,24 @@ qSlicerResectionPlanningSurfacesWidget
   Q_D(qSlicerResectionPlanningSurfacesWidget);
   d->setupUi(this);
 
+  d->listResectionSurfaces->hide();
+
+  d->tableResectionSurfaces->setItemPrototype(new qSlicerTableItemWidget());
+
+  //QStringList header;
+  //header << "Tumour" << "Margin" << "Widget" << "Show";
+
+  //d->tableResectionSurfaces->setRowCount(0);
+  //d->tableResectionSurfaces->setColumnCount(4);
+  //d->tableResectionSurfaces->setHorizontalHeaderLabels(header);
+  d->tableResectionSurfaces->setSelectionBehavior(QAbstractItemView::SelectRows);
+
+  qSlicerTableItemWidget *item = new qSlicerTableItemWidget(d->tableResectionSurfaces);
+  QString test = "test";
+  item->setText(test);
+  d->tableResectionSurfaces->insertRow(1);
+  d->tableResectionSurfaces->setItem(1,1,item);
+
   // connect signals & slots for buttons to add & remove resection surface
   QObject::connect(d->AddSurfaceButton, SIGNAL(clicked()),
                    this, SLOT(OnAddSurfaceButtonClicked()));
@@ -85,6 +107,14 @@ qSlicerResectionPlanningSurfacesWidget
 //-----------------------------------------------------------------------------
 qSlicerResectionPlanningSurfacesWidget
 ::~qSlicerResectionPlanningSurfacesWidget()
+{
+
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerResectionPlanningSurfacesWidget::
+AddSurfaceTableEntry(QVector<QColor> &colors,
+                     double safetyMargin)
 {
 
 }

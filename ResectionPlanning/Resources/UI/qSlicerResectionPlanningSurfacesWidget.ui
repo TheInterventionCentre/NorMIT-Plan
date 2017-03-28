@@ -53,6 +53,9 @@
     </layout>
    </item>
    <item>
+    <widget class="QTableWidget" name="tableResectionSurfaces"/>
+   </item>
+   <item>
     <widget class="QListWidget" name="listResectionSurfaces">
      <property name="minimumSize">
       <size>

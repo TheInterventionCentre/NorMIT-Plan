@@ -89,6 +89,10 @@ void qSlicerResectionPlanningModuleWidget::setup()
 
   this->activeResectionID = "";
 
+  // hiding these widgets for now, since not using their functionality yet
+  d->TumorsWidget->hide();
+  d->VolumesWidget->hide();
+
   // connect events to node selection dropdown
   QObject::connect(d->ActiveParenchymaModelNodeSelector, SIGNAL(currentNodeChanged(vtkMRMLNode*)), this, SLOT(nodeSelectionChanged(vtkMRMLNode*)));
   //QObject::connect(this, SIGNAL(mrmlSceneChanged(vtkMRMLScene*)), d->ActiveParenchymaModelNodeSelector, SLOT(setMRMLScene(vtkMRMLScene*)));

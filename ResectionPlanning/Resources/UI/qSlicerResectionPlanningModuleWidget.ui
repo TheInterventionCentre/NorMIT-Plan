@@ -49,7 +49,11 @@
        <widget class="qSlicerResectionPlanningSurfacesWidget" name="SurfacesWidget" native="true"/>
       </item>
       <item>
-       <widget class="qSlicerResectionPlanningTumorsWidget" name="TumorsWidget" native="true"/>
+       <widget class="qSlicerResectionPlanningTumorsWidget" name="TumorsWidget" native="true">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
+       </widget>
       </item>
       <item>
        <spacer name="verticalSpacer_2">
@@ -69,6 +73,9 @@
    </item>
    <item>
     <widget class="ctkCollapsibleButton" name="CollapsibleButton">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
      <property name="text">
       <string>Calculate Volume</string>
      </property>

@@ -57,6 +57,8 @@ public:
   qSlicerResectionPlanningSurfacesWidget(QWidget *parent=0);
   virtual ~qSlicerResectionPlanningSurfacesWidget();
 
+  void AddSurfaceTableEntry(QVector<QColor> &colors, double safetyMargin);
+
   /**
    * Selects a resection in the list of resections (listResectionSurfaces)
    *
