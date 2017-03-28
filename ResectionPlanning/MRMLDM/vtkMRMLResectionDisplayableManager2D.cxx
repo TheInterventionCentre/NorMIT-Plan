@@ -525,7 +525,7 @@ UpdateGeometry(vtkMRMLResectionSurfaceNode *node)
   vtkDebugMacro("UpdateGeometry");
 
   if (!node)
-|    {
+    {
     vtkErrorMacro("No node passed");
     return;
     }
