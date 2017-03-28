@@ -407,6 +407,7 @@ ProcessMRMLNodesEvents(vtkObject *caller,
     switch(eventId)
       {
       case vtkCommand::ModifiedEvent:
+        std::cout << "llega2" << std::endl;
         this->UpdateGeometry(resectionNode);
         break;
 
@@ -435,6 +436,8 @@ ProcessMRMLNodesEvents(vtkObject *caller,
     }
 
   this->Superclass::ProcessMRMLNodesEvents(caller, eventId, callData);
+
+  this->RequestRender();
 }
 
 //------------------------------------------------------------------------------
