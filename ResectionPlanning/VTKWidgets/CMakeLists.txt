@@ -16,6 +16,7 @@ set(${KIT}_SRCS
   vtkBezierSurfaceWidget.cxx
   vtkBezierSurfaceSource.cxx
   vtkLineWidget3.cxx
+  vtkHausdorffDistancePointSetFilter.cxx
   )
 
 set(${KIT}_TARGET_LIBRARIES
