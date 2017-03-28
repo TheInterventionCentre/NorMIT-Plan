@@ -57,6 +57,7 @@
 #include <vtkCenterOfMass.h>
 #include <vtkTable.h>
 #include <vtkPCAStatistics.h>
+#include <vtkAlgorithmOutput.h>
 
 // STD includes
 #include <cassert>
@@ -151,7 +152,8 @@ void vtkSlicerResectionPlanningLogic::UpdateFromMRMLScene()
 void vtkSlicerResectionPlanningLogic
 ::OnMRMLSceneNodeAdded(vtkMRMLNode* addedNode)
 {
-  // Check whether the added node was a model
+
+// Check whether the added node was a model
   vtkMRMLModelNode *modelNode = vtkMRMLModelNode::SafeDownCast(addedNode);
   if (!modelNode)
     {
@@ -173,8 +175,7 @@ void vtkSlicerResectionPlanningLogic
     vtkDebugMacro("Resection planning logic: Tumor model node added "
                   << modelNode->GetName());
 
-    // Add the tumor to the append filter.
-    this->AppendTumors->AddInputData(modelNode->GetPolyData());
+    vtkObserveMRMLNodeMacro(modelNode)
 
     // Set scalar visibility of tumor
     vtkMRMLModelDisplayNode *tumorModelDisplayNode =
@@ -295,8 +296,9 @@ void vtkSlicerResectionPlanningLogic
     vtkDebugMacro("Resection planning logic: Tumor model node removed "
                   << modelNode->GetName());
 
-    // Add the tumor to the append filter.
-    this->AppendTumors->AddInputData(modelNode->GetPolyData());
+    // Remove the tumor from the append filter.
+    this->AppendTumors->RemoveInputConnection(0,modelNode->GetPolyDataConnection());
+    this->AppendTumors->Update();
 
     // Set scalar visibility of tumor
     vtkMRMLModelDisplayNode *tumorModelDisplayNode =
@@ -483,6 +485,16 @@ ProcessMRMLNodesEvents(vtkObject *object,
     if (eventId ==  vtkCommand::StartInteractionEvent)
       {
         this->HideInitializationOnResectionModification(resectionNode);
+      }
+    }
+
+  vtkMRMLModelNode *modelNode = vtkMRMLModelNode::SafeDownCast(object);
+  if (modelNode)
+    {
+    if (eventId == vtkCommand::ModifiedEvent)
+      {
+      this->AppendTumors->AddInputConnection(0,modelNode->GetPolyDataConnection());
+      this->AppendTumors->Update();
       }
     }
 
