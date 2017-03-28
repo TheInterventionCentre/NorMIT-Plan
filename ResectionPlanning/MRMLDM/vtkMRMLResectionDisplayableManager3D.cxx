@@ -38,6 +38,7 @@
 #include "vtkMRMLResectionSurfaceNode.h"
 #include "vtkMRMLResectionSurfaceDisplayNode.h"
 #include "vtkBezierSurfaceWidget.h"
+#include "vtkHausdorffDistancePointSetFilter.h"
 
 // MRML includes
 #include <vtkMRMLScene.h>
@@ -50,9 +51,8 @@
 #include <vtkRenderWindow.h>
 #include <vtkRenderWindowInteractor.h>
 #include <vtkCallbackCommand.h>
-
-// STD includes
-#include <iostream>
+#include <vtkPointData.h>
+#include <vtkContourFilter.h>
 
 //------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkMRMLResectionDisplayableManager3D);
@@ -325,6 +325,35 @@ OnMRMLSceneNodeAdded(vtkMRMLNode *node)
     vtkErrorMacro("OnMRMLSceneNodeAddedEvent: widget not created");
     return;
     }
+
+
+  // Connecting the distance maps
+  vtkSmartPointer<vtkCollection> nodes;
+  nodes.TakeReference(this->GetMRMLScene()->
+                      GetNodesByName("LRPJointTumorsModel"));
+  vtkMRMLModelNode *jointTumorsModelNode =
+    vtkMRMLModelNode::SafeDownCast(nodes->GetItemAsObject(0));
+  if (jointTumorsModelNode)
+    {
+    NodeWidgetIt widgetIt = NodeWidgetMap.find(resectionSurfaceNode);
+    if (widgetIt != NodeWidgetMap.end())
+      {
+      vtkSmartPointer<vtkHausdorffDistancePointSetFilter> distanceFilter =
+        vtkSmartPointer<vtkHausdorffDistancePointSetFilter>::New();
+      distanceFilter->SetInputData(0, widgetIt->second->GetBezierSurfacePolyData());
+      distanceFilter->SetInputData(1, jointTumorsModelNode->GetPolyData());
+      distanceFilter->SetTargetDistanceMethod(0);
+      distanceFilter->Update();
+      distanceFilter->GetOutput(0)->GetPointData()->
+        SetScalars(distanceFilter->GetOutput(0)->
+                   GetPointData()->GetArray("Distance"));
+
+      // here!!!
+      }
+
+    }
+
+
 
   vtkObserveMRMLNodeMacro(node);
 

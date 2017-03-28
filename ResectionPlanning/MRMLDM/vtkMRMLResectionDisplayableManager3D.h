@@ -50,6 +50,7 @@
 class vtkMRMLResectionSurfaceNode;
 class vtkBezierSurfaceWidget;
 class vtk3DWidget;
+class vtkHausdorffDistancePointSetFilter;
 
 //------------------------------------------------------------------------------
 class VTK_SLICER_RESECTIONPLANNING_MODULE_MRMLDISPLAYABLEMANAGER_EXPORT
@@ -188,6 +189,15 @@ public vtkMRMLAbstractThreeDViewDisplayableManager
     vtkSmartPointer<vtkBezierSurfaceWidget> > NodeWidgetMap;
   typedef std::map<vtkMRMLResectionSurfaceNode*,
     vtkSmartPointer<vtkBezierSurfaceWidget> >::iterator NodeWidgetIt;
+
+  // Map and iterator holding the ResecionNode-DistanceFilter relationship
+  std::map<vtkMRMLResectionSurfaceNode*,
+    vtkSmartPointer<vtkHausdorffDistancePointSetFilter> > NodeDistanceFilterMap;
+  std::map<vtkMRMLResectionSurfaceNode*,
+    vtkSmartPointer<vtkHausdorffDistancePointSetFilter> >::iterator NodeDistanceFilterIt;
+
+  // Map and iterator holding the ResectionNode-ContourFilter relationship
+
 };
 
 #endif
