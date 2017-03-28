@@ -52,7 +52,7 @@ class vtkActor2D;
 class vtkBezierSurfaceSource;
 class vtkCutter;
 class vtkTransformPolyDataFilter;
-
+class vtkPolyDataMapper2D;
 //------------------------------------------------------------------------------
 /**
  * \ingroup ResectionPlanning
@@ -122,7 +122,14 @@ vtkMRMLResectionDisplayableManager2D
    *
    * @param node pointer to a resection node to be observed.
    */
-  void SetAndObserveNode(vtkMRMLResectionSurfaceNode *node);
+  void SetAndObserveResectionNode(vtkMRMLResectionSurfaceNode *node);
+
+  /**
+   * Observe the slice node for modifications.
+   *
+   * @param node pointer to ta slicenode node.
+   */
+  void SetAndObserveSliceNode(vtkMRMLSliceNode *node);
 
   /**
    * Render the scene due to changes in MRML scene.
@@ -190,6 +197,12 @@ vtkMRMLResectionDisplayableManager2D
   typedef std::map<vtkMRMLResectionSurfaceNode *,
     vtkSmartPointer<vtkTransformPolyDataFilter> >::iterator
     ResectionTransformFilterIt;
+
+  //Map ResectionNode -- Mapper
+  std::map<vtkMRMLResectionSurfaceNode*,
+    vtkSmartPointer<vtkPolyDataMapper2D> > ResectionMapperMap;
+  typedef std::map<vtkMRMLResectionSurfaceNode*,
+    vtkSmartPointer<vtkPolyDataMapper2D> >::iterator ResectionMapperIt;
 
   // Map ResectionNode -- Actor
   std::map<vtkMRMLResectionSurfaceNode *,
