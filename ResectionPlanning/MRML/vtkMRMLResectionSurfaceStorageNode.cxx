@@ -78,15 +78,11 @@ bool vtkMRMLResectionSurfaceStorageNode::CanReadInReferenceNode(vtkMRMLNode *ref
 //----------------------------------------------------------------------------
 int vtkMRMLResectionSurfaceStorageNode::ReadDataInternal(vtkMRMLNode *refNode)
 {
-  std::cout << "RP-StorageNode - ReadDataInternal: node = " << refNode << std::endl;
-  //refNode->Print(std::cout);
-
   int result = 1;
   // Call the superclass to load the data rather than reimplement?
   result = this->Superclass::ReadDataInternal(refNode);
 
   // cast the input node
-  //vtkMRMLResectionSurfaceNode *resectionSurfaceNode =  vtkMRMLResectionSurfaceNode::SafeDownCast(refNode);
   vtkMRMLResectionSurfaceNode *resectionSurfaceNode =  dynamic_cast < vtkMRMLResectionSurfaceNode *> (refNode);
   vtkPoints* controlPoints = NULL;
 
@@ -101,7 +97,6 @@ int vtkMRMLResectionSurfaceStorageNode::ReadDataInternal(vtkMRMLNode *refNode)
   assert(tempPolyData);
   vtkDataSet* vtkData = vtkDataSet::SafeDownCast(tempPolyData);
 
-  std::cout << "Field data: " << vtkData->GetFieldData() << std::endl;
   if(vtkData != NULL)
   {
     // Get the data back out
@@ -123,7 +118,7 @@ int vtkMRMLResectionSurfaceStorageNode::ReadDataInternal(vtkMRMLNode *refNode)
   else if(controlPoints == NULL)
   {
     std::cout << "RP-StorageNode - ReadDataInternal: field data nullptr " << std::endl;
-    // do something else?
+    // do something else - just load the polydata?
   }
 
   return result;

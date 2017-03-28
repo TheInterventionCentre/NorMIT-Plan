@@ -92,7 +92,9 @@ SetMRMLSceneInternal(vtkMRMLScene *newScene)
 {
   Superclass::SetMRMLSceneInternal(newScene);
 
-  this->OnMRMLSceneEndClose();
+  // TODO this causes the resection control points not to load????
+  // When does this function get called? Who calls it...
+  //this->OnMRMLSceneEndClose();
 }
 
 //------------------------------------------------------------------------------
