@@ -84,7 +84,7 @@ int vtkMRMLResectionSurfaceStorageNode::ReadDataInternal(vtkMRMLNode *refNode)
 
   // cast the input node
   vtkMRMLResectionSurfaceNode *resectionSurfaceNode =  dynamic_cast < vtkMRMLResectionSurfaceNode *> (refNode);
-  vtkPoints* controlPoints = NULL;
+  vtkSmartPointer<vtkPoints> controlPoints = vtkSmartPointer<vtkPoints>::New();
 
   std::string fullName = this->GetFullNameFromFileName();
   if (fullName.empty())
@@ -102,11 +102,10 @@ int vtkMRMLResectionSurfaceStorageNode::ReadDataInternal(vtkMRMLNode *refNode)
     // Get the data back out
     //http://www.vtk.org/Wiki/VTK/Examples/Cxx/PolyData/FieldData
     vtkDataArray* temp = vtkData->GetFieldData()->GetArray("controlPoints");
-    controlPoints = vtkPoints::New();
     controlPoints->SetData(temp);
   }
 
-  if(controlPoints != NULL)
+  if(controlPoints->GetNumberOfPoints() > 0)
   {
     // Do something with the retrieved array
     // to set it back to the variables needed in vtkMRMLResectionSurfaceNode
@@ -115,7 +114,7 @@ int vtkMRMLResectionSurfaceStorageNode::ReadDataInternal(vtkMRMLNode *refNode)
     resectionSurfaceNode->SetControlPoints(controlPoints);
   }
   // if have not found any extra polydata to represent the control points
-  else if(controlPoints == NULL)
+  else
   {
     std::cout << "RP-StorageNode - ReadDataInternal: field data nullptr " << std::endl;
     // do something else - just load the polydata?

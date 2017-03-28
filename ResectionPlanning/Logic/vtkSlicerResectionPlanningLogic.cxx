@@ -467,9 +467,9 @@ vtkMRMLResectionSurfaceNode* vtkSlicerResectionPlanningLogic::AddResectionSurfac
   {
     return 0;
   }
-  vtkNew<vtkMRMLResectionSurfaceNode> resectionNode;
-  vtkNew<vtkMRMLResectionSurfaceDisplayNode> resectionDisplayNode;
-  vtkNew<vtkMRMLResectionSurfaceStorageNode> resectionStorageNode;
+  vtkSmartPointer<vtkMRMLResectionSurfaceNode> resectionNode = vtkSmartPointer<vtkMRMLResectionSurfaceNode>::New();
+  vtkSmartPointer<vtkMRMLResectionSurfaceDisplayNode> resectionDisplayNode = vtkSmartPointer<vtkMRMLResectionSurfaceDisplayNode>::New();
+  vtkSmartPointer<vtkMRMLResectionSurfaceStorageNode> resectionStorageNode = vtkSmartPointer<vtkMRMLResectionSurfaceStorageNode>::New();
   vtkSmartPointer<vtkMRMLStorageNode> storageNode;
 
   // check for local or remote files
@@ -509,14 +509,12 @@ vtkMRMLResectionSurfaceNode* vtkSlicerResectionPlanningLogic::AddResectionSurfac
     std::string uname( this->GetMRMLScene()->GetUniqueNameByString(baseName.c_str()));
     resectionNode->SetName(uname.c_str());
 
-    this->GetMRMLScene()->SaveStateForUndo();
-
     this->GetMRMLScene()->AddNode(resectionStorageNode.GetPointer());
     this->GetMRMLScene()->AddNode(resectionDisplayNode.GetPointer());
 
     // Set the scene so that SetAndObserve[Display|Storage]NodeID can find the
     // node in the scene (so that DisplayNodes return something not empty)
-    resectionNode->SetScene(this->GetMRMLScene());
+    //resectionNode->SetScene(this->GetMRMLScene());
     resectionNode->SetAndObserveStorageNodeID(resectionStorageNode->GetID());
     resectionNode->SetAndObserveDisplayNodeID(resectionDisplayNode->GetID());
 
