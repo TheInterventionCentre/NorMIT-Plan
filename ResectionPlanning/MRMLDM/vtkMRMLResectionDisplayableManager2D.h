@@ -122,7 +122,14 @@ vtkMRMLResectionDisplayableManager2D
    *
    * @param node pointer to a resection node to be observed.
    */
-  void SetAndObserveNode(vtkMRMLResectionSurfaceNode *node);
+  void SetAndObserveResectionNode(vtkMRMLResectionSurfaceNode *node);
+
+  /**
+   * Observe the slice node for modifications.
+   *
+   * @param node pointer to ta slicenode node.
+   */
+  void SetAndObserveSliceNode(vtkMRMLSliceNode *node);
 
   /**
    * Render the scene due to changes in MRML scene.

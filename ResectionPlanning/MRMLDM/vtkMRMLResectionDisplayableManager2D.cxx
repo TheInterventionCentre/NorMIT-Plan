@@ -60,7 +60,6 @@
 //------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkMRMLResectionDisplayableManager2D);
 
-
 //------------------------------------------------------------------------------
 vtkMRMLResectionDisplayableManager2D::
 vtkMRMLResectionDisplayableManager2D()
@@ -73,7 +72,6 @@ vtkMRMLResectionDisplayableManager2D::
 ~vtkMRMLResectionDisplayableManager2D()
 {
 }
-
 
 //------------------------------------------------------------------------------
 void vtkMRMLResectionDisplayableManager2D::
@@ -177,8 +175,7 @@ OnMRMLSceneNodeAdded(vtkMRMLNode *node)
     return;
     }
 
-  vtkMRMLSliceNode *sliceNode = this->GetMRMLSliceNode();
-  if (!sliceNode)
+  if (!this->GetMRMLSliceNode())
     {
     vtkErrorMacro("No slice node present");
     return;
@@ -190,29 +187,34 @@ OnMRMLSceneNodeAdded(vtkMRMLNode *node)
     return;
     }
 
-  // Check this is a resection node (we do not care about the others)
+  // Check this is a resection node.
   vtkMRMLResectionSurfaceNode *resectionNode =
     vtkMRMLResectionSurfaceNode::SafeDownCast(node);
-  if (!resectionNode)
+  if (resectionNode)
     {
-    return;
+    // Check whether the node has an associated representation
+    ResectionActorIt it = ResectionActorMap.find(resectionNode);
+    if (it != ResectionActorMap.end())
+      {
+      return;
+      }
+
+    if (!this->AddRepresentation(resectionNode))
+      {
+      return;
+      }
+
+    this->SetAndObserveResectionNode(resectionNode);
+
+    this->RequestRender();
     }
 
-  // Check whether the node has an associated representation
-  ResectionActorIt it = ResectionActorMap.find(resectionNode);
-  if (it != ResectionActorMap.end())
+  vtkMRMLSliceNode *sliceNode =
+    vtkMRMLSliceNode::SafeDownCast(node);
+  if (sliceNode)
     {
-    return;
+    this->SetAndObserveSliceNode(sliceNode);
     }
-
-  if (!this->AddRepresentation(resectionNode))
-    {
-    return;
-    }
-
-  vtkObserveMRMLNodeMacro(node);
-
-  this->RequestRender();
 }
 
 //------------------------------------------------------------------------------
@@ -238,61 +240,66 @@ OnMRMLSceneNodeRemoved(vtkMRMLNode *node)
 
   vtkMRMLResectionSurfaceNode *resectionNode =
     vtkMRMLResectionSurfaceNode::SafeDownCast(node);
-  if (!resectionNode)
+  if (resectionNode)
     {
-    return;
+    // this->SetUpdateFromMRMLRequested(1);
+
+    // if (this->GetMRMLScene()->IsBatchProcessing())
+    //   {
+    //   return;
+    //   }
+
+    // Check if the node is in our association map (actors)
+    ResectionActorIt actorIt = this->ResectionActorMap.find(resectionNode);
+    if (actorIt != this->ResectionActorMap.end())
+      {
+      // Remove the corresponding actor from the scene
+      vtkActor2D *actor = actorIt->second;
+      this->GetRenderer()->RemoveActor(actor);
+
+      // Remove the association
+      this->ResectionActorMap.erase(actorIt);
+      }
+
+    // Check if the node is in our association map (mapper)
+    ResectionMapperIt mapIt = this->ResectionMapperMap.find(resectionNode);
+    if (mapIt != this->ResectionMapperMap.end())
+      {
+      this->ResectionMapperMap.erase(mapIt);
+      }
+
+    // Check if the node is in our association map (transform filter)
+    ResectionTransformFilterIt trIt =
+      this->ResectionTransformFilterMap.find(resectionNode);
+    if (trIt != this->ResectionTransformFilterMap.end())
+      {
+      this->ResectionTransformFilterMap.erase(trIt);
+      }
+
+    // Check inf the node is in our association map (cutter)
+    ResectionCutterIt cutIt =
+      this->ResectionCutterMap.find(resectionNode);
+    if (cutIt != this->ResectionCutterMap.end())
+      {
+      this->ResectionCutterMap.erase(cutIt);
+      }
+
+    ResectionBezierIt bezierIt = this->ResectionBezierMap.find(resectionNode);
+    if (bezierIt != this->ResectionBezierMap.end())
+      {
+      this->ResectionBezierMap.erase(bezierIt);
+      }
+
+    // Remove the observations from the node
+    vtkUnObserveMRMLNodeMacro(resectionNode);
     }
 
-  // this->SetUpdateFromMRMLRequested(1);
-
-  // if (this->GetMRMLScene()->IsBatchProcessing())
-  //   {
-  //   return;
-  //   }
-
-  // Check if the node is in our association map (actors)
-  ResectionActorIt actorIt = this->ResectionActorMap.find(resectionNode);
-  if (actorIt != this->ResectionActorMap.end())
+  vtkMRMLSliceNode *sliceNode =
+    vtkMRMLSliceNode::SafeDownCast(node);
+  if (sliceNode)
     {
-    // Remove the corresponding actor from the scene
-    vtkActor2D *actor = actorIt->second;
-    this->GetRenderer()->RemoveActor(actor);
-
-    // Remove the association
-    this->ResectionActorMap.erase(actorIt);
+    vtkUnObserveMRMLNodeMacro(sliceNode);
     }
-
-  // Check if the node is in our association map (mapper)
-  ResectionMapperIt mapIt = this->ResectionMapperMap.find(resectionNode);
-  if (mapIt != this->ResectionMapperMap.end())
-    {
-    this->ResectionMapperMap.erase(mapIt);
-    }
-
-  // Check if the node is in our association map (transform filter)
-  ResectionTransformFilterIt trIt =
-    this->ResectionTransformFilterMap.find(resectionNode);
-  if (trIt != this->ResectionTransformFilterMap.end())
-    {
-    this->ResectionTransformFilterMap.erase(trIt);
-    }
-
-  // Check inf the node is in our association map (cutter)
-  ResectionCutterIt cutIt =
-    this->ResectionCutterMap.find(resectionNode);
-  if (cutIt != this->ResectionCutterMap.end())
-    {
-    this->ResectionCutterMap.erase(cutIt);
-    }
-
-  ResectionBezierIt bezierIt = this->ResectionBezierMap.find(resectionNode);
-  if (bezierIt != this->ResectionBezierMap.end())
-    {
-    this->ResectionBezierMap.erase(bezierIt);
-    }
-
-  // Remove the observations from the node
-  vtkUnObserveMRMLNodeMacro(resectionNode);
 }
 
 //------------------------------------------------------------------------------
@@ -344,7 +351,7 @@ void vtkMRMLResectionDisplayableManager2D::UpdateFromMRML()
 
 //------------------------------------------------------------------------------
 void vtkMRMLResectionDisplayableManager2D::
-SetAndObserveNode(vtkMRMLResectionSurfaceNode *node)
+SetAndObserveResectionNode(vtkMRMLResectionSurfaceNode *node)
 {
   if (!node)
     {
@@ -362,40 +369,72 @@ SetAndObserveNode(vtkMRMLResectionSurfaceNode *node)
 
 //------------------------------------------------------------------------------
 void vtkMRMLResectionDisplayableManager2D::
+SetAndObserveSliceNode(vtkMRMLSliceNode *node)
+{
+  if (!node)
+    {
+    vtkErrorMacro("No node passed.");
+    return;
+    }
+
+  vtkNew<vtkIntArray> nodeEvents;
+  nodeEvents->InsertNextValue(vtkCommand::ModifiedEvent);
+
+  vtkUnObserveMRMLNodeMacro(node);
+  vtkObserveMRMLNodeEventsMacro(node, nodeEvents.GetPointer());
+}
+
+//------------------------------------------------------------------------------
+void vtkMRMLResectionDisplayableManager2D::
 ProcessMRMLNodesEvents(vtkObject *caller,
                        unsigned long int eventId,
-                       void *vtkNotUsed(callData))
+                       void *callData)
 {
   vtkMRMLResectionSurfaceNode *resectionNode =
     vtkMRMLResectionSurfaceNode::SafeDownCast(caller);
 
-  if (!resectionNode)
+  if (resectionNode)
     {
-    return;
+    // Check whether the manager is handling the node
+    ResectionActorIt it = this->ResectionActorMap.find(resectionNode);
+    if (it == this->ResectionActorMap.end())
+      {
+      vtkErrorMacro("Resection node is not currently "
+                    << "handled by the displayable manager");
+      return;
+      }
+
+    switch(eventId)
+      {
+      case vtkCommand::ModifiedEvent:
+        this->UpdateGeometry(resectionNode);
+        break;
+
+      case vtkMRMLDisplayableNode::DisplayModifiedEvent:
+        this->UpdateVisibility(resectionNode);
+        break;
+
+      default:
+        break;
+      }
     }
 
-  // Check whether the manager is handling the node
-  ResectionActorIt it = this->ResectionActorMap.find(resectionNode);
-  if (it == this->ResectionActorMap.end())
+  vtkMRMLSliceNode *sliceNode =
+    vtkMRMLSliceNode::SafeDownCast(caller);
+  if (sliceNode == this->GetMRMLSliceNode())
     {
-    vtkErrorMacro("Resection node is not currently "
-                  << "handled by the displayable manager");
-    return;
+
+    // Update all resection projections
+    ResectionActorIt it;
+    for (it=this->ResectionActorMap.begin();
+         it!=this->ResectionActorMap.end();
+         it++)
+      {
+      this->UpdateGeometry(it->first);
+      }
     }
 
-  switch(eventId)
-    {
-    case vtkCommand::ModifiedEvent:
-      this->UpdateGeometry(resectionNode);
-      break;
-
-    case vtkMRMLDisplayableNode::DisplayModifiedEvent:
-      this->UpdateVisibility(resectionNode);
-      break;
-
-    default:
-      break;
-    }
+  this->Superclass::ProcessMRMLNodesEvents(caller, eventId, callData);
 }
 
 //------------------------------------------------------------------------------
@@ -560,6 +599,7 @@ UpdateGeometry(vtkMRMLResectionSurfaceNode *node)
   vtkSmartPointer<vtkMatrix4x4> invertedRASToXYMatrix =
     vtkSmartPointer<vtkMatrix4x4>::New();
   invertedRASToXYMatrix->DeepCopy(this->GetMRMLSliceNode()->GetXYToRAS());
+  invertedRASToXYMatrix->Invert();
 
   vtkSmartPointer<vtkTransform> rasToXYTrasnform =
     vtkSmartPointer<vtkTransform>::New();
