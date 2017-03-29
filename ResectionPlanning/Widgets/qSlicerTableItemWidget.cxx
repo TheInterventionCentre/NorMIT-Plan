@@ -78,17 +78,17 @@ QString qSlicerTableItemWidget::getResectionID()
 /*
  * SLOTS for widgets to connect with
  */
-void qSlicerTableItemWidget::visibleCheckBoxChanged(bool state)
+void qSlicerTableItemWidget::visibleCheckboxChanged(bool state)
 {
   std::cout << "table item - visibility checkbox: " << state << ", in: " << this->resectionID.toStdString() << '\n';
 }
 
-void qSlicerTableItemWidget::marginSliderChanged(int value)
-{
-  std::cout << "table item - slider: " << value << ", in: " << this->resectionID.toStdString() << '\n';
-}
-
-void qSlicerTableItemWidget::widgetCheckBoxChanged(bool state)
+void qSlicerTableItemWidget::widgetCheckboxChanged(bool state)
 {
   std::cout << "table item - widget checkbox: " << state << ", in: " << this->resectionName.toStdString() << '\n';
+}
+
+void qSlicerTableItemWidget::marginSliderChanged(double value)
+{
+  std::cout << "table item - slider: " << value << ", in: " << this->resectionID.toStdString() << '\n';
 }

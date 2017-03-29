@@ -73,27 +73,49 @@ public:
   void setResectionID(QString&);
   QString getResectionID();
 
+signals:
+  /**
+  * Used to set the visibility checkbox state
+  *
+  * @param bool for state of checkbox
+  */
+  void setVisibleCheckbox(bool);
+
+  /**
+  * Used to set the widget checkbox state
+  *
+  * @param bool for state of checkbox
+  */
+  void setWidgetCheckbox(bool);
+
+  /**
+  * Used to set the slider value
+  *
+  * @param double for value of slider
+  */
+  void setMarginSlider(double);
+
 protected slots:
   /**
    * Called when the visibility checkbox state is changed
    *
    * @param bool for state of checkbox
    */
-  void visibleCheckBoxChanged(bool);
-
-  /**
-   * Called when the visibility checkbox state is changed
-   *
-   * @param int for value of slider
-   */
-  void marginSliderChanged(int);
+  void visibleCheckboxChanged(bool);
 
   /**
    * Called when the widget checkbox state is changed
    *
    * @param bool for state of checkbox
    */
-  void widgetCheckBoxChanged(bool);
+  void widgetCheckboxChanged(bool);
+
+  /**
+   * Called when the visibility checkbox state is changed
+   *
+   * @param double for value of slider
+   */
+  void marginSliderChanged(double);
 
 private:
   QString resectionName;

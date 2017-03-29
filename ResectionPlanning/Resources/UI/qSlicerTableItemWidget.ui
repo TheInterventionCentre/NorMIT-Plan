@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>390</width>
-    <height>46</height>
+    <width>454</width>
+    <height>59</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -18,20 +18,50 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>381</width>
-     <height>31</height>
+     <width>398</width>
+     <height>37</height>
     </rect>
    </property>
    <layout class="QGridLayout" name="gridLayout">
-    <item row="0" column="2">
-     <widget class="QLabel" name="visibilityLabel">
-      <property name="text">
-       <string>visibility:</string>
+    <property name="sizeConstraint">
+     <enum>QLayout::SetDefaultConstraint</enum>
+    </property>
+    <item row="0" column="3">
+     <widget class="ctkSliderWidget" name="marginSlider">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>100</width>
+        <height>20</height>
+       </size>
+      </property>
+      <property name="decimals">
+       <number>0</number>
+      </property>
+      <property name="maximum">
+       <double>100.000000000000000</double>
       </property>
      </widget>
     </item>
-    <item row="0" column="3">
+    <item row="0" column="1">
      <widget class="QCheckBox" name="resectionVisibleCheckbox">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>20</width>
+        <height>20</height>
+       </size>
+      </property>
       <property name="text">
        <string/>
       </property>
@@ -42,65 +72,97 @@
     </item>
     <item row="0" column="0">
      <widget class="QLabel" name="resectionName">
+      <property name="enabled">
+       <bool>true</bool>
+      </property>
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>100</width>
+        <height>20</height>
+       </size>
+      </property>
       <property name="text">
        <string>TextLabel</string>
       </property>
      </widget>
     </item>
     <item row="0" column="5">
-     <widget class="QSlider" name="marginSlider">
-      <property name="maximum">
-       <number>50</number>
+     <widget class="QCheckBox" name="widgetVisibleCheckbox">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
       </property>
-      <property name="orientation">
-       <enum>Qt::Horizontal</enum>
+      <property name="minimumSize">
+       <size>
+        <width>20</width>
+        <height>20</height>
+       </size>
       </property>
-     </widget>
-    </item>
-    <item row="0" column="7">
-     <widget class="QCheckBox" name="widgetVisiblecheckBox">
       <property name="text">
        <string/>
+      </property>
+      <property name="checked">
+       <bool>true</bool>
       </property>
      </widget>
     </item>
     <item row="0" column="4">
-     <widget class="QLabel" name="marginLabel">
-      <property name="text">
-       <string>margin:</string>
-      </property>
-     </widget>
-    </item>
-    <item row="0" column="1">
      <spacer name="horizontalSpacer">
       <property name="orientation">
        <enum>Qt::Horizontal</enum>
       </property>
+      <property name="sizeType">
+       <enum>QSizePolicy::Fixed</enum>
+      </property>
       <property name="sizeHint" stdset="0">
        <size>
-        <width>40</width>
+        <width>20</width>
         <height>20</height>
        </size>
       </property>
      </spacer>
     </item>
-    <item row="0" column="6">
-     <widget class="QLabel" name="widgetLabel">
-      <property name="text">
-       <string>widget:</string>
+    <item row="0" column="2">
+     <spacer name="horizontalSpacer_2">
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
       </property>
-     </widget>
+      <property name="sizeType">
+       <enum>QSizePolicy::Fixed</enum>
+      </property>
+      <property name="sizeHint" stdset="0">
+       <size>
+        <width>20</width>
+        <height>20</height>
+       </size>
+      </property>
+     </spacer>
     </item>
    </layout>
   </widget>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>ctkSliderWidget</class>
+   <extends>QWidget</extends>
+   <header>ctkSliderWidget.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections>
   <connection>
    <sender>resectionVisibleCheckbox</sender>
    <signal>toggled(bool)</signal>
    <receiver>qSlicerTableItem</receiver>
-   <slot>visibleCheckBoxChanged(bool)</slot>
+   <slot>visibleCheckboxChanged(bool)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>187</x>
@@ -113,26 +175,10 @@
    </hints>
   </connection>
   <connection>
-   <sender>marginSlider</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>qSlicerTableItem</receiver>
-   <slot>marginSliderChanged(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>288</x>
-     <y>14</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>168</x>
-     <y>23</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>widgetVisiblecheckBox</sender>
+   <sender>widgetVisibleCheckbox</sender>
    <signal>toggled(bool)</signal>
    <receiver>qSlicerTableItem</receiver>
-   <slot>widgetCheckBoxChanged(bool)</slot>
+   <slot>widgetCheckboxChanged(bool)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>371</x>
@@ -141,6 +187,70 @@
     <hint type="destinationlabel">
      <x>194</x>
      <y>22</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>marginSlider</sender>
+   <signal>valueChanged(double)</signal>
+   <receiver>qSlicerTableItem</receiver>
+   <slot>marginSliderChanged(double)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>261</x>
+     <y>14</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>194</x>
+     <y>22</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>qSlicerTableItem</sender>
+   <signal>setMarginSlider(double)</signal>
+   <receiver>marginSlider</receiver>
+   <slot>setValue(double)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>226</x>
+     <y>29</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>249</x>
+     <y>17</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>qSlicerTableItem</sender>
+   <signal>setVisibleCheckbox(bool)</signal>
+   <receiver>resectionVisibleCheckbox</receiver>
+   <slot>setChecked(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>226</x>
+     <y>29</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>118</x>
+     <y>18</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>qSlicerTableItem</sender>
+   <signal>setWidgetCheckbox(bool)</signal>
+   <receiver>widgetVisibleCheckbox</receiver>
+   <slot>setChecked(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>226</x>
+     <y>29</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>387</x>
+     <y>18</y>
     </hint>
    </hints>
   </connection>
