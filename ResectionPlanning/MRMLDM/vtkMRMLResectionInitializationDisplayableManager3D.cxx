@@ -250,7 +250,6 @@ AddWidget(vtkMRMLResectionInitializationNode *initializationNode)
 
   // Register the node-widget association
   this->NodeWidgetMap[initializationNode] = lineWidget;
-  vtkDebugMacro("AddWidget: saved to helper.");
 
   vtkSmartPointer<vtkCallbackCommand> lineWidgetChanged =
     vtkSmartPointer<vtkCallbackCommand>::New();

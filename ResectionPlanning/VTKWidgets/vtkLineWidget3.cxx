@@ -111,7 +111,9 @@ vtkLineWidget3::vtkLineWidget3()
 
   // Placing the slicing contour into scene
   this->SlicingContourMapper->SetInputConnection(this->Cutter->GetOutputPort());
+  this->SlicingContourMapper->ScalarVisibilityOff();
   this->SlicingContourActor->SetMapper(this->SlicingContourMapper.GetPointer());
+
 
   // Crate the default visualization properties.
   this->CreateDefaultProperties();
@@ -257,6 +259,7 @@ void vtkLineWidget3::CreateDefaultProperties()
   this->LineProperty->LightingOff();
 
   this->SlicingContourProperty->SetColor(1.0, 1.0, 1.0);
+  this->SlicingContourProperty->SetOpacity(1.0);
   this->SlicingContourProperty->LightingOff();
   this->SlicingContourProperty->SetLineWidth(3.0);
 }
