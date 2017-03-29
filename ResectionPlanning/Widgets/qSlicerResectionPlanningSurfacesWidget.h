@@ -131,8 +131,7 @@ protected slots:
   /**
    * Triggered when the selection of current resection surface is changed
    */
-  void OnCurrentResectionSurfaceChanged(QTableWidgetItem*,QTableWidgetItem*);
-
+  void OnCurrentResectionSurfaceChanged(int, int, int, int);
 
 protected:
   QScopedPointer<qSlicerResectionPlanningSurfacesWidgetPrivate> d_ptr;
