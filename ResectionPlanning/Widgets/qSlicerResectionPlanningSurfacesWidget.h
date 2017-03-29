@@ -38,8 +38,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class qSlicerResectionPlanningSurfacesWidgetPrivate;
 class QString;
-class QListWidget;
-class QListWidgetItem;
+class QTableWidget;
+class QTableWidgetItem;
 
 /**
  *  \ingroup ResectionPlanning
@@ -56,8 +56,6 @@ public:
   typedef QWidget Superclass;
   qSlicerResectionPlanningSurfacesWidget(QWidget *parent=0);
   virtual ~qSlicerResectionPlanningSurfacesWidget();
-
-  void AddSurfaceTableEntry(QVector<QColor> &colors, double safetyMargin);
 
   /**
    * Selects a resection in the list of resections (listResectionSurfaces)
@@ -133,7 +131,7 @@ protected slots:
   /**
    * Triggered when the selection of current resection surface is changed
    */
-  void OnCurrentResectionSurfaceChanged(QListWidgetItem*,QListWidgetItem*);
+  void OnCurrentResectionSurfaceChanged(QTableWidgetItem*,QTableWidgetItem*);
 
 
 protected:
@@ -143,7 +141,7 @@ private:
   Q_DECLARE_PRIVATE(qSlicerResectionPlanningSurfacesWidget);
   Q_DISABLE_COPY(qSlicerResectionPlanningSurfacesWidget);
 
-  QMap<QString, QListWidgetItem*> resectionIDtoItemMap;
+  QMap<QString, int> resectionIDtoRowMap;
 };
 
 #endif

@@ -89,9 +89,17 @@ int qSlicerSurfaceWidgetTest( int argc, char *argv[] )
     return EXIT_FAILURE;
   }
 
+  // check that no resection is currently selected
+  QString currentResection = surfacesWidget->GetCurrentResectionID();
+  if(currentResection != NULL)
+  {
+    std::cerr << "resection1 not successfully selected as current resection" << std::endl;
+    return EXIT_FAILURE;
+  }
+
   // select the resection, and check its the current resection
   surfacesWidget->SelectResection(idresection1);
-  QString currentResection = surfacesWidget->GetCurrentResectionID();
+  currentResection = surfacesWidget->GetCurrentResectionID();
   if(currentResection != idresection1)
   {
     std::cerr << "resection1 not successfully selected as current resection" << std::endl;

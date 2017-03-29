@@ -24,16 +24,20 @@ class Q_SLICER_MODULE_RESECTIONPLANNING_WIDGETS_EXPORT qSlicerTableItemWidget : 
 
 public:
   qSlicerTableItemWidget(QWidget *parent = 0);
+  virtual ~qSlicerTableItemWidget();
 
   int type() const;
 
   virtual QTableWidgetItem *clone() const;
 
   void setText(QString&);
+  QString text();
 
 private:
   Ui::qSlicerTableItem ui;
-
 };
+
+Q_DECLARE_METATYPE(qSlicerTableItemWidget*);
+
 
 #endif /* RESECTIONPLANNING_WIDGETS_QSLICERTABLEITEMWIDGET_H_ */

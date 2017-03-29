@@ -56,16 +56,6 @@
     <widget class="QTableWidget" name="tableResectionSurfaces"/>
    </item>
    <item>
-    <widget class="QListWidget" name="listResectionSurfaces">
-     <property name="minimumSize">
-      <size>
-       <width>0</width>
-       <height>100</height>
-      </size>
-     </property>
-    </widget>
-   </item>
-   <item>
     <spacer name="verticalSpacer">
      <property name="orientation">
       <enum>Qt::Vertical</enum>
@@ -81,22 +71,5 @@
   </layout>
  </widget>
  <resources/>
- <connections>
-  <connection>
-   <sender>listResectionSurfaces</sender>
-   <signal>currentItemChanged(QListWidgetItem*,QListWidgetItem*)</signal>
-   <receiver>qSlicerResectionPlanningSurfacesWidget</receiver>
-   <slot>OnCurrentResectionSurfaceChanged(QListWidgetItem*,QListWidgetItem*)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>308</x>
-     <y>190</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>308</x>
-     <y>280</y>
-    </hint>
-   </hints>
-  </connection>
- </connections>
+ <connections/>
 </ui>

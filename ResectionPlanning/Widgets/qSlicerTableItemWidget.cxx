@@ -15,6 +15,12 @@ qSlicerTableItemWidget::qSlicerTableItemWidget(QWidget *parent) :
   ui.setupUi(this);
 }
 
+qSlicerTableItemWidget
+::~qSlicerTableItemWidget()
+{
+
+}
+
 int qSlicerTableItemWidget::type() const
 {
   return 1001;
@@ -30,6 +36,9 @@ void qSlicerTableItemWidget::setText(QString &name)
   ui.resectionName->setText(name);
 }
 
-Q_DECLARE_METATYPE(qSlicerTableItemWidget*);
+QString qSlicerTableItemWidget::text()
+{
+  return ui.resectionName->text();
+}
 
 
