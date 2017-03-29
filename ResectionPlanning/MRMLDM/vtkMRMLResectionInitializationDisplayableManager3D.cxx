@@ -205,9 +205,6 @@ OnMRMLSceneNodeAdded(vtkMRMLNode *node)
     return;
     }
 
-  vtkDebugMacro("OnMRMLSceneNodeAddedEvent: widget was created and "
-                << "saved to helper records");
-
   this->SetAndObserveNode(initializationNode);
 
   this->RequestRender();
@@ -290,7 +287,7 @@ UpdateMRML(vtkObject *caller,
     static_cast<vtkMRMLResectionInitializationNode*>(clientData);
   if (!node)
     {
-    std::cerr << "Client data (initialization node) not valid" << std::endl;
+    std::cerr << "Client data (initialization node) not valid." << std::endl;
     return;
     }
 

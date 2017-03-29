@@ -53,6 +53,12 @@
 #include <vtkCallbackCommand.h>
 #include <vtkPointData.h>
 #include <vtkContourFilter.h>
+#include <vtkPolyDataMapper.h>
+#include <vtkActor.h>
+#include <vtkRenderer.h>
+#include <vtkPolyDataNormals.h>
+#include <vtkColorTransferFunction.h>
+#include <vtkXMLPolyDataWriter.h>
 
 //------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkMRMLResectionDisplayableManager3D);
@@ -188,24 +194,110 @@ AddWidget(vtkMRMLResectionSurfaceNode *resectionNode)
     vtkSmartPointer<vtkBezierSurfaceWidget>::New();
   surfaceWidget->SetInteractor(this->GetInteractor());
   surfaceWidget->SetCurrentRenderer(this->GetRenderer());
-  surfaceWidget->SetControlPoints(resectionNode->GetControlPoints());
+  surfaceWidget->SetHandleSizeFactor(0.8);
   surfaceWidget->On();
+  surfaceWidget->SetControlPoints(resectionNode->GetControlPoints());
 
   // Register the node-widget association.
   this->NodeWidgetMap[resectionNode] = surfaceWidget;
 
-  vtkSmartPointer<vtkCallbackCommand> bezierWidgetChanged =
+  vtkSmartPointer<vtkCallbackCommand> updateMRMLCallback =
     vtkSmartPointer<vtkCallbackCommand>::New();
-  bezierWidgetChanged->SetCallback(this->UpdateMRML);
-  bezierWidgetChanged->SetClientData(resectionNode);
+  updateMRMLCallback->SetCallback(this->UpdateMRML);
+  updateMRMLCallback->SetClientData(resectionNode);
   surfaceWidget->AddObserver(vtkCommand::StartInteractionEvent,
-                             bezierWidgetChanged);
+                             updateMRMLCallback);
   surfaceWidget->AddObserver(vtkCommand::EndInteractionEvent,
-                             bezierWidgetChanged);
+                             updateMRMLCallback);
 
-  resectionNode->SetControlPoints(surfaceWidget->GetControlPoints());
+  vtkSmartPointer<vtkCallbackCommand> updateDistanceMapCallback =
+    vtkSmartPointer<vtkCallbackCommand>::New();
+  updateDistanceMapCallback->SetCallback(this->UpdateDistanceMap);
+  updateDistanceMapCallback->SetClientData(this);
+  surfaceWidget->AddObserver(vtkCommand::StartInteractionEvent,
+                             updateDistanceMapCallback);
+  surfaceWidget->AddObserver(vtkCommand::EndInteractionEvent,
+                             updateDistanceMapCallback);
 
   return true;
+}
+
+//------------------------------------------------------------------------------
+void vtkMRMLResectionDisplayableManager3D::
+AddDistanceMapPipeline(vtkMRMLResectionSurfaceNode *node)
+{
+  vtkDebugMacro("CreateDistanceMapPipeline");
+
+  if (!node)
+    {
+    vtkErrorMacro("No node passed.");
+    return;
+    }
+
+  if (!this->GetRenderer())
+    {
+    vtkErrorMacro("No renderer present.");
+    return;
+    }
+
+  // Create and register the distance filter
+  vtkSmartPointer<vtkHausdorffDistancePointSetFilter> distanceFilter =
+    vtkSmartPointer<vtkHausdorffDistancePointSetFilter>::New();
+  distanceFilter->SetTargetDistanceMethod(0);
+  NodeDistanceFilterMap[node] = distanceFilter;
+
+  // Create normals filter
+  vtkSmartPointer<vtkPolyDataNormals> normals =
+    vtkSmartPointer<vtkPolyDataNormals>::New();
+  normals->SetInputConnection(distanceFilter->GetOutputPort());
+
+  // Create the contour filter
+  vtkSmartPointer<vtkContourFilter> contourFilter =
+    vtkSmartPointer<vtkContourFilter>::New();
+  contourFilter->SetInputConnection(distanceFilter->GetOutputPort());
+  contourFilter->SetNumberOfContours(1);
+  contourFilter->SetValue(0, node->GetResectionMargin());
+
+  // Create and register the color map
+  vtkSmartPointer<vtkColorTransferFunction> colorMap =
+    vtkSmartPointer<vtkColorTransferFunction>::New();
+  colorMap->AddRGBPoint(0.0, 1.0, 1.0, 0.0);
+  colorMap->AddRGBPoint(0.0, 1.0, 1.0, 0.0);
+  colorMap->AddRGBPoint(node->GetResectionMargin(), 1.0, 1.0, 0.0);
+  colorMap->AddRGBPoint(node->GetResectionMargin() + 0.00001, 1.0, 1.0, 1.0);
+  colorMap->AddRGBPoint(100.0, 1.0, 1.0, 1.0);
+
+  // Create the mapper for the distance map
+  vtkSmartPointer<vtkPolyDataMapper> distanceMapper =
+    vtkSmartPointer<vtkPolyDataMapper>::New();
+  distanceMapper->SetInputConnection(normals->GetOutputPort());
+  distanceMapper->SetLookupTable(colorMap);
+  distanceMapper->ScalarVisibilityOn();
+  distanceMapper->SetScalarRange(0,100);
+
+  // Create the mapper for the contour
+  vtkSmartPointer<vtkPolyDataMapper> contourMapper =
+    vtkSmartPointer<vtkPolyDataMapper>::New();
+  contourMapper->SetInputConnection(contourFilter->GetOutputPort());
+
+    // Create and register the distance actor
+  vtkSmartPointer<vtkActor> distanceActor = vtkSmartPointer<vtkActor>::New();
+  distanceActor->SetMapper(distanceMapper);
+  //distanceActor->VisibilityOff();
+  NodeDistanceActorMap[node] = distanceActor;
+
+  //Create and register the contour actor
+  vtkSmartPointer<vtkActor> contourActor = vtkSmartPointer<vtkActor>::New();
+  contourActor->SetMapper(contourMapper);
+  contourActor->GetProperty()->SetLineWidth(3);
+  //contourActor->VisibilityOff();
+  NodeContourActorMap[node] = contourActor;
+
+  //vtkPolyDataMapper::SetResolveCoincidentTopologyToPolygonOffset();
+
+  // Add actors to the scene
+  this->GetRenderer()->AddActor(distanceActor);
+  this->GetRenderer()->AddActor(contourActor);
 }
 
 //-------------------------------------------------------------------------------
@@ -326,36 +418,10 @@ OnMRMLSceneNodeAdded(vtkMRMLNode *node)
     return;
     }
 
+  // Add the distance map pipeline
+  this->AddDistanceMapPipeline(resectionSurfaceNode);
 
-  // Connecting the distance maps
-  vtkSmartPointer<vtkCollection> nodes;
-  nodes.TakeReference(this->GetMRMLScene()->
-                      GetNodesByName("LRPJointTumorsModel"));
-  vtkMRMLModelNode *jointTumorsModelNode =
-    vtkMRMLModelNode::SafeDownCast(nodes->GetItemAsObject(0));
-  if (jointTumorsModelNode)
-    {
-    NodeWidgetIt widgetIt = NodeWidgetMap.find(resectionSurfaceNode);
-    if (widgetIt != NodeWidgetMap.end())
-      {
-      vtkSmartPointer<vtkHausdorffDistancePointSetFilter> distanceFilter =
-        vtkSmartPointer<vtkHausdorffDistancePointSetFilter>::New();
-      distanceFilter->SetInputData(0, widgetIt->second->GetBezierSurfacePolyData());
-      distanceFilter->SetInputData(1, jointTumorsModelNode->GetPolyData());
-      distanceFilter->SetTargetDistanceMethod(0);
-      distanceFilter->Update();
-      distanceFilter->GetOutput(0)->GetPointData()->
-        SetScalars(distanceFilter->GetOutput(0)->
-                   GetPointData()->GetArray("Distance"));
-
-      // here!!!
-      }
-
-    }
-
-
-
-  vtkObserveMRMLNodeMacro(node);
+  this->SetAndObserveNode(resectionSurfaceNode);
 
   this->RequestRender();
 }
@@ -466,13 +532,128 @@ UpdateVisibility(vtkMRMLResectionSurfaceNode *node)
   widget->SetEnabled(resectionDisplayNode->GetVisibility());
 }
 
+//------------------------------------------------------------------------------
+void vtkMRMLResectionDisplayableManager3D::
+UpdateDistanceMap(vtkObject *caller,
+                  unsigned long int eventId,
+                  void *clientData,
+                  void *vtkNotUsed(callData))
+{
+  vtkBezierSurfaceWidget *widget =
+    vtkBezierSurfaceWidget::SafeDownCast(caller);
+
+  if (!widget)
+    {
+    std::cerr << "Update from a non vtkBezierWidget" << std::endl;
+    return;
+    }
+
+  vtkMRMLResectionDisplayableManager3D *self =
+    static_cast<vtkMRMLResectionDisplayableManager3D*>(clientData);
+  if (!self)
+    {
+    std::cerr << "No displayable manager passed as clientData." << std::endl;
+    return;
+    }
+
+  //Find the associated resection node
+  NodeWidgetIt widgetIt;
+  for(widgetIt=self->NodeWidgetMap.begin();
+      widgetIt!=self->NodeWidgetMap.end();
+      widgetIt++)
+    {
+    if (widgetIt->second.GetPointer() == widget)
+      {
+      break;
+      }
+    }
+
+  if (widgetIt == self->NodeWidgetMap.end())
+    {
+    std::cerr << "No resection node is associated to the current widget."
+              << std::endl;
+    return;
+    }
+
+  vtkMRMLResectionSurfaceNode *node = widgetIt->first;
+
+  if (!node)
+    {
+    std::cerr << "Surface node not valid" << std::endl;
+    return;
+    }
+
+  if (eventId == vtkCommand::StartInteractionEvent)
+    {
+    widget->BezierSurfaceOn();
+    NodeDistanceActorIt distIt = self->NodeDistanceActorMap.find(node);
+    if (distIt != self->NodeDistanceActorMap.end())
+      {
+      distIt->second->VisibilityOff();
+      }
+
+    NodeContourActorIt contIt = self->NodeContourActorMap.find(node);
+    if (contIt != self->NodeContourActorMap.end())
+      {
+      contIt->second->VisibilityOff();
+      }
+    }
+
+  if (eventId == vtkCommand::EndInteractionEvent)
+    {
+    widget->BezierSurfaceOff();
+
+    if (!self->GetMRMLScene())
+      {
+      std::cerr << "No mrml scene is present." << std::endl;
+      return;
+      }
+
+    vtkSmartPointer<vtkCollection> nodes;
+    nodes.TakeReference(self->GetMRMLScene()->
+                        GetNodesByName("LRPJointTumorsModel"));
+    vtkMRMLModelNode *jointTumorsModelNode =
+      vtkMRMLModelNode::SafeDownCast(nodes->GetItemAsObject(0));
+    if (!jointTumorsModelNode)
+      {
+      std::cerr << "No tumors model node found." << std::endl;
+      return;
+      }
+
+    NodeDistanceFilterIt distFilIt = self->NodeDistanceFilterMap.find(node);
+    if (distFilIt != self->NodeDistanceFilterMap.end())
+      {
+      vtkHausdorffDistancePointSetFilter *distanceFilter = distFilIt->second;
+      distanceFilter->SetInputData(0, widget->GetBezierSurfacePolyData());
+      distanceFilter->SetInputData(1, jointTumorsModelNode->GetPolyData());
+      distanceFilter->Update();
+      distanceFilter->GetOutput(0)->GetPointData()->
+        SetScalars(distanceFilter->GetOutput(0)->
+                   GetPointData()->GetArray("Distance"));
+      }
+
+    NodeDistanceActorIt distActorIt = self->NodeDistanceActorMap.find(node);
+    if (distActorIt != self->NodeDistanceActorMap.end())
+      {
+      distActorIt->second->VisibilityOn();
+      }
+
+    NodeContourActorIt contActorIt = self->NodeContourActorMap.find(node);
+    if (contActorIt != self->NodeContourActorMap.end())
+      {
+      contActorIt->second->VisibilityOn();
+      }
+    }
+
+  self->RequestRender();
+}
 
 //------------------------------------------------------------------------------
 void vtkMRMLResectionDisplayableManager3D::
 UpdateMRML(vtkObject *caller,
            unsigned long int eventId,
            void *clientData,
-           void *vtkNotUsed(callData()))
+           void *vtkNotUsed(callData))
 {
   vtkBezierSurfaceWidget *widget =
     vtkBezierSurfaceWidget::SafeDownCast(caller);
@@ -485,10 +666,9 @@ UpdateMRML(vtkObject *caller,
 
   vtkMRMLResectionSurfaceNode *node =
     static_cast<vtkMRMLResectionSurfaceNode*>(clientData);
-
   if (!node)
     {
-    std::cerr << "Client data (surface node) not valid" << std::endl;
+    std::cerr << "Client data (resection node) not valid." << std::endl;
     return;
     }
 
@@ -500,7 +680,7 @@ UpdateMRML(vtkObject *caller,
     node->InvokeEvent(vtkCommand::StartInteractionEvent);
     }
 
-  if (eventId == vtkCommand::EndInteractionEvent)
+  else if (eventId == vtkCommand::EndInteractionEvent)
     {
     node->InvokeEvent(vtkCommand::EndInteractionEvent);
     }

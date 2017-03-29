@@ -416,14 +416,13 @@ void vtkSlicerResectionPlanningLogic::AddResectionSurface()
     resectionInitializationDisplayNode->GetID());
   scene->AddNode(resectionInitializationNode);
 
-  // Add display node first
+  // Add resection node
   vtkSmartPointer<vtkMRMLResectionSurfaceDisplayNode> resectionDisplayNode =
     vtkSmartPointer<vtkMRMLResectionSurfaceDisplayNode>::New();
   resectionDisplayNode->SetScene(this->GetMRMLScene());
   resectionDisplayNode->ScalarVisibilityOn();
   scene->AddNode(resectionDisplayNode);
 
-  // Then add resection node
   vtkSmartPointer<vtkMRMLResectionSurfaceNode> resectionNode =
     vtkSmartPointer<vtkMRMLResectionSurfaceNode>::New();
   resectionNode->SetScene(this->GetMRMLScene());
@@ -700,6 +699,7 @@ HideResectionSurfaceOnInitialization(vtkMRMLResectionInitializationNode* initNod
     vtkErrorMacro("Error: no display node associated with the resection node.");
     return;
     }
+
 
   displayNode->VisibilityOff();
 }
