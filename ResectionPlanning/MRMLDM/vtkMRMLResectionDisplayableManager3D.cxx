@@ -196,6 +196,7 @@ AddWidget(vtkMRMLResectionSurfaceNode *resectionNode)
   surfaceWidget->SetCurrentRenderer(this->GetRenderer());
   surfaceWidget->SetHandleSizeFactor(0.8);
   surfaceWidget->On();
+  surfaceWidget->ComputeNormalsOn();
   surfaceWidget->SetControlPoints(resectionNode->GetControlPoints());
 
   // Register the node-widget association.
