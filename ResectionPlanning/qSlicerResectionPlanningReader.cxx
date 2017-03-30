@@ -79,8 +79,6 @@ QStringList qSlicerResectionPlanningReader::extensions()const
 //-----------------------------------------------------------------------------
 bool qSlicerResectionPlanningReader::load(const IOProperties& properties)
 {
-  std::cout << "RP-Reader - load called" << std::endl;
-
   Q_D(qSlicerResectionPlanningReader);
   Q_ASSERT(properties.contains("fileName"));
   QString fileName = properties["fileName"].toString();
@@ -90,7 +88,8 @@ bool qSlicerResectionPlanningReader::load(const IOProperties& properties)
   {
     return false;
   }
-  vtkMRMLResectionSurfaceNode* node = d->ResectionPlanningLogic->AddResectionSurface(fileName.toLatin1());
+  vtkMRMLResectionSurfaceNode* node =
+    d->ResectionPlanningLogic->AddResectionSurface(fileName.toLatin1());
   if (!node)
   {
     return false;
@@ -104,5 +103,3 @@ bool qSlicerResectionPlanningReader::load(const IOProperties& properties)
   }
   return true;
 }
-
-

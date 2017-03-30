@@ -113,17 +113,12 @@ int vtkMRMLResectionSurfaceStorageNode::ReadDataInternal(vtkMRMLNode *refNode)
     return 0;
     }
 
-
-  std::cout << "read1" << std::endl;
-
   vtkPolyData* resectionPolyData = resectionSurfaceNode->GetPolyData();
   if (!resectionPolyData)
     {
     vtkErrorMacro("No polydata present in the resection node.");
     return 0;
     }
-
-  std::cout << "read2" << std::endl;
 
   vtkDataArray *dataArray =
     resectionPolyData->GetFieldData()->GetArray("ControlPoints");
@@ -132,13 +127,10 @@ int vtkMRMLResectionSurfaceStorageNode::ReadDataInternal(vtkMRMLNode *refNode)
     vtkErrorMacro("Resection polydata does not contain control points");
     return 0;
     }
-  std::cout << "read3" << std::endl;
 
   controlPoints->SetData(dataArray);
 
   resectionSurfaceNode->SetControlPoints(controlPoints);
-
-  std::cout << "read4" << std::endl;
 
 return result;
 }

@@ -470,12 +470,22 @@ void vtkSlicerResectionPlanningLogic::AddResectionSurface()
 vtkMRMLResectionSurfaceNode* vtkSlicerResectionPlanningLogic::
 AddResectionSurface(const char* filename)
 {
-  std::cout << "Logic - AddResectionSurface" << std::endl;
+  vtkDebugMacro("AddResectionSurface from file");
 
-  if (this->GetMRMLScene() == 0 || filename == 0)
-  {
-    return 0;
-  }
+  if (!this->GetMRMLScene())
+    {
+    vtkErrorMacro("No MRML scene.");
+    return NULL;
+    }
+
+  if (!filename)
+    {
+    vtkErrorMacro("No filename passed.");
+    return NULL;
+    }
+
+  vtkMRMLScene *scene = this->GetMRMLScene();
+
   vtkSmartPointer<vtkMRMLResectionSurfaceNode> resectionNode =
     vtkSmartPointer<vtkMRMLResectionSurfaceNode>::New();
   vtkSmartPointer<vtkMRMLResectionSurfaceDisplayNode> resectionDisplayNode =
@@ -486,9 +496,9 @@ AddResectionSurface(const char* filename)
 
   // check for local or remote files
   int useURI = 0; // false;
-  if (this->GetMRMLScene()->GetCacheManager() != NULL)
+  if (scene->GetCacheManager() != NULL)
   {
-    useURI = this->GetMRMLScene()->GetCacheManager()->IsRemoteReference(filename);
+    useURI = scene->GetCacheManager()->IsRemoteReference(filename);
     vtkDebugMacro("AddResectionSurface: file name is remote: " << filename);
   }
   const char *localFile=0;
@@ -496,7 +506,7 @@ AddResectionSurface(const char* filename)
   {
     resectionStorageNode->SetURI(filename);
     // reset filename to the local file name
-    localFile = ((this->GetMRMLScene())->GetCacheManager())->GetFilenameFromURI(filename);
+    localFile = ((scene)->GetCacheManager())->GetFilenameFromURI(filename);
   }
   else
   {
@@ -518,19 +528,19 @@ AddResectionSurface(const char* filename)
   if (storageNode != NULL)
     {
     std::string baseName = itksys::SystemTools::GetFilenameWithoutExtension(fname);
-    std::string uname( this->GetMRMLScene()->GetUniqueNameByString(baseName.c_str()));
+    std::string uname( scene->GetUniqueNameByString(baseName.c_str()));
     resectionNode->SetName(uname.c_str());
 
-    this->GetMRMLScene()->AddNode(resectionStorageNode.GetPointer());
-    this->GetMRMLScene()->AddNode(resectionDisplayNode.GetPointer());
+    scene->AddNode(resectionStorageNode.GetPointer());
+    scene->AddNode(resectionDisplayNode.GetPointer());
 
     // Set the scene so that SetAndObserve[Display|Storage]NodeID can find the
     // node in the scene (so that DisplayNodes return something not empty)
-    //resectionNode->SetScene(this->GetMRMLScene());
+    //resectionNode->SetScene(scene);
     resectionNode->SetAndObserveStorageNodeID(resectionStorageNode->GetID());
     resectionNode->SetAndObserveDisplayNodeID(resectionDisplayNode->GetID());
 
-    this->GetMRMLScene()->AddNode(resectionNode.GetPointer());
+    scene->AddNode(resectionNode.GetPointer());
 
     // now set up the reading
     vtkDebugMacro("AddModel: calling read on the storage node");
@@ -538,7 +548,7 @@ AddResectionSurface(const char* filename)
     if (retval != 1)
       {
       vtkErrorMacro("AddModel: error reading " << filename);
-      this->GetMRMLScene()->RemoveNode(resectionNode.GetPointer());
+      scene->RemoveNode(resectionNode.GetPointer());
       return 0;
       }
     }
@@ -548,14 +558,13 @@ AddResectionSurface(const char* filename)
     return 0;
     }
 
-  /*
+
   // Inform that resection was added
   std::pair<std::string, std::string> id_name;
   id_name.first = std::string(resectionNode->GetID());
   id_name.second = std::string(resectionNode->GetName());
   this->InvokeEvent(vtkSlicerResectionPlanningLogic::ResectionNodeAdded,
                     static_cast<void*>(&id_name));
-  */
 
   return resectionNode.GetPointer();
 }
@@ -807,7 +816,6 @@ HideResectionSurfaceOnInitialization(vtkMRMLResectionInitializationNode* initNod
     return;
     }
 
-
   displayNode->VisibilityOff();
 }
 
@@ -823,8 +831,9 @@ HideInitializationOnResectionModification(vtkMRMLResectionSurfaceNode* node)
 
 
   // Find the initializatio node
-  ResectionInitializationIt it = ResectionInitializationMap.begin();
-  for(it; it!=ResectionInitializationMap.end(); it++)
+  ResectionInitializationIt it;
+  for(it=ResectionInitializationMap.begin();
+      it!=ResectionInitializationMap.end(); it++)
     {
     if (it->second == node)
       {
