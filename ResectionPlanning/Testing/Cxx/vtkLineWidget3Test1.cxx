@@ -73,7 +73,7 @@ int vtkLineWidget3Test1(int argc, char *argv[])
   vtkNew<vtkLineWidget3> lineWidget;
   lineWidget->SetInteractor(renderWindowInteractor.GetPointer());
   lineWidget->On();
-
+  lineWidget->PlaceWidget();
 
     // Record events
   vtkNew<vtkInteractorEventRecorder> recorder;

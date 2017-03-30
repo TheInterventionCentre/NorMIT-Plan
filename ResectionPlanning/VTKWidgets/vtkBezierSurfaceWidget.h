@@ -43,7 +43,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <vtkProperty.h>
 #include <vtkBezierSurfaceSource.h>
 
-
 //------------------------------------------------------------------------------
 class vtkActor;
 class vtkPolyData;
@@ -52,6 +51,8 @@ class vtkProp;
 class vtkPolyDataMapper;
 class vtkCellPicker;
 class vtkTubeFilter;
+class vtkPoints;
+class vtkPolyDataNormals;
 
 //------------------------------------------------------------------------------
 /**
@@ -261,7 +262,6 @@ class vtkBezierSurfaceWidget: public vtk3DWidget
   void SetBezierSurfaceProperty(vtkProperty *prop)
   {this->BezierSurfaceProperty->DeepCopy(prop);}
 
-
   /**
    *  Get the resizing factor for handles.
    *
@@ -379,6 +379,43 @@ class vtkBezierSurfaceWidget: public vtk3DWidget
    * Disable the Bézier surface.
    */
   void BezierSurfaceOff();
+
+  vtkGetNewMacro(ControlPoints, vtkPoints);
+
+  /**
+   * Set control points
+   *
+   * @param points pointer to vtkPoints.
+   */
+  void SetControlPoints(vtkPoints *points);
+
+    /**
+   * Enable surface normals computation
+   *
+   */
+  void ComputeNormalsOn();
+
+  /**
+   * Disable surface normals computation
+   *
+   */
+  void ComputeNormalsOff();
+
+  /**
+   * Check the compute normals internal flag
+   *
+   *
+   * @return true if normals are to be computed, false otherwise.
+   */
+  bool ComputeNormals()
+  {return this->ComputeNormalsFlag;}
+
+  /**
+   * Enable/Disable normals computation
+   *
+   * @param computeNormals flag indicating whether the normals should be computed.
+   */
+  void ComputeNormals(bool computeNormals);
 
  protected:
 
@@ -567,6 +604,13 @@ class vtkBezierSurfaceWidget: public vtk3DWidget
   vtkNew<vtkBezierSurfaceSource> BezierSurfaceSource;
   vtkNew<vtkPolyDataMapper> BezierSurfaceMapper;
   vtkNew<vtkActor> BezierSurfaceActor;
+
+  // Polydata normals
+  vtkNew<vtkPolyDataNormals> Normals;
+  bool ComputeNormalsFlag;
+
+  // Control points
+  vtkNew<vtkPoints> ControlPoints;
 
  private:
   vtkBezierSurfaceWidget( const vtkBezierSurfaceWidget &) VTK_DELETE_FUNCTION;

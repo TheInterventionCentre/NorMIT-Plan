@@ -44,12 +44,15 @@
 
 // VTK includes
 #include <vtkNew.h>
+#include <vtkSmartPointer.h>
 
 //------------------------------------------------------------------------------
-class vtkMRMLResectionDisplayableManager3DHelper;
 class vtkMRMLResectionSurfaceNode;
-
+class vtkBezierSurfaceWidget;
 class vtk3DWidget;
+class vtkHausdorffDistancePointSetFilter;
+class vtkActor;
+class vtkColorTransferFunction;
 
 //------------------------------------------------------------------------------
 class VTK_SLICER_RESECTIONPLANNING_MODULE_MRMLDISPLAYABLEMANAGER_EXPORT
@@ -58,57 +61,185 @@ public vtkMRMLAbstractThreeDViewDisplayableManager
 {
  public:
 
-  // Description:
-  // VTK required methods
+  /**
+   * Standard VTK object creation macro.
+   *
+   *
+   * @return a pointer to the new created object.
+   */
   static vtkMRMLResectionDisplayableManager3D *New();
   vtkTypeMacro(vtkMRMLResectionDisplayableManager3D,
                vtkMRMLAbstractThreeDViewDisplayableManager);
+
+  /**
+   * Standard VTK print information.
+   *
+   * @param os output stream to print the information to.
+   * @param indent indent value.
+   */
   void PrintSelf(ostream &os, vtkIndent indent);
 
-  // Description:
-  // Creates a new widget for the resection surface node and registers it with
-  // the helper. It returns true if the widget was succesfully added, false
-  // otherwise.
+  /**
+   * This method creates a new widget for the resection surface node and
+   * registers it with the helper.
+   *
+   * @param node base node to create the widget from.
+   *
+   * @return true if the widget was successfully added, false otherwise.
+   */
   bool AddWidget(vtkMRMLResectionSurfaceNode *node);
 
- protected:
+  /**
+   * This function creates the pipeline dealing with the computatio of distance
+   * maps.
+   *
+   * @param pointer to resection node associated to the distance map.
+   *
+   */
+  void AddDistanceMapPipeline(vtkMRMLResectionSurfaceNode* node);
 
-    // Description:
-  // Constructor and destructor
+ protected:
   vtkMRMLResectionDisplayableManager3D();
   virtual ~vtkMRMLResectionDisplayableManager3D();
 
-  // Description:
-  // Sets a new mrmlScene
+  /**
+   * Sets a new scene.
+   *
+   * @param newScene pointer to the new scene.
+   */
   virtual void SetMRMLSceneInternal(vtkMRMLScene *newScene);
 
-  // Description:
-  // Sets and observes a resection node
+  /**
+   * Sets and observes a resection node.
+   *
+   * @param node pointer to the node to be observed.
+   */
   void SetAndObserveNode(vtkMRMLResectionSurfaceNode* node);
 
-  // Description:
-  // Called from RequestRender method if UpdateFromMRMLRequested is true
-  // \sa RequestRender() SetUpdateFromMRMLRequested()
+  /**
+   * Process MRML nodes events
+   *
+   * @param object node triggering the event.
+   * @param eventId id of the event triggered.-
+   * @param data associated data to the event.
+   */
+  virtual void ProcessMRMLNodesEvents(vtkObject *object,
+                                      unsigned long int eventId,
+                                      void *data);
+
+  /**
+   * Update manager based on the MRML node if UpdateFromMRMLRequested is true
+   * \sa RequestRender() SetUpdateFromMRMLRequested().
+   *
+   */
   virtual void UpdateFromMRML();
 
-  // Description:
-  // Mehods dealing with scene-related events. These are called automatically
-  // after the corresponding MRML event is triggered.
+  /**
+   * Update manager from MRMLScene.
+   *
+   */
   virtual void UpdateFromMRMLScene();
+
+  /**
+   * Controls what happens when the MRML scene is clsoed
+   *
+   */
   virtual void OnMRMLSceneEndClose();
+
+  /**
+   * Callback controlling actions on new node added.
+   *
+   * @param node pointer to the new node added to the scene.
+   */
   virtual void OnMRMLSceneNodeAdded(vtkMRMLNode* node);
+
+  /**
+   * Callback controlling actions on node removed from scene.
+   *
+   * @param node pointer to the node removed from the scene.
+   */
   virtual void OnMRMLSceneNodeRemoved(vtkMRMLNode* node);
 
-  // Description:
-  // Helper class.
-  vtkNew<vtkMRMLResectionDisplayableManager3DHelper> Helper;
+  /**
+   * Update the geometry of the Bézier surface and the control points.
+   *
+   * @param pointer to vtkMRMLResectionSurfaceNode to update.
+   */
+  void UpdateGeometry(vtkMRMLResectionSurfaceNode *node);
 
+  /**
+   * Update visibilty property of the models
+   *
+   * @param pointer to vtkMRMLResectionSurfaceNode to update.
+   */
+  void UpdateVisibility(vtkMRMLResectionSurfaceNode *node);
+
+  /**
+   * Update MRML node values based on modifications from interactions with the
+   * widget.
+   *
+   * @param object pointer to widget triggering the event.
+   * @param eventId id of the event.
+   * @param clientData pointer to surface node to be modified.
+   * @param callData Not used.
+   *
+   */
+  static void UpdateMRML(vtkObject *object,
+                         unsigned long int eventId,
+                         void *clientData,
+                         void *callData);
+
+  /**
+   * Update the distance map and the safety contour based on modifications from
+   * interactions witht the widget.
+   *
+   * @param object pointer to widget triggering the event.
+   * @param eventId id of the event.
+   * @param clientData pointer to surface node to be modified.
+   * @param callData Not used.
+   *
+   */
+  static void UpdateDistanceMap(vtkObject *object,
+                                unsigned long int eventId,
+                                void *clientData,
+                                void *callData);
  private:
 
   // Description:
   // Copy constructor and copy operator
   vtkMRMLResectionDisplayableManager3D(const vtkMRMLResectionDisplayableManager3D&);
   void operator=(const vtkMRMLResectionDisplayableManager3D&);
+
+  // Map and iterator holding ResectionNode-BézierWidget relationship.
+  std::map<vtkMRMLResectionSurfaceNode*,
+    vtkSmartPointer<vtkBezierSurfaceWidget> > NodeWidgetMap;
+  typedef std::map<vtkMRMLResectionSurfaceNode*,
+    vtkSmartPointer<vtkBezierSurfaceWidget> >::iterator NodeWidgetIt;
+
+  // Map and iterator holding the ResecionNode-DistanceFilter relationship
+  std::map<vtkMRMLResectionSurfaceNode*,
+    vtkSmartPointer<vtkHausdorffDistancePointSetFilter> > NodeDistanceFilterMap;
+  typedef std::map<vtkMRMLResectionSurfaceNode*,
+    vtkSmartPointer<vtkHausdorffDistancePointSetFilter> >::iterator
+    NodeDistanceFilterIt;
+
+  // Map and iterator holding the color transfer function.
+  std::map<vtkMRMLResectionSurfaceNode*,
+    vtkSmartPointer<vtkColorTransferFunction> > NodeColorMap;
+  typedef std::map<vtkMRMLResectionSurfaceNode*,
+    vtkSmartPointer<vtkColorTransferFunction> >::iterator NodeColorIt;
+
+  // Map and iterator holding the ResectionNode-DistanceActor relationship
+  std::map<vtkMRMLResectionSurfaceNode*,
+    vtkSmartPointer<vtkActor> > NodeDistanceActorMap;
+  typedef std::map<vtkMRMLResectionSurfaceNode*,
+    vtkSmartPointer<vtkActor> >::iterator NodeDistanceActorIt;
+
+  // Map and iterator holding the ResectionNode-ContourActor relationship
+  std::map<vtkMRMLResectionSurfaceNode*,
+    vtkSmartPointer<vtkActor> > NodeContourActorMap;
+  typedef std::map<vtkMRMLResectionSurfaceNode*,
+    vtkSmartPointer<vtkActor> >::iterator NodeContourActorIt;
 };
 
 #endif

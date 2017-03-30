@@ -10,22 +10,33 @@ set(KIT_TEST_SRCS
   vtkLineWidget3Test2.cxx
   vtkMRMLResectionSurfaceNodeTest1.cxx
   vtkMRMLResectionSurfaceDisplayNodeTest1.cxx
+  vtkMRMLResectionInitializationNodeTest1.cxx
+  vtkMRMLResectionInitializationDisplayNodeTest1.cxx
+  vtkMRMLResectionDisplayableManager3DTest1.cxx
+  vtkMRMLResectionDisplayableManager2DTest1.cxx
+  vtkMRMLResectionDisplayableManager2DTest2.cxx
   vtkSlicerResectionPlanningLogicTest1.cxx
   qSlicerTumorWidgetTest.cxx
   qSlicerSurfaceWidgetTest.cxx
+  )
+
+set(${KIT}_INCLUDE_DIRECTORIES
+  ${CMAKE_BINARY_DIR}/${MODULE_NAME}
   )
 
 #-----------------------------------------------------------------------------
 slicerMacroConfigureModuleCxxTestDriver(
   NAME ${KIT}
   SOURCES ${KIT_TEST_SRCS}
+  INCLUDE_DIRECTORIES ${${KIT}_INCLUDE_DIRECTORIES}
   TARGET_LIBRARIES
   vtkSlicerResectionPlanningModuleMRML
+  vtkSlicerResectionPlanningModuleMRMLDisplayableManager
   vtkSlicerResectionPlanningModuleLogic
   vtkSlicerResectionPlanningModuleVTKWidgets
   qSlicerResectionPlanningModuleWidgets
   WITH_VTK_DEBUG_LEAKS_CHECK
-  WITH_VTK_ERROR_OUTPUT_CHECK
+  WITH_VTK_DEBUG_ERROR_CHECK
   )
 
 #-----------------------------------------------------------------------------
@@ -49,6 +60,21 @@ simple_test(vtkMRMLResectionSurfaceNodeTest1)
 
 # Test resection surface display node
 simple_test(vtkMRMLResectionSurfaceDisplayNodeTest1)
+
+# Test resection initialization
+simple_test(vtkMRMLResectionInitializationNodeTest1)
+
+# Test resection initialization display
+simple_test(vtkMRMLResectionInitializationDisplayNodeTest1)
+
+# Test the resection surface displayable manager 3D
+simple_test(vtkMRMLResectionDisplayableManager3DTest1)
+
+# Test the resection surface displayable manager 2D
+simple_test(vtkMRMLResectionDisplayableManager2DTest1)
+
+# Test the resection surface displayable manager 2D
+simple_test(vtkMRMLResectionDisplayableManager2DTest2)
 
 # Test resection planning logic
 simple_test(vtkSlicerResectionPlanningLogicTest1)

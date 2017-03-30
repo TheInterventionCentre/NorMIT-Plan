@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program: NorMIT-Plan
-  Module: vtkMRMLResectionDisplayableManager3DHelper.cxx
+  Module: vtkMRMLResectionInitializationNode.cxx
 
   Copyright (c) 2017, The Intervention Centre, Oslo University Hospital
 
@@ -33,75 +33,38 @@
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   =========================================================================*/
 
-// This module includes
-#include "vtkMRMLResectionDisplayableManager3DHelper.h"
+// This module includes.
+#include "vtkMRMLResectionInitializationNode.h"
 
 // VTK includes
 #include <vtkObjectFactory.h>
-#include <vtkSmartPointer.h>
-#include <vtkCollection.h>
-#include <vtk3DWidget.h>
 
-//-------------------------------------------------------------------------------
-vtkStandardNewMacro(vtkMRMLResectionDisplayableManager3DHelper);
+//------------------------------------------------------------------------------
+vtkStandardNewMacro(vtkMRMLResectionInitializationNode);
 
-//-------------------------------------------------------------------------------
-vtkMRMLResectionDisplayableManager3DHelper::
-vtkMRMLResectionDisplayableManager3DHelper()
+//------------------------------------------------------------------------------
+vtkMRMLResectionInitializationNode::vtkMRMLResectionInitializationNode()
+: CurrentInteractionState(vtkMRMLResectionInitializationNode::None)
 {
-
+  this->Point1[0] = 0.0; this->Point1[1] = 0.0; this->Point1[2] = 0.0;
+  this->Point2[0] = 0.0; this->Point2[1] = 0.0; this->Point2[2] = 0.0;
 }
 
-//-------------------------------------------------------------------------------
-vtkMRMLResectionDisplayableManager3DHelper::
-~vtkMRMLResectionDisplayableManager3DHelper()
+//------------------------------------------------------------------------------
+vtkMRMLResectionInitializationNode::~vtkMRMLResectionInitializationNode()
 {
 
 }
 
 //------------------------------------------------------------------------------
-void vtkMRMLResectionDisplayableManager3DHelper::
-PrintSelf(ostream& vtkNotUsed(os), vtkIndent vtkNotUsed(indent))
+void vtkMRMLResectionInitializationNode::PrintSelf(ostream &vtkNotUsed(os),
+                                                   vtkIndent vtkNotUsed(indent))
 {
 
 }
 
 //------------------------------------------------------------------------------
-vtk3DWidget*
-vtkMRMLResectionDisplayableManager3DHelper::
-GetWidget(vtkMRMLResectionSurfaceNode* node)
+vtkMRMLNode* vtkMRMLResectionInitializationNode::CreateNodeInstance()
 {
-  if (!node)
-    {
-    return NULL;
-    }
-
-  // Check if there is an associated widget to the node.
-  WidgetsIt it = this->Widgets.find(node);
-  if (it == this->Widgets.end())
-    {
-    return 0;
-    }
-  return it->second;
-}
-
-//------------------------------------------------------------------------------
-void vtkMRMLResectionDisplayableManager3DHelper::
-RecordWidgetForNode(vtk3DWidget* widget,
-                    vtkMRMLResectionSurfaceNode *resectionNode)
-{
-  if (!widget)
-    {
-    vtkErrorMacro("RecordWidgetForNode: no widget");
-    return;
-    }
-
-  if (!resectionNode)
-    {
-    vtkErrorMacro("RecordWidgetForNode: no node");
-    return;
-    }
-
-  this->WidgetsCollection->AddItem(widget);
-  this->Widgets[resectionNode] = widget;
+  return vtkMRMLResectionInitializationNode::New();
 }

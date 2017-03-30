@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program: NorMIT-Plan
-  Module: vtkMRMLResectionSurfaceDisplayNode.cxx
+  Module: vtkMRMLResectionSurfaceNode.h
 
   Copyright (c) 2017, The Intervention Centre, Oslo University Hospital
 
@@ -33,29 +33,9 @@
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   =========================================================================*/
 
-// This module includes
-#include "vtkMRMLResectionSurfaceDisplayNode.h"
+#ifndef __ResectionPlanningModuleDefaultValues_h
+#define __ResectionPlanningModuleDefaultValues_h
 
-// VTK includes
-#include <vtkObjectFactory.h>
+const double DEFAULT_RESECTION_MARGIN = 10.0;
 
-//------------------------------------------------------------------------------
-vtkMRMLNodeNewMacro(vtkMRMLResectionSurfaceDisplayNode);
-
-//------------------------------------------------------------------------------
-vtkMRMLResectionSurfaceDisplayNode::vtkMRMLResectionSurfaceDisplayNode()
-{
-
-}
-
-//------------------------------------------------------------------------------
-vtkMRMLResectionSurfaceDisplayNode::~vtkMRMLResectionSurfaceDisplayNode()
-{
-
-}
-
-//------------------------------------------------------------------------------
-void vtkMRMLResectionSurfaceDisplayNode::PrintSelf(ostream &os, vtkIndent indent)
-{
-  this->Superclass::PrintSelf(os, indent);
-}
+#endif

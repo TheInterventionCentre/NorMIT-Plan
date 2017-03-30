@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program: NorMIT-Plan
-  Module: vtkMRMLResectionSurfaceDisplayNode.cxx
+  Module: vtkMRMLResectionInitializationDisplayNode.cxx
 
   Copyright (c) 2017, The Intervention Centre, Oslo University Hospital
 
@@ -34,28 +34,31 @@
   =========================================================================*/
 
 // This module includes
-#include "vtkMRMLResectionSurfaceDisplayNode.h"
+#include "vtkMRMLResectionInitializationDisplayNode.h"
 
 // VTK includes
 #include <vtkObjectFactory.h>
 
 //------------------------------------------------------------------------------
-vtkMRMLNodeNewMacro(vtkMRMLResectionSurfaceDisplayNode);
+vtkMRMLNodeNewMacro(vtkMRMLResectionInitializationDisplayNode);
 
 //------------------------------------------------------------------------------
-vtkMRMLResectionSurfaceDisplayNode::vtkMRMLResectionSurfaceDisplayNode()
+vtkMRMLResectionInitializationDisplayNode::
+vtkMRMLResectionInitializationDisplayNode()
 {
 
 }
 
 //------------------------------------------------------------------------------
-vtkMRMLResectionSurfaceDisplayNode::~vtkMRMLResectionSurfaceDisplayNode()
+vtkMRMLResectionInitializationDisplayNode::
+~vtkMRMLResectionInitializationDisplayNode()
 {
 
 }
 
 //------------------------------------------------------------------------------
-void vtkMRMLResectionSurfaceDisplayNode::PrintSelf(ostream &os, vtkIndent indent)
+void vtkMRMLResectionInitializationDisplayNode::
+PrintSelf(ostream &os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os, indent);
+  this->Superclass::PrintSelf(os,indent);
 }

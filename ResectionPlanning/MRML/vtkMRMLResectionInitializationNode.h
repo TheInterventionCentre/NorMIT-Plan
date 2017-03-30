@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program: NorMIT-Plan
-  Module: vtkMRMLResectionSurfaceNode.h
+  Module: vtkMRMLResectionInitializationNode.h
 
   Copyright (c) 2017, The Intervention Centre, Oslo University Hospital
 
@@ -33,47 +33,49 @@
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   =========================================================================*/
 
-#ifndef __vtkMRMLResectionSurfaceNode_h
-#define __vtkMRMLResectionSurfaceNode_h
+#ifndef __vtkMRMLResectionInitializationNode_h
+#define __vtkMRMLResectionInitializationNode_h
 
-// This module includes.
+// This module includes
 #include "vtkSlicerResectionPlanningModuleMRMLExport.h"
 
 // MRML includes
+#include <vtkMRMLDisplayableNode.h>
 #include <vtkMRMLModelNode.h>
 
 // VTK includes
-#include <vtkNew.h>
-#include <vtkCollection.h>
+#include <vtkWeakPointer.h>
 
 //------------------------------------------------------------------------------
-class vtkMRMLResectionSurfaceDisplayNode;
-class vtkMRMLModelNode;
-class vtkCollection;
-class vtkPoints;
-
-//------------------------------------------------------------------------------
-
 /**
  * \ingroup ResectionPlanning
  *
- * \brief This class represents the data model employed for resection. It
- * contains all the information related to the resection like its relationship
- * to other elements in the MRML scene.
+ * This class holds the information related to the initialization node, which is
+ * represented by a line, two end points (movable) and a slicing contour around
+ * a target polydata.
  */
 class VTK_SLICER_RESECTIONPLANNING_MODULE_MRML_EXPORT
-vtkMRMLResectionSurfaceNode: public vtkMRMLModelNode
+vtkMRMLResectionInitializationNode: public vtkMRMLDisplayableNode
 {
  public:
 
-  /**
-   * Standard vtk object instantiation method.
-   *
-   * @return a pointer to a newly created vtkMRMLResectionSurfaceNode.
-   */
-  static vtkMRMLResectionSurfaceNode *New();
+  enum InteractionState
+  {
+    None = 0,
+    InteractionStarted,  //!< Interaction started (typically mouse click)
+    InteractionEnded     //!< Interaction ended (typically mouse release)
+  };
 
-  vtkTypeMacro(vtkMRMLResectionSurfaceNode, vtkMRMLModelNode);
+
+  /**
+   * Standard VTK object instantiation method
+   *
+   *
+   * @return a pointer to a new created vtkMRMLResectionSurfaceNode.
+   */
+  static vtkMRMLResectionInitializationNode* New();
+
+  vtkTypeMacro(vtkMRMLResectionInitializationNode, vtkMRMLDisplayableNode);
 
   /**
    * Standard print object information method.
@@ -86,9 +88,10 @@ vtkMRMLResectionSurfaceNode: public vtkMRMLModelNode
   /**
    * Standard MRML method to create the node instance.
    *
+   *
    * @return a pointer to the new created vtkMRMLNode.
    */
-  virtual vtkMRMLNode *CreateNodeInstance();
+  virtual vtkMRMLNode* CreateNodeInstance();
 
   /**
    * Get the tag name of the node.
@@ -96,10 +99,10 @@ vtkMRMLResectionSurfaceNode: public vtkMRMLModelNode
    *
    * @return string with the tag name of the node.
    */
-  virtual const char* GetNodeTagName() {return "ResectionSurface";}
+  virtual const char* GetNodeTagName() {return "ResectionInitialization";}
 
   /**
-   * Get the icon associated to the node.
+   * Get the icon associated to the node
    *
    *
    * @return string pointing to the resource where the icon is located.
@@ -107,72 +110,44 @@ vtkMRMLResectionSurfaceNode: public vtkMRMLModelNode
   virtual const char* GetIcon() {return "";}
 
   /**
-   * Get the display node associated
+   * Set the target parenchyma
    *
-   *
-   * @return pointer to the vtkMRMLResectionSurfaceDisplayNode associated with
-   * this node.
+   * @param targetParenchyma pointer to vtkMRMLModelNode representing the
+   * target parenchyma.
    */
-  vtkMRMLResectionSurfaceDisplayNode* GetResectionSurfaceDisplayNode();
+  void SetTargetParenchyma(vtkMRMLModelNode *targetParenchyma)
+  {this->TargetParenchyma = targetParenchyma;}
 
   /**
-   * Add target tumor.
+   * Get the target parenchyma.
    *
-   * @param tumorModelNode pointer to vtkMRMLModelNode representing the target
-   * tumor to be added. If the tumor is already in the internal collection, the
-   * operation will not take place.
+   *
+   * @return pointer to a vtkMRMLModelNode representing the target parenchyma.
    */
-  void AddTargetTumor(vtkMRMLModelNode *tumorModelNode);
+  vtkMRMLModelNode* GetTargetParenchyma() const
+  {return this->TargetParenchyma;}
 
-  /**
-   * Remove target tumor.
-   *
-   * @param tumorModelNode pointer to the vtkMRMLModelNode representing the
-   * target tumor to remove.
-   */
-  void RemoveTargetTumor(vtkMRMLModelNode *tumorModelNode);
+  vtkSetClampMacro(CurrentInteractionState, int, 0, 2);
+  vtkGetMacro(CurrentInteractionState, int);
 
-  /**
-   * Get number of target tumors.
-   *
-   * @return number of target tumors associated to the resection.
-   */
-  int GetNumberOfTargetTumors() const;
+  vtkSetVector3Macro(Point1, double);
+  vtkGetVector3Macro(Point1, double);
 
-  /**
-   * Get the resection margin associated to the resection surface node
-   *
-   * @return resection margin.
-   */
-  vtkGetMacro(ResectionMargin, double);
-
-  /**
-   * Set the resection margin associated to the resection surface node
-   *
-   * @param ResectionMargin resection margin.
-   *
-   */
-  vtkSetMacro(ResectionMargin, double);
-
-  vtkGetNewMacro(ControlPoints, vtkPoints);
-
-  /**
-   * Set control points
-   *
-   * @param newControlPoints
-   */
-  void SetControlPoints(vtkPoints *newControlPoints);
+  vtkSetVector3Macro(Point2, double);
+  vtkGetVector3Macro(Point2, double);
 
  protected:
-  vtkMRMLResectionSurfaceNode();
-  ~vtkMRMLResectionSurfaceNode();
+  vtkMRMLResectionInitializationNode();
+  ~vtkMRMLResectionInitializationNode();
 
-  vtkMRMLResectionSurfaceNode(const vtkMRMLResectionSurfaceNode&);
-  void operator=(const vtkMRMLResectionSurfaceNode&);
+  vtkMRMLResectionInitializationNode(const vtkMRMLResectionInitializationNode&);
+  void operator=(const vtkMRMLResectionInitializationNode&);
 
-  vtkNew<vtkCollection> TargetTumors;
-  vtkNew<vtkPoints> ControlPoints;
-  double ResectionMargin;
+  vtkWeakPointer<vtkMRMLModelNode> TargetParenchyma;
+
+  int CurrentInteractionState;
+  double Point1[3];
+  double Point2[3];
 };
 
 #endif

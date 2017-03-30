@@ -49,6 +49,8 @@
 #include <vtkRenderer.h>
 #include <vtkRenderWindowInteractor.h>
 #include <vtkProp.h>
+#include <vtkPlane.h>
+#include <vtkCutter.h>
 
 //------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkLineWidget3);
@@ -65,24 +67,59 @@ vtkLineWidget3::vtkLineWidget3()
   Point1[0] = -0.5; Point1[1] = 0.0; Point1[2] = 0.0;
   Point2[0] =  0.5; Point2[1] = 0.0; Point2[2] = 0.0;
 
+  // Set the line between points
   this->LineSource->SetPoint1(Point1);
   this->LineSource->SetPoint2(Point2);
   this->LineSource->Update();
 
+  // Set the tubing filter
   this->TubeFilter->SetInputData(this->LineSource->GetOutput());
   this->TubeFilter->SetRadius(0.002);
   this->TubeFilter->SetNumberOfSides(20);
   this->TubeFilter->Update();
 
+  // Set the cutting plane
+  double normal[3];
+  normal[0] = Point2[0] - Point1[0];
+  normal[1] = Point2[1] - Point1[1];
+  normal[2] = Point2[2] - Point1[2];
+
+  double midPoint[3];
+  midPoint[0] = (Point1[0] + Point2[0]) / 2.0;
+  midPoint[1] = (Point1[1] + Point2[1]) / 2.0;
+  midPoint[2] = (Point1[2] + Point2[2]) / 2.0;
+
+  this->CuttingPlane->SetNormal(normal);
+  this->CuttingPlane->SetOrigin(midPoint);
+
+  // Setting the cutter
+  this->Cutter->SetInputData(this->CuttingTarget);
+  this->Cutter->SetCutFunction(this->CuttingPlane.GetPointer());
+  this->Cutter->GlobalWarningDisplayOff();
+
+  // Placing the line into scene
   this->LineMapper->SetInputConnection(TubeFilter->GetOutputPort());
   this->LineActor->SetMapper(this->LineMapper.GetPointer());
 
+  // Placing the handles into scene
   this->Handle1Source->SetCenter(Point1);
+  this->Handle1Source->SetThetaResolution(32);
+  this->Handle1Source->SetPhiResolution(16);
+  this->Handle1Source->SetRadius(3);
   this->Handle2Source->SetCenter(Point2);
+  this->Handle2Source->SetThetaResolution(32);
+  this->Handle2Source->SetPhiResolution(16);
+  this->Handle2Source->SetRadius(3);
   this->Handle1Mapper->SetInputConnection(this->Handle1Source->GetOutputPort());
   this->Handle2Mapper->SetInputConnection(this->Handle2Source->GetOutputPort());
   this->Handle1Actor->SetMapper(this->Handle1Mapper.GetPointer());
   this->Handle2Actor->SetMapper(this->Handle2Mapper.GetPointer());
+
+  // Placing the slicing contour into scene
+  this->SlicingContourMapper->SetInputConnection(this->Cutter->GetOutputPort());
+  this->SlicingContourMapper->ScalarVisibilityOff();
+  this->SlicingContourActor->SetMapper(this->SlicingContourMapper.GetPointer());
+
 
   // Crate the default visualization properties.
   this->CreateDefaultProperties();
@@ -94,6 +131,9 @@ vtkLineWidget3::vtkLineWidget3()
   this->Handle2Picker->PickFromListOn();
 
   this->CurrentHandle = NULL;
+
+  // For z-fighting
+  vtkPolyDataMapper::SetResolveCoincidentTopologyToPolygonOffset();
 }
 
 //------------------------------------------------------------------------------
@@ -132,6 +172,20 @@ void vtkLineWidget3::PlaceWidget(double bds[6])
   this->LineSource->SetPoint1(this->Point1);
   this->LineSource->SetPoint2(this->Point2);
   this->LineSource->Update();
+
+  // Set slicing contour
+  double normal[3];
+  normal[0] = this->Point2[0] - this->Point1[0];
+  normal[1] = this->Point2[1] - this->Point1[1];
+  normal[2] = this->Point2[2] - this->Point1[2];
+
+  double midPoint[3];
+  midPoint[0] = (this->Point1[0] + this->Point2[0]) / 2.0;
+  midPoint[1] = (this->Point1[1] + this->Point2[1]) / 2.0;
+  midPoint[2] = (this->Point1[2] + this->Point2[2]) / 2.0;
+
+  this->CuttingPlane->SetNormal(normal);
+  this->CuttingPlane->SetOrigin(midPoint);
 
   for(int i=0; i<6; ++i)
     {
@@ -184,6 +238,19 @@ void vtkLineWidget3::SizeLine()
   this->TubeFilter->SetRadius(radius);
 }
 
+//------------------------------------------------------------------------------
+void vtkLineWidget3::SetCuttingTarget(vtkPolyData *target)
+{
+  this->CuttingTarget = target;
+  this->Cutter->SetInputData(this->CuttingTarget);
+  this->Cutter->Update();
+}
+
+//------------------------------------------------------------------------------
+vtkPolyData * vtkLineWidget3::GetCuttingTarget() const
+{
+  return this->CuttingTarget;
+}
 
 //------------------------------------------------------------------------------
 void vtkLineWidget3::CreateDefaultProperties()
@@ -196,13 +263,18 @@ void vtkLineWidget3::CreateDefaultProperties()
 
   this->LineProperty->SetColor(1.0, 0.0, 0.0);
   this->LineProperty->LightingOff();
+
+  this->SlicingContourProperty->SetColor(1.0, 1.0, 1.0);
+  this->SlicingContourProperty->SetOpacity(1.0);
+  this->SlicingContourProperty->LightingOff();
+  this->SlicingContourProperty->SetLineWidth(3.0);
 }
 
 //------------------------------------------------------------------------------
 void vtkLineWidget3::SetEnabled(int enabling)
 {
 
-{
+
   if (!this->Interactor)
     {
     vtkErrorMacro(<<"The interactor must be set prior to "
@@ -261,6 +333,11 @@ void vtkLineWidget3::SetEnabled(int enabling)
     this->LineActor->SetProperty(this->LineProperty.GetPointer());
     this->CurrentRenderer->AddActor(this->LineActor.GetPointer());
 
+    // Add slicing contour to scene
+    this->SlicingContourActor->
+      SetProperty(this->SlicingContourProperty.GetPointer());
+    this->CurrentRenderer->AddActor(this->SlicingContourActor.GetPointer());
+
     //Enable event
     this->InvokeEvent(vtkCommand::EnableEvent, NULL);
     }
@@ -282,18 +359,21 @@ void vtkLineWidget3::SetEnabled(int enabling)
     this->CurrentRenderer->RemoveActor(this->Handle1Actor.GetPointer());
     this->CurrentRenderer->RemoveActor(this->Handle2Actor.GetPointer());
 
+    // Remove the line from scene
+    this->CurrentRenderer->RemoveActor(this->LineActor.GetPointer());
+
+    // Remove the slicing contour from scene
+    this->CurrentRenderer->RemoveActor(this->SlicingContourActor.GetPointer());
+
     this->CurrentHandle = NULL;
     this->InvokeEvent(vtkCommand::DisableEvent, NULL);
     this->SetCurrentRenderer(NULL);
     }
 
-  this->PlaceWidget();
-
   this->SizeHandles();
   this->SizeLine();
 
   this->Interactor->Render();
- }
 }
 
 //------------------------------------------------------------------------------
@@ -481,6 +561,23 @@ void vtkLineWidget3::MoveHandle(vtkProp *prop, double *p1, double *p2)
     this->LineSource->SetPoint2(destinationPoint);
     this->LineSource->Update();
     }
+
+  this->Handle1Source->GetCenter(this->Point1);
+  this->Handle2Source->GetCenter(this->Point2);
+
+  // Move the slicing contour
+  double normal[3];
+  normal[0] = this->Point2[0] - this->Point1[0];
+  normal[1] = this->Point2[1] - this->Point1[1];
+  normal[2] = this->Point2[2] - this->Point1[2];
+
+  double midPoint[3];
+  midPoint[0] = (this->Point1[0] + this->Point2[0]) / 2.0;
+  midPoint[1] = (this->Point1[1] + this->Point2[1]) / 2.0;
+  midPoint[2] = (this->Point1[2] + this->Point2[2]) / 2.0;
+
+  this->CuttingPlane->SetNormal(normal);
+  this->CuttingPlane->SetOrigin(midPoint);
 }
 
 //------------------------------------------------------------------------------
@@ -503,4 +600,54 @@ void vtkLineWidget3::HighlightHandle(vtkProp *prop)
       actor->SetProperty(this->SelectedHandle2Property.GetPointer());
       }
     }
+}
+
+//------------------------------------------------------------------------------
+void vtkLineWidget3::SetPoint1(double point[3])
+{
+  this->Point1[0] = point[0];
+  this->Point1[1] = point[1];
+  this->Point1[2] = point[2];
+
+  this->Handle1Source->SetCenter(this->Point1);
+
+// Move the slicing contour
+  double normal[3];
+  normal[0] = this->Point2[0] - this->Point1[0];
+  normal[1] = this->Point2[1] - this->Point1[1];
+  normal[2] = this->Point2[2] - this->Point1[2];
+
+  double midPoint[3];
+  midPoint[0] = (this->Point1[0] + this->Point2[0]) / 2.0;
+  midPoint[1] = (this->Point1[1] + this->Point2[1]) / 2.0;
+  midPoint[2] = (this->Point1[2] + this->Point2[2]) / 2.0;
+
+  this->CuttingPlane->SetNormal(normal);
+  this->CuttingPlane->SetOrigin(midPoint);
+  this->Modified();
+}
+
+//------------------------------------------------------------------------------
+void vtkLineWidget3::SetPoint2(double point[3])
+{
+  this->Point2[0] = point[0];
+  this->Point2[1] = point[1];
+  this->Point2[2] = point[2];
+
+  this->Handle2Source->SetCenter(this->Point2);
+
+// Move the slicing contour
+  double normal[3];
+  normal[0] = this->Point2[0] - this->Point1[0];
+  normal[1] = this->Point2[1] - this->Point1[1];
+  normal[2] = this->Point2[2] - this->Point1[2];
+
+  double midPoint[3];
+  midPoint[0] = (this->Point1[0] + this->Point2[0]) / 2.0;
+  midPoint[1] = (this->Point1[1] + this->Point2[1]) / 2.0;
+  midPoint[2] = (this->Point1[2] + this->Point2[2]) / 2.0;
+
+  this->CuttingPlane->SetNormal(normal);
+  this->CuttingPlane->SetOrigin(midPoint);
+  this->Modified();
 }

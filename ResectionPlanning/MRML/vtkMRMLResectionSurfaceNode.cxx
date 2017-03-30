@@ -36,6 +36,7 @@
 // This module includes
 #include "vtkMRMLResectionSurfaceNode.h"
 #include "vtkMRMLResectionSurfaceDisplayNode.h"
+#include "ResectionPlanningModuleDefaultValues.h"
 
 // MRML includes
 #include <vtkMRMLModelNode.h>
@@ -43,14 +44,33 @@
 
 // VTK includes
 #include <vtkObjectFactory.h>
+#include <vtkPoints.h>
 
 //------------------------------------------------------------------------------
 vtkMRMLNodeNewMacro(vtkMRMLResectionSurfaceNode);
 
 //------------------------------------------------------------------------------
 vtkMRMLResectionSurfaceNode::vtkMRMLResectionSurfaceNode()
+  :ResectionMargin(DEFAULT_RESECTION_MARGIN)
 {
 
+  // Initialization of control points
+  double startX = -0.5;
+  double startY = -0.5;
+  double endX = 0.5;
+  double endY = 0.5;
+  double incX = (endX - startX)/4.0;
+  double incY = (endY - startY)/4.0;
+
+  //Generate geometry;
+  for(int i=0; i<4; ++i)
+    {
+    for(int j=0; j<4; ++j)
+      {
+      double point[3] = {startX+i*incX, startY+j*incY, 0.0};
+      this->ControlPoints->InsertNextPoint(point);
+      }
+    }
 }
 
 //------------------------------------------------------------------------------
@@ -76,4 +96,57 @@ vtkMRMLResectionSurfaceNode::GetResectionSurfaceDisplayNode()
     return vtkMRMLResectionSurfaceDisplayNode::SafeDownCast(displayNode);
     }
   return NULL;
+}
+
+//------------------------------------------------------------------------------
+void vtkMRMLResectionSurfaceNode::AddTargetTumor(vtkMRMLModelNode *tumorNode)
+{
+  if (!tumorNode)
+    {
+    return;
+    }
+
+  if (this->TargetTumors->IsItemPresent(tumorNode))
+    {
+    return;
+    }
+
+  this->TargetTumors->AddItem(tumorNode);
+  this->Modified();
+}
+
+//------------------------------------------------------------------------------
+void vtkMRMLResectionSurfaceNode::RemoveTargetTumor(vtkMRMLModelNode *tumorNode)
+{
+  if (!tumorNode)
+    {
+    return;
+    }
+
+  if (!this->TargetTumors->IsItemPresent(tumorNode))
+    {
+    return;
+    }
+
+  this->TargetTumors->RemoveItem(tumorNode);
+  this->Modified();
+}
+
+//------------------------------------------------------------------------------
+int vtkMRMLResectionSurfaceNode::GetNumberOfTargetTumors() const
+{
+  return this->TargetTumors->GetNumberOfItems();
+}
+
+//------------------------------------------------------------------------------
+void vtkMRMLResectionSurfaceNode::SetControlPoints(vtkPoints *points)
+{
+  if (!points)
+    {
+    vtkErrorMacro("No points provided.");
+    return;
+    }
+
+  this->ControlPoints->DeepCopy(points);
+  this->Modified();
 }

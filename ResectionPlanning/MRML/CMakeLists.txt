@@ -5,12 +5,15 @@ set(KIT ${PROJECT_NAME})
 set(${KIT}_EXPORT_DIRECTIVE "VTK_SLICER_${MODULE_NAME_UPPER}_MODULE_MRML_EXPORT")
 
 set(${KIT}_INCLUDE_DIRECTORIES
+  ${CMAKE_BINARY_DIR}/${MODULE_NAME}
   )
 
 set(${KIT}_SRCS
   vtkMRMLResectionSurfaceNode.cxx
   vtkMRMLResectionSurfaceDisplayNode.cxx
-  #vtkMRMLResectionSurfaceStorageNode.cxx
+  vtkMRMLResectionInitializationNode.cxx
+  vtkMRMLResectionInitializationDisplayNode.cxx
+  vtkMRMLResectionSurfaceStorageNode.cxx
   )
 
 set(${KIT}_TARGET_LIBRARIES

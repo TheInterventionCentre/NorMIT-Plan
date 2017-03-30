@@ -138,7 +138,7 @@ int vtkLineWidget3Test2(int argc, char *argv[])
 
   imageDifference->Update();
 
-  if (imageDifference->GetError() > 1.0)
+  if (imageDifference->GetError() > 10.0)
     {
     std::cerr << "Test and regression images are different e="
               << imageDifference->GetError() << std::endl;

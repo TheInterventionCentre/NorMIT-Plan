@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program: NorMIT-Plan
-  Module: vtkMRMLResectionSurfaceDisplayNode.cxx
+  Module: vtkMRMLResectionInitializationDisplayNodeTest1.cxx
 
   Copyright (c) 2017, The Intervention Centre, Oslo University Hospital
 
@@ -33,29 +33,19 @@
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   =========================================================================*/
 
-// This module includes
-#include "vtkMRMLResectionSurfaceDisplayNode.h"
+// MRML includes
+#include "vtkMRMLCoreTestingMacros.h"
+#include "vtkMRMLResectionInitializationDisplayNode.h"
 
 // VTK includes
-#include <vtkObjectFactory.h>
+#include <vtkNew.h>
 
 //------------------------------------------------------------------------------
-vtkMRMLNodeNewMacro(vtkMRMLResectionSurfaceDisplayNode);
-
-//------------------------------------------------------------------------------
-vtkMRMLResectionSurfaceDisplayNode::vtkMRMLResectionSurfaceDisplayNode()
+int vtkMRMLResectionInitializationDisplayNodeTest1(int, char *[])
 {
+  vtkNew<vtkMRMLResectionInitializationDisplayNode> node1;
 
-}
+  EXERCISE_ALL_BASIC_MRML_METHODS(node1.GetPointer());
 
-//------------------------------------------------------------------------------
-vtkMRMLResectionSurfaceDisplayNode::~vtkMRMLResectionSurfaceDisplayNode()
-{
-
-}
-
-//------------------------------------------------------------------------------
-void vtkMRMLResectionSurfaceDisplayNode::PrintSelf(ostream &os, vtkIndent indent)
-{
-  this->Superclass::PrintSelf(os, indent);
+  return EXIT_SUCCESS;
 }

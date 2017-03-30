@@ -33,12 +33,13 @@
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   =========================================================================*/
 
+// This module includes
 #include "vtkBezierSurfaceWidget.h"
 #include "vtkBezierSurfaceSource.h"
 
+// VTK includes
 #include <vtkObjectFactory.h>
 #include <vtkCallbackCommand.h>
-#include <vtkPlaneSource.h>
 #include <vtkSphereSource.h>
 #include <vtkTubeFilter.h>
 #include <vtkCleanPolyData.h>
@@ -55,8 +56,7 @@
 #include <vtkRenderer.h>
 #include <vtkRenderWindowInteractor.h>
 #include <vtkCommand.h>
-
-#include <iostream>
+#include <vtkPolyDataNormals.h>
 
 //------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkBezierSurfaceWidget);
@@ -73,7 +73,8 @@ vtkBezierSurfaceWidget::vtkBezierSurfaceWidget()
    NumberOfControlPointsX(4),
    NumberOfControlPointsY(4),
    HandleSizeFactor(1.1),
-   ControlPolygonSizeFactor(0.2)
+   ControlPolygonSizeFactor(0.2),
+   ComputeNormalsFlag(false)
 {
   // Set the event callback to our process events function
   this->EventCallbackCommand->SetCallback(vtkBezierSurfaceWidget::ProcessEvents);
@@ -198,6 +199,32 @@ vtkBezierSurfaceWidget::vtkBezierSurfaceWidget()
 vtkBezierSurfaceWidget::~vtkBezierSurfaceWidget()
 {
 
+}
+
+//------------------------------------------------------------------------------
+void vtkBezierSurfaceWidget::SetControlPoints(vtkPoints *points)
+{
+  this->ControlPoints->DeepCopy(points);
+  this->BezierSurfaceSource->SetControlPoints(points);
+  this->ControlPolygonPolyData->SetPoints(points);
+
+  for(unsigned int i = 0; i<this->NumberOfControlPointsX; ++i)
+    {
+    for(unsigned int j = 0; j<this->NumberOfControlPointsY; ++j)
+      {
+      vtkSphereSource *source =
+        vtkSphereSource::SafeDownCast(
+          this->HandlePolyDataCollection->
+          GetItemAsObject(i*NumberOfControlPointsX+j));
+
+      source->SetCenter(points->GetPoint(i*this->NumberOfControlPointsX+j));
+      source->Update();
+      }
+    }
+  this->ValidPick = 1;
+  this->SizeHandles();
+  this->SizeControlPolygon();
+  this->Interactor->Render();
 }
 
 //------------------------------------------------------------------------------
@@ -664,6 +691,8 @@ void vtkBezierSurfaceWidget::OnLeftButtonUp()
 
   this->BezierSurfaceSource->SetControlPoints(this->ControlPolygonPolyData->GetPoints());
 
+  this->ControlPoints->DeepCopy(this->ControlPolygonPolyData->GetPoints());
+
   this->EventCallbackCommand->SetAbortFlag(1);
   this->EndInteraction();
   this->InvokeEvent(vtkCommand::EndInteractionEvent, NULL);
@@ -739,7 +768,10 @@ void vtkBezierSurfaceWidget::OnRightButtonUp()
   this->HighlightControlPolygon(0);
   this->CurrentHandle = NULL;
 
-  this->BezierSurfaceSource->SetControlPoints(this->ControlPolygonPolyData->GetPoints());
+  this->BezierSurfaceSource
+    ->SetControlPoints(this->ControlPolygonPolyData->GetPoints());
+
+  this->ControlPoints->DeepCopy(this->ControlPolygonPolyData->GetPoints());
 
   this->EventCallbackCommand->SetAbortFlag(1);
   this->EndInteraction();
@@ -1092,4 +1124,33 @@ vtkBezierSurfaceWidget::GetBezierSurfacePolyData() const
 {
   this->BezierSurfaceSource->Update();
   return this->BezierSurfaceSource->GetOutput();
+}
+
+//------------------------------------------------------------------------------
+void vtkBezierSurfaceWidget::ComputeNormalsOn()
+{
+  this->ComputeNormalsFlag = true;
+  this->Normals->SetInputConnection(this->BezierSurfaceSource->GetOutputPort());
+  this->BezierSurfaceMapper->SetInputConnection(this->Normals->GetOutputPort());
+}
+
+//------------------------------------------------------------------------------
+void vtkBezierSurfaceWidget::ComputeNormalsOff()
+{
+  this->ComputeNormalsFlag = false;
+  this->BezierSurfaceMapper->
+    SetInputConnection(this->BezierSurfaceSource->GetOutputPort());
+}
+
+//------------------------------------------------------------------------------
+void vtkBezierSurfaceWidget::ComputeNormals(bool computeNormals)
+{
+  if (computeNormals)
+    {
+    this->ComputeNormalsOn();
+    }
+  else
+    {
+    this->ComputeNormalsOff();
+    }
 }

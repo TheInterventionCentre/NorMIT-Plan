@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program: NorMIT-Plan
-  Module: vtkMRMLResectionSurfaceDisplayNode.cxx
+  Module: vtkMRMLResectionInitializationDisplayNode.h
 
   Copyright (c) 2017, The Intervention Centre, Oslo University Hospital
 
@@ -32,30 +32,75 @@
   OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   =========================================================================*/
+#ifndef __vtkMRMLResectionInitializationDisplayNode_h
+#define __vtkMRMLResectionInitializationDisplayNode_h
 
 // This module includes
-#include "vtkMRMLResectionSurfaceDisplayNode.h"
+#include "vtkSlicerResectionPlanningModuleMRMLExport.h"
+
+// MRML includes
+#include <vtkMRMLDisplayNode.h>
+
 
 // VTK includes
-#include <vtkObjectFactory.h>
 
-//------------------------------------------------------------------------------
-vtkMRMLNodeNewMacro(vtkMRMLResectionSurfaceDisplayNode);
-
-//------------------------------------------------------------------------------
-vtkMRMLResectionSurfaceDisplayNode::vtkMRMLResectionSurfaceDisplayNode()
+/**
+ * \ingroup ResectionPlanning
+ *
+ * This class holds the information related to the visualization of the
+ * initialization node.
+ */
+class VTK_SLICER_RESECTIONPLANNING_MODULE_MRML_EXPORT
+vtkMRMLResectionInitializationDisplayNode: public vtkMRMLDisplayNode
 {
+ public:
 
-}
+  /**
+   * Standard VTK object instantiation method
+   *
+   *
+   * @return a pointer to a new crated vtkMRMLResectionSurfaceNode.
+   */
+  static vtkMRMLResectionInitializationDisplayNode *New();
+  vtkTypeMacro(vtkMRMLResectionInitializationDisplayNode, vtkMRMLDisplayNode);
 
-//------------------------------------------------------------------------------
-vtkMRMLResectionSurfaceDisplayNode::~vtkMRMLResectionSurfaceDisplayNode()
-{
+  /**
+   * Standard print object information method.
+   *
+   * @param os output stream to print the information to.
+   * @param indent indent value.
+   */
+  void PrintSelf(ostream &os, vtkIndent indent);
 
-}
+  /**
+   * Get the tag name of the node.
+   *
+   *
+   * @return
+   */
+  virtual const char* GetNodeTagName()
+  {return "ResectionInitializationDisplay";}
 
-//------------------------------------------------------------------------------
-void vtkMRMLResectionSurfaceDisplayNode::PrintSelf(ostream &os, vtkIndent indent)
-{
-  this->Superclass::PrintSelf(os, indent);
-}
+  /**
+   * Get the icon associated to the node.
+   *
+   *
+   * @return string pointing to the resource where the icon is located.
+   */
+  virtual const char* GetIcon() {return "";}
+
+  virtual vtkMRMLNode* CreateNodeInstance();
+
+ protected:
+  vtkMRMLResectionInitializationDisplayNode();
+  ~vtkMRMLResectionInitializationDisplayNode();
+
+ private:
+
+  vtkMRMLResectionInitializationDisplayNode(
+    const vtkMRMLResectionInitializationDisplayNode&);
+  void operator=(const vtkMRMLResectionInitializationDisplayNode&);
+
+};
+
+#endif

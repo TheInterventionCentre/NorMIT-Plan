@@ -44,12 +44,15 @@
 //------------------------------------------------------------------------------
 class vtkTubeFilter;
 class vtkPolyDataMapper;
+class vtkPolyData;
 class vtkActor;
 class vtkSphereSource;
 class vtkProperty;
 class vtkCellPicker;
 class vtkProp;
 class vtkLineSource;
+class vtkCutter;
+class vtkPlane;
 
 //------------------------------------------------------------------------------
 /**
@@ -145,6 +148,38 @@ class vtkLineWidget3: public vtk3DWidget
    */
   void SetEnabled(int enabling);
 
+  /**
+   * Set the cutting target
+   *
+   * @param target pointer to polydata to be sliced.
+   */
+  void SetCuttingTarget(vtkPolyData *target);
+
+  /**
+   * Get the cutting target
+   *
+   *
+   * @return pointer to polydata representing the cutting target.
+   */
+  vtkPolyData *GetCuttingTarget() const;
+
+  vtkGetVector3Macro(Point1, double);
+  vtkGetVector3Macro(Point2, double);
+
+  /**
+   * Set the coordinates of the Point1.
+   *
+   * @param point1
+   */
+  void SetPoint1(double point1[3]);
+
+  /**
+   * Set the coordinates of the Point2.
+   *
+   * @param point2
+   */
+  void SetPoint2(double point2[3]);
+
  protected:
 
   // Description:
@@ -216,15 +251,21 @@ class vtkLineWidget3: public vtk3DWidget
   // Tube filter.
   vtkNew<vtkTubeFilter> TubeFilter;
 
+  // Cutter and cutting plane
+  vtkNew<vtkCutter> Cutter;
+  vtkNew<vtkPlane> CuttingPlane;
+
   // Mappers.
   vtkNew<vtkPolyDataMapper> LineMapper;
   vtkNew<vtkPolyDataMapper> Handle1Mapper;
   vtkNew<vtkPolyDataMapper> Handle2Mapper;
+  vtkNew<vtkPolyDataMapper> SlicingContourMapper;
 
   // Actors.
   vtkNew<vtkActor> LineActor;
   vtkNew<vtkActor> Handle1Actor;
   vtkNew<vtkActor> Handle2Actor;
+  vtkNew<vtkActor> SlicingContourActor;
 
   // Visual properties of line
   vtkNew<vtkProperty> LineProperty;
@@ -234,8 +275,11 @@ class vtkLineWidget3: public vtk3DWidget
   vtkNew<vtkProperty> SelectedHandle1Property;
 
   // Visual properties of Handle2
-  vtkNew<vtkProperty>Handle2Property;
-  vtkNew<vtkProperty>SelectedHandle2Property;
+  vtkNew<vtkProperty> Handle2Property;
+  vtkNew<vtkProperty> SelectedHandle2Property;
+
+  // Visual properties of the slicing contour.
+  vtkNew<vtkProperty> SlicingContourProperty;
 
   /**
    * Create the default visual properties for the line and the handles.
@@ -273,6 +317,7 @@ private:
   void operator=(const vtkLineWidget3&);
 
   vtkWeakPointer<vtkActor> CurrentHandle;
+  vtkWeakPointer<vtkPolyData> CuttingTarget;
 
   // Description:
   // Resizing factor for the handles.
@@ -281,7 +326,6 @@ private:
   // Description:
   // Resizing factor for the line.
   double LineSizeFactor;
-
 
 };
 

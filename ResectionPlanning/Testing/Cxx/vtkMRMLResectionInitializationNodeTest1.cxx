@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program: NorMIT-Plan
-  Module: vtkMRMLResectionSurfaceDisplayNode.cxx
+  Module: vtkMRMLResectionInitializationNodeTest1.cxx
 
   Copyright (c) 2017, The Intervention Centre, Oslo University Hospital
 
@@ -33,29 +33,56 @@
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   =========================================================================*/
 
-// This module includes
-#include "vtkMRMLResectionSurfaceDisplayNode.h"
+// This modules includes
+#include "vtkMRMLResectionInitializationNode.h"
+#include "ResectionPlanningModuleDefaultValues.h"
+
+// MRML includes
+#include <vtkMRMLCoreTestingMacros.h>
+#include <vtkMRMLModelNode.h>
 
 // VTK includes
-#include <vtkObjectFactory.h>
+#include <vtkNew.h>
+#include <vtkSmartPointer.h>
+#include <vtkCollection.h>
 
-//------------------------------------------------------------------------------
-vtkMRMLNodeNewMacro(vtkMRMLResectionSurfaceDisplayNode);
+// STD includes
+#include <iostream>
 
-//------------------------------------------------------------------------------
-vtkMRMLResectionSurfaceDisplayNode::vtkMRMLResectionSurfaceDisplayNode()
+//-------------------------------------------------------------------------------
+int vtkMRMLResectionInitializationNodeTest1(int, char *[])
 {
+  vtkNew<vtkMRMLResectionInitializationNode> node1;
+  vtkNew<vtkMRMLModelNode> model1;
 
-}
+  // Basic node tests
+  EXERCISE_ALL_BASIC_MRML_METHODS(node1.GetPointer());
 
-//------------------------------------------------------------------------------
-vtkMRMLResectionSurfaceDisplayNode::~vtkMRMLResectionSurfaceDisplayNode()
-{
+  //-----------------------------------------------------------------------------
+  // Set/Get target parenchyma
 
-}
+  // Check value at initialization
+  if (node1->GetTargetParenchyma())
+    {
+    std::cerr << "Target parenchyma incorrect: "
+              << "expected no target parenchyma, "
+              << node1->GetTargetParenchyma()
+              << " given." << std::endl;
+    return EXIT_FAILURE;
+    }
 
-//------------------------------------------------------------------------------
-void vtkMRMLResectionSurfaceDisplayNode::PrintSelf(ostream &os, vtkIndent indent)
-{
-  this->Superclass::PrintSelf(os, indent);
+  // Check setting/getting a target parenchyma.
+  node1->SetTargetParenchyma(model1.GetPointer());
+  if (node1->GetTargetParenchyma() != model1.GetPointer())
+    {
+    std::cerr << "Target parenchyma incorrect: "
+              << model1.GetPointer() << " expected "
+              << node1->GetTargetParenchyma() << " given."
+              << std::endl;
+    return EXIT_FAILURE;
+    }
+  // END: Set/Get target parenchyma
+  //----------------------------------------------------------------------------
+
+  return EXIT_SUCCESS;
 }
