@@ -47,6 +47,11 @@
 #include <vtkMRMLThreeDViewDisplayableManagerFactory.h>
 #include <vtkMRMLSliceViewDisplayableManagerFactory.h>
 
+#include <qSlicerApplication.h>
+#include <qSlicerCoreIOManager.h>
+#include <qSlicerNodeWriter.h>
+#include "qSlicerResectionPlanningReader.h"
+
 //-----------------------------------------------------------------------------
 Q_EXPORT_PLUGIN2(qSlicerResectionPlanningModule, qSlicerResectionPlanningModule);
 
@@ -133,6 +138,17 @@ void qSlicerResectionPlanningModule::setup()
   // Register displayable managers 2D
   vtkMRMLSliceViewDisplayableManagerFactory::GetInstance()->
     RegisterDisplayableManager("vtkMRMLResectionDisplayableManager2D");
+
+  vtkSlicerResectionPlanningLogic* resectionPlanningLogic = vtkSlicerResectionPlanningLogic::SafeDownCast(this->logic());
+
+  if (qSlicerApplication::application())
+  {
+    qSlicerCoreIOManager* ioManager =
+    qSlicerCoreApplication::application()->coreIOManager();
+    ioManager->registerIO(new qSlicerResectionPlanningReader(resectionPlanningLogic,this));
+    ioManager->registerIO(new qSlicerNodeWriter("Resection", QString("ResectionFile"),
+                                                QStringList() << "vtkMRMLResectionSurfaceNode", true, this));
+  }
 }
 
 //-----------------------------------------------------------------------------

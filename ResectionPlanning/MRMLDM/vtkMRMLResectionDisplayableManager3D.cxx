@@ -45,6 +45,7 @@
 #include <vtkMRMLNode.h>
 #include <vtk3DWidget.h>
 #include <vtkCollection.h>
+#include <vtkDoubleArray.h>
 
 // VTK includes
 #include <vtkObjectFactory.h>
@@ -105,6 +106,8 @@ SetMRMLSceneInternal(vtkMRMLScene *newScene)
 void vtkMRMLResectionDisplayableManager3D::
 SetAndObserveNode(vtkMRMLResectionSurfaceNode* resectionNode)
 {
+  vtkDebugMacro("SetAndObserveNode");
+
   if (!resectionNode)
     {
     vtkErrorMacro("No node passed");
@@ -126,6 +129,8 @@ ProcessMRMLNodesEvents(vtkObject *object,
                        unsigned long int eventId,
                        void *vtkNotUsed(data))
 {
+  vtkDebugMacro("ProcessMRMLNodesEvents");
+
   vtkMRMLResectionSurfaceNode *node =
     vtkMRMLResectionSurfaceNode::SafeDownCast(object);
 
@@ -170,11 +175,11 @@ ProcessMRMLNodesEvents(vtkObject *object,
 bool vtkMRMLResectionDisplayableManager3D::
 AddWidget(vtkMRMLResectionSurfaceNode *resectionNode)
 {
-  vtkDebugMacro("AddWidget: create widget.");
+  vtkDebugMacro("AddWidget");
 
   if (!resectionNode)
     {
-    vtkErrorMacro("AddWidget: Node not set!");
+    vtkErrorMacro("Node not set!");
     return false;
     }
 
@@ -267,6 +272,7 @@ AddDistanceMapPipeline(vtkMRMLResectionSurfaceNode *node)
   colorMap->AddRGBPoint(node->GetResectionMargin(), 1.0, 1.0, 0.0);
   colorMap->AddRGBPoint(node->GetResectionMargin() + 0.00001, 1.0, 1.0, 1.0);
   colorMap->AddRGBPoint(100.0, 1.0, 1.0, 1.0);
+  NodeColorMap[node] = colorMap;
 
   // Create the mapper for the distance map
   vtkSmartPointer<vtkPolyDataMapper> distanceMapper =
@@ -295,6 +301,8 @@ AddDistanceMapPipeline(vtkMRMLResectionSurfaceNode *node)
   NodeContourActorMap[node] = contourActor;
 
   //vtkPolyDataMapper::SetResolveCoincidentTopologyToPolygonOffset();
+
+  node->SetPolyDataConnection(normals->GetOutputPort());
 
   // Add actors to the scene
   this->GetRenderer()->AddActor(distanceActor);
@@ -465,12 +473,45 @@ OnMRMLSceneNodeRemoved(vtkMRMLNode *node)
   //   return;
   //   }
 
+  NodeContourActorIt contourActorIt =
+    this->NodeContourActorMap.find(resectionNode);
+  if (contourActorIt == this->NodeContourActorMap.end())
+    {
+    return;
+    }
+  this->GetRenderer()->RemoveActor(contourActorIt->second);
+  this->NodeContourActorMap.erase(contourActorIt);
+
+  NodeDistanceActorIt distanceActorIt =
+    this->NodeDistanceActorMap.find(resectionNode);
+  if (distanceActorIt == this->NodeDistanceActorMap.end())
+    {
+    return;
+    }
+  this->GetRenderer()->RemoveActor(distanceActorIt->second);
+  this->NodeDistanceActorMap.erase(distanceActorIt);
+
+  NodeColorIt colorIt = this->NodeColorMap.find(resectionNode);
+  if (colorIt == this->NodeColorMap.end())
+    {
+    return;
+    }
+  this->NodeColorMap.erase(colorIt);
+
+  NodeDistanceFilterIt distanceFilterIt =
+    this->NodeDistanceFilterMap.find(resectionNode);
+  if (distanceFilterIt == this->NodeDistanceFilterMap.end())
+    {
+    return;
+    }
+  this->NodeDistanceFilterMap.erase(distanceFilterIt);
+
   NodeWidgetIt it = this->NodeWidgetMap.find(resectionNode);
   if (it == this->NodeWidgetMap.end())
     {
     return;
     }
-
+  it->second->RemoveAllObservers();
   it->second->Off();
   this->NodeWidgetMap.erase(it);
 

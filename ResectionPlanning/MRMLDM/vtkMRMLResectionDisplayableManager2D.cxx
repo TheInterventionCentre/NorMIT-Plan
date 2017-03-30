@@ -86,7 +86,7 @@ SetMRMLSceneInternal(vtkMRMLScene *newScene)
 {
   this->Superclass::SetMRMLSceneInternal(newScene);
 
-  this->OnMRMLSceneEndClose();
+  //this->OnMRMLSceneEndClose();
 }
 
 //------------------------------------------------------------------------------

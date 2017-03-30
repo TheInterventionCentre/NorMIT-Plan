@@ -141,6 +141,12 @@ int vtkMRMLResectionSurfaceNode::GetNumberOfTargetTumors() const
 //------------------------------------------------------------------------------
 void vtkMRMLResectionSurfaceNode::SetControlPoints(vtkPoints *points)
 {
+  if (!points)
+    {
+    vtkErrorMacro("No points provided.");
+    return;
+    }
+
   this->ControlPoints->DeepCopy(points);
   this->Modified();
 }
