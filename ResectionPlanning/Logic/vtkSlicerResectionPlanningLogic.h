@@ -195,10 +195,6 @@ public vtkSlicerModuleLogic
   void HideInitializationOnResectionModification(vtkMRMLResectionSurfaceNode
                                                  *initNode);
 
- private:
-  vtkSlicerResectionPlanningLogic(const vtkSlicerResectionPlanningLogic&); // Not implemented
-  void operator=(const vtkSlicerResectionPlanningLogic&); // Not implemented
-
   vtkSmartPointer<vtkAppendPolyData> AppendTumors;
 
   // Pointer to the parenchyma node. The reader should note that there is only
@@ -208,8 +204,15 @@ public vtkSlicerModuleLogic
   // Resection initialization and resection node map
   std::map<vtkMRMLResectionInitializationNode*, vtkMRMLResectionSurfaceNode*>
     ResectionInitializationMap;
-  typedef std::map<vtkMRMLResectionInitializationNode*, vtkMRMLResectionSurfaceNode *>
+  typedef std::map<vtkMRMLResectionInitializationNode*,
+    vtkMRMLResectionSurfaceNode *>
     ::iterator ResectionInitializationIt;
+
+ private:
+  vtkSlicerResectionPlanningLogic(const vtkSlicerResectionPlanningLogic&); // Not implemented
+  void operator=(const vtkSlicerResectionPlanningLogic&); // Not implemented
+
+
 };
 
 #endif

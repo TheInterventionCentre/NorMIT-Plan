@@ -42,6 +42,7 @@
 // This module includes
 #include "vtkSlicerResectionPlanningModuleMRMLExport.h"
 
+//------------------------------------------------------------------------------
 class vtkMRMLNode;
 
 /**
@@ -49,7 +50,9 @@ class vtkMRMLNode;
  *
  * \brief This class represents the MRML node for handling resection storage.
  */
-class VTK_SLICER_RESECTIONPLANNING_MODULE_MRML_EXPORT vtkMRMLResectionSurfaceStorageNode : public vtkMRMLModelStorageNode
+class VTK_SLICER_RESECTIONPLANNING_MODULE_MRML_EXPORT
+vtkMRMLResectionSurfaceStorageNode:
+public vtkMRMLModelStorageNode
 {
   public:
 

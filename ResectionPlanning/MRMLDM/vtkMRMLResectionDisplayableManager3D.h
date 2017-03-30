@@ -50,6 +50,9 @@
 class vtkMRMLResectionSurfaceNode;
 class vtkBezierSurfaceWidget;
 class vtk3DWidget;
+class vtkHausdorffDistancePointSetFilter;
+class vtkActor;
+class vtkColorTransferFunction;
 
 //------------------------------------------------------------------------------
 class VTK_SLICER_RESECTIONPLANNING_MODULE_MRMLDISPLAYABLEMANAGER_EXPORT
@@ -85,6 +88,15 @@ public vtkMRMLAbstractThreeDViewDisplayableManager
    * @return true if the widget was successfully added, false otherwise.
    */
   bool AddWidget(vtkMRMLResectionSurfaceNode *node);
+
+  /**
+   * This function creates the pipeline dealing with the computatio of distance
+   * maps.
+   *
+   * @param pointer to resection node associated to the distance map.
+   *
+   */
+  void AddDistanceMapPipeline(vtkMRMLResectionSurfaceNode* node);
 
  protected:
   vtkMRMLResectionDisplayableManager3D();
@@ -176,6 +188,34 @@ public vtkMRMLAbstractThreeDViewDisplayableManager
                          unsigned long int eventId,
                          void *clientData,
                          void *callData);
+
+  /**
+   * Update the distance map and the safety contour based on modifications from
+   * interactions witht the widget.
+   *
+   * @param object pointer to widget triggering the event.
+   * @param eventId id of the event.
+   * @param clientData pointer to surface node to be modified.
+   * @param callData Not used.
+   *
+   */
+  static void UpdateDistanceMap(vtkObject *object,
+                                unsigned long int eventId,
+                                void *clientData,
+                                void *callData);
+
+  /**
+   * Update the control points field data in the polydata.
+   *
+   * @param object object pointer to widget triggering the event.
+   * @param eventId id of the event.
+   * @param clientData pointer to the displayable manager (self).
+   * @param callData
+   */
+  static void UpdateControlPointsFieldData(vtkObject *object,
+                                           unsigned long int eventId,
+                                           void *clientData,
+                                           void *callData);
  private:
 
   // Description:
@@ -188,6 +228,31 @@ public vtkMRMLAbstractThreeDViewDisplayableManager
     vtkSmartPointer<vtkBezierSurfaceWidget> > NodeWidgetMap;
   typedef std::map<vtkMRMLResectionSurfaceNode*,
     vtkSmartPointer<vtkBezierSurfaceWidget> >::iterator NodeWidgetIt;
+
+  // Map and iterator holding the ResecionNode-DistanceFilter relationship
+  std::map<vtkMRMLResectionSurfaceNode*,
+    vtkSmartPointer<vtkHausdorffDistancePointSetFilter> > NodeDistanceFilterMap;
+  typedef std::map<vtkMRMLResectionSurfaceNode*,
+    vtkSmartPointer<vtkHausdorffDistancePointSetFilter> >::iterator
+    NodeDistanceFilterIt;
+
+  // Map and iterator holding the color transfer function.
+  std::map<vtkMRMLResectionSurfaceNode*,
+    vtkSmartPointer<vtkColorTransferFunction> > NodeColorMap;
+  typedef std::map<vtkMRMLResectionSurfaceNode*,
+    vtkSmartPointer<vtkColorTransferFunction> >::iterator NodeColorIt;
+
+  // Map and iterator holding the ResectionNode-DistanceActor relationship
+  std::map<vtkMRMLResectionSurfaceNode*,
+    vtkSmartPointer<vtkActor> > NodeDistanceActorMap;
+  typedef std::map<vtkMRMLResectionSurfaceNode*,
+    vtkSmartPointer<vtkActor> >::iterator NodeDistanceActorIt;
+
+  // Map and iterator holding the ResectionNode-ContourActor relationship
+  std::map<vtkMRMLResectionSurfaceNode*,
+    vtkSmartPointer<vtkActor> > NodeContourActorMap;
+  typedef std::map<vtkMRMLResectionSurfaceNode*,
+    vtkSmartPointer<vtkActor> >::iterator NodeContourActorIt;
 };
 
 #endif

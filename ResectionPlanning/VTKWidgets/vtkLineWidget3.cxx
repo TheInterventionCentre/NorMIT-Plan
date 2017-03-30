@@ -103,7 +103,13 @@ vtkLineWidget3::vtkLineWidget3()
 
   // Placing the handles into scene
   this->Handle1Source->SetCenter(Point1);
+  this->Handle1Source->SetThetaResolution(32);
+  this->Handle1Source->SetPhiResolution(16);
+  this->Handle1Source->SetRadius(3);
   this->Handle2Source->SetCenter(Point2);
+  this->Handle2Source->SetThetaResolution(32);
+  this->Handle2Source->SetPhiResolution(16);
+  this->Handle2Source->SetRadius(3);
   this->Handle1Mapper->SetInputConnection(this->Handle1Source->GetOutputPort());
   this->Handle2Mapper->SetInputConnection(this->Handle2Source->GetOutputPort());
   this->Handle1Actor->SetMapper(this->Handle1Mapper.GetPointer());
@@ -111,7 +117,9 @@ vtkLineWidget3::vtkLineWidget3()
 
   // Placing the slicing contour into scene
   this->SlicingContourMapper->SetInputConnection(this->Cutter->GetOutputPort());
+  this->SlicingContourMapper->ScalarVisibilityOff();
   this->SlicingContourActor->SetMapper(this->SlicingContourMapper.GetPointer());
+
 
   // Crate the default visualization properties.
   this->CreateDefaultProperties();
@@ -257,6 +265,7 @@ void vtkLineWidget3::CreateDefaultProperties()
   this->LineProperty->LightingOff();
 
   this->SlicingContourProperty->SetColor(1.0, 1.0, 1.0);
+  this->SlicingContourProperty->SetOpacity(1.0);
   this->SlicingContourProperty->LightingOff();
   this->SlicingContourProperty->SetLineWidth(3.0);
 }

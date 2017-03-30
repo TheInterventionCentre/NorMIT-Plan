@@ -147,7 +147,7 @@ void qSlicerResectionPlanningModule::setup()
     qSlicerCoreApplication::application()->coreIOManager();
     ioManager->registerIO(new qSlicerResectionPlanningReader(resectionPlanningLogic,this));
     ioManager->registerIO(new qSlicerNodeWriter("Resection", QString("ResectionFile"),
-                                                QStringList() << "vtkMRMLResectionPlanningNode", true, this));
+                                                QStringList() << "vtkMRMLResectionSurfaceNode", true, this));
   }
 }
 

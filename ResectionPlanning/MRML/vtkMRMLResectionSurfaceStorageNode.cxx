@@ -78,64 +78,94 @@ bool vtkMRMLResectionSurfaceStorageNode::CanReadInReferenceNode(vtkMRMLNode *ref
 //----------------------------------------------------------------------------
 int vtkMRMLResectionSurfaceStorageNode::ReadDataInternal(vtkMRMLNode *refNode)
 {
+  if (!refNode)
+    {
+    vtkErrorMacro("No node passed");
+    return 0;
+    }
+
   int result = 1;
   // Call the superclass to load the data rather than reimplement?
   result = this->Superclass::ReadDataInternal(refNode);
 
+  if (!result)
+    {
+    vtkErrorMacro("Internal reading error");
+    return 0;
+    }
+
   // cast the input node
-  vtkMRMLResectionSurfaceNode *resectionSurfaceNode =  dynamic_cast < vtkMRMLResectionSurfaceNode *> (refNode);
+  vtkMRMLResectionSurfaceNode *resectionSurfaceNode =
+    vtkMRMLResectionSurfaceNode::SafeDownCast(refNode);
+
+  if (!refNode)
+    {
+    vtkErrorMacro("Node passed is not a resection node");
+    return 0;
+    }
+
   vtkSmartPointer<vtkPoints> controlPoints = vtkSmartPointer<vtkPoints>::New();
 
   std::string fullName = this->GetFullNameFromFileName();
   if (fullName.empty())
-  {
+    {
     vtkErrorMacro("ReadDataInternal: File name not specified");
     return 0;
-  }
+    }
 
-  vtkPolyData* tempPolyData = resectionSurfaceNode->GetPolyData();
-  assert(tempPolyData);
-  vtkDataSet* vtkData = vtkDataSet::SafeDownCast(tempPolyData);
 
-  if(vtkData != NULL)
-  {
-    // Get the data back out
-    //http://www.vtk.org/Wiki/VTK/Examples/Cxx/PolyData/FieldData
-    vtkDataArray* temp = vtkData->GetFieldData()->GetArray("controlPoints");
-    controlPoints->SetData(temp);
-  }
+  std::cout << "read1" << std::endl;
 
-  if(controlPoints->GetNumberOfPoints() > 0)
-  {
-    // Do something with the retrieved array
-    // to set it back to the variables needed in vtkMRMLResectionSurfaceNode
-    std::cout << "RP -StorageNode - ReadDataInternal: field data not nullptr " << std::endl;
+  vtkPolyData* resectionPolyData = resectionSurfaceNode->GetPolyData();
+  if (!resectionPolyData)
+    {
+    vtkErrorMacro("No polydata present in the resection node.");
+    return 0;
+    }
 
-    resectionSurfaceNode->SetControlPoints(controlPoints);
-  }
-  // if have not found any extra polydata to represent the control points
-  else
-  {
-    std::cout << "RP-StorageNode - ReadDataInternal: field data nullptr " << std::endl;
-    // do something else - just load the polydata?
-  }
+  std::cout << "read2" << std::endl;
 
-  return result;
+  vtkDataArray *dataArray =
+    resectionPolyData->GetFieldData()->GetArray("ControlPoints");
+  if (!dataArray)
+    {
+    vtkErrorMacro("Resection polydata does not contain control points");
+    return 0;
+    }
+  std::cout << "read3" << std::endl;
+
+  controlPoints->SetData(dataArray);
+
+  resectionSurfaceNode->SetControlPoints(controlPoints);
+
+  std::cout << "read4" << std::endl;
+
+return result;
 }
 
 //----------------------------------------------------------------------------
 int vtkMRMLResectionSurfaceStorageNode::WriteDataInternal(vtkMRMLNode *refNode)
 {
   // downcast the input node
-  vtkMRMLResectionSurfaceNode *resectionSurfaceNode = vtkMRMLResectionSurfaceNode::SafeDownCast(refNode);
+  vtkMRMLResectionSurfaceNode *resectionSurfaceNode =
+    vtkMRMLResectionSurfaceNode::SafeDownCast(refNode);
 
   vtkPoints *controlPoints = resectionSurfaceNode->GetControlPoints();
+  if (!controlPoints)
+    {
+    vtkErrorMacro("Resection node does not contain any control points.");
+    return 0;
+    }
+  controlPoints->GetData()->SetName("ControlPoints");
 
-  // put the name into the polydata
-  controlPoints->GetData()->SetName("controlPoints"); //resectionSurfaceNode->GetNodeTagName()
   // add the extra info (control points) to the polydata
-  vtkPolyData *tempPolyData = resectionSurfaceNode->GetPolyData();
-  tempPolyData->GetFieldData()->AddArray(controlPoints->GetData());
+  vtkPolyData *resectionPolyData = resectionSurfaceNode->GetPolyData();
+  if (!resectionPolyData)
+    {
+    vtkErrorMacro("Resection node does not contain any polydata");
+    return 0;
+    }
+  resectionPolyData->GetFieldData()->AddArray(controlPoints->GetData());
 
   int result = this->Superclass::WriteDataInternal(refNode);
 
@@ -153,5 +183,5 @@ void vtkMRMLResectionSurfaceStorageNode::InitializeSupportedReadFileTypes()
 //----------------------------------------------------------------------------
 void vtkMRMLResectionSurfaceStorageNode::InitializeSupportedWriteFileTypes()
 {
-    this->Superclass::InitializeSupportedWriteFileTypes();
+  this->Superclass::InitializeSupportedWriteFileTypes();
 }

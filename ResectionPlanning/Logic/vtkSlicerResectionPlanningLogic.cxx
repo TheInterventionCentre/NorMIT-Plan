@@ -58,10 +58,10 @@
 #include <vtkCenterOfMass.h>
 #include <vtkTable.h>
 #include <vtkPCAStatistics.h>
+#include <vtkAlgorithmOutput.h>
 #include <vtkCacheManager.h>
 
-/// ITK includes
-#include <itksys/Directory.hxx>
+//ITK includes
 #include <itksys/SystemTools.hxx>
 
 // STD includes
@@ -145,6 +145,10 @@ void vtkSlicerResectionPlanningLogic::RegisterNodes()
     initializationDisplayNode =
     vtkSmartPointer<vtkMRMLResectionInitializationDisplayNode>::New();
   scene->RegisterNodeClass(initializationDisplayNode);
+
+  vtkSmartPointer<vtkMRMLResectionSurfaceStorageNode> resectionStorageNode =
+    vtkSmartPointer<vtkMRMLResectionSurfaceStorageNode>::New();
+  scene->RegisterNodeClass(resectionStorageNode);
 }
 
 //---------------------------------------------------------------------------
@@ -157,7 +161,8 @@ void vtkSlicerResectionPlanningLogic::UpdateFromMRMLScene()
 void vtkSlicerResectionPlanningLogic
 ::OnMRMLSceneNodeAdded(vtkMRMLNode* addedNode)
 {
-  // Check whether the added node was a model
+
+// Check whether the added node was a model
   vtkMRMLModelNode *modelNode = vtkMRMLModelNode::SafeDownCast(addedNode);
   if (!modelNode)
     {
@@ -179,8 +184,7 @@ void vtkSlicerResectionPlanningLogic
     vtkDebugMacro("Resection planning logic: Tumor model node added "
                   << modelNode->GetName());
 
-    // Add the tumor to the append filter.
-    this->AppendTumors->AddInputData(modelNode->GetPolyData());
+    vtkObserveMRMLNodeMacro(modelNode)
 
     // Set scalar visibility of tumor
     vtkMRMLModelDisplayNode *tumorModelDisplayNode =
@@ -273,8 +277,6 @@ void vtkSlicerResectionPlanningLogic
     }
 }
 
-
-
 //---------------------------------------------------------------------------
 void vtkSlicerResectionPlanningLogic
 ::OnMRMLSceneNodeRemoved(vtkMRMLNode *removedNode)
@@ -301,8 +303,9 @@ void vtkSlicerResectionPlanningLogic
     vtkDebugMacro("Resection planning logic: Tumor model node removed "
                   << modelNode->GetName());
 
-    // Add the tumor to the append filter.
-    this->AppendTumors->AddInputData(modelNode->GetPolyData());
+    // Remove the tumor from the append filter.
+    this->AppendTumors->RemoveInputConnection(0,modelNode->GetPolyDataConnection());
+    this->AppendTumors->Update();
 
     // Set scalar visibility of tumor
     vtkMRMLModelDisplayNode *tumorModelDisplayNode =
@@ -420,18 +423,23 @@ void vtkSlicerResectionPlanningLogic::AddResectionSurface()
     resectionInitializationDisplayNode->GetID());
   scene->AddNode(resectionInitializationNode);
 
-  // Add display node first
+  // Add resection node
   vtkSmartPointer<vtkMRMLResectionSurfaceDisplayNode> resectionDisplayNode =
     vtkSmartPointer<vtkMRMLResectionSurfaceDisplayNode>::New();
   resectionDisplayNode->SetScene(this->GetMRMLScene());
   resectionDisplayNode->ScalarVisibilityOn();
   scene->AddNode(resectionDisplayNode);
 
-  // Then add resection node
+  // Add the storage onde
+  vtkSmartPointer<vtkMRMLResectionSurfaceStorageNode> resectionStorageNode =
+    vtkSmartPointer<vtkMRMLResectionSurfaceStorageNode>::New();
+  scene->AddNode(resectionStorageNode);
+
   vtkSmartPointer<vtkMRMLResectionSurfaceNode> resectionNode =
     vtkSmartPointer<vtkMRMLResectionSurfaceNode>::New();
   resectionNode->SetScene(this->GetMRMLScene());
   resectionNode->SetAndObserveDisplayNodeID(resectionDisplayNode->GetID());
+  resectionNode->SetAndObserveStorageNodeID(resectionStorageNode->GetID());
   scene->AddNode(resectionNode);
 
   // Link the resection initialization node with the resection
@@ -459,7 +467,8 @@ void vtkSlicerResectionPlanningLogic::AddResectionSurface()
 }
 
 //----------------------------------------------------------------------------
-vtkMRMLResectionSurfaceNode* vtkSlicerResectionPlanningLogic::AddResectionSurface(const char* filename)
+vtkMRMLResectionSurfaceNode* vtkSlicerResectionPlanningLogic::
+AddResectionSurface(const char* filename)
 {
   std::cout << "Logic - AddResectionSurface" << std::endl;
 
@@ -467,9 +476,12 @@ vtkMRMLResectionSurfaceNode* vtkSlicerResectionPlanningLogic::AddResectionSurfac
   {
     return 0;
   }
-  vtkSmartPointer<vtkMRMLResectionSurfaceNode> resectionNode = vtkSmartPointer<vtkMRMLResectionSurfaceNode>::New();
-  vtkSmartPointer<vtkMRMLResectionSurfaceDisplayNode> resectionDisplayNode = vtkSmartPointer<vtkMRMLResectionSurfaceDisplayNode>::New();
-  vtkSmartPointer<vtkMRMLResectionSurfaceStorageNode> resectionStorageNode = vtkSmartPointer<vtkMRMLResectionSurfaceStorageNode>::New();
+  vtkSmartPointer<vtkMRMLResectionSurfaceNode> resectionNode =
+    vtkSmartPointer<vtkMRMLResectionSurfaceNode>::New();
+  vtkSmartPointer<vtkMRMLResectionSurfaceDisplayNode> resectionDisplayNode =
+    vtkSmartPointer<vtkMRMLResectionSurfaceDisplayNode>::New();
+  vtkSmartPointer<vtkMRMLResectionSurfaceStorageNode> resectionStorageNode =
+    vtkSmartPointer<vtkMRMLResectionSurfaceStorageNode>::New();
   vtkSmartPointer<vtkMRMLStorageNode> storageNode;
 
   // check for local or remote files
@@ -579,6 +591,16 @@ ProcessMRMLNodesEvents(vtkObject *object,
     if (eventId ==  vtkCommand::StartInteractionEvent)
       {
         this->HideInitializationOnResectionModification(resectionNode);
+      }
+    }
+
+  vtkMRMLModelNode *modelNode = vtkMRMLModelNode::SafeDownCast(object);
+  if (modelNode)
+    {
+    if (eventId == vtkCommand::ModifiedEvent)
+      {
+      this->AppendTumors->AddInputConnection(0,modelNode->GetPolyDataConnection());
+      this->AppendTumors->Update();
       }
     }
 
@@ -784,6 +806,7 @@ HideResectionSurfaceOnInitialization(vtkMRMLResectionInitializationNode* initNod
     vtkErrorMacro("Error: no display node associated with the resection node.");
     return;
     }
+
 
   displayNode->VisibilityOff();
 }
