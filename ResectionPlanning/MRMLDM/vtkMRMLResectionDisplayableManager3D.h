@@ -203,19 +203,6 @@ public vtkMRMLAbstractThreeDViewDisplayableManager
                                 unsigned long int eventId,
                                 void *clientData,
                                 void *callData);
-
-  /**
-   * Update the control points field data in the polydata.
-   *
-   * @param object object pointer to widget triggering the event.
-   * @param eventId id of the event.
-   * @param clientData pointer to the displayable manager (self).
-   * @param callData
-   */
-  static void UpdateControlPointsFieldData(vtkObject *object,
-                                           unsigned long int eventId,
-                                           void *clientData,
-                                           void *callData);
  private:
 
   // Description:
