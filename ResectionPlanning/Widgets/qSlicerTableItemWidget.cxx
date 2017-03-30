@@ -85,10 +85,15 @@ void qSlicerTableItemWidget::visibleCheckboxChanged(bool state)
 
 void qSlicerTableItemWidget::widgetCheckboxChanged(bool state)
 {
-  std::cout << "table item - widget checkbox: " << state << ", in: " << this->resectionName.toStdString() << '\n';
+  std::cout << "table item - widget checkbox: " << state << ", in: " << this->resectionID.toStdString() << '\n';
 }
 
-void qSlicerTableItemWidget::marginSliderChanged(double value)
+void qSlicerTableItemWidget::marginSpinboxChanged(double value)
+{
+  std::cout << "table item - spinbox: " << value << ", in: " << this->resectionID.toStdString() << '\n';
+}
+
+void qSlicerTableItemWidget::transparencySliderChanged(int value)
 {
   std::cout << "table item - slider: " << value << ", in: " << this->resectionID.toStdString() << '\n';
 }

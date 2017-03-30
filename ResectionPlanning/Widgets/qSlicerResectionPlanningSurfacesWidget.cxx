@@ -34,10 +34,9 @@
 #include <iostream>
 #include <string>
 
-#include <QListWidget>
 #include <QTableWidget>
-#include <QListWidgetItem>
 #include <QTableWidgetItem>
+#include <QHeaderView>
 #include <QLabel>
 #include <QString>
 #include <QSharedPointer>
@@ -83,14 +82,10 @@ qSlicerResectionPlanningSurfacesWidget
 
   //d->tableResectionSurfaces->setItemPrototype(new qSlicerTableItemWidget());
 
-  // start with no rows
-  d->tableResectionSurfaces->setRowCount(0);
-  d->tableResectionSurfaces->setColumnCount(1);
-  d->tableResectionSurfaces->setSelectionMode(QAbstractItemView::SingleSelection);
-  d->tableResectionSurfaces->horizontalHeader()->setStretchLastSection(true);
   d->tableResectionSurfaces->horizontalHeader()->hide();
+  d->tableResectionSurfaces->horizontalHeader()->setResizeMode( QHeaderView::Stretch );
 
-
+  /*
   // test:
   qSlicerTableItemWidget *item = new qSlicerTableItemWidget();
   QString text1 = "TestResection";
@@ -111,7 +106,7 @@ qSlicerResectionPlanningSurfacesWidget
   row = d->tableResectionSurfaces->rowCount();
   d->tableResectionSurfaces->insertRow(row);
   d->tableResectionSurfaces->setCellWidget(row,0,item2);
-
+  */
 
   // connect signals & slots for buttons to add & remove resection surface
   QObject::connect(d->AddSurfaceButton, SIGNAL(clicked()),

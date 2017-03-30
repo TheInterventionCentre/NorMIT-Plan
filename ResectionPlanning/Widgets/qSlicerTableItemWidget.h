@@ -89,11 +89,18 @@ signals:
   void setWidgetCheckbox(bool);
 
   /**
+  * Used to set the spinbox value
+  *
+  * @param double for value of spinbox
+  */
+  void setMarginSpinbox(double);
+
+  /**
   * Used to set the slider value
   *
-  * @param double for value of slider
+  * @param int for value of slider
   */
-  void setMarginSlider(double);
+  void setTransparencySlider(int);
 
 protected slots:
   /**
@@ -111,11 +118,18 @@ protected slots:
   void widgetCheckboxChanged(bool);
 
   /**
-   * Called when the visibility checkbox state is changed
+   * Called when the margin spinbox state is changed
    *
-   * @param double for value of slider
+   * @param double for value of spinbox
    */
-  void marginSliderChanged(double);
+  void marginSpinboxChanged(double);
+
+  /**
+   * Called when the transparency slider state is changed
+   *
+   * @param in for value of slider
+   */
+  void transparencySliderChanged(int);
 
 private:
   QString resectionName;

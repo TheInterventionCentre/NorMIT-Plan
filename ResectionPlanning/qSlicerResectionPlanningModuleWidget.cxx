@@ -93,10 +93,6 @@ void qSlicerResectionPlanningModuleWidget::setup()
   d->TumorsWidget->hide();
   d->VolumesWidget->hide();
 
-  // connect events to node selection dropdown
-  QObject::connect(d->ActiveParenchymaModelNodeSelector, SIGNAL(currentNodeChanged(vtkMRMLNode*)), this, SLOT(nodeSelectionChanged(vtkMRMLNode*)));
-  //QObject::connect(this, SIGNAL(mrmlSceneChanged(vtkMRMLScene*)), d->ActiveParenchymaModelNodeSelector, SLOT(setMRMLScene(vtkMRMLScene*)));
-
   // connections to lower level widgets (TUMORS)
   QObject::connect(d->TumorsWidget,
                      SIGNAL(AddTumorToResectionButtonClicked(QString&)),
@@ -151,11 +147,6 @@ void qSlicerResectionPlanningModuleWidget::nodeSelectionChanged(vtkMRMLNode* nod
 {
   Q_D(qSlicerResectionPlanningModuleWidget);
 
-  vtkMRMLModelNode *activeParenchymaModel = vtkMRMLModelNode::SafeDownCast(d->ActiveParenchymaModelNodeSelector->currentNode() );
-  if(activeParenchymaModel != NULL)
-  {
-    std::cout << "Widget - Parenchyma Model node selection changed " << std::endl;
-  }
 }
 //-----------------------------------------------------------------------------
 void qSlicerResectionPlanningModuleWidget::setMRMLScene(vtkMRMLScene* scene)

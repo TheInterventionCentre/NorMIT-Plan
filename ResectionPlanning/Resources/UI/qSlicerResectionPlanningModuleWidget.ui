@@ -27,25 +27,6 @@
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_3">
       <item>
-       <widget class="QLabel" name="ModelSelectorLabel">
-        <property name="text">
-         <string>Select a parenchyma model:</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="qMRMLNodeComboBox" name="ActiveParenchymaModelNodeSelector">
-        <property name="enabled">
-         <bool>true</bool>
-        </property>
-        <property name="nodeTypes">
-         <stringlist>
-          <string>vtkMRMLModelNode</string>
-         </stringlist>
-        </property>
-       </widget>
-      </item>
-      <item>
        <widget class="qSlicerResectionPlanningSurfacesWidget" name="SurfacesWidget" native="true"/>
       </item>
       <item>
@@ -126,11 +107,6 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>qMRMLNodeComboBox</class>
-   <extends>QWidget</extends>
-   <header>qMRMLNodeComboBox.h</header>
-  </customwidget>
-  <customwidget>
    <class>qSlicerWidget</class>
    <extends>QWidget</extends>
    <header>qSlicerWidget.h</header>
@@ -162,38 +138,5 @@
   </customwidget>
  </customwidgets>
  <resources/>
- <connections>
-  <connection>
-   <sender>qSlicerResectionPlanningModuleWidget</sender>
-   <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
-   <receiver>ActiveParenchymaModelNodeSelector</receiver>
-   <slot>setMRMLScene(vtkMRMLScene*)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>262</x>
-     <y>159</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>262</x>
-     <y>89</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>ActiveParenchymaModelNodeSelector</sender>
-   <signal>currentNodeChanged(vtkMRMLNode*)</signal>
-   <receiver>qSlicerResectionPlanningModuleWidget</receiver>
-   <slot>nodeSelectionChanged(vtkMRMLNode*)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>152</x>
-     <y>11</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>155</x>
-     <y>133</y>
-    </hint>
-   </hints>
-  </connection>
- </connections>
+ <connections/>
 </ui>
