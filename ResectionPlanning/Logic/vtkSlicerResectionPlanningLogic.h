@@ -55,11 +55,8 @@
 //------------------------------------------------------------------------------
 class vtkAppendPolyData;
 class vtkMRMLModelNode;
-<<<<<<< variant A
->>>>>>> variant B
 class vtkMRMLResectionSurfaceNode;
 class vtkMRMLResectionInitializationNode;
-======= end
 
 //------------------------------------------------------------------------------
 
@@ -218,7 +215,6 @@ public vtkSlicerModuleLogic
   vtkSlicerResectionPlanningLogic(const vtkSlicerResectionPlanningLogic&); // Not implemented
   void operator=(const vtkSlicerResectionPlanningLogic&); // Not implemented
 
-  vtkSmartPointer<vtkAppendPolyData> AppendTumors;
 };
 
 #endif

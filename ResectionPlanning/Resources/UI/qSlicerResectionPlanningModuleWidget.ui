@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>359</width>
-    <height>626</height>
+    <width>689</width>
+    <height>659</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -121,19 +121,19 @@
   <customwidget>
    <class>qSlicerResectionPlanningSurfacesWidget</class>
    <extends>QWidget</extends>
-   <header>qslicerresectionplanningsurfaceswidget.h</header>
+   <header>qSlicerResectionPlanningSurfacesWidget.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
    <class>qSlicerResectionPlanningVolumesWidget</class>
    <extends>QWidget</extends>
-   <header>qslicerresectionplanningvolumeswidget.h</header>
+   <header>qSlicerResectionPlanningVolumesWidget.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
    <class>qSlicerResectionPlanningTumorsWidget</class>
    <extends>QWidget</extends>
-   <header>qslicerresectionplanningtumorswidget.h</header>
+   <header>qSlicerResectionPlanningTumorsWidget.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>
