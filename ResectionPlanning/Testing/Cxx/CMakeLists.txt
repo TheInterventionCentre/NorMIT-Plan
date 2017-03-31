@@ -16,6 +16,8 @@ set(KIT_TEST_SRCS
   vtkMRMLResectionDisplayableManager2DTest1.cxx
   vtkMRMLResectionDisplayableManager2DTest2.cxx
   vtkSlicerResectionPlanningLogicTest1.cxx
+  qSlicerTumorWidgetTest.cxx
+  qSlicerSurfaceWidgetTest.cxx
   )
 
 set(${KIT}_INCLUDE_DIRECTORIES
@@ -32,6 +34,7 @@ slicerMacroConfigureModuleCxxTestDriver(
   vtkSlicerResectionPlanningModuleMRMLDisplayableManager
   vtkSlicerResectionPlanningModuleLogic
   vtkSlicerResectionPlanningModuleVTKWidgets
+  qSlicerResectionPlanningModuleWidgets
   WITH_VTK_DEBUG_LEAKS_CHECK
   WITH_VTK_DEBUG_ERROR_CHECK
   )
@@ -75,3 +78,9 @@ simple_test(vtkMRMLResectionDisplayableManager2DTest2)
 
 # Test resection planning logic
 simple_test(vtkSlicerResectionPlanningLogicTest1)
+
+# Test tumor widget
+simple_test(qSlicerTumorWidgetTest)
+
+# Test associating tumors to a resection
+simple_test(qSlicerSurfaceWidgetTest)

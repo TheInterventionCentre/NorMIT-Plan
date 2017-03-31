@@ -6,9 +6,15 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>525</width>
-    <height>319</height>
+    <width>689</width>
+    <height>659</height>
    </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
   </property>
   <property name="windowTitle">
    <string>Form</string>
@@ -17,30 +23,69 @@
    <item>
     <widget class="ctkCollapsibleButton" name="CTKCollapsibleButton">
      <property name="text">
-      <string>Display</string>
+      <string>Manage Resections</string>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_3">
       <item>
-       <widget class="QLabel" name="ModelSelectorLabel">
-        <property name="text">
-         <string>Select a parenchyma model:</string>
-        </property>
-       </widget>
+       <widget class="qSlicerResectionPlanningSurfacesWidget" name="SurfacesWidget" native="true"/>
       </item>
       <item>
-       <widget class="qMRMLNodeComboBox" name="ActiveParenchymaModelNodeSelector">
+       <widget class="qSlicerResectionPlanningTumorsWidget" name="TumorsWidget" native="true">
         <property name="enabled">
          <bool>true</bool>
         </property>
-        <property name="nodeTypes">
-         <stringlist>
-          <string>vtkMRMLModelNode</string>
-         </stringlist>
+       </widget>
+      </item>
+      <item>
+       <spacer name="verticalSpacer_2">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>20</width>
+          <height>40</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="ctkCollapsibleButton" name="CollapsibleButton">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
+     <property name="text">
+      <string>Calculate Volume</string>
+     </property>
+     <property name="contentsFrameShape">
+      <enum>QFrame::StyledPanel</enum>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_2">
+      <item>
+       <widget class="QLabel" name="label">
+        <property name="text">
+         <string>Calculate the volume resected:</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="qSlicerResectionPlanningFooBarWidget" name="FooBar" native="true"/>
+       <widget class="qSlicerResectionPlanningVolumesWidget" name="VolumesWidget" native="true"/>
+      </item>
+      <item>
+       <spacer name="verticalSpacer_3">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>20</width>
+          <height>40</height>
+         </size>
+        </property>
+       </spacer>
       </item>
      </layout>
     </widget>
@@ -62,11 +107,6 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>qMRMLNodeComboBox</class>
-   <extends>QWidget</extends>
-   <header>qMRMLNodeComboBox.h</header>
-  </customwidget>
-  <customwidget>
    <class>qSlicerWidget</class>
    <extends>QWidget</extends>
    <header>qSlicerWidget.h</header>
@@ -79,45 +119,24 @@
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>qSlicerResectionPlanningFooBarWidget</class>
+   <class>qSlicerResectionPlanningSurfacesWidget</class>
    <extends>QWidget</extends>
-   <header>qSlicerResectionPlanningFooBarWidget.h</header>
+   <header>qSlicerResectionPlanningSurfacesWidget.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>qSlicerResectionPlanningVolumesWidget</class>
+   <extends>QWidget</extends>
+   <header>qSlicerResectionPlanningVolumesWidget.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>qSlicerResectionPlanningTumorsWidget</class>
+   <extends>QWidget</extends>
+   <header>qSlicerResectionPlanningTumorsWidget.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>
  <resources/>
- <connections>
-  <connection>
-   <sender>qSlicerResectionPlanningModuleWidget</sender>
-   <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
-   <receiver>ActiveParenchymaModelNodeSelector</receiver>
-   <slot>setMRMLScene(vtkMRMLScene*)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>262</x>
-     <y>159</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>262</x>
-     <y>89</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>ActiveParenchymaModelNodeSelector</sender>
-   <signal>currentNodeChanged(vtkMRMLNode*)</signal>
-   <receiver>qSlicerResectionPlanningModuleWidget</receiver>
-   <slot>nodeSelectionChanged(vtkMRMLNode*)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>152</x>
-     <y>11</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>155</x>
-     <y>133</y>
-    </hint>
-   </hints>
-  </connection>
- </connections>
+ <connections/>
 </ui>

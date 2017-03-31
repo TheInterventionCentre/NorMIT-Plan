@@ -1,5 +1,4 @@
 /*=========================================================================
-
   Program: NorMIT-Plan
   Module: vtkSlicerResectionPlanningLogic.cxx
 
@@ -66,7 +65,11 @@
 
 // STD includes
 #include <cassert>
+#include <iostream>
+#include <map>
+#include <list>
 #include <string>
+
 
 //----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkSlicerResectionPlanningLogic);
@@ -81,6 +84,7 @@ vtkSlicerResectionPlanningLogic::vtkSlicerResectionPlanningLogic()
 //----------------------------------------------------------------------------
 vtkSlicerResectionPlanningLogic::~vtkSlicerResectionPlanningLogic()
 {
+
 }
 
 //----------------------------------------------------------------------------
@@ -196,7 +200,7 @@ void vtkSlicerResectionPlanningLogic
 
     //Inform about the tumor model added.
     this->InvokeEvent(vtkSlicerResectionPlanningLogic::TumorModelAdded,
-                      static_cast<void*>(&id_name));
+                      &id_name);
     return;
     }
 
@@ -219,7 +223,6 @@ void vtkSlicerResectionPlanningLogic
     // Inform that a hepatic node was added
     this->InvokeEvent(vtkSlicerResectionPlanningLogic::ParenchymaModelAdded,
                       static_cast<void*>(&id_name));
-
     return;
     }
 
@@ -317,7 +320,7 @@ void vtkSlicerResectionPlanningLogic
 
     //Inform about the tumor model removed.
     this->InvokeEvent(vtkSlicerResectionPlanningLogic::TumorModelRemoved,
-                      static_cast<void*>(&id_name));
+                      &id_name);
     return;
     }
 
