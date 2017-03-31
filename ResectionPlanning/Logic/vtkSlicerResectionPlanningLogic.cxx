@@ -291,6 +291,12 @@ void vtkSlicerResectionPlanningLogic
     return;
     }
 
+  if (!this->GetMRMLScene())
+    {
+    vtkErrorMacro("No MRML scene.");
+    return;
+    }
+
   vtksys::RegularExpression tumorModelEx("^LRPTumor[0-9]+Model$");
   vtksys::RegularExpression parenchymaModelEx("^LRPParenchymaModel$");
   vtksys::RegularExpression portalModelEx("^LRPPortalModel$");
@@ -389,6 +395,20 @@ void vtkSlicerResectionPlanningLogic
     vtkMRMLResectionSurfaceNode::SafeDownCast(removedNode);
   if (resectionNode)
     {
+
+    // Remove the associated initialization node
+    ResectionInitializationIt it;
+    for (it=this->ResectionInitializationMap.begin();
+         it!=this->ResectionInitializationMap.end();
+         it++)
+      {
+      if (it->second == resectionNode)
+        {
+        this->GetMRMLScene()->RemoveNode(it->first);
+        this->ResectionInitializationMap.erase(it);
+        }
+      }
+
     vtkDebugMacro("Resection planning logic: Resection node removed "
                   << resectionNode->GetName());
     // Inform that a resedtion node was removed
@@ -570,6 +590,34 @@ AddResectionSurface(const char* filename)
                     static_cast<void*>(&id_name));
 
   return resectionNode.GetPointer();
+}
+
+//------------------------------------------------------------------------------
+void vtkSlicerResectionPlanningLogic::
+RemoveResection(const char *nodeId)
+{
+  vtkDebugMacro("RemoveResection");
+
+  if (!this->GetMRMLScene())
+    {
+    vtkErrorMacro("No MRML scene.");
+    return;
+    }
+
+  vtkMRMLNode *node = this->GetMRMLScene()->GetNodeByID(nodeId);
+  if (!node)
+    {
+    vtkErrorMacro("Node not found.");
+    return;
+    }
+
+  if (!node->IsA("vtkMRMLResectionSurfaceNode"))
+    {
+    vtkErrorMacro("Node specified is not a vtkMRMLResectionSurfaceNode");
+    return;
+    }
+
+  this->GetMRMLScene()->RemoveNode(node);
 }
 
 //------------------------------------------------------------------------------

@@ -1,30 +1,37 @@
 /*=========================================================================
-Program: NorMIT-Nav
-Module: qSlicerResectionPlanningSurfacesWidget.h
-Copyright (c) 2017 The Intervention Centre, Oslo University Hospital
-All rights reserved.
-Redistribution and use in source and binary forms, with or without
-modification, are permitted provided that the following conditions are met:
-1. Redistributions of source code must retain the above copyright notice,
-   this list of conditions and the following disclaimer.
-2. Redistributions in binary form must reproduce the above copyright notice,
-   this list of conditions and the following disclaimer in the documentation
-   and/or other materials provided with the distribution.
-3. Neither the name of the copyright holder nor the names of its contributors
-   may be used to endorse or promote products derived from this software
-   without specific prior written permission.
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-=========================================================================*/
 
+  Program: NorMIT-Plan
+  Module: qSlicerResectionPlanningSurfacesWidget.h
+
+  Copyright (c) 2017, The Intervention Centre, Oslo University Hospital
+
+  All rights reserved.
+
+  Redistribution and use in source and binary forms, with or without
+  modification, are permitted provided that the following conditions are met:
+
+  1. Redistributions of source code must retain the above copyright notice,
+  this list of conditions and the following disclaimer.
+
+  2. Redistributions in binary form must reproduce the above copyright notice,
+  this list of conditions and the following disclaimer in the documentation
+  and/or other materials provided with the distribution.
+
+  3. Neither the name of the copyright holder nor the names of its contributors
+  may be used to endorse or promote products derived from this software
+  without specific prior written permission.
+
+  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+  DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+  FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+  DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+  SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+  CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+  OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  =========================================================================*/
 #ifndef __qSlicerResectionPlanningSurfacesWidget_h
 #define __qSlicerResectionPlanningSurfacesWidget_h
 
@@ -36,10 +43,13 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // FooBar Widgets includes
 #include "qSlicerResectionPlanningModuleWidgetsExport.h"
 
+//------------------------------------------------------------------------------
 class qSlicerResectionPlanningSurfacesWidgetPrivate;
 class QString;
 class QTableWidget;
 class QTableWidgetItem;
+class vtkObject;
+class qSlicerTableItemWidget;
 
 /**
  *  \ingroup ResectionPlanning
@@ -51,8 +61,9 @@ class QTableWidgetItem;
 class Q_SLICER_MODULE_RESECTIONPLANNING_WIDGETS_EXPORT qSlicerResectionPlanningSurfacesWidget
   : public QWidget
 {
-  Q_OBJECT
-public:
+  Q_OBJECT;
+
+ public:
   typedef QWidget Superclass;
   qSlicerResectionPlanningSurfacesWidget(QWidget *parent=0);
   virtual ~qSlicerResectionPlanningSurfacesWidget();
@@ -63,29 +74,22 @@ public:
    * @param resection node ID
    * @return boolean if found / selected
    */
-   bool SelectResection(QString&);
+  bool SelectResection(QString&);
 
   /**
    * Get currently selected resection
    * returns null if nothing selected
    */
-   QString GetCurrentResectionID();
+  QString GetCurrentResectionID();
 
-   /**
-    * Get list of resections
-    *
-    * @return list of resection IDs
-    */
-   QList<QString> GetResections();
-
-public slots:
   /**
-   * Adds a resection to the list of resections (listResectionSurfaces)
+   * Get list of resections
    *
-   * @param resection node ID
-   * @param resection node name
+   * @return list of resection IDs
    */
-   void AddToResectionList(QString&,QString&);
+  QList<QString> GetResections();
+
+ public slots:
 
   /**
    * Removes a resection from the list of resections (listResectionSurfaces)
@@ -93,14 +97,14 @@ public slots:
    * @param resection node ID
    * @param resection node name
    */
-   void RemoveFromResectionList(QString&,QString&);
+  //void RemoveFromResectionList(QString&,QString&);
 
-signals:
+ signals:
   /**
    * Signal emited when the button to add a resection is clicked
    * No parameters, since no resection node exists yet
    */
-   void AddSurfaceButtonClicked();
+  void AddSurfaceButtonClicked();
 
   /**
    * Signal emited when the button to remove a resection is clicked
@@ -108,16 +112,16 @@ signals:
    * @param resection node ID
    * @param resection node name
    */
-   void RemoveSurfaceButtonClicked(QString&,QString&);
+  void RemoveSurface(QString&);
 
-   /**
-    * Signal emited when the selected resection is changed
-    *
-    * @param resection node ID
-    */
-    void CurrentResectionSurfaceChanged(QString&);
+  /**
+   * Signal emited when the selected resection is changed
+   *
+   * @param resection node ID
+   */
+//  void CurrentResectionSurfaceChanged(QString&);
 
-protected slots:
+ protected slots:
   /**
    * Triggered when the button for adding a resection surface is clicked
    */
@@ -131,16 +135,49 @@ protected slots:
   /**
    * Triggered when the selection of current resection surface is changed
    */
-  void OnCurrentResectionSurfaceChanged(int, int, int, int);
+  // void OnCurrentResectionSurfaceChanged(int, int, int, int);
 
-protected:
+  /**
+   * Called when a resection node is added in the logic
+   * connected to the event: vtkSlicerResectionPlanningLogic::ResectionNodeAdded
+   *
+   * @param typically the vtk object that triggered the event (not used)
+   * @param the event (not used)
+   * @param client data (not used)
+   * @param callData passes a pair of char* and QString,
+   * which are the ID of node that has been added, and the name of the node
+   */
+  void OnResectionAdded(vtkObject* object,
+                        unsigned long event,
+                        void *clientData,
+                        void *callData);
+
+
+  /**
+   * Called when a resection node is removed in the logic
+   * connected to the event: vtkSlicerResectionPlanningLogic::ResectionNodeRemoved
+   *
+   * @param typically the vtk object that triggered the event (not used)
+   * @param the event (not used)
+   * @param client data (not used)
+   * @param callData passes a pair of char* and QString,
+   * which are the ID of node that has been removed, and the name of the node
+   */
+  void OnResectionRemoved(vtkObject* object,
+                        unsigned long event,
+                        void *clientData,
+                        void *callData);
+
+ protected:
   QScopedPointer<qSlicerResectionPlanningSurfacesWidgetPrivate> d_ptr;
 
-private:
+ private:
   Q_DECLARE_PRIVATE(qSlicerResectionPlanningSurfacesWidget);
   Q_DISABLE_COPY(qSlicerResectionPlanningSurfacesWidget);
 
-  QMap<QString, int> resectionIDtoRowMap;
+  QMap<QString, qSlicerTableItemWidget*> ResectionWidgetMap;
+  typedef QMap<QString, qSlicerTableItemWidget*>::iterator ResectionWidgetIt;
+
 };
 
 #endif

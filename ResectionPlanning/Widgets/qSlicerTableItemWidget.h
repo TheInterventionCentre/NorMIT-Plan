@@ -29,7 +29,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define RESECTIONPLANNING_WIDGETS_QSLICERTABLEITEMWIDGET_H_
 
 // Qt includes
-#include <QTableWidgetItem>
 #include <QString>
 #include <QWidget>
 
@@ -45,7 +44,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * This class sends and receives information to/from qSlicerResectionPlanningSurfacesWidget
  */
-class Q_SLICER_MODULE_RESECTIONPLANNING_WIDGETS_EXPORT qSlicerTableItemWidget : public QWidget, public QTableWidgetItem
+class Q_SLICER_MODULE_RESECTIONPLANNING_WIDGETS_EXPORT qSlicerTableItemWidget : public QWidget
 {
   Q_OBJECT
 
@@ -54,8 +53,6 @@ public:
   virtual ~qSlicerTableItemWidget();
 
   int type() const;
-
-  virtual QTableWidgetItem *clone() const;
 
   /**
    * Set the text of the label for the resection name
