@@ -35,6 +35,7 @@
 
 // This module includes
 #include "vtkMRMLResectionSurfaceDisplayNode.h"
+#include "ResectionPlanningModuleDefaultValues.h"
 
 // VTK includes
 #include <vtkObjectFactory.h>
@@ -45,7 +46,9 @@ vtkMRMLNodeNewMacro(vtkMRMLResectionSurfaceDisplayNode);
 //------------------------------------------------------------------------------
 vtkMRMLResectionSurfaceDisplayNode::vtkMRMLResectionSurfaceDisplayNode()
 {
-
+  this->SetOpacity(DEFAULT_RESECTION_OPACITY);
+  this->SetVisibility(DEFAULT_RESECTION_VISIBILITY);
+  this->SetWidgetVisibility(DEFAULT_WIDGET_VISIBILITY);
 }
 
 //------------------------------------------------------------------------------
