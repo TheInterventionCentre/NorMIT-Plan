@@ -59,16 +59,68 @@ public:
    *
    * @param resection name
    */
-  void setText(QString&);
-  QString text();
+  void setResectionName(const char*);
+  const char* getResectionName() const;
 
   /**
-   * Set the resection ID
+   * Set the visibility of the resection (checkbox)
    *
-   * @param resection ID
+   * @param visibility true if resection is visible, false otherwise.
    */
-  void setResectionID(QString&);
-  QString getResectionID();
+  void setResectionVisibility(bool visibility);
+
+  /**
+   * Get the visibility of the resection (checkbox)
+   *
+   *
+   * @return true if resection is visible, false otherwise.
+   */
+  bool getResectionVisibility() const;
+
+  /**
+   * Set the resection margin in the double spinbox
+   *
+   * @param margin resection margin.
+   */
+  void setResectionMargin(double margin);
+
+  /**
+   * Get the resection margin in the spinbox
+   *
+   *
+   * @return resection margin
+   */
+  double getResectionMargin() const;
+
+  /**
+   * Set the transparency value for the slider
+   *
+   * @param value transparency value.
+   */
+  void setTransparency(int value);
+
+  /**
+   * Get the transparency value from the slider.
+   *
+   *
+   * @return transparency value
+   */
+  int getTransparency() const;
+
+  /**
+   * Set the visibility of the widget (checkbox)
+   *
+   * @param visibility true if widget is visible, false otherwise.
+   */
+  void setWidgetVisibility(bool visibility);
+
+  /**
+   * Get the visibility of the widget (checkbox)
+   *
+   *
+   * @return true if widget is visible, false otherwise.
+   */
+  bool getWidgetVisibility() const;
 
 signals:
   /**
@@ -129,8 +181,7 @@ protected slots:
   void transparencySliderChanged(int);
 
 private:
-  QString resectionName;
-  QString resectionID;
+
   Ui::qSlicerTableItem ui;
 };
 

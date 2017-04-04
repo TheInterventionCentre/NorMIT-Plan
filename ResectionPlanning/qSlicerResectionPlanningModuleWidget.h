@@ -55,7 +55,7 @@
 class qSlicerResectionPlanningModuleWidgetPrivate;
 class qSlicerResectionPlanningModule;
 class vtkSlicerResectionPlanningLogic;
-class vtkEventQtSlotConnect;
+class vtkMRMLResectionSurfaceNode;
 
 /**
  *  \ingroup ResectionPlanning
@@ -84,6 +84,9 @@ public:
    * @return list of tumor IDs
    */
    std::list<std::string> GetTumorsAssociatedWithResection(std::string &resectionID);
+
+   virtual void enter();
+   virtual void exit();
 
 public slots:
 
@@ -119,10 +122,9 @@ public slots:
    * connected to signal from surfaces widget: RemoveSurfaceButtonClicked
    * This function sends the parameter information up to the Logic
    *
-   * @param resection ID
-   * @param resection name
+   * @param node pointer to resection node to remove
    */
-  void OnRemoveResection(QString&);
+  void OnRemoveResection(vtkMRMLResectionSurfaceNode *node);
 
   /**
    * Called when the selected resection is changed
@@ -137,8 +139,22 @@ public slots:
    */
   void OnVolumesButtonClicked();
 
+  /**
+   * Actions to performe when a node is added to the scene
+   *
+   */
+  void onNodeAddedEvent(vtkObject*, vtkObject *node);
+
+  /**
+   * Actions to perform when a node is removed from the scene.
+   *
+   */
+  void onNodeRemovedEvent(vtkObject*, vtkObject *node);
+
 
 protected:
+  vtkSlicerResectionPlanningLogic *resectionPlanningLogic();
+
   QScopedPointer<qSlicerResectionPlanningModuleWidgetPrivate> d_ptr;
 
   /**
@@ -183,10 +199,6 @@ protected slots:
 private:
   Q_DECLARE_PRIVATE(qSlicerResectionPlanningModuleWidget);
   Q_DISABLE_COPY(qSlicerResectionPlanningModuleWidget);
-
-  qSlicerResectionPlanningModule *Module;
-  vtkSlicerResectionPlanningLogic *ModuleLogic;
-  vtkNew<vtkEventQtSlotConnect> Connections;
 
   std::multimap<std::string, std::string> resectionToTumorMap;
   std::string activeResectionID;

@@ -82,6 +82,7 @@ qSlicerResectionPlanningModuleWidget(QWidget* parent)
 //-----------------------------------------------------------------------------
 qSlicerResectionPlanningModuleWidget::~qSlicerResectionPlanningModuleWidget()
 {
+  this->setMRMLScene(0);
 }
 
 //-----------------------------------------------------------------------------
@@ -90,25 +91,25 @@ void qSlicerResectionPlanningModuleWidget::setup()
   Q_D(qSlicerResectionPlanningModuleWidget);
   d->setupUi(this);
 
-  this->Module = dynamic_cast<qSlicerResectionPlanningModule*>(this->module());
-  this->ModuleLogic = vtkSlicerResectionPlanningLogic::SafeDownCast(this->Module->logic());
+  // this->Module = dynamic_cast<qSlicerResectionPlanningModule*>(this->module());
+  // this->ModuleLogic = vtkSlicerResectionPlanningLogic::SafeDownCast(this->Module->logic());
 
-  this->activeResectionID = "";
+  // this->activeResectionID = "";
 
-  // hiding these widgets for now, since not using their functionality yet
-  d->TumorsWidget->hide();
-  d->VolumesWidget->hide();
+  // // hiding these widgets for now, since not using their functionality yet
+  // d->TumorsWidget->hide();
+  // d->VolumesWidget->hide();
 
-  // connections to lower level widgets (TUMORS)
-  QObject::connect(d->TumorsWidget,
-                   SIGNAL(AddTumorToResectionButtonClicked(QString&)),
-                   this,
-                   SLOT(OnAddTumorToResection(QString&)));
+  // // connections to lower level widgets (TUMORS)
+  // QObject::connect(d->TumorsWidget,
+  //                  SIGNAL(AddTumorToResectionButtonClicked(QString&)),
+  //                  this,
+  //                  SLOT(OnAddTumorToResection(QString&)));
 
-  QObject::connect(d->TumorsWidget,
-                   SIGNAL(RemoveTumorToResectionButtonClicked(QString&)),
-                   this,
-                   SLOT(OnRemoveTumorToResection(QString&)));
+  // QObject::connect(d->TumorsWidget,
+  //                  SIGNAL(RemoveTumorToResectionButtonClicked(QString&)),
+  //                  this,
+  //                  SLOT(OnRemoveTumorToResection(QString&)));
 
   // connections to lower level widgets (SURFACES)
   QObject::connect(d->SurfacesWidget,
@@ -117,49 +118,82 @@ void qSlicerResectionPlanningModuleWidget::setup()
                    SLOT(OnAddResection()));
 
   QObject::connect(d->SurfacesWidget,
-                   SIGNAL(RemoveSurface(QString&)),
+                   SIGNAL(RemoveSurface(vtkMRMLResectionSurfaceNode *)),
                    this,
-                   SLOT(OnRemoveResection(QString&)));
+                   SLOT(OnRemoveResection(vtkMRMLResectionSurfaceNode*)));
 
-  QObject::connect(d->SurfacesWidget,
-                   SIGNAL(CurrentResectionSurfaceChanged(QString&)),
-                   this,
-                   SLOT(OnActiveResectionChanged(QString&)));
+  // QObject::connect(d->SurfacesWidget,
+  //                  SIGNAL(CurrentResectionSurfaceChanged(QString&)),
+  //                  this,
+  //                  SLOT(OnActiveResectionChanged(QString&)));
 
-  // connections to lower level widgets (VOLUMES)
-  QObject::connect(d->VolumesWidget,
-                   SIGNAL(VolumesButtonClicked()),
-                   this,
-                   SLOT(OnVolumesButtonClicked()));
+  // // connections to lower level widgets (VOLUMES)
+  // QObject::connect(d->VolumesWidget,
+  //                  SIGNAL(VolumesButtonClicked()),
+  //                  this,
+  //                  SLOT(OnVolumesButtonClicked()));
 
-  // connections to the logic (TUMORS)
-  Connections->Connect(this->ModuleLogic,
-                       vtkSlicerResectionPlanningLogic::TumorModelAdded,
-                       this, SLOT(OnTumorAdded(vtkObject*,
-                                               unsigned long,
-                                               void*,void*)));
+  // // connections to the logic (TUMORS)
+  // Connections->Connect(this->ModuleLogic,
+  //                      vtkSlicerResectionPlanningLogic::TumorModelAdded,
+  //                      this, SLOT(OnTumorAdded(vtkObject*,
+  //                                              unsigned long,
+  //                                              void*,void*)));
 
-  Connections->Connect(this->ModuleLogic,
-                       vtkSlicerResectionPlanningLogic::TumorModelRemoved,
-                       this, SLOT(OnTumorRemoved(vtkObject*,
-                                                 unsigned long,
-                                                 void*,void*)));
+  // Connections->Connect(this->ModuleLogic,
+  //                      vtkSlicerResectionPlanningLogic::TumorModelRemoved,
+  //                      this, SLOT(OnTumorRemoved(vtkObject*,
+  //                                                unsigned long,
+  //                                                void*,void*)));
 
-  // connections to the logic (SURFACES)
-  Connections->Connect(this->ModuleLogic,
-                       vtkSlicerResectionPlanningLogic::ResectionNodeAdded,
-                       d->SurfacesWidget,
-                       SLOT(OnResectionAdded(vtkObject*, unsigned long,
-                                             void*,void*)));
-  Connections->Connect(this->ModuleLogic,
-                       vtkSlicerResectionPlanningLogic::ResectionNodeRemoved,
-                       d->SurfacesWidget,
-                       SLOT(OnResectionRemoved(vtkObject*,
-                                               unsigned long,
-                                               void*,void*)));
+  // // connections to the logic (SURFACES)
+  // // Connections->Connect(this->ModuleLogic,
+  // //                      vtkSlicerResectionPlanningLogic::ResectionNodeAdded,
+  // //                      d->SurfacesWidget,
+  // //                      SLOT(OnResectionAdded(vtkObject*, unsigned long,
+  // //                                            void*,void*)));
+  // Connections->Connect(this->ModuleLogic,
+  //                      vtkSlicerResectionPlanningLogic::ResectionNodeRemoved,
+  //                      d->SurfacesWidget,
+  //                      SLOT(OnResectionRemoved(vtkObject*,
+  //                                              unsigned long,
+  //                                              void*,void*)));
 
   this->Superclass::setup();
 }
+
+//------------------------------------------------------------------------------
+void qSlicerResectionPlanningModuleWidget::enter()
+{
+  Q_D(qSlicerResectionPlanningModuleWidget);
+
+  this->Superclass::enter();
+
+  this->qvtkConnect(this->mrmlScene(), vtkMRMLScene::NodeAddedEvent,
+                    this, SLOT(onNodeAddedEvent(vtkObject*, vtkObject*)));
+
+  this->qvtkConnect(this->mrmlScene(), vtkMRMLScene::NodeRemovedEvent,
+                     this, SLOT(onNodeRemovedEvent(vtkObject*, vtkObject*)));
+}
+
+//------------------------------------------------------------------------------
+void qSlicerResectionPlanningModuleWidget::exit()
+{
+  this->Superclass::exit();
+  this->qvtkDisconnectAll();
+}
+
+//-----------------------------------------------------------------------------
+vtkSlicerResectionPlanningLogic *qSlicerResectionPlanningModuleWidget::
+resectionPlanningLogic()
+{
+  if (this->logic() == NULL)
+    {
+    return NULL;
+    }
+  return vtkSlicerResectionPlanningLogic::SafeDownCast(this->logic());
+}
+
 
 //------------------------------------------------------------------------------
 void qSlicerResectionPlanningModuleWidget::nodeSelectionChanged(vtkMRMLNode* node)
@@ -253,28 +287,32 @@ void qSlicerResectionPlanningModuleWidget::OnRemoveTumorToResection(QString &tum
 //-----------------------------------------------------------------------------
 void qSlicerResectionPlanningModuleWidget::OnAddResection()
 {
-  if (!this->ModuleLogic)
+  if (!this->resectionPlanningLogic())
     {
     std::cerr << "Error: No module logic." << std::endl;
     return;
     }
 
-  this->ModuleLogic->AddResectionSurface();
+  this->resectionPlanningLogic()->AddResectionSurface();
 }
 
 //-----------------------------------------------------------------------------
 void qSlicerResectionPlanningModuleWidget::
-OnRemoveResection(QString &resectionID)
+OnRemoveResection(vtkMRMLResectionSurfaceNode *node)
 {
-  std::cout << "Widget - Resection: " << resectionID.toStdString() << " removed " << '\n';
+  if (!node)
+    {
+    std::cerr << "No node passed." << std::endl;
+    return;
+    }
 
-  if (!this->ModuleLogic)
+  if (!this->resectionPlanningLogic())
     {
     std::cerr << "Error: No module logic." << std::endl;
     return;
     }
 
-  this->ModuleLogic->RemoveResection(resectionID.toStdString().c_str());
+  this->resectionPlanningLogic()->RemoveResection(node);
 }
 
 //-----------------------------------------------------------------------------
@@ -336,4 +374,43 @@ void qSlicerResectionPlanningModuleWidget
 
   // remove tumor node to list in TUMORS WIDGET
   d->TumorsWidget->RemoveFromTumorList(Qid, Qname);
+}
+
+//------------------------------------------------------------------------------
+void qSlicerResectionPlanningModuleWidget::
+onNodeAddedEvent(vtkObject*, vtkObject *node)
+{
+  Q_D(qSlicerResectionPlanningModuleWidget);
+
+  if (!this->mrmlScene() || this->mrmlScene()->IsBatchProcessing())
+    {
+    return;
+    }
+
+  vtkMRMLResectionSurfaceNode *resectionNode =
+    vtkMRMLResectionSurfaceNode::SafeDownCast(node);
+  if (resectionNode)
+    {
+    d->SurfacesWidget->addResection(resectionNode);
+    }
+}
+
+//------------------------------------------------------------------------------
+void qSlicerResectionPlanningModuleWidget::
+onNodeRemovedEvent(vtkObject* scene, vtkObject *node)
+{
+  Q_UNUSED(scene);
+  Q_D(qSlicerResectionPlanningModuleWidget);
+
+  if (!this->mrmlScene() || this->mrmlScene()->IsBatchProcessing())
+    {
+    return;
+    }
+
+  vtkMRMLResectionSurfaceNode *resectionNode =
+    vtkMRMLResectionSurfaceNode::SafeDownCast(node);
+  if (resectionNode)
+    {
+    d->SurfacesWidget->removeResection(resectionNode);
+    }
 }

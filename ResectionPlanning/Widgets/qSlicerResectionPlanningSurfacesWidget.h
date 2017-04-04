@@ -35,6 +35,9 @@
 #ifndef __qSlicerResectionPlanningSurfacesWidget_h
 #define __qSlicerResectionPlanningSurfacesWidget_h
 
+// This module includes
+#include "vtkSlicerResectionPlanningLogic.h"
+
 // Qt includes
 #include <QWidget>
 #include <QPointer>
@@ -50,6 +53,7 @@ class QTableWidget;
 class QTableWidgetItem;
 class vtkObject;
 class qSlicerTableItemWidget;
+class vtkMRMLResectionSurfaceNode;
 
 /**
  *  \ingroup ResectionPlanning
@@ -89,7 +93,24 @@ class Q_SLICER_MODULE_RESECTIONPLANNING_WIDGETS_EXPORT qSlicerResectionPlanningS
    */
   QList<QString> GetResections();
 
- public slots:
+
+  /**
+   * Add resection widget entry
+   *
+   * @param node resection node-
+   */
+  void addResection(vtkMRMLResectionSurfaceNode *node);
+
+  /**
+   * Remove resection widget entry
+   *
+   * @param node resection node
+   */
+  void removeResection(vtkMRMLResectionSurfaceNode *node);
+
+
+
+  public slots:
 
   /**
    * Removes a resection from the list of resections (listResectionSurfaces)
@@ -109,10 +130,9 @@ class Q_SLICER_MODULE_RESECTIONPLANNING_WIDGETS_EXPORT qSlicerResectionPlanningS
   /**
    * Signal emited when the button to remove a resection is clicked
    *
-   * @param resection node ID
-   * @param resection node name
+   * @param node pointer to resection node.
    */
-  void RemoveSurface(QString&);
+ void RemoveSurface(vtkMRMLResectionSurfaceNode* node);
 
   /**
    * Signal emited when the selected resection is changed
@@ -137,36 +157,6 @@ class Q_SLICER_MODULE_RESECTIONPLANNING_WIDGETS_EXPORT qSlicerResectionPlanningS
    */
   // void OnCurrentResectionSurfaceChanged(int, int, int, int);
 
-  /**
-   * Called when a resection node is added in the logic
-   * connected to the event: vtkSlicerResectionPlanningLogic::ResectionNodeAdded
-   *
-   * @param typically the vtk object that triggered the event (not used)
-   * @param the event (not used)
-   * @param client data (not used)
-   * @param callData passes a pair of char* and QString,
-   * which are the ID of node that has been added, and the name of the node
-   */
-  void OnResectionAdded(vtkObject* object,
-                        unsigned long event,
-                        void *clientData,
-                        void *callData);
-
-
-  /**
-   * Called when a resection node is removed in the logic
-   * connected to the event: vtkSlicerResectionPlanningLogic::ResectionNodeRemoved
-   *
-   * @param typically the vtk object that triggered the event (not used)
-   * @param the event (not used)
-   * @param client data (not used)
-   * @param callData passes a pair of char* and QString,
-   * which are the ID of node that has been removed, and the name of the node
-   */
-  void OnResectionRemoved(vtkObject* object,
-                        unsigned long event,
-                        void *clientData,
-                        void *callData);
 
  protected:
   QScopedPointer<qSlicerResectionPlanningSurfacesWidgetPrivate> d_ptr;
@@ -175,9 +165,9 @@ class Q_SLICER_MODULE_RESECTIONPLANNING_WIDGETS_EXPORT qSlicerResectionPlanningS
   Q_DECLARE_PRIVATE(qSlicerResectionPlanningSurfacesWidget);
   Q_DISABLE_COPY(qSlicerResectionPlanningSurfacesWidget);
 
-  QMap<QString, qSlicerTableItemWidget*> ResectionWidgetMap;
-  typedef QMap<QString, qSlicerTableItemWidget*>::iterator ResectionWidgetIt;
-
+  QMap<vtkMRMLResectionSurfaceNode*, qSlicerTableItemWidget*> ResectionWidgetMap;
+  typedef QMap<vtkMRMLResectionSurfaceNode*, qSlicerTableItemWidget*>::
+    iterator ResectionWidgetIt;
 };
 
 #endif

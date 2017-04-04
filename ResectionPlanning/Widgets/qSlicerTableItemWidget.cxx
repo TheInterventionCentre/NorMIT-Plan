@@ -59,29 +59,74 @@ int qSlicerTableItemWidget::type() const
 }
 
 //-----------------------------------------------------------------------------
-void qSlicerTableItemWidget::setText(QString &name)
+void qSlicerTableItemWidget::setResectionName(const char *name)
 {
-  this->resectionName = name;
   ui.resectionName->setText(name);
 }
 
 //-----------------------------------------------------------------------------
-QString qSlicerTableItemWidget::text()
+const char* qSlicerTableItemWidget::getResectionName() const
 {
-  return ui.resectionName->text();
+  return ui.resectionName->text().toStdString().c_str();
 }
 
-//-----------------------------------------------------------------------------
-void qSlicerTableItemWidget::setResectionID(QString &ID)
+//------------------------------------------------------------------------------
+void qSlicerTableItemWidget::setResectionVisibility(bool visibility)
 {
-  this->resectionID = ID;
+  ui.resectionVisibleCheckbox->
+    setCheckState(visibility?Qt::Checked:Qt::Unchecked);
 }
 
-//-----------------------------------------------------------------------------
-QString qSlicerTableItemWidget::getResectionID()
+//------------------------------------------------------------------------------
+bool qSlicerTableItemWidget::getResectionVisibility() const
 {
-  return this->resectionID;
+  return (Qt::Checked == ui.resectionVisibleCheckbox->checkState())? true: false;
 }
+
+//------------------------------------------------------------------------------
+void qSlicerTableItemWidget::setResectionMargin(double margin)
+{
+  ui.marginSpinbox->setValue(margin);
+}
+
+//------------------------------------------------------------------------------
+double qSlicerTableItemWidget::getResectionMargin() const
+{
+  return ui.marginSpinbox->value();
+}
+
+//------------------------------------------------------------------------------
+void qSlicerTableItemWidget::setTransparency(int value)
+{
+  if (value < 0 || value > 100)
+    {
+    std::cerr << "Error: transparency value out of limits ([0-100]), got: "
+              << value << std::endl;
+    return;
+    }
+
+  ui.transparencySlider->setValue(value);
+}
+
+//------------------------------------------------------------------------------
+int qSlicerTableItemWidget::getTransparency() const
+{
+  return ui.transparencySlider->value();
+}
+
+//------------------------------------------------------------------------------
+void qSlicerTableItemWidget::setWidgetVisibility(bool visibility)
+{
+  ui.widgetVisibleCheckbox->
+    setCheckState(visibility?Qt::Checked:Qt::Unchecked);
+}
+
+//------------------------------------------------------------------------------
+bool qSlicerTableItemWidget::getWidgetVisibility() const
+{
+  return (Qt::Checked == ui.widgetVisibleCheckbox->checkState())? true: false;
+}
+
 
 /*
  * SLOTS for widgets to connect with
@@ -89,23 +134,23 @@ QString qSlicerTableItemWidget::getResectionID()
 //-----------------------------------------------------------------------------
 void qSlicerTableItemWidget::visibleCheckboxChanged(bool state)
 {
-  std::cout << "table item - visibility checkbox: " << state << ", in: " << this->resectionID.toStdString() << '\n';
+
 }
 
 //-----------------------------------------------------------------------------
 void qSlicerTableItemWidget::widgetCheckboxChanged(bool state)
 {
-  std::cout << "table item - widget checkbox: " << state << ", in: " << this->resectionID.toStdString() << '\n';
+
 }
 
 //-----------------------------------------------------------------------------
 void qSlicerTableItemWidget::marginSpinboxChanged(double value)
 {
-  std::cout << "table item - spinbox: " << value << ", in: " << this->resectionID.toStdString() << '\n';
+
 }
 
 //-----------------------------------------------------------------------------
 void qSlicerTableItemWidget::transparencySliderChanged(int value)
 {
-  std::cout << "table item - slider: " << value << ", in: " << this->resectionID.toStdString() << '\n';
+
 }
