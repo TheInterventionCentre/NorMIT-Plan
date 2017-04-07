@@ -37,7 +37,7 @@
 #define __ResectionPlanningModuleDefaultValues_h
 
 const double DEFAULT_RESECTION_MARGIN = 10.0;
-const int DEFAULT_RESECTION_OPACITY = 100;
+const int DEFAULT_RESECTION_OPACITY = 1.0;
 const bool DEFAULT_RESECTION_VISIBILITY = true;
 const bool DEFAULT_WIDGET_VISIBILITY = true;
 

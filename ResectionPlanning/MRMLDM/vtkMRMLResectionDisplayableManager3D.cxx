@@ -317,6 +317,18 @@ AddDistanceMapPipeline(vtkMRMLResectionSurfaceNode *node)
   // Add actors to the scene
   if (displayNode->GetVisibility())
     {
+    vtkProperty *prop = distanceActor->GetProperty();
+    if (prop)
+      {
+      prop->SetOpacity(displayNode->GetOpacity());
+      }
+
+    prop = contourActor->GetProperty();
+    if (prop)
+      {
+      prop->SetOpacity(displayNode->GetOpacity());
+      }
+
     this->GetRenderer()->AddActor(distanceActor);
     this->GetRenderer()->AddActor(contourActor);
     }
@@ -674,6 +686,8 @@ UpdateVisibility(vtkMRMLResectionSurfaceNode *node)
 
   vtkBezierSurfaceWidget *widget = widgetIt->second;
   widget->SetEnabled(resectionDisplayNode->GetVisibility());
+  vtkProperty *prop = widget->GetBezierSurfaceProperty();
+  prop->SetOpacity(resectionDisplayNode->GetOpacity());
 
   // Node contour actor (show/hide accordingly)
   NodeContourActorIt contourIt = this->NodeContourActorMap.find(node);
@@ -683,9 +697,17 @@ UpdateVisibility(vtkMRMLResectionSurfaceNode *node)
     return;
     }
 
+  //
+
   if (resectionDisplayNode->GetVisibility())
     {
+    vtkProperty *prop = contourIt->second->GetProperty();
+      if (prop)
+        {
+          prop->SetOpacity(resectionDisplayNode->GetOpacity());
+        }
     this->GetRenderer()->AddActor(contourIt->second);
+
     }
   else
     {
@@ -702,7 +724,13 @@ UpdateVisibility(vtkMRMLResectionSurfaceNode *node)
 
   if (resectionDisplayNode->GetVisibility())
     {
+    vtkProperty *prop = distanceIt->second->GetProperty();
+      if (prop)
+        {
+          prop->SetOpacity(resectionDisplayNode->GetOpacity());
+        }
     this->GetRenderer()->AddActor(distanceIt->second);
+
     }
   else
     {
