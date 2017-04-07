@@ -281,6 +281,7 @@ AddDistanceMapPipeline(vtkMRMLResectionSurfaceNode *node)
   colorMap->AddRGBPoint(node->GetResectionMargin(), 1.0, 1.0, 0.0);
   colorMap->AddRGBPoint(node->GetResectionMargin(), 1.0, 1.0, 1.0);
   colorMap->AddRGBPoint(100.0, 1.0, 1.0, 1.0);
+  colorMap->AllowDuplicateScalarsOn();
   this->NodeColorMap[node] = colorMap;
 
   // Create the mapper for the distance map
@@ -624,6 +625,7 @@ UpdateGeometry(vtkMRMLResectionSurfaceNode *node)
   NodeColorIt colorIt = this->NodeColorMap.find(node);
   if (colorIt != this->NodeColorMap.end())
     {
+    colorIt->second->RemoveAllPoints();
     colorIt->second->AddRGBPoint(0.0, 1.0, 1.0, 0.0);
     colorIt->second->AddRGBPoint(node->GetResectionMargin(), 1.0, 1.0, 0.0);
     colorIt->second->AddRGBPoint(node->GetResectionMargin(), 1.0, 1.0, 1.0);
