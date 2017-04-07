@@ -53,6 +53,7 @@ class vtk3DWidget;
 class vtkHausdorffDistancePointSetFilter;
 class vtkActor;
 class vtkColorTransferFunction;
+class vtkContourFilter;
 
 //------------------------------------------------------------------------------
 class VTK_SLICER_RESECTIONPLANNING_MODULE_MRMLDISPLAYABLEMANAGER_EXPORT
@@ -222,6 +223,12 @@ public vtkMRMLAbstractThreeDViewDisplayableManager
   typedef std::map<vtkMRMLResectionSurfaceNode*,
     vtkSmartPointer<vtkHausdorffDistancePointSetFilter> >::iterator
     NodeDistanceFilterIt;
+
+  // Map and iterator holding the ResectionNode-ContourFilter relationship.
+  std::map<vtkMRMLResectionSurfaceNode*,
+    vtkSmartPointer<vtkContourFilter> > NodeContourFilterMap;
+  typedef std::map<vtkMRMLResectionSurfaceNode*,
+    vtkSmartPointer<vtkContourFilter> >::iterator NodeContourFilterIt;
 
   // Map and iterator holding the color transfer function.
   std::map<vtkMRMLResectionSurfaceNode*,
