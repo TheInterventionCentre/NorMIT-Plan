@@ -73,28 +73,6 @@ class Q_SLICER_MODULE_RESECTIONPLANNING_WIDGETS_EXPORT qSlicerResectionPlanningS
   virtual ~qSlicerResectionPlanningSurfacesWidget();
 
   /**
-   * Selects a resection in the list of resections (listResectionSurfaces)
-   *
-   * @param resection node ID
-   * @return boolean if found / selected
-   */
-  bool SelectResection(QString&);
-
-  /**
-   * Get currently selected resection
-   * returns null if nothing selected
-   */
-  QString GetCurrentResectionID();
-
-  /**
-   * Get list of resections
-   *
-   * @return list of resection IDs
-   */
-  QList<QString> GetResections();
-
-
-  /**
    * Add resection widget entry
    *
    * @param node resection node-
@@ -109,54 +87,39 @@ class Q_SLICER_MODULE_RESECTIONPLANNING_WIDGETS_EXPORT qSlicerResectionPlanningS
   void removeResection(vtkMRMLResectionSurfaceNode *node);
 
 
-
   public slots:
-
-  /**
-   * Removes a resection from the list of resections (listResectionSurfaces)
-   *
-   * @param resection node ID
-   * @param resection node name
-   */
-  //void RemoveFromResectionList(QString&,QString&);
 
  signals:
   /**
    * Signal emited when the button to add a resection is clicked
    * No parameters, since no resection node exists yet
    */
-  void AddSurfaceButtonClicked();
+  void addSurfaceButtonClicked();
 
   /**
    * Signal emited when the button to remove a resection is clicked
    *
    * @param node pointer to resection node.
    */
- void RemoveSurface(vtkMRMLResectionSurfaceNode* node);
-
-  /**
-   * Signal emited when the selected resection is changed
-   *
-   * @param resection node ID
-   */
-//  void CurrentResectionSurfaceChanged(QString&);
+ void removeSurface(vtkMRMLResectionSurfaceNode* node);
 
  protected slots:
   /**
    * Triggered when the button for adding a resection surface is clicked
    */
-  void OnAddSurfaceButtonClicked();
+  void onAddSurfaceButtonClicked();
 
   /**
    * Triggered when the button for removing a resection surface is clicked
    */
-  void OnRemoveSurfaceButtonClicked();
+  void onRemoveSurfaceButtonClicked();
 
   /**
-   * Triggered when the selection of current resection surface is changed
+   * Changes the visibility state of a resection node.
+   *
+   * @param state new visibility state.
    */
-  // void OnCurrentResectionSurfaceChanged(int, int, int, int);
-
+  void changeResectionVisibility(int state);
 
  protected:
   QScopedPointer<qSlicerResectionPlanningSurfacesWidgetPrivate> d_ptr;

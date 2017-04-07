@@ -123,41 +123,15 @@ public:
   bool getWidgetVisibility() const;
 
 signals:
-  /**
-  * Used to set the visibility checkbox state
-  *
-  * @param bool for state of checkbox
-  */
-  void setVisibleCheckbox(bool);
-
-  /**
-  * Used to set the widget checkbox state
-  *
-  * @param bool for state of checkbox
-  */
-  void setWidgetCheckbox(bool);
-
-  /**
-  * Used to set the spinbox value
-  *
-  * @param double for value of spinbox
-  */
-  void setMarginSpinbox(double);
-
-  /**
-  * Used to set the slider value
-  *
-  * @param int for value of slider
-  */
-  void setTransparencySlider(int);
+  void visibilityChanged(int);
 
 protected slots:
   /**
    * Called when the visibility checkbox state is changed
    *
-   * @param bool for state of checkbox
+   * @param int for state of checkbox
    */
-  void visibleCheckboxChanged(bool);
+  void onVisibilityCheckBoxChanged(int);
 
   /**
    * Called when the widget checkbox state is changed
