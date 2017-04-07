@@ -156,6 +156,10 @@ void qSlicerResectionPlanningSurfacesWidget
   item->setWidgetVisibility(resectionDisplayNode->GetWidgetVisibility());
   item->setTransparency(static_cast<int>(resectionDisplayNode->GetOpacity()));
 
+  QObject::connect(item, SIGNAL(visibilityChanged(int)),
+                   this, SLOT(changeResectionVisibility(int)));
+
+
   //Insert the item widget
   int row = d->TableResectionSurfaces->rowCount();
   d->TableResectionSurfaces->insertRow(row);

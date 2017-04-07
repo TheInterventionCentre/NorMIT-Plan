@@ -43,6 +43,10 @@ qSlicerTableItemWidget::qSlicerTableItemWidget(QWidget *parent) :
     QWidget (parent)
 {
   ui.setupUi(this);
+
+  QObject::connect(ui.resectionVisibleCheckbox, SIGNAL(stateChanged(int)),
+                   this, SLOT(onVisibilityCheckBoxChanged(int)));
+
 }
 
 //-----------------------------------------------------------------------------
@@ -132,9 +136,9 @@ bool qSlicerTableItemWidget::getWidgetVisibility() const
  * SLOTS for widgets to connect with
  */
 //-----------------------------------------------------------------------------
-void qSlicerTableItemWidget::visibleCheckboxChanged(bool state)
+void qSlicerTableItemWidget::onVisibilityCheckBoxChanged(int state)
 {
-
+  emit visibilityChanged(state);
 }
 
 //-----------------------------------------------------------------------------
