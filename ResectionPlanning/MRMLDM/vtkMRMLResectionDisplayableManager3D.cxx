@@ -563,15 +563,51 @@ UpdateVisibility(vtkMRMLResectionSurfaceNode *node)
     return;
     }
 
-  NodeWidgetIt it = this->NodeWidgetMap.find(node);
-  if (it == this->NodeWidgetMap.end())
+
+  // Bezier widget (show/hide accordingly)
+  NodeWidgetIt widgetIt = this->NodeWidgetMap.find(node);
+  if (widgetIt == this->NodeWidgetMap.end())
     {
     vtkErrorMacro("Node not handled by the displayable manager.");
     return;
     }
 
-  vtkBezierSurfaceWidget *widget = it->second;
+  vtkBezierSurfaceWidget *widget = widgetIt->second;
   widget->SetEnabled(resectionDisplayNode->GetVisibility());
+
+  // Node contour actor (show/hide accordingly)
+  NodeContourActorIt contourIt = this->NodeContourActorMap.find(node);
+  if (contourIt == this->NodeContourActorMap.end())
+    {
+    vtkErrorMacro("No contour actor associated with resection node.");
+    return;
+    }
+
+  if (resectionDisplayNode->GetVisibility())
+    {
+    this->GetRenderer()->AddActor(contourIt->second);
+    }
+  else
+    {
+    this->GetRenderer()->RemoveActor(contourIt->second);
+    }
+
+  NodeDistanceActorIt distanceIt = this->NodeDistanceActorMap.find(node);
+  if (distanceIt == this->NodeDistanceActorMap.end())
+    {
+    vtkErrorMacro("No bezier surface (with distance) actor associated "
+                  << "with the given resection node");
+    return;
+    }
+
+  if (resectionDisplayNode->GetVisibility())
+    {
+    this->GetRenderer()->AddActor(distanceIt->second);
+    }
+  else
+    {
+    this->GetRenderer()->RemoveActor(distanceIt->second);
+    }
 }
 
 //------------------------------------------------------------------------------
