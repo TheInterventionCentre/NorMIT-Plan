@@ -159,6 +159,9 @@ void qSlicerResectionPlanningSurfacesWidget
   QObject::connect(item, SIGNAL(visibilityChanged(int)),
                    this, SLOT(changeResectionVisibility(int)));
 
+  QObject::connect(item, SIGNAL(resectionMarginChanged(double)),
+                   this, SLOT(changeResectionMargin(double)));
+
 
   //Insert the item widget
   int row = d->TableResectionSurfaces->rowCount();
@@ -274,4 +277,31 @@ changeResectionVisibility(int state)
     }
 
   displayNode->SetVisibility((state == Qt::Checked)? true: false);
+}
+
+//------------------------------------------------------------------------------
+void qSlicerResectionPlanningSurfacesWidget::
+changeResectionMargin(double value)
+{
+  qSlicerTableItemWidget *item =
+    dynamic_cast<qSlicerTableItemWidget*>(QObject::sender());
+
+  if (!item)
+    {
+    std::cerr << "Error: the widget triggering resection margin change "
+              << "is not of type qSlicerTableItemWidget" << std::endl;
+    return;
+    }
+
+  vtkMRMLResectionSurfaceNode *resectionNode =
+    this->ResectionWidgetMap.key(item);
+
+  if (!resectionNode)
+    {
+    std::cerr << "Error: no resection node associated ot the table item"
+              << std::endl;
+    return;
+    }
+
+  resectionNode->SetResectionMargin(value);
 }

@@ -124,6 +124,7 @@ public:
 
 signals:
   void visibilityChanged(int);
+  void resectionMarginChanged(double);
 
 protected slots:
   /**
@@ -134,18 +135,18 @@ protected slots:
   void onVisibilityCheckBoxChanged(int);
 
   /**
+   * Called when the spinbox changes
+   *
+   * @param double  value of the spinbox
+   */
+  void onResectionMarginSpinboxChanged(double);
+
+  /**
    * Called when the widget checkbox state is changed
    *
    * @param bool for state of checkbox
    */
   void widgetCheckboxChanged(bool);
-
-  /**
-   * Called when the margin spinbox state is changed
-   *
-   * @param double for value of spinbox
-   */
-  void marginSpinboxChanged(double);
 
   /**
    * Called when the transparency slider state is changed

@@ -47,6 +47,9 @@ qSlicerTableItemWidget::qSlicerTableItemWidget(QWidget *parent) :
   QObject::connect(ui.resectionVisibleCheckbox, SIGNAL(stateChanged(int)),
                    this, SLOT(onVisibilityCheckBoxChanged(int)));
 
+  QObject::connect(ui.marginSpinbox, SIGNAL(valueChanged(double)),
+                   this, SLOT(onResectionMarginSpinboxChanged(double)));
+
 }
 
 //-----------------------------------------------------------------------------
@@ -148,9 +151,9 @@ void qSlicerTableItemWidget::widgetCheckboxChanged(bool state)
 }
 
 //-----------------------------------------------------------------------------
-void qSlicerTableItemWidget::marginSpinboxChanged(double value)
+void qSlicerTableItemWidget::onResectionMarginSpinboxChanged(double value)
 {
-
+  emit resectionMarginChanged(value);
 }
 
 //-----------------------------------------------------------------------------
