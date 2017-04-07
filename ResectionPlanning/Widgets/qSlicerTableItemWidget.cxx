@@ -50,6 +50,9 @@ qSlicerTableItemWidget::qSlicerTableItemWidget(QWidget *parent) :
   QObject::connect(ui.marginSpinbox, SIGNAL(valueChanged(double)),
                    this, SLOT(onResectionMarginSpinboxChanged(double)));
 
+  QObject::connect(ui.opacitySlider, SIGNAL(valueChanged(int)),
+                   this, SLOT(onResectionOpacitySliderChanged(int)));
+
 }
 
 //-----------------------------------------------------------------------------
@@ -103,7 +106,7 @@ double qSlicerTableItemWidget::getResectionMargin() const
 }
 
 //------------------------------------------------------------------------------
-void qSlicerTableItemWidget::setTransparency(int value)
+void qSlicerTableItemWidget::setOpacity(int value)
 {
   if (value < 0 || value > 100)
     {
@@ -112,13 +115,13 @@ void qSlicerTableItemWidget::setTransparency(int value)
     return;
     }
 
-  ui.transparencySlider->setValue(value);
+  ui.opacitySlider->setValue(value);
 }
 
 //------------------------------------------------------------------------------
-int qSlicerTableItemWidget::getTransparency() const
+int qSlicerTableItemWidget::getOpacity() const
 {
-  return ui.transparencySlider->value();
+  return ui.opacitySlider->value();
 }
 
 //------------------------------------------------------------------------------
@@ -157,7 +160,7 @@ void qSlicerTableItemWidget::onResectionMarginSpinboxChanged(double value)
 }
 
 //-----------------------------------------------------------------------------
-void qSlicerTableItemWidget::transparencySliderChanged(int value)
+void qSlicerTableItemWidget::onResectionOpacitySliderChanged(int value)
 {
-
+  emit resectionOpacityChanged(static_cast<double>(value));
 }

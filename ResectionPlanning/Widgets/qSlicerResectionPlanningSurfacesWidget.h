@@ -128,6 +128,13 @@ class Q_SLICER_MODULE_RESECTIONPLANNING_WIDGETS_EXPORT qSlicerResectionPlanningS
    */
   void changeResectionMargin(double margin);
 
+  /**
+   * Changes the opacity of the resection for visualization
+   *
+   * @param opacity opacity value [0.0-1.0].
+   */
+  void changeResectionOpacity(double opacity);
+
  protected:
   QScopedPointer<qSlicerResectionPlanningSurfacesWidgetPrivate> d_ptr;
 

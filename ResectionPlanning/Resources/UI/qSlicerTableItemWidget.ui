@@ -133,7 +133,7 @@
     </spacer>
    </item>
    <item>
-    <widget class="QSlider" name="transparencySlider">
+    <widget class="QSlider" name="opacitySlider">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
        <horstretch>0</horstretch>

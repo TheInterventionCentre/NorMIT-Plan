@@ -97,7 +97,7 @@ public:
    *
    * @param value transparency value.
    */
-  void setTransparency(int value);
+  void setOpacity(int value);
 
   /**
    * Get the transparency value from the slider.
@@ -105,7 +105,7 @@ public:
    *
    * @return transparency value
    */
-  int getTransparency() const;
+  int getOpacity() const;
 
   /**
    * Set the visibility of the widget (checkbox)
@@ -125,6 +125,7 @@ public:
 signals:
   void visibilityChanged(int);
   void resectionMarginChanged(double);
+  void resectionOpacityChanged(double);
 
 protected slots:
   /**
@@ -153,7 +154,7 @@ protected slots:
    *
    * @param in for value of slider
    */
-  void transparencySliderChanged(int);
+  void onResectionOpacitySliderChanged(int);
 
 private:
 
