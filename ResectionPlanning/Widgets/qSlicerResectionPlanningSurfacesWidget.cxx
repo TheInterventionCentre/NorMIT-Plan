@@ -148,9 +148,13 @@ void qSlicerResectionPlanningSurfacesWidget
     return;
     }
 
+  QString resectionName =
+    QString("%1").arg(resectionNode->GetName(), -20);
+
+
   //Create the table item widget
   qSlicerTableItemWidget *item = new qSlicerTableItemWidget();
-  item->setResectionName(resectionNode->GetName());
+  item->setResectionName(resectionName.toStdString().c_str());
   item->setResectionMargin(resectionNode->GetResectionMargin());
   item->setResectionVisibility(resectionDisplayNode->GetVisibility());
   item->setWidgetVisibility(resectionDisplayNode->GetWidgetVisibility());
