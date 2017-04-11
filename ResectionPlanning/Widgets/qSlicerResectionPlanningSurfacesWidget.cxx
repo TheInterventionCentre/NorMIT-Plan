@@ -154,7 +154,7 @@ void qSlicerResectionPlanningSurfacesWidget
   item->setResectionMargin(resectionNode->GetResectionMargin());
   item->setResectionVisibility(resectionDisplayNode->GetVisibility());
   item->setWidgetVisibility(resectionDisplayNode->GetWidgetVisibility());
-  item->setOpacity(static_cast<int>(resectionDisplayNode->GetOpacity()));
+  item->setOpacity(static_cast<int>(resectionDisplayNode->GetOpacity()*100));
 
   QObject::connect(item, SIGNAL(visibilityChanged(int)),
                    this, SLOT(changeResectionVisibility(int)));
@@ -313,6 +313,7 @@ changeResectionMargin(double value)
 void qSlicerResectionPlanningSurfacesWidget::
 changeResectionOpacity(double value)
 {
+
  qSlicerTableItemWidget *item =
     dynamic_cast<qSlicerTableItemWidget*>(QObject::sender());
 
@@ -344,5 +345,6 @@ changeResectionOpacity(double value)
     return;
     }
 
-  resectionDisplayNode->SetOpacity(value);
+  resectionDisplayNode->SetOpacity(value/100.0);
+
 }
