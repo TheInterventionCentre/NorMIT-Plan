@@ -345,6 +345,5 @@ changeResectionOpacity(double value)
     return;
     }
 
-  resectionDisplayNode->SetOpacity(value/100.0);
-
+  resectionDisplayNode->SetOpacity(value/99.0);
 }
