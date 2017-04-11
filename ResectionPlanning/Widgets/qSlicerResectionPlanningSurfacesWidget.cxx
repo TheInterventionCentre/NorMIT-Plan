@@ -149,7 +149,7 @@ void qSlicerResectionPlanningSurfacesWidget
     }
 
   QString resectionName =
-    QString("%1").arg(resectionNode->GetName(), -20);
+    QString("%1").arg(resectionNode->GetName(), 20);
 
 
   //Create the table item widget
