@@ -327,6 +327,9 @@ private:
   // Resizing factor for the line.
   double LineSizeFactor;
 
+  bool AutoSize;
+  double HandleSize;
+  double TubeRadius;
 };
 
 #endif

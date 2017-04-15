@@ -58,7 +58,10 @@ vtkStandardNewMacro(vtkLineWidget3);
 //------------------------------------------------------------------------------
 vtkLineWidget3::vtkLineWidget3()
   :HandleSizeFactor(1.1),
-   LineSizeFactor(0.2)
+   LineSizeFactor(0.2),
+   AutoSize(false),
+   HandleSize(3.0),
+   TubeRadius(1.0)
 {
 
   // Set the event callback to our process events function
@@ -223,7 +226,9 @@ void vtkLineWidget3::PlaceWidget(double xmin, double xmax,
 //------------------------------------------------------------------------------
 void vtkLineWidget3::SizeHandles()
 {
-  double radius = this->vtk3DWidget::SizeHandles(this->HandleSizeFactor);
+  double radius = this->AutoSize?
+    this->vtk3DWidget::SizeHandles(this->HandleSizeFactor):
+    this->HandleSize;
 
   this->Handle1Source->SetRadius(radius);
   this->Handle1Source->Update();
@@ -234,7 +239,9 @@ void vtkLineWidget3::SizeHandles()
 //------------------------------------------------------------------------------
 void vtkLineWidget3::SizeLine()
 {
-  double radius = this->vtk3DWidget::SizeHandles(this->LineSizeFactor);
+  double radius = this->AutoSize?
+    this->vtk3DWidget::SizeHandles(this->LineSizeFactor):
+    this->TubeRadius;
   this->TubeFilter->SetRadius(radius);
 }
 
