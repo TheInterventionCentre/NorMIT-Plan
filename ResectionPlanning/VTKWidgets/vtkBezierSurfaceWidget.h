@@ -612,6 +612,10 @@ class vtkBezierSurfaceWidget: public vtk3DWidget
   // Control points
   vtkNew<vtkPoints> ControlPoints;
 
+  bool AutoSize;
+  double HandleSize;
+  double TubeRadius;
+
  private:
   vtkBezierSurfaceWidget( const vtkBezierSurfaceWidget &) VTK_DELETE_FUNCTION;
   void operator=(const vtkBezierSurfaceWidget&) VTK_DELETE_FUNCTION;

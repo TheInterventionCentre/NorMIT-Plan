@@ -74,7 +74,10 @@ vtkBezierSurfaceWidget::vtkBezierSurfaceWidget()
    NumberOfControlPointsY(4),
    HandleSizeFactor(1.1),
    ControlPolygonSizeFactor(0.2),
-   ComputeNormalsFlag(false)
+   ComputeNormalsFlag(false),
+   AutoSize(false),
+   HandleSize(3.0),
+   TubeRadius(1.0)
 {
   // Set the event callback to our process events function
   this->EventCallbackCommand->SetCallback(vtkBezierSurfaceWidget::ProcessEvents);
@@ -487,7 +490,9 @@ void vtkBezierSurfaceWidget::BezierSurfaceOff()
 //------------------------------------------------------------------------------
 void vtkBezierSurfaceWidget::SizeHandles()
 {
-  double radius = this->vtk3DWidget::SizeHandles(this->HandleSizeFactor);
+  double radius = this->AutoSize?
+    this->vtk3DWidget::SizeHandles(this->HandleSizeFactor):
+    this->HandleSize;
 
   for(int i=0; i<this->HandlePolyDataCollection->GetNumberOfItems(); ++i)
     {
@@ -504,7 +509,9 @@ void vtkBezierSurfaceWidget::SizeHandles()
 //------------------------------------------------------------------------------
 void vtkBezierSurfaceWidget::SizeControlPolygon()
 {
-  double radius = this->vtk3DWidget::SizeHandles(this->ControlPolygonSizeFactor);
+  double radius = this->AutoSize?
+    this->vtk3DWidget::SizeHandles(this->ControlPolygonSizeFactor):
+    this->TubeRadius;
   this->TubeFilter->SetRadius(radius);
 }
 
