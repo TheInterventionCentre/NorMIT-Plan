@@ -47,8 +47,8 @@ set(all_arg)
 if(DOCUMENTATION_TARGET_IN_ALL)
   set(all_arg "ALL")
 endif()
-add_custom_target(doc ${all_arg})
-add_custom_target(doc-tarballs ${all_arg})
+add_custom_target(normit-doc ${all_arg})
+add_custom_target(normit-doc-tarballs ${all_arg})
 
 add_subdirectory(Doxygen)
 

@@ -11,32 +11,32 @@ if( DOXYGEN_FOUND )
     configure_file(Doxyfile.txt.in ${userdoc_doxyfile})
 
     # Generate doxygen documentation
-    add_custom_target(cpp-doc
+    add_custom_target(normit-cpp-doc
       COMMAND ${DOXYGEN_EXECUTABLE} ${userdoc_doxyfile}
       WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
       )
 
-    add_dependencies(doc cpp-doc)
+    add_dependencies(normit-doc normit-cpp-doc)
 
-    add_custom_target(cpp-doc-tarball-clean
+    add_custom_target(normit-cpp-doc-tarball-clean
       COMMAND ${CMAKE_COMMAND} -E remove ${userdoc_tarball}
       )
 
-    add_custom_target(cpp-doc-tarball
-      DEPENDS cpp-doc cpp-doc-tarball-clean
+    add_custom_target(normit-cpp-doc-tarball
+      DEPENDS normit-cpp-doc normit-cpp-doc-tarball-clean
       COMMAND ${CMAKE_COMMAND} -E tar cfz ${userdoc_tarball} html
       WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
       )
-    add_dependencies(doc-tarballs cpp-doc-tarball)
+    add_dependencies(normit-doc-tarballs normit-cpp-doc-tarball)
 
-    set_target_properties(cpp-doc cpp-doc-tarball
+    set_target_properties(normit-cpp-doc normit-cpp-doc-tarball
       PROPERTIES LABELS Documentation)
 
     # Need to add EXCLUDE_FROM_DEFAULT_BUILD otherwise these targets would be built each time when build is started
     # in the Visual Studio IDE (regardless of DOCUMENTATION_TARGET_IN_ALL setting).
-    set_target_properties(cpp-doc PROPERTIES EXCLUDE_FROM_DEFAULT_BUILD 1)
-    set_target_properties(cpp-doc-tarball-clean PROPERTIES EXCLUDE_FROM_DEFAULT_BUILD 1)
-    set_target_properties(cpp-doc-tarball PROPERTIES EXCLUDE_FROM_DEFAULT_BUILD 1)
+    set_target_properties(normit-cpp-doc PROPERTIES EXCLUDE_FROM_DEFAULT_BUILD 1)
+    set_target_properties(normit-cpp-doc-tarball-clean PROPERTIES EXCLUDE_FROM_DEFAULT_BUILD 1)
+    set_target_properties(normit-cpp-doc-tarball PROPERTIES EXCLUDE_FROM_DEFAULT_BUILD 1)
 
     set( NorMIT-Plan_ADDITIONAL_FILE_PATTERN "*.c \  *.cc \  *.cxx \  *.cpp \  *.c++ \  *.hxx \  *.hpp \  *.h++ \  *.txx \  *.C \  *.CC \  *.C++ \  *.moc") 
 
