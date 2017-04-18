@@ -122,6 +122,13 @@ class Q_SLICER_MODULE_RESECTIONPLANNING_WIDGETS_EXPORT qSlicerResectionPlanningS
   void changeResectionVisibility(int state);
 
   /**
+   * Chages the visibility state of the resection modification widget.
+   *
+   * @param state new visibility state.
+   */
+  void changeResectionWidgetVisibility(int state);
+
+  /**
    * Changes the resection margin of a resection surface.
    *
    * @param margin double value representing the resection margin

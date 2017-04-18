@@ -53,6 +53,8 @@ qSlicerTableItemWidget::qSlicerTableItemWidget(QWidget *parent) :
   QObject::connect(ui.opacitySlider, SIGNAL(valueChanged(int)),
                    this, SLOT(onResectionOpacitySliderChanged(int)));
 
+  QObject::connect(ui.widgetVisibleCheckbox, SIGNAL(stateChanged(int)),
+                   this, SLOT(onWidgetVisibilityCheckboxChanged(int)));
 }
 
 //-----------------------------------------------------------------------------
@@ -148,9 +150,9 @@ void qSlicerTableItemWidget::onVisibilityCheckBoxChanged(int state)
 }
 
 //-----------------------------------------------------------------------------
-void qSlicerTableItemWidget::widgetCheckboxChanged(bool state)
+void qSlicerTableItemWidget::onWidgetVisibilityCheckboxChanged(int state)
 {
-
+  emit widgetVisibilityChanged(state);
 }
 
 //-----------------------------------------------------------------------------

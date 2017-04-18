@@ -169,6 +169,9 @@ void qSlicerResectionPlanningSurfacesWidget
   QObject::connect(item, SIGNAL(resectionOpacityChanged(double)),
                    this, SLOT(changeResectionOpacity(double)));
 
+  QObject::connect(item, SIGNAL(widgetVisibilityChanged(int)),
+                   this, SLOT(changeResectionWidgetVisibility(int)));
+
 
   //Insert the item widget
   int row = d->TableResectionSurfaces->rowCount();
@@ -284,6 +287,44 @@ changeResectionVisibility(int state)
     }
 
   displayNode->SetVisibility((state == Qt::Checked)? true: false);
+}
+
+//------------------------------------------------------------------------------
+void qSlicerResectionPlanningSurfacesWidget::
+changeResectionWidgetVisibility(int state)
+{
+  qSlicerTableItemWidget *item =
+    dynamic_cast<qSlicerTableItemWidget*>(QObject::sender());
+
+  if (!item)
+    {
+    std::cerr << "Error: the widget triggering resection visibility "
+              << "change is not of type qSlicerTableItemWidget" << std::endl;
+    return;
+    }
+
+  vtkMRMLResectionSurfaceNode *resectionNode =
+    this->ResectionWidgetMap.key(item);
+
+  if (!resectionNode)
+    {
+    std::cerr << "Error: no resection node associated to the table item"
+              << std::endl;
+    return;
+    }
+
+  vtkMRMLResectionSurfaceDisplayNode *displayNode =
+    vtkMRMLResectionSurfaceDisplayNode::
+    SafeDownCast(resectionNode->GetDisplayNode());
+
+  if (!displayNode)
+    {
+    std::cerr << "Error: no display node associated to the resection node"
+              << std::endl;
+    return;
+    }
+
+  displayNode->SetWidgetVisibility((state == Qt::Checked)? true: false);
 }
 
 //------------------------------------------------------------------------------

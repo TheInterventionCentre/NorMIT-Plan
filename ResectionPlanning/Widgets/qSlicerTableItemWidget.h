@@ -124,6 +124,7 @@ public:
 
 signals:
   void visibilityChanged(int);
+  void widgetVisibilityChanged(int);
   void resectionMarginChanged(double);
   void resectionOpacityChanged(double);
 
@@ -147,7 +148,7 @@ protected slots:
    *
    * @param bool for state of checkbox
    */
-  void widgetCheckboxChanged(bool);
+  void onWidgetVisibilityCheckboxChanged(int);
 
   /**
    * Called when the transparency slider state is changed
