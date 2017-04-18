@@ -43,9 +43,7 @@
 // MRML includes
 #include <vtkMRMLScene.h>
 #include <vtkMRMLNode.h>
-#include <vtk3DWidget.h>
-#include <vtkCollection.h>
-#include <vtkDoubleArray.h>
+#include <vtkMRMLViewNode.h>
 
 // VTK includes
 #include <vtkObjectFactory.h>
@@ -62,6 +60,9 @@
 #include <vtkXMLPolyDataWriter.h>
 #include <vtkClipPolyData.h>
 #include <vtkDistancePolyDataFilter.h>
+#include <vtkCollection.h>
+#include <vtkDoubleArray.h>
+#include <vtk3DWidget.h>
 
 //------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkMRMLResectionDisplayableManager3D);
@@ -330,7 +331,7 @@ AddDistanceMapPipeline(vtkMRMLResectionSurfaceNode *node)
   //contourActor->VisibilityOff();
   this->NodeContourActorMap[node] = contourActor;
 
-  //vtkPolyDataMapper::SetResolveCoincidentTopologyToPolygonOffset();
+  vtkPolyDataMapper::SetResolveCoincidentTopologyToPolygonOffset();
 
   node->SetPolyDataConnection(normals->GetOutputPort());
 
@@ -493,6 +494,8 @@ OnMRMLSceneNodeAdded(vtkMRMLNode *node)
     vtkErrorMacro("No view node present");
     return;
     }
+
+  this->GetMRMLViewNode()->SetUseDepthPeeling(1);
 
   if (!this->GetRenderer())
     {
