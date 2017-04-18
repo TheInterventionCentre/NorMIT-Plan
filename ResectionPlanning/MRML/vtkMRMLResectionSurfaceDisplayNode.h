@@ -72,12 +72,18 @@ vtkMRMLResectionSurfaceDisplayNode : public vtkMRMLDisplayNode
   virtual const char* GetNodeTagName() {return "ResectionSurfaceDisplay";}
   virtual const char* GetIcon() {return "";}
 
+  vtkSetMacro(WidgetVisibility, bool);
+  vtkGetMacro(WidgetVisibility, bool);
+  vtkBooleanMacro(WidgetVisibility, bool);
+
  protected:
   vtkMRMLResectionSurfaceDisplayNode();
   ~vtkMRMLResectionSurfaceDisplayNode();
 
   vtkMRMLResectionSurfaceDisplayNode(const vtkMRMLResectionSurfaceDisplayNode&);
   void operator=(const vtkMRMLResectionSurfaceDisplayNode&);
+
+  bool WidgetVisibility;
 };
 
 #endif

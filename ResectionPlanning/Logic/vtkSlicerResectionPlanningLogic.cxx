@@ -275,7 +275,7 @@ void vtkSlicerResectionPlanningLogic
                   << resectionNode->GetName());
     // Inform that a resedtion node was added
     this->InvokeEvent(vtkSlicerResectionPlanningLogic::ResectionNodeAdded,
-                      static_cast<void*>(&id_name));
+                      reinterpret_cast<void*>(resectionNode));
     return;
     }
 }
@@ -288,6 +288,12 @@ void vtkSlicerResectionPlanningLogic
   vtkMRMLModelNode *modelNode = vtkMRMLModelNode::SafeDownCast(removedNode);
   if (!modelNode)
     {
+    return;
+    }
+
+  if (!this->GetMRMLScene())
+    {
+    vtkErrorMacro("No MRML scene.");
     return;
     }
 
@@ -389,6 +395,20 @@ void vtkSlicerResectionPlanningLogic
     vtkMRMLResectionSurfaceNode::SafeDownCast(removedNode);
   if (resectionNode)
     {
+
+    // Remove the associated initialization node
+    ResectionInitializationIt it;
+    for (it=this->ResectionInitializationMap.begin();
+         it!=this->ResectionInitializationMap.end();
+         it++)
+      {
+      if (it->second == resectionNode)
+        {
+        this->GetMRMLScene()->RemoveNode(it->first);
+        this->ResectionInitializationMap.erase(it);
+        }
+      }
+
     vtkDebugMacro("Resection planning logic: Resection node removed "
                   << resectionNode->GetName());
     // Inform that a resedtion node was removed
@@ -436,11 +456,13 @@ void vtkSlicerResectionPlanningLogic::AddResectionSurface()
   // Add the storage onde
   vtkSmartPointer<vtkMRMLResectionSurfaceStorageNode> resectionStorageNode =
     vtkSmartPointer<vtkMRMLResectionSurfaceStorageNode>::New();
+  resectionStorageNode->SetScene(this->GetMRMLScene());
   scene->AddNode(resectionStorageNode);
 
   vtkSmartPointer<vtkMRMLResectionSurfaceNode> resectionNode =
     vtkSmartPointer<vtkMRMLResectionSurfaceNode>::New();
   resectionNode->SetScene(this->GetMRMLScene());
+  resectionNode->SetTargetParenchyma(this->ParenchymaModelNode);
   resectionNode->SetAndObserveDisplayNodeID(resectionDisplayNode->GetID());
   resectionNode->SetAndObserveStorageNodeID(resectionStorageNode->GetID());
   scene->AddNode(resectionNode);
@@ -570,6 +592,27 @@ AddResectionSurface(const char* filename)
                     static_cast<void*>(&id_name));
 
   return resectionNode.GetPointer();
+}
+
+//------------------------------------------------------------------------------
+void vtkSlicerResectionPlanningLogic::
+RemoveResection(vtkMRMLResectionSurfaceNode *node)
+{
+  vtkDebugMacro("RemoveResection");
+
+  if (!this->GetMRMLScene())
+    {
+    vtkErrorMacro("No MRML scene.");
+    return;
+    }
+
+  if (!node)
+    {
+    vtkErrorMacro("No node passed.");
+    return;
+    }
+
+  this->GetMRMLScene()->RemoveNode(node);
 }
 
 //------------------------------------------------------------------------------
@@ -831,7 +874,6 @@ HideInitializationOnResectionModification(vtkMRMLResectionSurfaceNode* node)
     vtkErrorMacro("Error: no initialization node passed.");
     return;
     }
-
 
   // Find the initializatio node
   ResectionInitializationIt it;

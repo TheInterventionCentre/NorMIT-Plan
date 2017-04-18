@@ -128,6 +128,13 @@ public vtkSlicerModuleLogic
    */
   vtkMRMLResectionSurfaceNode* AddResectionSurface(const char* filename);
 
+  /**
+   * Remove the resection specified by  nodeId.
+   *
+   * @param node pointer to node to remove.
+   */
+  void RemoveResection(vtkMRMLResectionSurfaceNode *node);
+
  protected:
   vtkSlicerResectionPlanningLogic();
   virtual ~vtkSlicerResectionPlanningLogic();

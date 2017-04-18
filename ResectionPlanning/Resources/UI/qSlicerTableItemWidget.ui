@@ -21,6 +21,22 @@
   </property>
   <layout class="QHBoxLayout" name="horizontalLayout">
    <item>
+    <spacer name="horizontalSpacer_3">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="sizeType">
+      <enum>QSizePolicy::Expanding</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>20</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item>
     <widget class="QLabel" name="resectionName">
      <property name="enabled">
       <bool>true</bool>
@@ -37,8 +53,20 @@
        <height>20</height>
       </size>
      </property>
+     <property name="toolTip">
+      <string/>
+     </property>
      <property name="text">
       <string>TextLabel</string>
+     </property>
+     <property name="scaledContents">
+      <bool>true</bool>
+     </property>
+     <property name="wordWrap">
+      <bool>true</bool>
+     </property>
+     <property name="textInteractionFlags">
+      <set>Qt::LinksAccessibleByMouse</set>
      </property>
     </widget>
    </item>
@@ -98,6 +126,9 @@
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
+     <property name="singleStep">
+      <double>0.500000000000000</double>
+     </property>
     </widget>
    </item>
    <item>
@@ -114,28 +145,15 @@
     </spacer>
    </item>
    <item>
-    <spacer name="horizontalSpacer_5">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <property name="sizeType">
-      <enum>QSizePolicy::Fixed</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>10</width>
-       <height>20</height>
-      </size>
-     </property>
-    </spacer>
-   </item>
-   <item>
-    <widget class="QSlider" name="transparencySlider">
+    <widget class="QSlider" name="opacitySlider">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
+     </property>
+     <property name="maximum">
+      <number>100</number>
      </property>
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
@@ -202,134 +220,5 @@
   </layout>
  </widget>
  <resources/>
- <connections>
-  <connection>
-   <sender>transparencySlider</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>qSlicerTableItem</receiver>
-   <slot>transparencySliderChanged(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>308</x>
-     <y>17</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>228</x>
-     <y>20</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>qSlicerTableItem</sender>
-   <signal>setMarginSpinbox(double)</signal>
-   <receiver>marginSpinbox</receiver>
-   <slot>setValue(double)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>228</x>
-     <y>20</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>210</x>
-     <y>17</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>widgetVisibleCheckbox</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>qSlicerTableItem</receiver>
-   <slot>widgetCheckboxChanged(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>371</x>
-     <y>14</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>194</x>
-     <y>22</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>qSlicerTableItem</sender>
-   <signal>setTransparencySlider(int)</signal>
-   <receiver>transparencySlider</receiver>
-   <slot>setValue(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>228</x>
-     <y>20</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>308</x>
-     <y>17</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>qSlicerTableItem</sender>
-   <signal>setWidgetCheckbox(bool)</signal>
-   <receiver>widgetVisibleCheckbox</receiver>
-   <slot>setChecked(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>226</x>
-     <y>29</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>387</x>
-     <y>18</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>marginSpinbox</sender>
-   <signal>valueChanged(double)</signal>
-   <receiver>qSlicerTableItem</receiver>
-   <slot>marginSpinboxChanged(double)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>210</x>
-     <y>17</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>228</x>
-     <y>20</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>resectionVisibleCheckbox</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>qSlicerTableItem</receiver>
-   <slot>visibleCheckboxChanged(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>187</x>
-     <y>14</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>168</x>
-     <y>23</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>qSlicerTableItem</sender>
-   <signal>setVisibleCheckbox(bool)</signal>
-   <receiver>resectionVisibleCheckbox</receiver>
-   <slot>setChecked(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>226</x>
-     <y>29</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>118</x>
-     <y>18</y>
-    </hint>
-   </hints>
-  </connection>
- </connections>
+ <connections/>
 </ui>

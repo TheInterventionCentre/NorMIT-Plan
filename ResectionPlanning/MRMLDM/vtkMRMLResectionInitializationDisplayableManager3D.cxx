@@ -212,9 +212,33 @@ OnMRMLSceneNodeAdded(vtkMRMLNode *node)
 
 //------------------------------------------------------------------------------
 void vtkMRMLResectionInitializationDisplayableManager3D::
-OnMRMLSceneNodeRemoved(vtkMRMLNode *vtkNotUsed(node))
+OnMRMLSceneNodeRemoved(vtkMRMLNode *node)
 {
+  vtkDebugMacro("OnMRMLSceneNodeRemoved");
 
+  if (!node)
+    {
+    vtkErrorMacro("No node passed.");
+    return;
+    }
+
+  vtkMRMLResectionInitializationNode *initializationNode =
+    vtkMRMLResectionInitializationNode::SafeDownCast(node);
+  if (!initializationNode)
+    {
+    vtkErrorMacro("Node is not a vtkMRMLResectionInitializationNode");
+    return;
+    }
+
+  NodeWidgetIt it = this->NodeWidgetMap.find(initializationNode);
+  if (it == this->NodeWidgetMap.end())
+    {
+    vtkErrorMacro("Node does not have an associated vtkLineWidget3");
+    return;
+    }
+
+  it->second->Off();
+  this->NodeWidgetMap.erase(it);
 }
 
 //------------------------------------------------------------------------------

@@ -45,6 +45,7 @@
 // VTK includes
 #include <vtkObjectFactory.h>
 #include <vtkPoints.h>
+#include <vtkCommand.h>
 
 //------------------------------------------------------------------------------
 vtkMRMLNodeNewMacro(vtkMRMLResectionSurfaceNode);
@@ -149,4 +150,17 @@ void vtkMRMLResectionSurfaceNode::SetControlPoints(vtkPoints *points)
 
   this->ControlPoints->DeepCopy(points);
   this->Modified();
+}
+
+//------------------------------------------------------------------------------
+void vtkMRMLResectionSurfaceNode::SetTargetParenchyma(vtkMRMLModelNode *node)
+{
+  this->TargetParenchyma = node;
+  this->InvokeEvent(vtkCommand::ModifiedEvent);
+}
+
+//------------------------------------------------------------------------------
+vtkMRMLModelNode* vtkMRMLResectionSurfaceNode::GetTargetParenchyma() const
+{
+  return this->TargetParenchyma;
 }

@@ -60,6 +60,8 @@
 #include <vtkPolyDataNormals.h>
 #include <vtkColorTransferFunction.h>
 #include <vtkXMLPolyDataWriter.h>
+#include <vtkClipPolyData.h>
+#include <vtkDistancePolyDataFilter.h>
 
 //------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkMRMLResectionDisplayableManager3D);
@@ -246,11 +248,38 @@ AddDistanceMapPipeline(vtkMRMLResectionSurfaceNode *node)
     return;
     }
 
-  // Create and register the distance filter
+  vtkMRMLResectionSurfaceDisplayNode * displayNode =
+    vtkMRMLResectionSurfaceDisplayNode::
+    SafeDownCast(node->GetDisplayNode());
+  if (!displayNode)
+    {
+    vtkErrorMacro("No display node associated to the resection node.");
+    return;
+    }
+
+  // Create and register the distance-to-parenchyma
+  vtkSmartPointer<vtkDistancePolyDataFilter> parDistanceFilter =
+    vtkSmartPointer<vtkDistancePolyDataFilter>::New();
+  parDistanceFilter->ComputeSecondDistanceOff();
+  parDistanceFilter->NegateDistanceOff();
+  parDistanceFilter->SignedDistanceOn();
+  parDistanceFilter->GlobalWarningDisplayOff();
+  this->NodeParDistanceFilterMap[node] = parDistanceFilter;
+
+  // Create and register the clipPolyData filter
+  vtkSmartPointer<vtkClipPolyData> clipper  =
+    vtkSmartPointer<vtkClipPolyData>::New();
+
+  clipper->SetValue(0);
+  clipper->InsideOutOn();
+  clipper->GenerateClippedOutputOff();
+  this->NodeClipperMap[node] = clipper;
+
+  // Create and register the distance-to-tumors filter
   vtkSmartPointer<vtkHausdorffDistancePointSetFilter> distanceFilter =
     vtkSmartPointer<vtkHausdorffDistancePointSetFilter>::New();
   distanceFilter->SetTargetDistanceMethod(0);
-  NodeDistanceFilterMap[node] = distanceFilter;
+  this->NodeDistanceFilterMap[node] = distanceFilter;
 
   // Create normals filter
   vtkSmartPointer<vtkPolyDataNormals> normals =
@@ -263,16 +292,17 @@ AddDistanceMapPipeline(vtkMRMLResectionSurfaceNode *node)
   contourFilter->SetInputConnection(distanceFilter->GetOutputPort());
   contourFilter->SetNumberOfContours(1);
   contourFilter->SetValue(0, node->GetResectionMargin());
+  this->NodeContourFilterMap[node] = contourFilter;
 
   // Create and register the color map
   vtkSmartPointer<vtkColorTransferFunction> colorMap =
     vtkSmartPointer<vtkColorTransferFunction>::New();
   colorMap->AddRGBPoint(0.0, 1.0, 1.0, 0.0);
-  colorMap->AddRGBPoint(0.0, 1.0, 1.0, 0.0);
   colorMap->AddRGBPoint(node->GetResectionMargin(), 1.0, 1.0, 0.0);
-  colorMap->AddRGBPoint(node->GetResectionMargin() + 0.00001, 1.0, 1.0, 1.0);
+  colorMap->AddRGBPoint(node->GetResectionMargin(), 1.0, 1.0, 1.0);
   colorMap->AddRGBPoint(100.0, 1.0, 1.0, 1.0);
-  NodeColorMap[node] = colorMap;
+  colorMap->AllowDuplicateScalarsOn();
+  this->NodeColorMap[node] = colorMap;
 
   // Create the mapper for the distance map
   vtkSmartPointer<vtkPolyDataMapper> distanceMapper =
@@ -291,22 +321,37 @@ AddDistanceMapPipeline(vtkMRMLResectionSurfaceNode *node)
   vtkSmartPointer<vtkActor> distanceActor = vtkSmartPointer<vtkActor>::New();
   distanceActor->SetMapper(distanceMapper);
   //distanceActor->VisibilityOff();
-  NodeDistanceActorMap[node] = distanceActor;
+  this->NodeDistanceActorMap[node] = distanceActor;
 
   //Create and register the contour actor
   vtkSmartPointer<vtkActor> contourActor = vtkSmartPointer<vtkActor>::New();
   contourActor->SetMapper(contourMapper);
   contourActor->GetProperty()->SetLineWidth(3);
   //contourActor->VisibilityOff();
-  NodeContourActorMap[node] = contourActor;
+  this->NodeContourActorMap[node] = contourActor;
 
   //vtkPolyDataMapper::SetResolveCoincidentTopologyToPolygonOffset();
 
   node->SetPolyDataConnection(normals->GetOutputPort());
 
   // Add actors to the scene
-  this->GetRenderer()->AddActor(distanceActor);
-  this->GetRenderer()->AddActor(contourActor);
+  if (displayNode->GetVisibility())
+    {
+    vtkProperty *prop = distanceActor->GetProperty();
+    if (prop)
+      {
+      prop->SetOpacity(displayNode->GetOpacity());
+      }
+
+    prop = contourActor->GetProperty();
+    if (prop)
+      {
+      prop->SetOpacity(displayNode->GetOpacity());
+      }
+
+    this->GetRenderer()->AddActor(distanceActor);
+    this->GetRenderer()->AddActor(contourActor);
+    }
 }
 
 //-------------------------------------------------------------------------------
@@ -357,13 +402,68 @@ void vtkMRMLResectionDisplayableManager3D::OnMRMLSceneEndClose()
 {
   vtkDebugMacro("OnMRMLSceneEndClose");
 
-  // Removing the widgets
-  NodeWidgetIt it;
-  for(it=this->NodeWidgetMap.begin(); it!=this->NodeWidgetMap.end(); it++)
+  if (!this->GetRenderer())
     {
-    it->second->Off();
-    vtkUnObserveMRMLNodeMacro(it->first);
-    this->NodeWidgetMap.erase(it);
+    vtkErrorMacro("No renderer present");
+    return;
+    }
+
+  // Removing the widgets
+  NodeWidgetIt widgetIt;
+  for(widgetIt=this->NodeWidgetMap.begin();
+      widgetIt!=this->NodeWidgetMap.end();
+      widgetIt++)
+    {
+    widgetIt->second->Off();
+    vtkUnObserveMRMLNodeMacro(widgetIt->first);
+    this->NodeWidgetMap.erase(widgetIt);
+    }
+
+  // Removing contour actors
+  NodeContourActorIt contourActorIt;
+  for(contourActorIt = this->NodeContourActorMap.begin();
+      contourActorIt != this->NodeContourActorMap.end();
+      contourActorIt++)
+    {
+    this->GetRenderer()->RemoveActor(contourActorIt->second);
+    this->NodeContourActorMap.erase(contourActorIt);
+    }
+
+  // Removing contour filters
+  NodeContourFilterIt contourFilterIt;
+  for(contourFilterIt = this->NodeContourFilterMap.begin();
+      contourFilterIt != this->NodeContourFilterMap.end();
+      contourFilterIt++)
+    {
+    this->NodeContourFilterMap.erase(contourFilterIt);
+    }
+
+  // Removing distance actors
+  NodeDistanceActorIt distanceActorIt;
+  for(distanceActorIt = this->NodeDistanceActorMap.begin();
+      distanceActorIt != this->NodeDistanceActorMap.end();
+      distanceActorIt++)
+    {
+    this->GetRenderer()->RemoveActor(distanceActorIt->second);
+    this->NodeDistanceActorMap.erase(distanceActorIt);
+    }
+
+  // Removing colormaps
+  NodeColorIt colorIt;
+  for(colorIt = this->NodeColorMap.begin();
+      colorIt != this->NodeColorMap.end();
+      colorIt++)
+    {
+    this->NodeColorMap.erase(colorIt);
+    }
+
+  // Removing distance filters
+  NodeDistanceFilterIt distanceFilterIt;
+  for(distanceFilterIt = this->NodeDistanceFilterMap.begin();
+      distanceFilterIt != this->NodeDistanceFilterMap.end();
+      distanceFilterIt++)
+    {
+    this->NodeDistanceFilterMap.erase(distanceFilterIt);
     }
 
   this->SetUpdateFromMRMLRequested(1);
@@ -473,6 +573,7 @@ OnMRMLSceneNodeRemoved(vtkMRMLNode *node)
   //   return;
   //   }
 
+  // Remove contour actor
   NodeContourActorIt contourActorIt =
     this->NodeContourActorMap.find(resectionNode);
   if (contourActorIt == this->NodeContourActorMap.end())
@@ -482,6 +583,16 @@ OnMRMLSceneNodeRemoved(vtkMRMLNode *node)
   this->GetRenderer()->RemoveActor(contourActorIt->second);
   this->NodeContourActorMap.erase(contourActorIt);
 
+  // Remove contour filter
+  NodeContourFilterIt contourFilterIt =
+    this->NodeContourFilterMap.find(resectionNode);
+  if (contourFilterIt == this->NodeContourFilterMap.end())
+    {
+    return;
+    }
+  this->NodeContourFilterMap.erase(contourFilterIt);
+
+  // Remove distance actor
   NodeDistanceActorIt distanceActorIt =
     this->NodeDistanceActorMap.find(resectionNode);
   if (distanceActorIt == this->NodeDistanceActorMap.end())
@@ -491,6 +602,7 @@ OnMRMLSceneNodeRemoved(vtkMRMLNode *node)
   this->GetRenderer()->RemoveActor(distanceActorIt->second);
   this->NodeDistanceActorMap.erase(distanceActorIt);
 
+  // Remove color map
   NodeColorIt colorIt = this->NodeColorMap.find(resectionNode);
   if (colorIt == this->NodeColorMap.end())
     {
@@ -498,6 +610,7 @@ OnMRMLSceneNodeRemoved(vtkMRMLNode *node)
     }
   this->NodeColorMap.erase(colorIt);
 
+  // Remove distance filter
   NodeDistanceFilterIt distanceFilterIt =
     this->NodeDistanceFilterMap.find(resectionNode);
   if (distanceFilterIt == this->NodeDistanceFilterMap.end())
@@ -506,6 +619,26 @@ OnMRMLSceneNodeRemoved(vtkMRMLNode *node)
     }
   this->NodeDistanceFilterMap.erase(distanceFilterIt);
 
+  // Remove the cutter
+  NodeClipperIt clipperIt =
+    this->NodeClipperMap.find(resectionNode);
+  if (clipperIt == this->NodeClipperMap.end())
+    {
+    return;
+    }
+  this->NodeClipperMap.erase(clipperIt);
+
+  // Remove distance filter
+  NodeParDistanceFilterIt parDistanceFilterIt =
+    this->NodeParDistanceFilterMap.find(resectionNode);
+  if (parDistanceFilterIt == this->NodeParDistanceFilterMap.end())
+    {
+    return;
+    }
+  this->NodeParDistanceFilterMap.erase(parDistanceFilterIt);
+
+
+  // Remove widget
   NodeWidgetIt it = this->NodeWidgetMap.find(resectionNode);
   if (it == this->NodeWidgetMap.end())
     {
@@ -539,6 +672,24 @@ UpdateGeometry(vtkMRMLResectionSurfaceNode *node)
 
   vtkBezierSurfaceWidget *widget = it->second;
   widget->SetControlPoints(node->GetControlPoints());
+
+  NodeColorIt colorIt = this->NodeColorMap.find(node);
+  if (colorIt != this->NodeColorMap.end())
+    {
+    colorIt->second->RemoveAllPoints();
+    colorIt->second->AddRGBPoint(0.0, 1.0, 1.0, 0.0);
+    colorIt->second->AddRGBPoint(node->GetResectionMargin(), 1.0, 1.0, 0.0);
+    colorIt->second->AddRGBPoint(node->GetResectionMargin(), 1.0, 1.0, 1.0);
+    colorIt->second->AddRGBPoint(100.0, 1.0, 1.0, 1.0);
+    }
+
+  NodeContourFilterIt contourIt =
+    this->NodeContourFilterMap.find(node);
+
+  if (contourIt != this->NodeContourFilterMap.end())
+    {
+    contourIt->second->SetValue(0, node->GetResectionMargin());
+    }
 }
 
 
@@ -563,15 +714,119 @@ UpdateVisibility(vtkMRMLResectionSurfaceNode *node)
     return;
     }
 
-  NodeWidgetIt it = this->NodeWidgetMap.find(node);
-  if (it == this->NodeWidgetMap.end())
+
+  // Bezier widget (show/hide accordingly)
+  NodeWidgetIt widgetIt = this->NodeWidgetMap.find(node);
+  if (widgetIt == this->NodeWidgetMap.end())
     {
     vtkErrorMacro("Node not handled by the displayable manager.");
     return;
     }
 
-  vtkBezierSurfaceWidget *widget = it->second;
-  widget->SetEnabled(resectionDisplayNode->GetVisibility());
+  vtkMRMLModelNode *targetParenchyma = node->GetTargetParenchyma();
+  if (!targetParenchyma)
+    {
+    vtkErrorMacro("No target parenchyma found.");
+    return;
+    }
+
+  vtkBezierSurfaceWidget *widget = widgetIt->second;
+  widget->SetEnabled(resectionDisplayNode->GetVisibility() &&
+                     resectionDisplayNode->GetWidgetVisibility());
+
+  NodeParDistanceFilterIt parDistFiIt = this->NodeParDistanceFilterMap.find(node);
+  if (parDistFiIt == this->NodeParDistanceFilterMap.end())
+    {
+    vtkErrorMacro("No distance filter (parenchyma) associated to the node.");
+    return;
+    }
+
+  vtkDistancePolyDataFilter *parDistanceFilter = parDistFiIt->second;
+  parDistanceFilter->SetInputData(0, widget->GetBezierSurfacePolyData());
+  parDistanceFilter->SetInputData(1, targetParenchyma->GetPolyData());
+
+  NodeClipperIt clipperIt = this->NodeClipperMap.find(node);
+  if (clipperIt == this->NodeClipperMap.end())
+    {
+    vtkErrorMacro("No clipper associated to the node.");
+    return;
+    }
+
+  vtkClipPolyData *clipper = clipperIt->second;
+  clipper->SetInputConnection(parDistanceFilter->GetOutputPort());
+
+  NodeDistanceFilterIt distFilIt = this->NodeDistanceFilterMap.find(node);
+  if (distFilIt == this->NodeDistanceFilterMap.end())
+    {
+    vtkErrorMacro("No distance filter (tumors) associated to the node.");
+    return;
+    }
+
+  vtkHausdorffDistancePointSetFilter *distanceFilter = distFilIt->second;
+  if (!resectionDisplayNode->GetWidgetVisibility())
+    {
+    distanceFilter->SetInputConnection(0, clipper->GetOutputPort());
+    }
+  else
+    {
+    distanceFilter->SetInputData(0, widget->GetBezierSurfacePolyData());
+    }
+
+  distanceFilter->Update();
+  distanceFilter->GetOutput(0)->GetPointData()->
+    SetScalars(distanceFilter->GetOutput(0)->
+               GetPointData()->GetArray("Distance"));
+
+  vtkProperty *prop = widget->GetBezierSurfaceProperty();
+  prop->SetOpacity(resectionDisplayNode->GetOpacity());
+
+  // Node contour actor (show/hide accordingly)
+  NodeContourActorIt contourIt = this->NodeContourActorMap.find(node);
+  if (contourIt == this->NodeContourActorMap.end())
+    {
+    vtkErrorMacro("No contour actor associated with resection node.");
+    return;
+    }
+
+  //
+
+  if (resectionDisplayNode->GetVisibility())
+    {
+    vtkProperty *prop = contourIt->second->GetProperty();
+      if (prop)
+        {
+          prop->SetOpacity(resectionDisplayNode->GetOpacity());
+        }
+    this->GetRenderer()->AddActor(contourIt->second);
+
+    }
+  else
+    {
+    this->GetRenderer()->RemoveActor(contourIt->second);
+    }
+
+  NodeDistanceActorIt distanceIt = this->NodeDistanceActorMap.find(node);
+  if (distanceIt == this->NodeDistanceActorMap.end())
+    {
+    vtkErrorMacro("No bezier surface (with distance) actor associated "
+                  << "with the given resection node");
+    return;
+    }
+
+  if (resectionDisplayNode->GetVisibility())
+    {
+    vtkProperty *prop = distanceIt->second->GetProperty();
+      if (prop)
+        {
+          prop->SetOpacity(resectionDisplayNode->GetOpacity());
+        }
+    this->GetRenderer()->AddActor(distanceIt->second);
+
+    }
+  else
+    {
+    this->GetRenderer()->RemoveActor(distanceIt->second);
+    }
 }
 
 //------------------------------------------------------------------------------
@@ -663,16 +918,21 @@ UpdateDistanceMap(vtkObject *caller,
       }
 
     NodeDistanceFilterIt distFilIt = self->NodeDistanceFilterMap.find(node);
-    if (distFilIt != self->NodeDistanceFilterMap.end())
+    if (distFilIt == self->NodeDistanceFilterMap.end())
       {
-      vtkHausdorffDistancePointSetFilter *distanceFilter = distFilIt->second;
-      distanceFilter->SetInputData(0, widget->GetBezierSurfacePolyData());
-      distanceFilter->SetInputData(1, jointTumorsModelNode->GetPolyData());
-      distanceFilter->Update();
-      distanceFilter->GetOutput(0)->GetPointData()->
-        SetScalars(distanceFilter->GetOutput(0)->
-                   GetPointData()->GetArray("Distance"));
+      std::cerr << "No distance filter (tumors) associated to the node."
+                << std::endl;
+      return;
       }
+
+
+    vtkHausdorffDistancePointSetFilter *distanceFilter = distFilIt->second;
+    distanceFilter->SetInputData(0, widget->GetBezierSurfacePolyData());
+    distanceFilter->SetInputData(1, jointTumorsModelNode->GetPolyData());
+    distanceFilter->Update();
+    distanceFilter->GetOutput(0)->GetPointData()->
+      SetScalars(distanceFilter->GetOutput(0)->
+                 GetPointData()->GetArray("Distance"));
 
     NodeDistanceActorIt distActorIt = self->NodeDistanceActorMap.find(node);
     if (distActorIt != self->NodeDistanceActorMap.end())

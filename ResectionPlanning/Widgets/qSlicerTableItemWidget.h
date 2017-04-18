@@ -29,7 +29,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define RESECTIONPLANNING_WIDGETS_QSLICERTABLEITEMWIDGET_H_
 
 // Qt includes
-#include <QTableWidgetItem>
 #include <QString>
 #include <QWidget>
 
@@ -45,7 +44,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * This class sends and receives information to/from qSlicerResectionPlanningSurfacesWidget
  */
-class Q_SLICER_MODULE_RESECTIONPLANNING_WIDGETS_EXPORT qSlicerTableItemWidget : public QWidget, public QTableWidgetItem
+class Q_SLICER_MODULE_RESECTIONPLANNING_WIDGETS_EXPORT qSlicerTableItemWidget : public QWidget
 {
   Q_OBJECT
 
@@ -55,85 +54,111 @@ public:
 
   int type() const;
 
-  virtual QTableWidgetItem *clone() const;
-
   /**
    * Set the text of the label for the resection name
    *
    * @param resection name
    */
-  void setText(QString&);
-  QString text();
+  void setResectionName(const char*);
+  const char* getResectionName() const;
 
   /**
-   * Set the resection ID
+   * Set the visibility of the resection (checkbox)
    *
-   * @param resection ID
+   * @param visibility true if resection is visible, false otherwise.
    */
-  void setResectionID(QString&);
-  QString getResectionID();
+  void setResectionVisibility(bool visibility);
+
+  /**
+   * Get the visibility of the resection (checkbox)
+   *
+   *
+   * @return true if resection is visible, false otherwise.
+   */
+  bool getResectionVisibility() const;
+
+  /**
+   * Set the resection margin in the double spinbox
+   *
+   * @param margin resection margin.
+   */
+  void setResectionMargin(double margin);
+
+  /**
+   * Get the resection margin in the spinbox
+   *
+   *
+   * @return resection margin
+   */
+  double getResectionMargin() const;
+
+  /**
+   * Set the transparency value for the slider
+   *
+   * @param value transparency value.
+   */
+  void setOpacity(int value);
+
+  /**
+   * Get the transparency value from the slider.
+   *
+   *
+   * @return transparency value
+   */
+  int getOpacity() const;
+
+  /**
+   * Set the visibility of the widget (checkbox)
+   *
+   * @param visibility true if widget is visible, false otherwise.
+   */
+  void setWidgetVisibility(bool visibility);
+
+  /**
+   * Get the visibility of the widget (checkbox)
+   *
+   *
+   * @return true if widget is visible, false otherwise.
+   */
+  bool getWidgetVisibility() const;
 
 signals:
-  /**
-  * Used to set the visibility checkbox state
-  *
-  * @param bool for state of checkbox
-  */
-  void setVisibleCheckbox(bool);
-
-  /**
-  * Used to set the widget checkbox state
-  *
-  * @param bool for state of checkbox
-  */
-  void setWidgetCheckbox(bool);
-
-  /**
-  * Used to set the spinbox value
-  *
-  * @param double for value of spinbox
-  */
-  void setMarginSpinbox(double);
-
-  /**
-  * Used to set the slider value
-  *
-  * @param int for value of slider
-  */
-  void setTransparencySlider(int);
+  void visibilityChanged(int);
+  void widgetVisibilityChanged(int);
+  void resectionMarginChanged(double);
+  void resectionOpacityChanged(double);
 
 protected slots:
   /**
    * Called when the visibility checkbox state is changed
    *
-   * @param bool for state of checkbox
+   * @param int for state of checkbox
    */
-  void visibleCheckboxChanged(bool);
+  void onVisibilityCheckBoxChanged(int);
+
+  /**
+   * Called when the spinbox changes
+   *
+   * @param double  value of the spinbox
+   */
+  void onResectionMarginSpinboxChanged(double);
 
   /**
    * Called when the widget checkbox state is changed
    *
    * @param bool for state of checkbox
    */
-  void widgetCheckboxChanged(bool);
-
-  /**
-   * Called when the margin spinbox state is changed
-   *
-   * @param double for value of spinbox
-   */
-  void marginSpinboxChanged(double);
+  void onWidgetVisibilityCheckboxChanged(int);
 
   /**
    * Called when the transparency slider state is changed
    *
    * @param in for value of slider
    */
-  void transparencySliderChanged(int);
+  void onResectionOpacitySliderChanged(int);
 
 private:
-  QString resectionName;
-  QString resectionID;
+
   Ui::qSlicerTableItem ui;
 };
 
