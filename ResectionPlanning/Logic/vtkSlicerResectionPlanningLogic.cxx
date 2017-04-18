@@ -462,6 +462,7 @@ void vtkSlicerResectionPlanningLogic::AddResectionSurface()
   vtkSmartPointer<vtkMRMLResectionSurfaceNode> resectionNode =
     vtkSmartPointer<vtkMRMLResectionSurfaceNode>::New();
   resectionNode->SetScene(this->GetMRMLScene());
+  resectionNode->SetTargetParenchyma(this->ParenchymaModelNode);
   resectionNode->SetAndObserveDisplayNodeID(resectionDisplayNode->GetID());
   resectionNode->SetAndObserveStorageNodeID(resectionStorageNode->GetID());
   scene->AddNode(resectionNode);

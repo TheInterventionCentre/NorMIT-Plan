@@ -54,6 +54,8 @@ class vtkHausdorffDistancePointSetFilter;
 class vtkActor;
 class vtkColorTransferFunction;
 class vtkContourFilter;
+class vtkClipPolyData;
+class vtkDistancePolyDataFilter;
 
 //------------------------------------------------------------------------------
 class VTK_SLICER_RESECTIONPLANNING_MODULE_MRMLDISPLAYABLEMANAGER_EXPORT
@@ -217,12 +219,25 @@ public vtkMRMLAbstractThreeDViewDisplayableManager
   typedef std::map<vtkMRMLResectionSurfaceNode*,
     vtkSmartPointer<vtkBezierSurfaceWidget> >::iterator NodeWidgetIt;
 
-  // Map and iterator holding the ResecionNode-DistanceFilter relationship
+  // Map and iterator holding the ResecionNode-TumorDistanceFilter relationship
   std::map<vtkMRMLResectionSurfaceNode*,
     vtkSmartPointer<vtkHausdorffDistancePointSetFilter> > NodeDistanceFilterMap;
   typedef std::map<vtkMRMLResectionSurfaceNode*,
     vtkSmartPointer<vtkHausdorffDistancePointSetFilter> >::iterator
     NodeDistanceFilterIt;
+
+  // Map and iterator holding the ResectionNode-ParenchumaDistanceFilter
+  std::map<vtkMRMLResectionSurfaceNode*,
+    vtkSmartPointer<vtkDistancePolyDataFilter> > NodeParDistanceFilterMap;
+  typedef std::map<vtkMRMLResectionSurfaceNode*,
+    vtkSmartPointer<vtkDistancePolyDataFilter> >::iterator
+    NodeParDistanceFilterIt;
+
+  // Map and iterator holding the ResectionNode-Clipper
+  std::map<vtkMRMLResectionSurfaceNode*,
+    vtkSmartPointer<vtkClipPolyData> > NodeClipperMap;
+  typedef std::map<vtkMRMLResectionSurfaceNode*,
+    vtkSmartPointer<vtkClipPolyData> >::iterator NodeClipperIt;
 
   // Map and iterator holding the ResectionNode-ContourFilter relationship.
   std::map<vtkMRMLResectionSurfaceNode*,
