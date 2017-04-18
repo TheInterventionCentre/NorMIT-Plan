@@ -44,6 +44,7 @@
 
 // VTK includes
 #include <vtkNew.h>
+#include <vtkWeakPointer.h>
 #include <vtkCollection.h>
 
 //------------------------------------------------------------------------------
@@ -163,6 +164,9 @@ vtkMRMLResectionSurfaceNode: public vtkMRMLModelNode
    */
   void SetControlPoints(vtkPoints *newControlPoints);
 
+  void SetTargetParenchyma(vtkMRMLModelNode *node);
+  vtkMRMLModelNode *GetTargetParenchyma() const;
+
  protected:
   vtkMRMLResectionSurfaceNode();
   ~vtkMRMLResectionSurfaceNode();
@@ -172,6 +176,7 @@ vtkMRMLResectionSurfaceNode: public vtkMRMLModelNode
 
   vtkNew<vtkCollection> TargetTumors;
   vtkNew<vtkPoints> ControlPoints;
+  vtkWeakPointer<vtkMRMLModelNode> TargetParenchyma;
   double ResectionMargin;
 };
 
