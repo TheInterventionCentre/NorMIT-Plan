@@ -269,6 +269,7 @@ void vtkSlicerResectionPlanningLogic
   // Check whether the added node was a resection node
   vtkMRMLResectionSurfaceNode *resectionNode =
     vtkMRMLResectionSurfaceNode::SafeDownCast(addedNode);
+
   if (resectionNode)
     {
     vtkDebugMacro("Resection planning logic: Resection node added "
@@ -482,13 +483,6 @@ void vtkSlicerResectionPlanningLogic::AddResectionSurface()
 
   // Update the bezier surface
   this->UpdateBezierWidgetOnInitialization(resectionInitializationNode);
-
-  // Inform that resection was added
-  std::pair<std::string, std::string> id_name;
-  id_name.first = std::string(resectionNode->GetID());
-  id_name.second = std::string(resectionNode->GetName());
-  this->InvokeEvent(vtkSlicerResectionPlanningLogic::ResectionNodeAdded,
-                    static_cast<void*>(&id_name));
 }
 
 //----------------------------------------------------------------------------
@@ -556,12 +550,13 @@ AddResectionSurface(const char* filename)
     std::string uname( scene->GetUniqueNameByString(baseName.c_str()));
     resectionNode->SetName(uname.c_str());
 
-    scene->AddNode(resectionStorageNode.GetPointer());
-    scene->AddNode(resectionDisplayNode.GetPointer());
+    scene->AddNode(resectionStorageNode);
+    scene->AddNode(resectionDisplayNode);
 
     // Set the scene so that SetAndObserve[Display|Storage]NodeID can find the
     // node in the scene (so that DisplayNodes return something not empty)
-    //resectionNode->SetScene(scene);
+    resectionNode->SetScene(scene);
+    resectionNode->SetTargetParenchyma(this->ParenchymaModelNode);
     resectionNode->SetAndObserveStorageNodeID(resectionStorageNode->GetID());
     resectionNode->SetAndObserveDisplayNodeID(resectionDisplayNode->GetID());
 
@@ -582,14 +577,6 @@ AddResectionSurface(const char* filename)
     vtkErrorMacro("Couldn't read file: " << filename);
     return 0;
     }
-
-
-  // Inform that resection was added
-  std::pair<std::string, std::string> id_name;
-  id_name.first = std::string(resectionNode->GetID());
-  id_name.second = std::string(resectionNode->GetName());
-  this->InvokeEvent(vtkSlicerResectionPlanningLogic::ResectionNodeAdded,
-                    static_cast<void*>(&id_name));
 
   return resectionNode.GetPointer();
 }
