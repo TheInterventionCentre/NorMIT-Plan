@@ -270,7 +270,6 @@ AddDistanceMapPipeline(vtkMRMLResectionSurfaceNode *node)
   // Create and register the clipPolyData filter
   vtkSmartPointer<vtkClipPolyData> clipper  =
     vtkSmartPointer<vtkClipPolyData>::New();
-
   clipper->SetValue(0);
   clipper->InsideOutOn();
   clipper->GenerateClippedOutputOff();
@@ -333,7 +332,8 @@ AddDistanceMapPipeline(vtkMRMLResectionSurfaceNode *node)
 
   vtkPolyDataMapper::SetResolveCoincidentTopologyToPolygonOffset();
 
-  node->SetPolyDataConnection(normals->GetOutputPort());
+  std::cout << "poly data connection" << std::endl;
+  node->SetPolyDataConnection(distanceFilter->GetOutputPort());
 
   // Add actors to the scene
   if (displayNode->GetVisibility())
@@ -976,6 +976,7 @@ UpdateMRML(vtkObject *caller,
     std::cerr << "Client data (resection node) not valid." << std::endl;
     return;
     }
+
 
   node->SetControlPoints(widget->GetControlPoints());
   node->Modified();

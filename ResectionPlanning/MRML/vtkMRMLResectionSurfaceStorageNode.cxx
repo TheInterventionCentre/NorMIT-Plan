@@ -84,15 +84,6 @@ int vtkMRMLResectionSurfaceStorageNode::ReadDataInternal(vtkMRMLNode *refNode)
     return 0;
     }
 
-  int result = 1;
-  // Call the superclass to load the data rather than reimplement?
-  result = this->Superclass::ReadDataInternal(refNode);
-
-  if (!result)
-    {
-    vtkErrorMacro("Internal reading error");
-    return 0;
-    }
 
   // cast the input node
   vtkMRMLResectionSurfaceNode *resectionSurfaceNode =
@@ -101,6 +92,18 @@ int vtkMRMLResectionSurfaceStorageNode::ReadDataInternal(vtkMRMLNode *refNode)
   if (!refNode)
     {
     vtkErrorMacro("Node passed is not a resection node");
+    return 0;
+    }
+
+  vtkNew<vtkMRMLResectionSurfaceNode> tempSurfaceNode;
+
+  int result = 1;
+  // Call the superclass to load the data rather than reimplement?
+  result = this->Superclass::ReadDataInternal(tempSurfaceNode.GetPointer());
+
+  if (!result)
+    {
+    vtkErrorMacro("Internal reading error");
     return 0;
     }
 
@@ -113,15 +116,18 @@ int vtkMRMLResectionSurfaceStorageNode::ReadDataInternal(vtkMRMLNode *refNode)
     return 0;
     }
 
-  vtkPolyData* resectionPolyData = resectionSurfaceNode->GetPolyData();
-  if (!resectionPolyData)
+
+  vtkPolyData* tempPolyData = tempSurfaceNode->GetPolyData();
+  if (!tempSurfaceNode.GetPointer())
     {
-    vtkErrorMacro("No polydata present in the resection node.");
+    vtkErrorMacro("No polydata present in the loaded node.");
     return 0;
     }
 
+  std::cout << tempPolyData->GetNumberOfPoints() << std::endl;
+
   vtkDataArray *dataArray =
-    resectionPolyData->GetFieldData()->GetArray("ControlPoints");
+    tempPolyData->GetFieldData()->GetArray("ControlPoints");
   if (!dataArray)
     {
     vtkErrorMacro("Resection polydata does not contain control points");
