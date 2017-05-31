@@ -102,7 +102,7 @@ QString qSlicerResectionPlanningModule::acknowledgementText() const
 QStringList qSlicerResectionPlanningModule::contributors() const
 {
   QStringList moduleContributors;
-  moduleContributors << QString("John Doe (AnyWare Corp.)");
+  moduleContributors << QString("Rafael Palomar & Louise Oram (Intervention centre, Oslo University Hospital)");
   return moduleContributors;
 }
 

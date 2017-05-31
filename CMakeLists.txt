@@ -22,6 +22,7 @@ include(${Slicer_USE_FILE})
 #-----------------------------------------------------------------------------
 # Extension modules
 add_subdirectory(ResectionPlanning)
+add_subdirectory(VesselSegmentation)
 
 ## NEXT_MODULE
 

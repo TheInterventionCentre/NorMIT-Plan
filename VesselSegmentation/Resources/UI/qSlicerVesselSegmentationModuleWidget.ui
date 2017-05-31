@@ -1,0 +1,757 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>qSlicerVesselSegmentationModuleWidget</class>
+ <widget class="qSlicerWidget" name="qSlicerVesselSegmentationModuleWidget">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>457</width>
+    <height>878</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="QGroupBox" name="groupBox_4">
+     <property name="title">
+      <string>General</string>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_3">
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_2">
+        <item>
+         <widget class="QLabel" name="ActiveVolumeLabel">
+          <property name="text">
+           <string>Active Volume:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="qMRMLNodeComboBox" name="ActiveVolumeNodeSelector">
+          <property name="enabled">
+           <bool>true</bool>
+          </property>
+          <property name="nodeTypes">
+           <stringlist>
+            <string>vtkMRMLVolumeNode</string>
+           </stringlist>
+          </property>
+          <property name="noneEnabled">
+           <bool>true</bool>
+          </property>
+          <property name="addEnabled">
+           <bool>false</bool>
+          </property>
+          <property name="removeEnabled">
+           <bool>false</bool>
+          </property>
+          <property name="renameEnabled">
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="groupBox">
+     <property name="title">
+      <string>Image Preprocessing</string>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_4">
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_14">
+        <item>
+         <widget class="QLabel" name="label">
+          <property name="text">
+           <string>Lower threshold:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QSpinBox" name="LTspinBox">
+          <property name="minimum">
+           <number>-200</number>
+          </property>
+          <property name="maximum">
+           <number>500</number>
+          </property>
+          <property name="value">
+           <number>100</number>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="label_6">
+          <property name="text">
+           <string>Upper threshold:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QSpinBox" name="UTspinBox">
+          <property name="minimum">
+           <number>-200</number>
+          </property>
+          <property name="maximum">
+           <number>500</number>
+          </property>
+          <property name="value">
+           <number>250</number>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_13">
+        <item>
+         <widget class="QLabel" name="label_2">
+          <property name="text">
+           <string>Alpha:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QSpinBox" name="AlphaSpinBox">
+          <property name="minimum">
+           <number>0</number>
+          </property>
+          <property name="maximum">
+           <number>50</number>
+          </property>
+          <property name="value">
+           <number>20</number>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="label_3">
+          <property name="text">
+           <string>Beta:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QSpinBox" name="BetaSpinBox">
+          <property name="minimum">
+           <number>-200</number>
+          </property>
+          <property name="maximum">
+           <number>500</number>
+          </property>
+          <property name="value">
+           <number>160</number>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_11">
+        <item>
+         <widget class="QLabel" name="label_4">
+          <property name="text">
+           <string>Conductance:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QSpinBox" name="ConductanceSpinBox">
+          <property name="maximum">
+           <number>50</number>
+          </property>
+          <property name="value">
+           <number>20</number>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="label_5">
+          <property name="text">
+           <string>Number of iterations:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QSpinBox" name="IterationsSpinBox">
+          <property name="minimum">
+           <number>1</number>
+          </property>
+          <property name="maximum">
+           <number>50</number>
+          </property>
+          <property name="value">
+           <number>30</number>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_3">
+        <item>
+         <widget class="QPushButton" name="buttonPreprocess">
+          <property name="text">
+           <string>Pre-process Image</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="horizontalSpacer">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>30</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="groupBox_2">
+     <property name="title">
+      <string>Vessel Segmentation</string>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_5">
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_4">
+        <item>
+         <widget class="QRadioButton" name="radioHepaticSeg">
+          <property name="text">
+           <string>Hepatic</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QRadioButton" name="radioPortalSeg">
+          <property name="text">
+           <string>Portal</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="horizontalSpacer_5">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_5">
+        <item>
+         <widget class="QPushButton" name="buttonSeedsSeg">
+          <property name="text">
+           <string>Place 2 Seeds</string>
+          </property>
+          <property name="checkable">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="horizontalSpacer_2">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>30</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_6">
+        <item>
+         <widget class="QPushButton" name="buttonSegmentation">
+          <property name="text">
+           <string>Segment Vessels</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="horizontalSpacer_4">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="groupBox_3">
+     <property name="title">
+      <string>Hepatic and Portal Splitting</string>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_2">
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout">
+        <item>
+         <widget class="QPushButton" name="buttonMergeSeg">
+          <property name="text">
+           <string>Merge Segmentations</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="horizontalSpacer_3">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>30</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_7">
+        <item>
+         <widget class="QRadioButton" name="radioHepaticMerge">
+          <property name="text">
+           <string>Hepatic</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QRadioButton" name="radioPortalMerge">
+          <property name="text">
+           <string>Portal</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="horizontalSpacer_6">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_8">
+        <item>
+         <widget class="QPushButton" name="buttonSeedsMerge">
+          <property name="text">
+           <string>Place Seed</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="horizontalSpacer_7">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_9">
+        <item>
+         <widget class="QPushButton" name="buttonSeedsAssign">
+          <property name="text">
+           <string>Run Seed Assignment</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="horizontalSpacer_8">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>40</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>qMRMLNodeComboBox</class>
+   <extends>QWidget</extends>
+   <header>qMRMLNodeComboBox.h</header>
+  </customwidget>
+  <customwidget>
+   <class>qSlicerWidget</class>
+   <extends>QWidget</extends>
+   <header>qSlicerWidget.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <tabstops>
+  <tabstop>buttonPreprocess</tabstop>
+  <tabstop>radioHepaticSeg</tabstop>
+  <tabstop>radioPortalSeg</tabstop>
+  <tabstop>buttonSeedsSeg</tabstop>
+  <tabstop>buttonSegmentation</tabstop>
+  <tabstop>buttonMergeSeg</tabstop>
+  <tabstop>radioHepaticMerge</tabstop>
+  <tabstop>radioPortalMerge</tabstop>
+  <tabstop>buttonSeedsMerge</tabstop>
+  <tabstop>buttonSeedsAssign</tabstop>
+ </tabstops>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>qSlicerVesselSegmentationModuleWidget</sender>
+   <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
+   <receiver>ActiveVolumeNodeSelector</receiver>
+   <slot>setMRMLScene(vtkMRMLScene*)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>248</x>
+     <y>1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>352</x>
+     <y>51</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ActiveVolumeNodeSelector</sender>
+   <signal>currentNodeChanged(vtkMRMLNode*)</signal>
+   <receiver>qSlicerVesselSegmentationModuleWidget</receiver>
+   <slot>nodeSelectionChanged(vtkMRMLNode*)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>274</x>
+     <y>43</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>155</x>
+     <y>133</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonPreprocess</sender>
+   <signal>clicked()</signal>
+   <receiver>qSlicerVesselSegmentationModuleWidget</receiver>
+   <slot>PreProcessing()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>178</x>
+     <y>287</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>155</x>
+     <y>133</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonSeedsSeg</sender>
+   <signal>clicked()</signal>
+   <receiver>qSlicerVesselSegmentationModuleWidget</receiver>
+   <slot>PlaceSeedsSeg()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>152</x>
+     <y>402</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>155</x>
+     <y>133</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonSegmentation</sender>
+   <signal>clicked()</signal>
+   <receiver>qSlicerVesselSegmentationModuleWidget</receiver>
+   <slot>RunSegment()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>169</x>
+     <y>444</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>155</x>
+     <y>133</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonMergeSeg</sender>
+   <signal>clicked()</signal>
+   <receiver>qSlicerVesselSegmentationModuleWidget</receiver>
+   <slot>MergeLabelMaps()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>179</x>
+     <y>523</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>155</x>
+     <y>133</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonSeedsMerge</sender>
+   <signal>clicked()</signal>
+   <receiver>qSlicerVesselSegmentationModuleWidget</receiver>
+   <slot>PlaceSeedsMerge()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>135</x>
+     <y>601</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>155</x>
+     <y>133</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonSeedsAssign</sender>
+   <signal>clicked()</signal>
+   <receiver>qSlicerVesselSegmentationModuleWidget</receiver>
+   <slot>RunSeedAssignment()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>179</x>
+     <y>643</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>155</x>
+     <y>133</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>radioHepaticSeg</sender>
+   <signal>clicked()</signal>
+   <receiver>qSlicerVesselSegmentationModuleWidget</receiver>
+   <slot>OnHepaticSeg()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>96</x>
+     <y>376</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>262</x>
+     <y>461</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>radioPortalSeg</sender>
+   <signal>clicked()</signal>
+   <receiver>qSlicerVesselSegmentationModuleWidget</receiver>
+   <slot>OnPortalSeg()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>165</x>
+     <y>376</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>262</x>
+     <y>461</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>radioHepaticMerge</sender>
+   <signal>clicked()</signal>
+   <receiver>qSlicerVesselSegmentationModuleWidget</receiver>
+   <slot>OnHepaticMerge()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>96</x>
+     <y>575</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>262</x>
+     <y>461</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>radioPortalMerge</sender>
+   <signal>clicked()</signal>
+   <receiver>qSlicerVesselSegmentationModuleWidget</receiver>
+   <slot>OnPortalMerge()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>165</x>
+     <y>575</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>262</x>
+     <y>461</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>LTspinBox</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>qSlicerVesselSegmentationModuleWidget</receiver>
+   <slot>OnLTSpin(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>177</x>
+     <y>118</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>228</x>
+     <y>438</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>UTspinBox</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>qSlicerVesselSegmentationModuleWidget</receiver>
+   <slot>OnUTSpin(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>383</x>
+     <y>118</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>228</x>
+     <y>438</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>AlphaSpinBox</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>qSlicerVesselSegmentationModuleWidget</receiver>
+   <slot>OnAlphaSpin(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>176</x>
+     <y>154</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>228</x>
+     <y>438</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>BetaSpinBox</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>qSlicerVesselSegmentationModuleWidget</receiver>
+   <slot>OnBetaSpin(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>381</x>
+     <y>154</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>228</x>
+     <y>438</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ConductanceSpinBox</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>qSlicerVesselSegmentationModuleWidget</receiver>
+   <slot>OnConductanceSpin(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>162</x>
+     <y>190</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>228</x>
+     <y>438</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>IterationsSpinBox</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>qSlicerVesselSegmentationModuleWidget</receiver>
+   <slot>OnInterationsSpin(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>386</x>
+     <y>190</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>228</x>
+     <y>438</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>
