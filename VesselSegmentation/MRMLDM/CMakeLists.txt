@@ -9,7 +9,7 @@ set(${KIT}_INCLUDE_DIRECTORIES
   ${vtkSlicer${MODULE_NAME}ModuleLogic_BINARY_DIR}
   ${vtkSlicer${MODULE_NAME}ModuleMRML_SOURCE_DIR}
   ${vtkSlicer${MODULE_NAME}ModuleMRML_BINARY_DIR}
-  ${CMAKE_SOURCE_DIR}/${MODULE_NAME}/ITKFilters
+  ${CMAKE_SOURCE_DIR}/${MODULE_NAME}/Logic/ITKFilters
   )
 include_directories(${${KIT}_INCLUDE_DIRECTORIES})
 message(STATUS "IncludeDirs_MRMLDM: " ${${KIT}_INCLUDE_DIRECTORIES})
