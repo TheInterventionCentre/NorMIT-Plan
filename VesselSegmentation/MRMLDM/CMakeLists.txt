@@ -7,9 +7,6 @@ set(${KIT}_EXPORT_DIRECTIVE "VTK_SLICER_${MODULE_NAME_UPPER}_MODULE_MRMLDISPLAYA
 set(${KIT}_INCLUDE_DIRECTORIES
   ${vtkSlicer${MODULE_NAME}ModuleLogic_SOURCE_DIR}
   ${vtkSlicer${MODULE_NAME}ModuleLogic_BINARY_DIR}
-  ${vtkSlicer${MODULE_NAME}ModuleMRML_SOURCE_DIR}
-  ${vtkSlicer${MODULE_NAME}ModuleMRML_BINARY_DIR}
-  #${CMAKE_SOURCE_DIR}/${MODULE_NAME}/Logic/ITKFilters
   )
 include_directories(${${KIT}_INCLUDE_DIRECTORIES})
 message(STATUS "IncludeDirs_MRMLDM: " ${${KIT}_INCLUDE_DIRECTORIES})
@@ -40,7 +37,7 @@ set(${KIT}_SRCS
   ${MRML_LIBRARIES}
   #vtkRendering
   vtkSlicer${MODULE_NAME}ModuleLogic
-  vtkSlicer${MODULE_NAME}ModuleMRML
+  #vtkSlicer${MODULE_NAME}ModuleMRML
  )
 
 

@@ -56,6 +56,7 @@ void vtkVesselSegHelper::PrintSelf(ostream &os, vtkIndent vtkNotUsed(indent))
 {
     (void)os;
 }
+
 /**
  * Convert a point from RAS to LPS
  */

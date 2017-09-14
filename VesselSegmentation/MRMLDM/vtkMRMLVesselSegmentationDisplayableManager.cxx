@@ -207,7 +207,7 @@ void vtkMRMLVesselSegmentationDisplayableManager::OnCrosshairPositionModified(vt
     double *fidXY = new double[4];
     DM->RAStoXYmatrix.GetPointer()->MultiplyPoint(coords, fidXY);
     
-    DM->DisplayLine(fidXY, curXY);
+    //DM->DisplayLine(fidXY, curXY);
     //DM->DisplayPolygon(fidXY,1);
     
     if(s > 1) {
@@ -253,7 +253,7 @@ void vtkMRMLVesselSegmentationDisplayableManager::OnSliceNodeModified(vtkObject 
     
     //DM->DisplayPolygon(fidXY, 1);
     //DM->DisplayPolygon(fid2XY, 2);
-    DM->DisplayLine(fidXY, fid2XY);
+    //DM->DisplayLine(fidXY, fid2XY);
   }
 }
 

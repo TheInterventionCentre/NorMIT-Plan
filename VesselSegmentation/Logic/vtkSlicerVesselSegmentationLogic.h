@@ -61,6 +61,13 @@ public:
     
   static vtkSlicerVesselSegmentationLogic *New();
   vtkTypeMacro(vtkSlicerVesselSegmentationLogic, vtkSlicerModuleLogic);
+
+  /**
+   * Standard vtk object function to print the properties of the object.
+   *
+   * @param os output stream where the properties should be printed to.
+   * @param indent indentation value.
+   */
   void PrintSelf(ostream& os, vtkIndent indent);
 
   void CallPreprocessing();
@@ -72,8 +79,11 @@ public:
   void SetActiveVolume(vtkMRMLScalarVolumeNode *activeVolume);
   vtkSmartPointer<vtkMRMLScalarVolumeNode> GetActiveVolume();
     
+  // fiducial list methods
   static double* GetLastFiducialCoordinate();
   static std::vector<double*> GetFiducialList();
+  void DeleteFiducials();
+
   static bool GetMarkupJustAdded();
   void IsHepaticSeg(bool isHepatic);
   void IsHepaticMerge(bool isHepatic);
@@ -85,8 +95,6 @@ public:
   void SetConductance(int value);
   void SetIterations(int value);
 
-  // should be moved to helper?
-  void DeleteFiducials();
   void UpdateModels();
   void Reset3DView();
 

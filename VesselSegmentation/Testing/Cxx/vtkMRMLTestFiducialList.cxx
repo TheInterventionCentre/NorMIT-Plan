@@ -101,8 +101,8 @@ bool testAddFiducial( const char* volumeName, vtkSlicerVesselSegmentationLogic* 
     fidIndex = fidNode->AddFiducial(inPos2[0], inPos2[1], inPos2[2]);
 
     // check our list now contains 2 fiducial
-    std::vector<double*> list2 = logic->GetFiducialList();
-    int s2 = list2.size();
+    list = logic->GetFiducialList();
+    int s2 = list.size();
     std::cout << "GetFiducialList size (2) = " << s2 << std::endl;
     if ( s2 != 2 )
     {
@@ -118,10 +118,19 @@ bool testAddFiducial( const char* volumeName, vtkSlicerVesselSegmentationLogic* 
     }
     
     // check can pop one off list
-    list2.pop_back();
-    int s3 = list2.size();
+    list.pop_back();
+    int s3 = list.size();
     std::cout << "GetFiducialList size after pop (1) = " << s3 << std::endl;
     if ( s3 != 1 )
+    {
+        return false;
+    }
+
+    // check can pop off list to have it be empty
+    list.pop_back();
+    int s4 = list.size();
+    std::cout << "GetFiducialList size after pop (1) = " << s3 << std::endl;
+    if ( s4 != 0 )
     {
         return false;
     }

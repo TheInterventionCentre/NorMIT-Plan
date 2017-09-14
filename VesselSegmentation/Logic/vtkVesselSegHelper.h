@@ -37,7 +37,7 @@ public:
     static void GetActiveNode(vtkMRMLScene* myMRMLScene);
     
     void PrintSelf(ostream &os, vtkIndent indent);
-    
+
     static bool ConvertRAStoLPS(double *inPoint, double *outPoint);
     
     static SeedImageType::Pointer ConvertVolumeNodeToItkImage(vtkMRMLScalarVolumeNode *inVolumeNode,

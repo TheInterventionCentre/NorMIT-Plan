@@ -300,6 +300,9 @@ vtkSmartPointer<vtkMRMLScalarVolumeNode> vtkSlicerVesselSegmentationLogic::GetAc
 {
   return this->activeVol;
 }
+/**
+ * Get the last fiducials
+ */
 double* vtkSlicerVesselSegmentationLogic::GetLastFiducialCoordinate()
 {
   int s = fiducialVector.size();
@@ -326,6 +329,33 @@ std::vector<double*> vtkSlicerVesselSegmentationLogic::GetFiducialList()
 bool vtkSlicerVesselSegmentationLogic::GetMarkupJustAdded()
 {
   return markupJustAdded;
+}
+
+void vtkSlicerVesselSegmentationLogic::DeleteFiducials()
+{
+  // delete the fiducials
+  vtkCollection *listNodes = this->GetMRMLScene()->GetNodesByClass("vtkMRMLMarkupsNode");
+
+  // loop through collection to get the fiducial node
+  int l = listNodes->GetNumberOfItems();
+  for(int i = 0; i < l; i++)
+  {
+    vtkMRMLMarkupsFiducialNode* tempMarkupNode = vtkMRMLMarkupsFiducialNode::SafeDownCast(listNodes->GetItemAsObject(0));
+    if( tempMarkupNode != NULL )
+    {
+        std::cout << "Deleting Markups " << tempMarkupNode << std::endl;
+
+        //int n = tempMarkupNode->GetNumberOfMarkups();
+        tempMarkupNode->RemoveAllMarkups();
+    }
+  }
+  listNodes->Delete();
+
+  // delete all the vector data (pointers to arrays)
+  int s = fiducialVector.size();
+  for(int i = 0; i < s; i++) {
+    delete[] fiducialVector[i];
+  }
 }
 
 
@@ -473,9 +503,9 @@ void vtkSlicerVesselSegmentationLogic::CallSegmentationAlgorithm()
   {
     // get the last 2 fiducials, and take them off the vector
     double *vector1 = this->fiducialVector.back(); // the direction seed
-    fiducialVector.pop_back();
+    this->fiducialVector.pop_back();
     double *vector2 = this->fiducialVector.back(); // the actual first seed
-    fiducialVector.pop_back();
+    this->fiducialVector.pop_back();
 
     double *fidIJK1 = new double[4]; // the direction seed
     double *fidIJK2 = new double[4]; // the actual first seed
@@ -965,27 +995,6 @@ void vtkSlicerVesselSegmentationLogic::IsHepaticMerge(bool isHepatic)
   this->hepaticMerge = isHepatic;
   std::cout << "LOGIC - Hepatic? (merge): " << this->hepaticMerge << std::endl;
 
-}
-
-void vtkSlicerVesselSegmentationLogic::DeleteFiducials()
-{
-  // delete the fiducials
-  vtkCollection *listNodes = this->GetMRMLScene()->GetNodesByClass("vtkMRMLMarkupsNode");
-
-  // loop through collection to get the fiducial node
-  int l = listNodes->GetNumberOfItems();
-  for(int i = 0; i < l; i++)
-  {
-    vtkMRMLMarkupsFiducialNode* tempMarkupNode = vtkMRMLMarkupsFiducialNode::SafeDownCast(listNodes->GetItemAsObject(0));
-    if( tempMarkupNode != NULL )
-    {
-        std::cout << "Deleting Markups " << tempMarkupNode << std::endl;
-
-        //int n = tempMarkupNode->GetNumberOfMarkups();
-        tempMarkupNode->RemoveAllMarkups();
-    }
-  }
-  listNodes->Delete();
 }
 
 void vtkSlicerVesselSegmentationLogic::UpdateModels()
