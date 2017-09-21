@@ -39,7 +39,6 @@
 #include "vtkSlicerVesselSegmentationLogic.h"
 
 #include "vtkMRMLVesselSegmentationDisplayableManager.h"
-#include "vtkSlicerVesselSegmentationLogic.h"
 
 // MRML includes
 #include "vtkMRMLMarkupsNode.h"
@@ -61,7 +60,7 @@
 #include "vtkSlicerVesselSegmentationLogic.h"
 
 //-----------------------------------------------------------------------------
-/// \ingroup Slicer_QtModules_ExtensionTemplate
+/// \ingroup Slicer_VesselSegmentation
 class qSlicerVesselSegmentationModuleWidgetPrivate: public Ui_qSlicerVesselSegmentationModuleWidget
 {
 public:
@@ -94,13 +93,7 @@ qSlicerVesselSegmentationModuleWidget::~qSlicerVesselSegmentationModuleWidget()
   {
     this->connections->Delete();
   }
-}
-
-void qSlicerVesselSegmentationModuleWidget::enter()
-{
-  Q_D(qSlicerVesselSegmentationModuleWidget);
-
-  this->Superclass::enter();
+  this->setMRMLScene(0);
 }
 
 //-----------------------------------------------------------------------------
@@ -113,13 +106,119 @@ void qSlicerVesselSegmentationModuleWidget::setup()
   QObject::connect(d->ActiveVolumeNodeSelector, SIGNAL(currentNodeChanged(vtkMRMLNode*)), this, SLOT(nodeSelectionChanged(vtkMRMLNode*)));
   QObject::connect(this, SIGNAL(mrmlSceneChanged(vtkMRMLScene*)), d->ActiveVolumeNodeSelector, SLOT(setMRMLScene(vtkMRMLScene*)));
 
-  this->Module = dynamic_cast<qSlicerVesselSegmentationModule*>(this->module());
-  this->ModuleLogic = vtkSlicerVesselSegmentationLogic::SafeDownCast(this->Module->logic());
+  //this->Module = dynamic_cast<qSlicerVesselSegmentationModule*>(this->module());
+  //this->ModuleLogic = vtkSlicerVesselSegmentationLogic::SafeDownCast(this->Module->logic());
 
-  vtkMRMLSelectionNode *selectionNode = vtkMRMLSelectionNode::SafeDownCast(this->ModuleLogic->GetMRMLScene()->GetNodeByID("vtkMRMLSelectionNodeSingleton"));
+  vtkMRMLSelectionNode *selectionNode = vtkMRMLSelectionNode::SafeDownCast(this->vesselSegmentationLogic()->GetMRMLScene()->GetNodeByID("vtkMRMLSelectionNodeSingleton"));
   selectionNode->SetReferenceActivePlaceNodeClassName("vtkMRMLMarkupsFiducialNode");
 
+  // connections to preprocessing widget
+  QObject::connect(d->PreprocessingWidget,
+                   SIGNAL(PreprocessingClicked()),
+                   this,
+                   SLOT(onPreprocessing()));
+  QObject::connect(d->PreprocessingWidget,
+                   SIGNAL(LTSpinChanged(int)),
+                   this,
+                   SLOT(onSetLowerThreshold(int)));
+  QObject::connect(d->PreprocessingWidget,
+                   SIGNAL(UTSpinChanged(int);),
+                   this,
+                   SLOT(onSetUpperThreshold(int)));
+  QObject::connect(d->PreprocessingWidget,
+                   SIGNAL(AlphaSpinChanged(int)),
+                   this,
+                   SLOT(onSetAlpha(int)));
+  QObject::connect(d->PreprocessingWidget,
+                   SIGNAL(BetaSpinChanged(int);),
+                   this,
+                   SLOT(onSetBeta(int)));
+  QObject::connect(d->PreprocessingWidget,
+                   SIGNAL(ConductanceSpinChanged(int)),
+                   this,
+                   SLOT(onSetConductance(int)));
+  QObject::connect(d->PreprocessingWidget,
+                   SIGNAL(IterationsSpinChanged(int);),
+                   this,
+                   SLOT(onSetIterations(int)));
+
+  // connections to segmentation widget
+  QObject::connect(d->SegmentationWidget,
+                   SIGNAL(PlaceSeedsSegClicked()),
+                   this,
+                   SLOT(onPlaceSeedSeg()));
+  QObject::connect(d->SegmentationWidget,
+                   SIGNAL(RunSegmentClicked()),
+                   this,
+                   SLOT(onRunSegment()));
+  QObject::connect(d->SegmentationWidget,
+                   SIGNAL(HepaticSegSelected()),
+                   this,
+                   SLOT(onHepaticSeg()));
+  QObject::connect(d->SegmentationWidget,
+                   SIGNAL(PortalSegSelected()),
+                   this,
+                   SLOT(onPortalSeg()));
+
+  // connections to splitting widget
+  QObject::connect(d->SplittingWidget,
+                   SIGNAL(MergeLabelMapsClicked()),
+                   this,
+                   SLOT(onMergeLabelMaps()));
+  QObject::connect(d->SplittingWidget,
+                   SIGNAL(PlaceSeedsMergeClicked()),
+                   this,
+                   SLOT(onPlaceSeedsMerge()));
+  QObject::connect(d->SplittingWidget,
+                   SIGNAL(RunSeedAssignmentClicked()),
+                   this,
+                   SLOT(onRunSeedAssignment()));
+  QObject::connect(d->SplittingWidget,
+                   SIGNAL(OnHepaticMergeSelected()),
+                   this,
+                   SLOT(onPortalMerge()));
+  QObject::connect(d->SplittingWidget,
+                   SIGNAL(OnPortalMergeSelected()),
+                   this,
+                   SLOT(onPortalMerge()));
+
+
   this->Superclass::setup();
+}
+
+void qSlicerVesselSegmentationModuleWidget::enter()
+{
+  Q_D(qSlicerVesselSegmentationModuleWidget);
+
+  this->Superclass::enter();
+}
+
+void qSlicerVesselSegmentationModuleWidget::exit()
+{
+  this->Superclass::exit();
+  this->qvtkDisconnectAll();
+}
+
+//-----------------------------------------------------------------------------
+/*
+void qSlicerVesselSegmentationModuleWidget::setMRMLScene(vtkMRMLScene* scene)
+{
+  Q_D(qSlicerVesselSegmentationModuleWidget);
+
+  this->Superclass::setMRMLScene(scene);
+
+  std::cout << "Widget - Set MRML scene called " << std::endl;
+}*/
+
+//-----------------------------------------------------------------------------
+vtkSlicerVesselSegmentationLogic *qSlicerVesselSegmentationModuleWidget::
+vesselSegmentationLogic()
+{
+  if (this->logic() == NULL)
+    {
+    return NULL;
+    }
+  return vtkSlicerVesselSegmentationLogic::SafeDownCast(this->logic());
 }
 
 //------------------------------------------------------------------------------
@@ -137,33 +236,31 @@ void qSlicerVesselSegmentationModuleWidget::nodeSelectionChanged(vtkMRMLNode* no
   // FIX for if the load image before loading the module
   if(volNode == NULL)
   {
-    vtkMRMLSelectionNode *selectionNode = vtkMRMLSelectionNode::SafeDownCast(this->ModuleLogic->GetMRMLScene()->GetNodeByID("vtkMRMLSelectionNodeSingleton"));
+    vtkMRMLSelectionNode *selectionNode = vtkMRMLSelectionNode::SafeDownCast(this->vesselSegmentationLogic()->GetMRMLScene()->GetNodeByID("vtkMRMLSelectionNodeSingleton"));
     char *activeVolID = selectionNode->GetActiveVolumeID();
-    activeVol = vtkMRMLScalarVolumeNode::SafeDownCast(this->ModuleLogic->GetMRMLScene()->GetNodeByID(activeVolID));
-    volNode = vtkMRMLVolumeNode::SafeDownCast(this->ModuleLogic->GetMRMLScene()->GetNodeByID(activeVolID));
+    activeVol = vtkMRMLScalarVolumeNode::SafeDownCast(this->vesselSegmentationLogic()->GetMRMLScene()->GetNodeByID(activeVolID));
+    volNode = vtkMRMLVolumeNode::SafeDownCast(this->vesselSegmentationLogic()->GetMRMLScene()->GetNodeByID(activeVolID));
   }
 
-  this->ModuleLogic->SetActiveVolumeNode(volNode);
+  this->vesselSegmentationLogic()->SetActiveVolumeNode(volNode);
 
-  this->ModuleLogic->SetActiveVolume(activeVol);
+  this->vesselSegmentationLogic()->SetActiveVolume(activeVol);
 }
 
 /*
- * Called when preprocessing button clicked
+ * Functions associated with preprocessing widget
  */
-void qSlicerVesselSegmentationModuleWidget::PreProcessing()
+void qSlicerVesselSegmentationModuleWidget::onPreprocessing()
 {
-  std::cout << "Widget - On PreProcessing" << std::endl;
-
-  vtkMRMLScalarVolumeNode *activeVol = this->ModuleLogic->GetActiveVolume();
+  vtkMRMLScalarVolumeNode *activeVol = this->vesselSegmentationLogic()->GetActiveVolume();
 
   if(activeVol == NULL)
   {
     // get the active volume
-    vtkMRMLSelectionNode *selectionNode = vtkMRMLSelectionNode::SafeDownCast(this->ModuleLogic->GetMRMLScene()->GetNodeByID("vtkMRMLSelectionNodeSingleton"));
+    vtkMRMLSelectionNode *selectionNode = vtkMRMLSelectionNode::SafeDownCast(this->vesselSegmentationLogic()->GetMRMLScene()->GetNodeByID("vtkMRMLSelectionNodeSingleton"));
     char *activeVolID = selectionNode->GetActiveVolumeID();
-    activeVol = vtkMRMLScalarVolumeNode::SafeDownCast(this->ModuleLogic->GetMRMLScene()->GetNodeByID(activeVolID));
-    this->ModuleLogic->SetActiveVolume(activeVol);
+    activeVol = vtkMRMLScalarVolumeNode::SafeDownCast(this->vesselSegmentationLogic()->GetMRMLScene()->GetNodeByID(activeVolID));
+    this->vesselSegmentationLogic()->SetActiveVolume(activeVol);
   }
 
   // if still null...
@@ -173,160 +270,127 @@ void qSlicerVesselSegmentationModuleWidget::PreProcessing()
   }
   else {
     std::cout << "Trying to call preprocessing" << std::endl;
-    this->ModuleLogic->CallPreprocessing();
+    this->vesselSegmentationLogic()->CallPreprocessing();
   }
-
 }
-
-//-----------------------------------------------------------------------------
-
-/**
- * Functions for vessel segmentation
- * void PlaceSeedsSeg();
- * void RunSegment();
- * void OnHepaticSeg();
- * void OnPortalSeg();
- */
-
-void qSlicerVesselSegmentationModuleWidget::PlaceSeedsSeg()
+void qSlicerVesselSegmentationModuleWidget::onSetLowerThreshold(int value)
 {
-  vtkMRMLInteractionNode *interactionNode = vtkMRMLInteractionNode::SafeDownCast(this->ModuleLogic->GetMRMLScene()->GetNodeByID("vtkMRMLInteractionNodeSingleton"));
-  
-  std::cout << "Widget - Place seeds (Segment): " << interactionNode->GetCurrentInteractionMode() << std::endl;
-
-  if(interactionNode->GetCurrentInteractionMode() == vtkMRMLInteractionNode::Place)
-  {
-    interactionNode->SetPlaceModePersistence(0);
-    interactionNode->SetCurrentInteractionMode(vtkMRMLInteractionNode::ViewTransform);
-
-    vtkMRMLVesselSegmentationDisplayableManager::SetFiducialsMode(false);
-  }
-  else {
-    interactionNode->SetPlaceModePersistence(1);
-    interactionNode->SetCurrentInteractionMode(vtkMRMLInteractionNode::Place);
-
-    vtkMRMLVesselSegmentationDisplayableManager::SetFiducialsMode(true);
-  }
+  this->vesselSegmentationLogic()->SetLowerThreshold(value);
 }
-
-void qSlicerVesselSegmentationModuleWidget::RunSegment()
+void qSlicerVesselSegmentationModuleWidget::onSetUpperThreshold(int value)
 {
-  std::cout << "Widget - run Segment" << std::endl;
-
-  vtkMRMLScalarVolumeNode *activeVol = this->ModuleLogic->GetActiveVolume();
-  
-  if(activeVol == NULL)
-  {
-    // get the active volume
-    vtkMRMLSelectionNode *selectionNode = vtkMRMLSelectionNode::SafeDownCast(this->ModuleLogic->GetMRMLScene()->GetNodeByID("vtkMRMLSelectionNodeSingleton"));
-    char *activeVolID = selectionNode->GetActiveVolumeID();
-    activeVol = vtkMRMLScalarVolumeNode::SafeDownCast(this->ModuleLogic->GetMRMLScene()->GetNodeByID(activeVolID));
-    this->ModuleLogic->SetActiveVolume(activeVol);
-  }
-
-  if(activeVol == NULL)
-  {
-    std::cout << "No Active Volume..." << std::endl;
-  }
-  else {
-    std::cout << "Trying to call centreline" << std::endl;
-    this->ModuleLogic->CallSegmentationAlgorithm();
-  }
-  
+  this->vesselSegmentationLogic()->SetUpperThreshold(value);
 }
-void qSlicerVesselSegmentationModuleWidget::OnHepaticSeg()
+void qSlicerVesselSegmentationModuleWidget::onSetAlpha(int value)
 {
-    std::cout << "Widget - On Hepatic (Segment)" << std::endl;
-    this->ModuleLogic->IsHepaticSeg(true);
+  this->vesselSegmentationLogic()->SetAlpha(value);
 }
-
-void qSlicerVesselSegmentationModuleWidget::OnPortalSeg()
+void qSlicerVesselSegmentationModuleWidget::onSetBeta(int value)
 {
-   std::cout << "Widget - On Portal (segment)" << std::endl;
-   this->ModuleLogic->IsHepaticSeg(false);
+  this->vesselSegmentationLogic()->SetBeta(value);
+}
+void qSlicerVesselSegmentationModuleWidget::onSetConductance(int value)
+{
+  this->vesselSegmentationLogic()->SetConductance(value);
+}
+void qSlicerVesselSegmentationModuleWidget::onSetIterations(int value)
+{
+  this->vesselSegmentationLogic()->SetIterations(value);
 }
 
-//------------------------------------------------------------------------------
+
 /*
- * Functions for hepatic / portal splitting
- * void MergeLabelMaps();
- * void PlaceSeedsMerge();
- * void RunSeedAssignment();
- * void OnHepaticMerge();
- * void OnPortalMerge();
+ * Functions associated with segmentation widget
  */
-void qSlicerVesselSegmentationModuleWidget::MergeLabelMaps()
-{
-  std::cout << "Widget - Merge label maps" << std::endl;
-  this->ModuleLogic->CallMergeLabelMaps();
+ void qSlicerVesselSegmentationModuleWidget::onPlaceSeedSeg()
+ {
+   vtkMRMLInteractionNode *interactionNode = vtkMRMLInteractionNode::SafeDownCast(this->vesselSegmentationLogic()->GetMRMLScene()->GetNodeByID("vtkMRMLInteractionNodeSingleton"));
 
-}
+   std::cout << "Widget - Place seeds (Segment): " << interactionNode->GetCurrentInteractionMode() << std::endl;
 
-void qSlicerVesselSegmentationModuleWidget::PlaceSeedsMerge()
-{
-  vtkMRMLInteractionNode *interactionNode = vtkMRMLInteractionNode::SafeDownCast(this->ModuleLogic->GetMRMLScene()->GetNodeByID("vtkMRMLInteractionNodeSingleton"));
+   if(interactionNode->GetCurrentInteractionMode() == vtkMRMLInteractionNode::Place)
+   {
+     interactionNode->SetPlaceModePersistence(0);
+     interactionNode->SetCurrentInteractionMode(vtkMRMLInteractionNode::ViewTransform);
 
-  std::cout << "Widget - Place seeds (Merge): " << interactionNode->GetCurrentInteractionMode() << std::endl;
+     vtkMRMLVesselSegmentationDisplayableManager::SetFiducialsMode(false);
+   }
+   else {
+     interactionNode->SetPlaceModePersistence(1);
+     interactionNode->SetCurrentInteractionMode(vtkMRMLInteractionNode::Place);
 
-  interactionNode->SetPlaceModePersistence(0);
-  interactionNode->SetCurrentInteractionMode(vtkMRMLInteractionNode::Place);
+     vtkMRMLVesselSegmentationDisplayableManager::SetFiducialsMode(true);
+   }
+ }
 
-  vtkMRMLVesselSegmentationDisplayableManager::SetFiducialsMode(false);
-}
+ void qSlicerVesselSegmentationModuleWidget::onRunSegment()
+ {
+   std::cout << "Widget - run Segment" << std::endl;
 
-void qSlicerVesselSegmentationModuleWidget::RunSeedAssignment()
-{
-  std::cout << "Widget - Run seed assignment" << std::endl;
-  this->ModuleLogic->CallAssignSeeds();
-}
+   vtkMRMLScalarVolumeNode *activeVol = this->vesselSegmentationLogic()->GetActiveVolume();
 
-void qSlicerVesselSegmentationModuleWidget::OnHepaticMerge()
-{
-    std::cout << "Widget - On Hepatic (Merge)" << std::endl;
-    this->ModuleLogic->IsHepaticMerge(true);
-}
+   if(activeVol == NULL)
+   {
+     // get the active volume
+     vtkMRMLSelectionNode *selectionNode = vtkMRMLSelectionNode::SafeDownCast(this->vesselSegmentationLogic()->GetMRMLScene()->GetNodeByID("vtkMRMLSelectionNodeSingleton"));
+     char *activeVolID = selectionNode->GetActiveVolumeID();
+     activeVol = vtkMRMLScalarVolumeNode::SafeDownCast(this->vesselSegmentationLogic()->GetMRMLScene()->GetNodeByID(activeVolID));
+     this->vesselSegmentationLogic()->SetActiveVolume(activeVol);
+   }
 
-void qSlicerVesselSegmentationModuleWidget::OnPortalMerge()
-{
-   std::cout << "Widget - On Portal (Merge)" << std::endl;
-   this->ModuleLogic->IsHepaticMerge(false);
-}
+   if(activeVol == NULL)
+   {
+     std::cout << "No Active Volume..." << std::endl;
+   }
+   else {
+     std::cout << "Trying to call centreline" << std::endl;
+     this->vesselSegmentationLogic()->CallSegmentationAlgorithm();
+   }
+ }
 
-void qSlicerVesselSegmentationModuleWidget::OnLTSpin(int value)
-{
-  //std::cout << "Widget - On LT spin " << value << std::endl;
-  this->ModuleLogic->SetLowerThreshold(value);
-}
+ void qSlicerVesselSegmentationModuleWidget::onHepaticSeg()
+ {
+   this->vesselSegmentationLogic()->IsHepaticSeg(true);
+ }
 
-void qSlicerVesselSegmentationModuleWidget::OnUTSpin(int value)
-{
-  //std::cout << "Widget - On UT spin " << value << std::endl;
-  this->ModuleLogic->SetUpperThreshold(value);
-}
-
-void qSlicerVesselSegmentationModuleWidget::OnAlphaSpin(int value)
-{
-  //std::cout << "Widget - On Alpha spin " << value << std::endl;
-  this->ModuleLogic->SetAlpha(value);
-}
-
-void qSlicerVesselSegmentationModuleWidget::OnBetaSpin(int value)
-{
-  //std::cout << "Widget - On Beta spin " << value << std::endl;
-  this->ModuleLogic->SetBeta(value);
-}
-
-void qSlicerVesselSegmentationModuleWidget::OnConductanceSpin(int value)
-{
-  //std::cout << "Widget - On Conductance spin " << value << std::endl;
-  this->ModuleLogic->SetConductance(value);
-}
-
-void qSlicerVesselSegmentationModuleWidget::OnInterationsSpin(int value)
-{
-  //std::cout << "Widget - On Interations spin " << value << std::endl;
-  this->ModuleLogic->SetIterations(value);
-}
+ void qSlicerVesselSegmentationModuleWidget::onPortalSeg()
+ {
+   this->vesselSegmentationLogic()->IsHepaticSeg(false);
+ }
 
 
+ /*
+  * Functions associated with splitting widget
+  */
+ void qSlicerVesselSegmentationModuleWidget::onMergeLabelMaps()
+ {
+   this->vesselSegmentationLogic()->CallMergeLabelMaps();
+ }
+
+ void qSlicerVesselSegmentationModuleWidget::onPlaceSeedsMerge()
+ {
+   vtkMRMLInteractionNode *interactionNode = vtkMRMLInteractionNode::SafeDownCast(this->vesselSegmentationLogic()->GetMRMLScene()->GetNodeByID("vtkMRMLInteractionNodeSingleton"));
+
+   std::cout << "Widget - Place seeds (Merge): " << interactionNode->GetCurrentInteractionMode() << std::endl;
+
+   interactionNode->SetPlaceModePersistence(0);
+   interactionNode->SetCurrentInteractionMode(vtkMRMLInteractionNode::Place);
+
+   vtkMRMLVesselSegmentationDisplayableManager::SetFiducialsMode(false);
+ }
+
+ void qSlicerVesselSegmentationModuleWidget::onRunSeedAssignment()
+ {
+   this->vesselSegmentationLogic()->CallAssignSeeds();
+ }
+
+ void qSlicerVesselSegmentationModuleWidget::onHepaticMerge()
+ {
+   this->vesselSegmentationLogic()->IsHepaticMerge(true);
+ }
+
+ void qSlicerVesselSegmentationModuleWidget::onPortalMerge()
+ {
+   this->vesselSegmentationLogic()->IsHepaticMerge(false);
+ }
 

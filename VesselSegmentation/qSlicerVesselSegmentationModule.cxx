@@ -32,7 +32,7 @@
 Q_EXPORT_PLUGIN2(qSlicerVesselSegmentationModule, qSlicerVesselSegmentationModule);
 
 //-----------------------------------------------------------------------------
-/// \ingroup Slicer_QtModules_ExtensionTemplate
+/// \ingroup VesselSegmentation
 class qSlicerVesselSegmentationModulePrivate
 {
 public:
