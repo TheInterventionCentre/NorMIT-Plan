@@ -16,7 +16,6 @@ set(KIT_TEST_SRCS
   vtkMRMLResectionDisplayableManager2DTest1.cxx
   vtkMRMLResectionDisplayableManager2DTest2.cxx
   vtkSlicerResectionPlanningLogicTest1.cxx
-  qSlicerTumorWidgetTest.cxx
   qSlicerSurfaceWidgetTest.cxx
   )
 
