@@ -78,8 +78,5 @@ simple_test(vtkMRMLResectionDisplayableManager2DTest2)
 # Test resection planning logic
 simple_test(vtkSlicerResectionPlanningLogicTest1)
 
-# Test tumor widget
-simple_test(qSlicerTumorWidgetTest)
-
 # Test associating tumors to a resection
 simple_test(qSlicerSurfaceWidgetTest)
