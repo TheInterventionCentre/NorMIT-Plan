@@ -139,7 +139,7 @@ resectionPlanningLogic()
 
 
 //------------------------------------------------------------------------------
-void qSlicerResectionPlanningModuleWidget::nodeSelectionChanged(vtkMRMLNode* node)
+void qSlicerResectionPlanningModuleWidget::nodeSelectionChanged(vtkMRMLNode* vtkNotUsed(node))
 {
   Q_D(qSlicerResectionPlanningModuleWidget);
 

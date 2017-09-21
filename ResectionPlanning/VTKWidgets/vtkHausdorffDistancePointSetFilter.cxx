@@ -270,7 +270,7 @@ int vtkHausdorffDistancePointSetFilter::FillOutputPortInformation( int port, vtk
 	return 0;
 }
 
-void vtkHausdorffDistancePointSetFilter::PrintSelf(ostream &os, vtkIndent indent)
+void vtkHausdorffDistancePointSetFilter::PrintSelf(ostream &vtkNotUsed(os), vtkIndent vtkNotUsed(indent))
 {
 
 }
