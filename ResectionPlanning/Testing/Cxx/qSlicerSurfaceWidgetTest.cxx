@@ -48,23 +48,23 @@ int qSlicerSurfaceWidgetTest( int argc, char *argv[] )
   qSlicerApplication app(argc, argv);
 
   qSlicerResectionPlanningModule module;
-  module.initialize(0);
+//   module.initialize(0);
 
-  qSlicerResectionPlanningSurfacesWidget *surfacesWidget = new qSlicerResectionPlanningSurfacesWidget();
+//   qSlicerResectionPlanningSurfacesWidget *surfacesWidget = new qSlicerResectionPlanningSurfacesWidget();
 
-  // add a resection
-  QString idresection1 = "idresection1";
-  QString nameresection1 = "resection1";
-//  surfacesWidget->AddToResectionList(idresection1, nameresection1);
+//   // add a resection
+//   QString idresection1 = "idresection1";
+//   QString nameresection1 = "resection1";
+// //  surfacesWidget->AddToResectionList(idresection1, nameresection1);
 
-  // add a resection
-  QString idresection2 = "idresection2";
-  QString nameresection2 = "resection2";
-  // surfacesWidget->AddToResectionList(idresection2, nameresection2);
+//   // add a resection
+//   QString idresection2 = "idresection2";
+//   QString nameresection2 = "resection2";
+//   // surfacesWidget->AddToResectionList(idresection2, nameresection2);
 
-  //QList<QString> resectionList = surfacesWidget->GetResections();
-  bool findResection1 = false;
-  bool findResection2 = false;
+//   //QList<QString> resectionList = surfacesWidget->GetResections();
+//   bool findResection1 = false;
+//   bool findResection2 = false;
 
   // for (int i = 0; i < resectionList.size(); ++i) {
   //     if (resectionList.at(i) == idresection1)
