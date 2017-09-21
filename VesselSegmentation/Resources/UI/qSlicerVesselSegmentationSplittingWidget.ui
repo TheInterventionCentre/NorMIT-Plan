@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>qSlicerVesselSegmentationSplittingWidget</class>
+ <widget class="QWidget" name="qSlicerVesselSegmentationSplittingWidget">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>470</width>
+    <height>210</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="QGroupBox" name="groupBox_3">
+     <property name="title">
+      <string>Hepatic and Portal Splitting</string>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_2">
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout">
+        <item>
+         <widget class="QPushButton" name="buttonMergeSeg">
+          <property name="text">
+           <string>Merge Segmentations</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="horizontalSpacer_3">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>30</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_7">
+        <item>
+         <widget class="QRadioButton" name="radioHepaticMerge">
+          <property name="text">
+           <string>Hepatic</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QRadioButton" name="radioPortalMerge">
+          <property name="text">
+           <string>Portal</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="horizontalSpacer_6">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_8">
+        <item>
+         <widget class="QPushButton" name="buttonSeedsMerge">
+          <property name="text">
+           <string>Place Seed</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="horizontalSpacer_7">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_9">
+        <item>
+         <widget class="QPushButton" name="buttonSeedsAssign">
+          <property name="text">
+           <string>Run Seed Assignment</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="horizontalSpacer_8">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <tabstops>
+  <tabstop>buttonMergeSeg</tabstop>
+  <tabstop>radioHepaticMerge</tabstop>
+  <tabstop>radioPortalMerge</tabstop>
+  <tabstop>buttonSeedsMerge</tabstop>
+  <tabstop>buttonSeedsAssign</tabstop>
+ </tabstops>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>buttonMergeSeg</sender>
+   <signal>clicked()</signal>
+   <receiver>qSlicerVesselSegmentationSplittingWidget</receiver>
+   <slot>MergeLabelMaps()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>179</x>
+     <y>523</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>155</x>
+     <y>133</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonSeedsMerge</sender>
+   <signal>clicked()</signal>
+   <receiver>qSlicerVesselSegmentationSplittingWidget</receiver>
+   <slot>PlaceSeedsMerge()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>135</x>
+     <y>601</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>155</x>
+     <y>133</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonSeedsAssign</sender>
+   <signal>clicked()</signal>
+   <receiver>qSlicerVesselSegmentationSplittingWidget</receiver>
+   <slot>RunSeedAssignment()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>179</x>
+     <y>643</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>155</x>
+     <y>133</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>radioHepaticMerge</sender>
+   <signal>clicked()</signal>
+   <receiver>qSlicerVesselSegmentationSplittingWidget</receiver>
+   <slot>OnHepaticMerge()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>96</x>
+     <y>575</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>262</x>
+     <y>461</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>radioPortalMerge</sender>
+   <signal>clicked()</signal>
+   <receiver>qSlicerVesselSegmentationSplittingWidget</receiver>
+   <slot>OnPortalMerge()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>165</x>
+     <y>575</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>262</x>
+     <y>461</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>
