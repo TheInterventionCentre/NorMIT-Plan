@@ -11,8 +11,6 @@ set(${KIT}_INCLUDE_DIRECTORIES
 set(${KIT}_SRCS
   qSlicer${MODULE_NAME}SurfacesWidget.cxx
   qSlicer${MODULE_NAME}SurfacesWidget.h
-  qSlicer${MODULE_NAME}TumorsWidget.cxx
-  qSlicer${MODULE_NAME}TumorsWidget.h
   qSlicer${MODULE_NAME}VolumesWidget.cxx
   qSlicer${MODULE_NAME}VolumesWidget.h
   qSlicerTableItemWidget.cxx
@@ -21,21 +19,18 @@ set(${KIT}_SRCS
 
 set(${KIT}_MOC_SRCS
   qSlicer${MODULE_NAME}SurfacesWidget.h
-  qSlicer${MODULE_NAME}TumorsWidget.h
   qSlicer${MODULE_NAME}VolumesWidget.h
   qSlicerTableItemWidget.h
   )
 
 set(${KIT}_UI_SRCS
   ../Resources/UI/qSlicer${MODULE_NAME}SurfacesWidget.ui
-  ../Resources/UI/qSlicer${MODULE_NAME}TumorsWidget.ui
   ../Resources/UI/qSlicer${MODULE_NAME}VolumesWidget.ui
   ../Resources/UI/qSlicerTableItemWidget.ui
   )
 
 set(${KIT}_RESOURCES
   ../Resources/UI/qSlicer${MODULE_NAME}SurfacesWidget.ui
-  ../Resources/UI/qSlicer${MODULE_NAME}TumorsWidget.ui
   ../Resources/UI/qSlicer${MODULE_NAME}VolumesWidget.ui
   ../Resources/UI/qSlicerTableItemWidget.ui
   )
