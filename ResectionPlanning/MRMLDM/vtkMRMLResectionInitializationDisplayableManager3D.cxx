@@ -269,8 +269,16 @@ AddWidget(vtkMRMLResectionInitializationNode *initializationNode)
                               ->GetPolyData()->GetBounds());
       }
     }
+
+  if (!initializationNode->GetTargetParenchyma())
+    {
+    vtkErrorMacro("AddWidget: there is no parenchyma model.");
+    return false;
+    }
+
   lineWidget->SetCuttingTarget(initializationNode->
                                GetTargetParenchyma()->GetPolyData());
+
 
   // Register the node-widget association
   this->NodeWidgetMap[initializationNode] = lineWidget;
