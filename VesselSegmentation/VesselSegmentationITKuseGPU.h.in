@@ -1,0 +1,6 @@
+#ifndef __VesselSegmentationITKuseGPU_h
+#define __VesselSegmentationITKuseGPU_h
+
+#cmakedefine ITK_USE_GPU
+
+#endif

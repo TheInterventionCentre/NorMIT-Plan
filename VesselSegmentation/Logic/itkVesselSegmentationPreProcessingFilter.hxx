@@ -77,6 +77,8 @@ namespace itk
         
         double timeStep = min_Spacing/(powf(2, 4)) - 0.0001; //4 = Dimension + 1; timeStep < min_Spacing/(powf(2, 4))
 
+        std::cout << "USING GPU: " << itkGPU << std::endl;
+
         typename SmoothingFilterType::Pointer smoothing = SmoothingFilterType::New();
         smoothing->SetInput( remappedImage );
         smoothing->SetTimeStep( timeStep );
