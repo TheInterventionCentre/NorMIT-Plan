@@ -76,15 +76,15 @@ namespace itk
         }
         
         double timeStep = min_Spacing/(powf(2, 4)) - 0.0001; //4 = Dimension + 1; timeStep < min_Spacing/(powf(2, 4))
-        
-        typename GPUSmoothingFilterType::Pointer gpuSmoothing = GPUSmoothingFilterType::New();
-        gpuSmoothing->SetInput( remappedImage );
-        gpuSmoothing->SetTimeStep( timeStep );
-        gpuSmoothing->SetNumberOfIterations(  m_NumberOfIterations );
-        gpuSmoothing->SetConductanceParameter( m_Conductance );
+
+        typename SmoothingFilterType::Pointer smoothing = SmoothingFilterType::New();
+        smoothing->SetInput( remappedImage );
+        smoothing->SetTimeStep( timeStep );
+        smoothing->SetNumberOfIterations(  m_NumberOfIterations );
+        smoothing->SetConductanceParameter( m_Conductance );
         
         typename RescaleFilterType::Pointer rescaleIntensity2 = RescaleFilterType::New();
-        rescaleIntensity2->SetInput( gpuSmoothing->GetOutput() );
+        rescaleIntensity2->SetInput( smoothing->GetOutput() );
         rescaleIntensity2->SetOutputMinimum(0.0);
         rescaleIntensity2->SetOutputMaximum(255.0);
         rescaleIntensity2->Update();
