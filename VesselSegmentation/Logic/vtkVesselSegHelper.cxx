@@ -374,7 +374,7 @@ vtkVesselSegHelper::ConvertItkImageToVtkImageData(itk::Image<unsigned int, 3>::P
   itk::Image<unsigned int, 3>::RegionType region = itkImage->GetBufferedRegion();
   itk::Image<unsigned int, 3>::SizeType imageSize = region.GetSize();
   //itk::Image<unsigned int, 3>::SpacingType imageSpacing = itkImage->GetSpacing();
-  itk::Image<unsigned int, 3>::PointType origin = itkImage->GetOrigin();
+  //itk::Image<unsigned int, 3>::PointType origin = itkImage->GetOrigin();
 
   int extent[6]={0, (int) imageSize[0]-1,
                  0, (int) imageSize[1]-1,
@@ -414,7 +414,7 @@ vtkVesselSegHelper::ConvertItkImageToVtkImageData(SeedImageType::Pointer itkImag
 
   SeedImageType::RegionType region = itkImage->GetBufferedRegion();
   SeedImageType::SizeType imageSize = region.GetSize();
-  SeedImageType::SpacingType imageSpacing = itkImage->GetSpacing();
+  //SeedImageType::SpacingType imageSpacing = itkImage->GetSpacing();
   //SeedImageType::PointType origin = itkImage->GetOrigin();
 
   int extent[6]={0, (int) imageSize[0]-1,
