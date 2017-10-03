@@ -124,6 +124,24 @@ class vtkBezierSurfaceWidget: public vtk3DWidget
                    double zmin, double zmax)
   {this->Superclass::PlaceWidget(xmin, xmax, ymin, ymax, zmin, zmax);}
 
+  /**
+   * Get auto size flag
+   *
+   * @return autosize flag.
+   */
+  vtkGetMacro(AutoSize, bool);
+
+  /**
+   * Set auto size flag
+   *
+   * @return autosize flag.
+   */
+  vtkSetMacro(AutoSize, bool);
+
+  /**
+   * Boolean Auto size
+   */
+  vtkBooleanMacro(AutoSize, bool);
 
   /**
    * Get the MultiPointInteraction flag. If the flag is != 0 (enabled) then
