@@ -1070,6 +1070,11 @@ void vtkBezierSurfaceWidget::PlaceWidget(double bds[6])
   this->PositionHandles();
   this->SizeHandles();
   this->SizeControlPolygon();
+
+  if (this->Interactor)
+    {
+    this->Interactor->Render();
+    }
 }
 
 //------------------------------------------------------------------------------

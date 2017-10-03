@@ -69,8 +69,10 @@ int vtkBezierSurfaceWidgetTest1(int argc, char *argv[])
 
   // Create  and set the Bézier Surface Widget
   vtkNew<vtkBezierSurfaceWidget> bezierSurfaceWidget;
+  bezierSurfaceWidget->AutoSizeOn();
   bezierSurfaceWidget->SetInteractor(renderWindowInteractor.GetPointer());
   bezierSurfaceWidget->On();
+  bezierSurfaceWidget->PlaceWidget();
 
   // Record events
   vtkNew<vtkInteractorEventRecorder> recorder;
@@ -116,7 +118,7 @@ int vtkBezierSurfaceWidgetTest1(int argc, char *argv[])
 
   imageDifference->Update();
 
-  if (imageDifference->GetError() > 1.0)
+  if (imageDifference->GetError() > 3.0)
     {
     std::cerr << "Test and regression images are different e="
               << imageDifference->GetError() << std::endl;
