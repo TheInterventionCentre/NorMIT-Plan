@@ -69,8 +69,9 @@ int vtkLineWidget3Test1(int argc, char *argv[])
   vtkNew<vtkRenderWindowInteractor> renderWindowInteractor;
   renderWindowInteractor->SetRenderWindow(renderWindow.GetPointer());
 
-  // Create  and set the Bézier Surface Widget
+  // Create  and set the line widget
   vtkNew<vtkLineWidget3> lineWidget;
+  lineWidget->AutoSizeOn();
   lineWidget->SetInteractor(renderWindowInteractor.GetPointer());
   lineWidget->On();
   lineWidget->PlaceWidget();
@@ -119,7 +120,7 @@ int vtkLineWidget3Test1(int argc, char *argv[])
 
   imageDifference->Update();
 
-  if (imageDifference->GetError() > 1.0)
+  if (imageDifference->GetError() > 2.0)
     {
     std::cerr << "Test and regression images are different e="
               << imageDifference->GetError() << std::endl;

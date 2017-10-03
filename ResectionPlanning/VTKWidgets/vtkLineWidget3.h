@@ -118,6 +118,25 @@ class vtkLineWidget3: public vtk3DWidget
   vtkGetMacro(HandleSizeFactor, double);
 
   /**
+   * Get auto size flag
+   *
+   * @return autosize flag.
+   */
+  vtkGetMacro(AutoSize, bool);
+
+  /**
+   * Set auto size flag
+   *
+   * @return autosize flag.
+   */
+  vtkSetMacro(AutoSize, bool);
+
+  /**
+   * Boolean Auto size
+   */
+  vtkBooleanMacro(AutoSize, bool);
+
+  /**
    * Set handle resizing factor.
    *
    * @param double resizing factor
