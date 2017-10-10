@@ -3,12 +3,14 @@ FILE(READ ${ITK_DIR}/CMakeCache.txt ITK_cmake)
 STRING(FIND "${ITK_cmake}" "ITK_USE_GPU:BOOL=ON" gpu_flag)
 if(${gpu_flag} EQUAL -1)
     MESSAGE(STATUS "ITK_USE_GPU: off (not defined)")
+    # ITK_USE_GPU will be false
     configure_file(
       VesselSegmentationITKuseGPU.h.in
       ${CMAKE_CURRENT_BINARY_DIR}/VesselSegmentationITKuseGPU.h
     )
 else()
     MESSAGE(STATUS "ITK_USE_GPU: on")
+    # set ITK_USE_GPU to be true
     set(ITK_USE_GPU 1)
     configure_file(
       VesselSegmentationITKuseGPU.h.in

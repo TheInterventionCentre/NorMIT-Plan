@@ -58,12 +58,6 @@ namespace itk
     {
     public:
 
-        #ifdef ITK_USE_GPU
-         bool itkGPU = true;
-        #else
-         bool itkGPU = false;
-        #endif
-
         /** Standard class typedefs. */
         typedef VesselSegmentationPreProcessingFilter Self;
         
@@ -143,7 +137,7 @@ namespace itk
         typedef itk::RescaleIntensityImageFilter< InputImageType, InputImageType >              RescaleFilterType;
 
 #ifdef  ITK_USE_GPU
-        // Redefine the smoothing filter to use GPU
+        // Redefine the smoothing filter to use GPU & gpuimagetype
         typedef itk::GPUGradientAnisotropicDiffusionImageFilter< InputImageType, GPUImageType > SmoothingFilterType;
 #else
         typedef itk::GradientAnisotropicDiffusionImageFilter< InputImageType, InputImageType > SmoothingFilterType;
