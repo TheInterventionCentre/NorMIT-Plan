@@ -59,25 +59,76 @@ vtkMRMLVesselSegmentationDisplayableManager
 :public vtkMRMLAbstractSliceViewDisplayableManager
 {
   public:
+   /**
+    * Standard VTK object creation macro.
+    *
+    * @return a pointer to the new created object.
+    */
     static vtkMRMLVesselSegmentationDisplayableManager *New();
     vtkTypeMacro(vtkMRMLVesselSegmentationDisplayableManager,
                  vtkMRMLAbstractSliceViewDisplayableManager);
+
+    /**
+     * Standard VTK print information.
+     *
+     * @param os output stream to print the information to.
+     * @param indent indent value.
+     */
     void PrintSelf(ostream& os, vtkIndent indent);
+
+    /*
+     * Set if are in mode to place fiducials
+     *
+     * @param bool where true is placing fiducials
+     */
     static void SetFiducialsMode(bool placingFid);
     
   protected:
     vtkMRMLVesselSegmentationDisplayableManager();
     virtual ~vtkMRMLVesselSegmentationDisplayableManager();
     
-    // MRML virtual functions
+    /**
+     * Process MRML nodes events
+     *
+     * @param object object which triggered the event.
+     * @param eventId Id of the event.
+     * @param data additional data.
+     *
+     */
     virtual void ProcessMRMLNodesEvents(vtkObject *caller,
                                         unsigned long event,
                                         void *callData);
+    /**
+     * Sets a new scene.
+     *
+     * @param newScene pointer to the new scene.
+     */
     virtual void SetMRMLSceneInternal(vtkMRMLScene *newScene);
     
+    /**
+     * Callback controlling actions on new node added.
+     *
+     * @param node pointer to the new node added to the scene.
+     */
     virtual void OnMRMLSceneNodeAdded(vtkMRMLNode *node);
+
+    /**
+     * Callback controlling actions on node modified.
+     *
+     * @param node pointer to the modified node.
+     */
     virtual void OnMRMLNodeModified(vtkMRMLNode *node);
+
+    /**
+     * Callback controlling actions on node removed from scene.
+     *
+     * @param node pointer to the node removed from the scene.
+     */
     virtual void OnMRMLSceneNodeRemoved(vtkMRMLNode *node);
+
+    /**
+     * Controls what happens when the MRML scene is closed
+     */
     virtual void OnMRMLSceneEndClose();
     
     static void OnFiducialNodeModified(vtkObject *caller, unsigned long int id, void *clientData, void *callerData);
