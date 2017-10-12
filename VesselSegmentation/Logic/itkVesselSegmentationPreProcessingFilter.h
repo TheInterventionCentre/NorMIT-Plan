@@ -18,6 +18,7 @@
 #ifndef itkVesselSegmentationPreProcessingFilter_h
 #define itkVesselSegmentationPreProcessingFilter_h
 
+#include "VesselSegmentationITKuseGPU.h"
 #include "itkImageToImageFilter.h"
 
 #include "itkSigmoidImageFilter.h"
@@ -26,8 +27,13 @@
 #include "itkAffineTransform.h"
 #include "itkLinearInterpolateImageFunction.h"
 
-#include "itkGPUImage.h"
-#include "itkGPUGradientAnisotropicDiffusionImageFilter.h"
+#ifdef ITK_USE_GPU
+ #include "itkGPUImage.h"
+ #include "itkGPUGradientAnisotropicDiffusionImageFilter.h"
+#else
+ #include "itkGradientAnisotropicDiffusionImageFilter.h"
+#endif
+
 
 namespace itk
 {
@@ -51,6 +57,7 @@ namespace itk
     class VesselSegmentationPreProcessingFilter:public ImageToImageFilter<  TInputImage, TOutputImage >
     {
     public:
+
         /** Standard class typedefs. */
         typedef VesselSegmentationPreProcessingFilter Self;
         
@@ -75,9 +82,10 @@ namespace itk
         /** Runtime information support. */
         itkTypeMacro(VesselSegmentationPreProcessingFilter,
                      ImageToImageFilter);
-        
+#ifdef ITK_USE_GPU
         /** Type for GPU image. */
         typedef GPUImage< InputPixelType, itkGetStaticConstMacro(InputImageDimension) > GPUImageType;
+#endif
         
         /** Set/Get macros for LowerThreshold */
         itkSetMacro(LowerThreshold, double);
@@ -127,7 +135,14 @@ namespace itk
         
         typedef itk::SigmoidImageFilter< InputImageType, InputImageType >                       SigmoidFilterType;
         typedef itk::RescaleIntensityImageFilter< InputImageType, InputImageType >              RescaleFilterType;
-        typedef itk::GPUGradientAnisotropicDiffusionImageFilter< InputImageType, GPUImageType > GPUSmoothingFilterType;
+
+#ifdef  ITK_USE_GPU
+        // Redefine the smoothing filter to use GPU & gpuimagetype
+        typedef itk::GPUGradientAnisotropicDiffusionImageFilter< InputImageType, GPUImageType > SmoothingFilterType;
+#else
+        typedef itk::GradientAnisotropicDiffusionImageFilter< InputImageType, InputImageType > SmoothingFilterType;
+#endif
+
         typedef itk::ResampleImageFilter< InputImageType, OutputImageType >                     ResampleFilterType;
         
         typedef itk::AffineTransform< double, 3 >  TransformType;
