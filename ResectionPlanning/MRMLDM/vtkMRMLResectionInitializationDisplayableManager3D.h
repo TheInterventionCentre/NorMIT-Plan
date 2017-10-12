@@ -79,6 +79,10 @@ public vtkMRMLAbstractThreeDViewDisplayableManager
    */
   void PrintSelf(ostream &os, vtkIndent indent);
 
+ protected:
+  vtkMRMLResectionInitializationDisplayableManager3D();
+  ~ vtkMRMLResectionInitializationDisplayableManager3D();
+
   /**
    * Process MRML nodes events
    *
@@ -90,9 +94,6 @@ public vtkMRMLAbstractThreeDViewDisplayableManager
   void ProcessMRMLNodesEvents(vtkObject *object,
                              unsigned long int eventId,
                              void *data);
- protected:
-  vtkMRMLResectionInitializationDisplayableManager3D();
-  ~ vtkMRMLResectionInitializationDisplayableManager3D();
 
   /**
    * Sets a new scene.
