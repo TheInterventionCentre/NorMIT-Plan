@@ -32,7 +32,6 @@
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   =========================================================================*/
 
-
 #ifndef __vtkSlicerResectionPlanningLogic_h
 #define __vtkSlicerResectionPlanningLogic_h
 
