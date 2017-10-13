@@ -278,9 +278,9 @@ void vtkSlicerVesselSegmentationLogic::OnMRMLNodeModified(vtkMRMLNode* modifiedN
  * !!! This appears to fire before the coordinates are set. !!!
  */
 void vtkSlicerVesselSegmentationLogic::
-OnMRMLMarkupAdded(vtkObject *caller,
+OnMRMLMarkupAdded(vtkObject *vtkNotUsed(caller),
 		long unsigned int vtkNotUsed(eventId),
-		void *clientData, void *callData)
+		void *clientData, void *vtkNotUsed(callData))
 {
   //std::cout << "on markup added called" << std::endl;
   
