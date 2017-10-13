@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program: NorMIT-Plan
-  Module: vtkMRMLModelStorageNode.h
+  Module: vtkMRMLResectionSurfaceStorageNode.h
 
   Copyright (c) 2017, The Intervention Centre, Oslo University Hospital
 

@@ -1,26 +1,44 @@
-/*==============================================================================
+/*=========================================================================
+  Program: NorMIT-Plan
+  Module: vtkSlicerVesselSegmentationLogic.h
 
-  Program: 3D Slicer
+  Copyright (c) 2017, The Intervention Centre, Oslo University Hospital
 
-  Portions (c) Copyright Brigham and Women's Hospital (BWH) All Rights Reserved.
+  All rights reserved.
 
-  See COPYRIGHT.txt
-  or http://www.slicer.org/copyright/copyright.txt for details.
+  Redistribution and use in source and binary forms, with or without
+  modification, are permitted provided that the following conditions are met:
 
-  Unless required by applicable law or agreed to in writing, software
-  distributed under the License is distributed on an "AS IS" BASIS,
-  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  See the License for the specific language governing permissions and
-  limitations under the License.
+  1. Redistributions of source code must retain the above copyright notice,
+  this list of conditions and the following disclaimer.
 
-==============================================================================*/
+  2. Redistributions in binary form must reproduce the above copyright notice,
+  this list of conditions and the following disclaimer in the documentation
+  and/or other materials provided with the distribution.
 
-// .NAME vtkSlicerVesselSegmentationLogic - slicer logic class for volumes manipulation
-// .SECTION Description
-// This class manages the logic associated with reading, saving,
-// and changing propertied of the volumes
+  3. Neither the name of the copyright holder nor the names of its contributors
+  may be used to endorse or promote products derived from this software
+  without specific prior written permission.
 
+  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+  DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+  FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+  DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+  SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+  CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+  OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  =========================================================================*/
 
+/**
+ * \ingroup VesselSegmentation
+ *
+ * \brief This class contains methods to support the high-level actions that the
+ * user performs and which are related to the module. The class also serves as
+ * coordinator between the MRML reality and the GUI.
+ */
 #ifndef __vtkSlicerVesselSegmentationLogic_h
 #define __vtkSlicerVesselSegmentationLogic_h
 
@@ -58,7 +76,12 @@ class VTK_SLICER_VESSELSEGMENTATION_MODULE_LOGIC_EXPORT vtkSlicerVesselSegmentat
   public vtkSlicerModuleLogic
 {
 public:
-    
+
+  /**
+   * Standard vtk object instantiation method.
+   *
+   * @return a pointer to the newly created object.
+   */
   static vtkSlicerVesselSegmentationLogic *New();
   vtkTypeMacro(vtkSlicerVesselSegmentationLogic, vtkSlicerModuleLogic);
 
@@ -70,32 +93,138 @@ public:
    */
   void PrintSelf(ostream& os, vtkIndent indent);
 
+  /**
+   * Calls the image preprocessing (needs an input image)
+   */
   void CallPreprocessing();
+
+  /**
+   * Calls the segmentation algorithm (needs seeds)
+   */
   void CallSegmentationAlgorithm();
+
+  /**
+   * Calls the a merge of the hepatic and portal label maps
+   */
   void CallMergeLabelMaps();
+
+  /**
+   * Calls to assign the seed to either portal or hepatic (in an overlapping area)
+   */
   void CallAssignSeeds();
 
+  /**
+   * Set the active volume node
+   *
+   * @param the vtkMRMLVolumeNode
+   */
   void SetActiveVolumeNode(vtkMRMLVolumeNode *ActiveVolumeNode);
+
+  /**
+   * Set the active volume
+   *
+   * @param the vtkMRMLScalarVolumeNode
+   */
   void SetActiveVolume(vtkMRMLScalarVolumeNode *activeVolume);
+
+  /**
+   * Get the active volume
+   *
+   * @return the vtkSmartPointer to a vtkMRMLScalarVolumeNode
+   */
   vtkSmartPointer<vtkMRMLScalarVolumeNode> GetActiveVolume();
     
   // fiducial list methods
+  /**
+   * Get the coordinates of the last fiducial added
+   *
+   * @return double* to fiducial
+   */
   static double* GetLastFiducialCoordinate();
+
+  /**
+   * Get the list of fiducials
+   *
+   * @return std::vector<double*> list of fiducials
+   */
   static std::vector<double*> GetFiducialList();
+
+  /**
+   * Delete the list of fiducials
+   */
   void DeleteFiducials();
 
+  /**
+   * If a markup was added
+   *
+   * @return boolean if a markup was added
+   */
   static bool GetMarkupJustAdded();
+
+  /**
+   * Set whether working on hepatic or portal for segmentation
+   *
+   * @param bool where true if hepatic
+   */
   void IsHepaticSeg(bool isHepatic);
+
+  /**
+   * Set whether working on hepatic or portal for merge
+   *
+   * @param bool where true if hepatic
+   */
   void IsHepaticMerge(bool isHepatic);
 
+  /**
+   * Set the lower threshold for preprocessing
+   *
+   * @param value for the threshold
+   */
   void SetLowerThreshold(int value);
+
+  /**
+   * Set the upper threshold for preprocessing
+   *
+   * @param value for the threshold
+   */
   void SetUpperThreshold(int value);
+
+  /**
+   * Set the alpha value for preprocessing
+   *
+   * @param value for alpha
+   */
   void SetAlpha(int value);
+
+  /**
+   * Set the beta value for preprocessing
+   *
+   * @param value for beta
+   */
   void SetBeta(int value);
+
+  /**
+   * Set the conductance value for preprocessing
+   *
+   * @param value for conductance
+   */
   void SetConductance(int value);
+
+  /**
+   * Set the number of iterations for preprocessing
+   *
+   * @param value for iterations
+   */
   void SetIterations(int value);
 
+  /**
+   * Helper function to update the 3D models
+   */
   void UpdateModels();
+
+  /**
+   * Helper function to reset the 3D view
+   */
   void Reset3DView();
 
 protected:
@@ -104,14 +233,50 @@ protected:
 
   vtkSmartPointer<vtkMRMLVolumeNode> ActiveVolumeNode;
 
+  /**
+   * Setting the MRML scene internally.
+   *
+   * @param newScene pointer to the new MRML scene.
+   */
   virtual void SetMRMLSceneInternal(vtkMRMLScene* newScene);
-  /// Register MRML Node classes to Scene. Gets called automatically when the MRMLScene is attached to this logic class.
+
+  /**
+   * Register MRML Node classes to Scene. Gets called automatically when the MRMLScene is attached to this logic class.
+   */
   virtual void ObserveMRMLScene();
+
+  /**
+   * Register MRML Node classes to Scene. Gets called automatically when the
+   * MRMLScene is attached to this logic class.
+   */
   virtual void RegisterNodes();
+
+  /**
+   * Update the logic based on changes happening in the MRML scene.
+   */
   virtual void UpdateFromMRMLScene();
+
   //virtual void OnMRMLSceneChanged(vtkMRMLNode* node);
+
+  /**
+   * Method to control actions when a new MRML node is added to the MRML scene.
+   *
+   * @param node pointer to the vtkMRMLNode added to the scene.
+   */
   virtual void OnMRMLSceneNodeAdded(vtkMRMLNode* node);
+
+  /**
+   * Method to control actions when a MRML node in the scene gets removed.
+   *
+   * @param node pointer to the vtkMRMLNode to be removed.
+   */
   virtual void OnMRMLSceneNodeRemoved(vtkMRMLNode* node);
+
+  /**
+   * Method to control actions when a MRML node in the scene modified.
+   *
+   * @param node pointer to the vtkMRMLNode to be modified.
+   */
   virtual void OnMRMLNodeModified(vtkMRMLNode* node);
     
   static void OnMRMLMarkupAdded(vtkObject *caller, unsigned long int id, void *clientData, void *callerData);
