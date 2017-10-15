@@ -88,7 +88,6 @@
 #include <itkImageFileWriter.h>
 #include <itkImage.h>
 #include <itkImageRegionIteratorWithIndex.h>
-#include <itkGPUImage.h>
 #include <itkOrImageFilter.h>
 #include <itkCastImageFilter.h>
 #include <itkSigmoidImageFilter.h>
@@ -191,32 +190,32 @@ void vtkSlicerVesselSegmentationLogic
 
   vtkMRMLMarkupsNode* tempMarkupNode = vtkMRMLMarkupsNode::SafeDownCast(addedNode);
   vtkMRMLMarkupsFiducialNode* tempFiducialNode = vtkMRMLMarkupsFiducialNode::SafeDownCast(addedNode);
-  
+
   if((tempMarkupNode != NULL) && (tempFiducialNode != NULL))
   {
     std::cout << "added node called & both not null." << std::endl;
-    
+
     if(this->nodeObserversSet == false)
     {
       std::cout << "Now observing: " << tempMarkupNode << " " << tempFiducialNode << std::endl;
       this->nodeObserversSet = true;
-      
+
       /* Observe markup node */
       vtkSmartPointer<vtkCallbackCommand> markupAddedCallback = vtkSmartPointer<vtkCallbackCommand>::New();
       markupAddedCallback->SetCallback(this->OnMRMLMarkupAdded);
       markupAddedCallback->SetClientData(this);
-      
+
       tempMarkupNode->AddObserver(vtkMRMLMarkupsNode::MarkupAddedEvent, markupAddedCallback);
-    
+
       tempMarkupNode->InvokeEvent(vtkMRMLMarkupsNode::MarkupAddedEvent);
       /* ----------------------- */
-      
+
       /* Observe fiducial node */
       vtkNew<vtkIntArray> events;
       events->InsertNextValue(vtkCommand::ModifiedEvent);
       vtkUnObserveMRMLNodeMacro(tempFiducialNode);
       vtkObserveMRMLNodeEventsMacro(tempFiducialNode, events.GetPointer());
-    
+
       tempFiducialNode->InvokeEvent(vtkCommand::ModifiedEvent);
       /* ----------------------- */
     }
@@ -227,7 +226,7 @@ void vtkSlicerVesselSegmentationLogic
 void vtkSlicerVesselSegmentationLogic
 ::OnMRMLSceneNodeRemoved(vtkMRMLNode* vtkNotUsed(node))
 {
-  
+
 }
 
 //---------------------------------------------------------------------------
@@ -238,10 +237,10 @@ void vtkSlicerVesselSegmentationLogic::OnMRMLNodeModified(vtkMRMLNode* modifiedN
 {
     if(this->markupJustAdded)
     {
-  
+
     std::cout << "node modified called LOGIC " << std::endl;
     vtkMRMLMarkupsFiducialNode* tempFiducialNode = vtkMRMLMarkupsFiducialNode::SafeDownCast(modifiedNode);
-  
+
     if(tempFiducialNode != NULL)
     {
 
@@ -283,7 +282,7 @@ OnMRMLMarkupAdded(vtkObject *vtkNotUsed(caller),
 		void *clientData, void *vtkNotUsed(callData))
 {
   //std::cout << "on markup added called" << std::endl;
-  
+
   vtkSlicerVesselSegmentationLogic* logic = reinterpret_cast<vtkSlicerVesselSegmentationLogic*>(clientData);
 
   logic->markupJustAdded = true;
@@ -1163,5 +1162,3 @@ void vtkSlicerVesselSegmentationLogic::Reset3DView()
     renderer->ResetCamera();
     }
 }
-
-
