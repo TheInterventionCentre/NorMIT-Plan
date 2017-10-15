@@ -12,5 +12,5 @@ compile:
   override:
     - mkdir /home/ubuntu/NorMIT-Plan-build
     - cd /home/ubuntu/NorMIT-Plan-build; cmake ../NorMIT-Plan -DSlicer_DIR=/home/ubuntu/Slicer-build/Slicer-build
-    - cd /home/ubuntu/NorMIT-Plan-build; cmake . -DQT_QMAKE_EXECUTABLE=/usr/bin/qmake
+    - cd /home/ubuntu/NorMIT-Plan-build; cmake .
     - make
