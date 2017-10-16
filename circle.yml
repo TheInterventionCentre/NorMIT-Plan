@@ -13,4 +13,4 @@ compile:
     - mkdir /home/ubuntu/NorMIT-Plan-build
     - cd /home/ubuntu/NorMIT-Plan-build; cmake ../NorMIT-Plan -DSlicer_DIR=/home/ubuntu/Slicer-build/Slicer-build
     - cd /home/ubuntu/NorMIT-Plan-build; cmake .
-    - make
+    - cd /home/ubuntu/NorMIT-Plan-build; make
