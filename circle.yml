@@ -13,4 +13,13 @@ compile:
     - mkdir /home/ubuntu/NorMIT-Plan-build
     - cd /home/ubuntu/NorMIT-Plan-build; cmake ../NorMIT-Plan -DSlicer_DIR=/home/ubuntu/Slicer-build/Slicer-build
     - cd /home/ubuntu/NorMIT-Plan-build; cmake .
-    - cd /home/ubuntu/NorMIT-Plan-build; make Continuous
+    - cd /home/ubuntu/NorMIT-Plan-build; make ContinuousBuild
+   
+
+test:
+  override:
+    - cd /home/ubuntu/NorMIT-Plan-build; make ContinuousTest
+    - cd /home/ubuntu/NorMIT-Plan-build; make ContinuousSubmit
+
+  
+  
