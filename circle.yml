@@ -4,10 +4,10 @@ dependencies:
     - sudo apt-get install cmake3 subversion qt4-qmake libqt4-dev python-dev
     - if [[ ! -e ~/Slicer ]]; then curl https://s3-us-west-1.amazonaws.com/normit-plan.circleci/Slicer.tar.gz | tar xj -C /home/ubuntu; fi
     - if [[ ! -e ~/Slicer-build ]]; then curl https://s3-us-west-1.amazonaws.com/normit-plan.circleci/Slicer-build.tar.gz |tar xj -C /home/ubuntu; fi
-  post:
-    - rm -rf /home/ubuntu/Slicer-build
-    - rm -rf /home/ubuntu/Slicer
-    
+  cache_directories:
+    - "/home/ubuntu/Slicer"
+    - "/home/ubuntu/Slicer-build"
+
 compile:
   override:
     - mkdir /home/ubuntu/NorMIT-Plan-build
