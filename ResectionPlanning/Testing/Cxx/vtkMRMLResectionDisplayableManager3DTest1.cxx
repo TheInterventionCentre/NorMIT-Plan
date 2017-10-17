@@ -91,8 +91,11 @@ public:
       vtkSmartPointer<vtkMRMLResectionSurfaceNode>::New();
 
     this->Superclass::SetRenderer(NULL);
-    this->Superclass::SetMRMLSceneInternal(scene);
+    this->Superclass::SetMRMLScene(scene);
     this->Superclass::SetAndObserveMRMLDisplayableNode(NULL);
+
+    TESTING_OUTPUT_ASSERT_ERRORS(2);
+    TESTING_OUTPUT_RESET();
 
     TESTING_OUTPUT_ASSERT_ERRORS_BEGIN();
     this->Superclass::OnMRMLSceneNodeAdded(node);
@@ -126,6 +129,9 @@ public:
 
     vtkSmartPointer<vtkMRMLResectionSurfaceNode> node =
       vtkSmartPointer<vtkMRMLResectionSurfaceNode>::New();
+
+    TESTING_OUTPUT_ASSERT_ERRORS(1);
+    TESTING_OUTPUT_RESET();
 
     TESTING_OUTPUT_ASSERT_ERRORS_BEGIN();
     this->Superclass::OnMRMLSceneNodeAdded(node);
@@ -171,7 +177,7 @@ public:
       vtkSmartPointer<vtkMRMLResectionSurfaceNode>::New();
 
     this->Superclass::OnMRMLSceneNodeAdded(node);
-    TESTING_OUTPUT_ASSERT_WARNINGS_ERRORS(0);
+    TESTING_OUTPUT_ASSERT_WARNINGS_ERRORS(1);
 
     vtkDebugMacro("END: OnMRMLSceneNodeAddedTest4"
                   << "------------------------------");
@@ -249,6 +255,9 @@ public:
     this->Superclass::SetMRMLSceneInternal(scene);
     this->Superclass::SetAndObserveMRMLDisplayableNode(NULL);
 
+    TESTING_OUTPUT_ASSERT_ERRORS(2);
+    TESTING_OUTPUT_RESET();
+
     TESTING_OUTPUT_ASSERT_ERRORS_BEGIN();
     this->Superclass::AddWidget(node);
     TESTING_OUTPUT_ASSERT_ERRORS_END();
@@ -281,6 +290,9 @@ public:
 
     vtkSmartPointer<vtkMRMLResectionSurfaceNode> node =
       vtkSmartPointer<vtkMRMLResectionSurfaceNode>::New();
+
+    TESTING_OUTPUT_ASSERT_ERRORS(1);
+    TESTING_OUTPUT_RESET();
 
     TESTING_OUTPUT_ASSERT_ERRORS_BEGIN();
     this->Superclass::AddWidget(node);
@@ -585,7 +597,7 @@ public:
     scene->AddNode(resectionNode);
 
     this->Superclass::OnMRMLSceneEndClose();
-    TESTING_OUTPUT_ASSERT_WARNINGS_ERRORS(0);
+    TESTING_OUTPUT_ASSERT_WARNINGS_ERRORS(1);
 
     vtkDebugMacro("END: OnMRMLSceneEndCloseTest2"
                   << "------------------------------");
@@ -598,11 +610,35 @@ public:
     vtkSmartPointer<vtkMRMLScene> scene =
       vtkSmartPointer<vtkMRMLScene>::New();
     this->Superclass::SetMRMLSceneInternal(scene);
-    TESTING_OUTPUT_ASSERT_WARNINGS_ERRORS(0);
+    TESTING_OUTPUT_ASSERT_WARNINGS_ERRORS(1);
 
     vtkDebugMacro("END: SetSceneInternalTest1"
                   << "------------------------------");
   }
+
+  void SetSceneInternalTest2()
+  {
+    vtkDebugMacro("BEGIN: SetSceneInternalTest2"
+                  << "------------------------------");
+    vtkSmartPointer<vtkMRMLScene> scene =
+      vtkSmartPointer<vtkMRMLScene>::New();
+    vtkSmartPointer<vtkRenderer> renderer =
+      vtkSmartPointer<vtkRenderer>::New();
+    vtkSmartPointer<vtkRenderWindow> renderWindow =
+      vtkSmartPointer<vtkRenderWindow>::New();
+    renderWindow->AddRenderer(renderer);
+    vtkSmartPointer<vtkRenderWindowInteractor> renderWindowInteractor =
+      vtkSmartPointer<vtkRenderWindowInteractor>::New();
+    renderWindowInteractor->SetRenderWindow(renderWindow);
+
+    this->Superclass::SetRenderer(renderer);
+    this->Superclass::SetMRMLSceneInternal(scene);
+    TESTING_OUTPUT_ASSERT_WARNINGS_ERRORS(0);
+
+    vtkDebugMacro("END: SetSceneInternalTest2"
+                  << "------------------------------");
+  }
+
 
   void ProcessMRMLNodesEventsTest1()
   {
@@ -778,9 +814,57 @@ public:
     scene->AddNode(resectionNode);
     this->Superclass::UpdateGeometry(resectionNode);
 
-    TESTING_OUTPUT_ASSERT_ERRORS(0);
+    TESTING_OUTPUT_ASSERT_ERRORS(1);
 
     vtkDebugMacro("END: UpdateGeometryTest3"
+                  << "------------------------------");
+  }
+
+    void UpdateGeometryTest4()
+  {
+    vtkDebugMacro("BEGIN: UpdateGeometryTest4"
+                  << "------------------------------");
+    vtkSmartPointer<vtkRenderer> renderer =
+      vtkSmartPointer<vtkRenderer>::New();
+    vtkSmartPointer<vtkRenderWindow> renderWindow =
+      vtkSmartPointer<vtkRenderWindow>::New();
+    renderWindow->AddRenderer(renderer);
+    vtkSmartPointer<vtkRenderWindowInteractor> renderWindowInteractor =
+      vtkSmartPointer<vtkRenderWindowInteractor>::New();
+    renderWindowInteractor->SetRenderWindow(renderWindow);
+
+    vtkSmartPointer<vtkMRMLScene> scene =
+      vtkSmartPointer<vtkMRMLScene>::New();
+
+    vtkSmartPointer<vtkMRMLInteractionNode> interaction =
+      vtkSmartPointer<vtkMRMLInteractionNode>::New();
+    scene->AddNode(interaction);
+
+    vtkSmartPointer<vtkMRMLSelectionNode> selection =
+      vtkSmartPointer<vtkMRMLSelectionNode>::New();
+    scene->AddNode(selection);
+
+    vtkSmartPointer<vtkMRMLViewNode> viewNode =
+      vtkSmartPointer<vtkMRMLViewNode>::New();
+    scene->AddNode(viewNode);
+
+    this->Superclass::SetRenderer(renderer);
+    this->Superclass::SetMRMLScene(scene);
+    this->Superclass::SetAndObserveMRMLDisplayableNode(viewNode);
+
+    vtkSmartPointer<vtkMRMLResectionSurfaceDisplayNode> resectionDisplayNode =
+      vtkSmartPointer<vtkMRMLResectionSurfaceDisplayNode>::New();
+    scene->AddNode(resectionDisplayNode);
+
+    vtkSmartPointer<vtkMRMLResectionSurfaceNode> resectionNode =
+      vtkSmartPointer<vtkMRMLResectionSurfaceNode>::New();
+    resectionNode->SetAndObserveDisplayNodeID(resectionDisplayNode->GetID());
+    scene->AddNode(resectionNode);
+    this->Superclass::UpdateGeometry(resectionNode);
+
+    TESTING_OUTPUT_ASSERT_ERRORS(0);
+
+    vtkDebugMacro("END: UpdateGeometryTest4"
                   << "------------------------------");
   }
 
@@ -1018,6 +1102,11 @@ int vtkMRMLResectionDisplayableManager3DTest1(int, char *[])
   displayableManagerTest =
     vtkSmartPointer<vtkMRMLResectionDisplayableManager3DTest>::New();
   displayableManagerTest->DebugOn();
+  displayableManagerTest->SetSceneInternalTest2();
+
+  displayableManagerTest =
+    vtkSmartPointer<vtkMRMLResectionDisplayableManager3DTest>::New();
+  displayableManagerTest->DebugOn();
   displayableManagerTest->ProcessMRMLNodesEventsTest1();
 
   displayableManagerTest =
@@ -1038,6 +1127,7 @@ int vtkMRMLResectionDisplayableManager3DTest1(int, char *[])
   displayableManagerTest =
     vtkSmartPointer<vtkMRMLResectionDisplayableManager3DTest>::New();
   displayableManagerTest->DebugOn();
+  displayableManagerTest->GlobalWarningDisplayOn();
   displayableManagerTest->UpdateGeometryTest1();
 
   displayableManagerTest =
