@@ -1,7 +1,4 @@
 dependencies:
-  pre:
-    - rm /home/ubuntu/Slicer-build -rf
-    - rm /home/ubuntu/Slicer -rf
   override:
     - sudo apt-get update
     - sudo apt-get install cmake3 subversion qt4-qmake libqt4-dev python-dev
