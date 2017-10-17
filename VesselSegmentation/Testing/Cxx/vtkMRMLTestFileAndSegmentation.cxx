@@ -153,10 +153,10 @@ bool testLoadFileAndSegment( const char* volumeName1, const char* volumeName2, v
 
     // add 1st fiducial
     double inPos[3] = {34.15, 34.15, 158.375}; // RAS
-    int fidIndex = fidNode->AddFiducial(inPos[0], inPos[1], inPos[2]);
+    fidNode->AddFiducial(inPos[0], inPos[1], inPos[2]);
     // add 2nd (direction) fiducial
     double inPos2[3] = {40.4, 36.625, 167.125}; // RAS
-    fidIndex = fidNode->AddFiducial(inPos2[0], inPos2[1], inPos2[2]);
+    fidNode->AddFiducial(inPos2[0], inPos2[1], inPos2[2]);
 
     itk::Index<Dim> seed;
     itk::Index<Dim> directionSeed;

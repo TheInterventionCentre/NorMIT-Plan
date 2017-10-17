@@ -112,7 +112,7 @@ bool testAddFiducial( const char* volumeName, vtkSlicerVesselSegmentationLogic* 
 
     // add 1st fiducial
     double inPos[3] = {10.33, 8.55, 0};
-    int fidIndex = fidNode->AddFiducial(inPos[0], inPos[1], inPos[2]);
+    fidNode->AddFiducial(inPos[0], inPos[1], inPos[2]);
 
     // check our list now contains 1 fiducial
     std::vector<double*> list = logic->GetFiducialList();
@@ -122,7 +122,7 @@ bool testAddFiducial( const char* volumeName, vtkSlicerVesselSegmentationLogic* 
     {
         return false;
     }
-    
+
     // check last coordinate
     double *pos = logic->GetLastFiducialCoordinate();
     std::cout << "GetLastFiducialCoordinate (10.33,8.55) = " << pos[0] << " " << pos[1] << std::endl;
@@ -130,10 +130,10 @@ bool testAddFiducial( const char* volumeName, vtkSlicerVesselSegmentationLogic* 
     {
         return false;
     }
-    
+
     // add 2nd fiducial
     double inPos2[3] = {1.5, 1.5, 0};
-    fidIndex = fidNode->AddFiducial(inPos2[0], inPos2[1], inPos2[2]);
+    fidNode->AddFiducial(inPos2[0], inPos2[1], inPos2[2]);
 
     // check our list now contains 2 fiducial
     list = logic->GetFiducialList();
@@ -143,7 +143,7 @@ bool testAddFiducial( const char* volumeName, vtkSlicerVesselSegmentationLogic* 
     {
         return false;
     }
-    
+
     // check last coordinate
     double *pos2 = logic->GetLastFiducialCoordinate();
     std::cout << "GetLastFiducialCoordinate (1.5,1.5) = " << pos2[0] << " " << pos2[1] << std::endl;
@@ -151,7 +151,7 @@ bool testAddFiducial( const char* volumeName, vtkSlicerVesselSegmentationLogic* 
     {
         return false;
     }
-    
+
     // check can pop one off list
     list.pop_back();
     int s3 = list.size();
@@ -172,4 +172,3 @@ bool testAddFiducial( const char* volumeName, vtkSlicerVesselSegmentationLogic* 
 
     return true;
 }
-
