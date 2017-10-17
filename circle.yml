@@ -1,5 +1,8 @@
 dependencies:
   pre:
+    - rm /home/ubuntu/Slicer-build
+    - rm /home/ubuntu/Slicer
+  override:
     - sudo apt-get update
     - sudo apt-get install cmake3 subversion qt4-qmake libqt4-dev python-dev
     - if [[ ! -e ~/Slicer ]]; then curl https://s3-us-west-1.amazonaws.com/normit-plan.circleci/Slicer.tar.gz | tar xj -C /home/ubuntu; fi
