@@ -73,7 +73,7 @@ bool vtkMRMLVesselSegmentationDisplayableManager::placingFiducials;
 vtkMRMLVesselSegmentationDisplayableManager::
 vtkMRMLVesselSegmentationDisplayableManager()
 {
-    
+
 }
 
 vtkMRMLVesselSegmentationDisplayableManager::
@@ -114,36 +114,36 @@ void vtkMRMLVesselSegmentationDisplayableManager::
 OnMRMLSceneNodeAdded(vtkMRMLNode *addedNode)
 {
   vtkMRMLMarkupsFiducialNode* tempFiducialNode = vtkMRMLMarkupsFiducialNode::SafeDownCast(addedNode);
-  
+
   if(tempFiducialNode != NULL) {
 
     // now observing all node modified events (calls: OnMRMLNodeModified)
     this->UpdateFiducialCommand->SetCallback(this->OnFiducialNodeModified);
     this->UpdateFiducialCommand->SetClientData(this);
     tempFiducialNode->AddObserver(vtkCommand::ModifiedEvent, this->UpdateFiducialCommand.GetPointer(), -100.0);
-    
+
     vtkSmartPointer<vtkMRMLSliceNode> tempSliceNode = this->GetMRMLSliceNode();
-    
+
     if((this->sliceListenerSet == false) && (tempSliceNode != NULL)) {
-      
+
       this->RAStoXYmatrix->DeepCopy(tempSliceNode->GetXYToRAS());
       this->RAStoXYmatrix->Invert();
-      
+
 //      std::cout << "DM - Have RAS to XY matrix: " << this->RAStoXYmatrix << std::endl;
-      
+
       sliceListenerSet = true;
-      
+
       // create callback
       this->UpdateMatrixCommand->SetCallback(this->OnSliceNodeModified);
       this->UpdateMatrixCommand->SetClientData(this);
-      
+
       tempSliceNode->AddObserver(vtkCommand::ModifiedEvent, this->UpdateMatrixCommand.GetPointer());
     }
-    
+
     /* Observe crosshair node */
     vtkMRMLNode* tempCrosshairNodeDefault = this->GetMRMLScene()->GetNodeByID("vtkMRMLCrosshairNodedefault");
     vtkMRMLCrosshairNode* tempCrosshairNode = vtkMRMLCrosshairNode::SafeDownCast(tempCrosshairNodeDefault);
-    
+
     this->UpdateCursorCommand->SetCallback(this->OnCrosshairPositionModified);
     this->UpdateCursorCommand->SetClientData(this);
     tempCrosshairNode->AddObserver(vtkMRMLCrosshairNode::CursorPositionModifiedEvent, this->UpdateCursorCommand.GetPointer());
@@ -153,7 +153,7 @@ OnMRMLSceneNodeAdded(vtkMRMLNode *addedNode)
 }
 
 void vtkMRMLVesselSegmentationDisplayableManager::
-OnMRMLNodeModified(vtkMRMLNode *modifiedNode)
+OnMRMLNodeModified(vtkMRMLNode *vtkNotUsed(modifiedNode))
 {
   /*
    gets called when new fiducials are added, but before its fully added, so the list is not updated... had to use other callback method
@@ -164,52 +164,59 @@ OnMRMLNodeModified(vtkMRMLNode *modifiedNode)
 }
 
 void vtkMRMLVesselSegmentationDisplayableManager::
-OnMRMLSceneNodeRemoved(vtkMRMLNode *node)
+OnMRMLSceneNodeRemoved(vtkMRMLNode *vtkNotUsed(node))
 {
   this->RequestRender();
 }
 
 void vtkMRMLVesselSegmentationDisplayableManager::OnMRMLSceneEndClose()
 {
-    
+
 }
 
-void vtkMRMLVesselSegmentationDisplayableManager::OnFiducialNodeModified(vtkObject *caller, unsigned long int id, void *clientData, void *callerData)
+void vtkMRMLVesselSegmentationDisplayableManager::OnFiducialNodeModified(vtkObject *vtkNotUsed(caller),
+                                                                         unsigned long int vtkNotUsed(id),
+                                                                         void *clientData,
+                                                                         void *vtkNotUsed(callerData))
 {
   vtkMRMLVesselSegmentationDisplayableManager* DM = reinterpret_cast<vtkMRMLVesselSegmentationDisplayableManager*>(clientData);
-  
+
   std::vector<double*> list = vtkSlicerVesselSegmentationLogic::GetFiducialList();
   int s = list.size();
-  
+
 //  std::cout << "DM - Fiducial node modified: " << s << std::endl;
-  
+
   if(s > 0) {
     double *coords = list[s-1];
-    
+
     // use the xy matrix to convert the points
     double *fidXY = new double[4];
     DM->RAStoXYmatrix.GetPointer()->MultiplyPoint(coords, fidXY);
-    
+
     if(s > 1) {
       double *coords2 = list[s-2];
       double *fid2XY = new double[4];
       DM->RAStoXYmatrix.GetPointer()->MultiplyPoint(coords2, fid2XY);
       //DM->DisplayPolygon(fid2XY, 2);
     }
-    
+
     //DM->DisplayPolygon(fidXY, 1);
   }
 }
 
-void vtkMRMLVesselSegmentationDisplayableManager::OnCrosshairPositionModified(vtkObject *caller, long unsigned int vtkNotUsed(eventId), void *clientData, void *callData)
+void vtkMRMLVesselSegmentationDisplayableManager::
+OnCrosshairPositionModified(vtkObject *caller,
+                            long unsigned int vtkNotUsed(eventId),
+                            void *clientData,
+                            void *vtkNotUsed(callData))
 {
   vtkMRMLVesselSegmentationDisplayableManager* DM = reinterpret_cast<vtkMRMLVesselSegmentationDisplayableManager*>(clientData);
-  
+
   vtkMRMLCrosshairNode* tempCrosshairNode = vtkMRMLCrosshairNode::SafeDownCast(caller);
-  
+
   double *position = new double[3];
   tempCrosshairNode->GetCursorPositionRAS(position);
-  
+
   double *pos2 = new double[4];
   pos2[0] = position[0];
   pos2[1] = position[1];
@@ -218,24 +225,24 @@ void vtkMRMLVesselSegmentationDisplayableManager::OnCrosshairPositionModified(vt
   double *curXY = new double[4];
   DM->RAStoXYmatrix.GetPointer()->MultiplyPoint(pos2, curXY);
   DM->lastCursorPosition = curXY;
-  
+
   //std::cout << "cursorPositionModified: " << curXY[0] << " " << curXY[1] << " " << curXY[2] << std::endl;
-  
+
   std::vector<double*> list = vtkSlicerVesselSegmentationLogic::GetFiducialList();
   int s = list.size();
-  
+
   // this only matters if on odd # of fiducial
   if((s > 0) && (s % 2 == 1)) {
     double *coords = list[s-1];
-    
+
     //std::cout << "Line adjusted from inside crosshair modified" << std::endl;
     // use the xy matrix to convert the point
     double *fidXY = new double[4];
     DM->RAStoXYmatrix.GetPointer()->MultiplyPoint(coords, fidXY);
-    
+
     //DM->DisplayLine(fidXY, curXY);
     //DM->DisplayPolygon(fidXY,1);
-    
+
     if(s > 1) {
       double *coords2 = list[s-2];
       double *fid2XY = new double[4];
@@ -245,23 +252,26 @@ void vtkMRMLVesselSegmentationDisplayableManager::OnCrosshairPositionModified(vt
   }
 }
 
-void vtkMRMLVesselSegmentationDisplayableManager::OnSliceNodeModified(vtkObject *caller, unsigned long int id, void *clientData, void *callerData)
+void vtkMRMLVesselSegmentationDisplayableManager::OnSliceNodeModified(vtkObject *vtkNotUsed(caller),
+                                                                      unsigned long int vtkNotUsed(id),
+                                                                      void *clientData,
+                                                                      void *vtkNotUsed(callerData))
 {
   vtkMRMLVesselSegmentationDisplayableManager* DM = reinterpret_cast<vtkMRMLVesselSegmentationDisplayableManager*>(clientData);
-  
+
   vtkSmartPointer<vtkMRMLSliceNode> tempSliceNode = DM->GetMRMLSliceNode();
-  
+
   if(tempSliceNode != NULL) {
-    
+
     DM->RAStoXYmatrix->DeepCopy(tempSliceNode->GetXYToRAS());
     DM->RAStoXYmatrix->Invert();
-    
+
 //    std::cout << "DM - Updated RAS to XY matrix (inside slice node modified)" << std::endl;
   }
-  
+
   std::vector<double*> list = vtkSlicerVesselSegmentationLogic::GetFiducialList();
   int s = list.size();
-  
+
   // if on odd # of fiducials then crosshair modified will take care of this
   // here we must deal with the even # of fiducials
   if((s > 1) && (s%2 == 0)) {
@@ -269,14 +279,14 @@ void vtkMRMLVesselSegmentationDisplayableManager::OnSliceNodeModified(vtkObject 
     double *coords = list[s-1];
     double *coords2 = list[s-2];
     //std::cout << "Line & polygon adjusted from inside update line" << std::endl;
-    
+
     // use the XY matrix to convert the points
     double *fidXY = new double[4];
     DM->RAStoXYmatrix.GetPointer()->MultiplyPoint(coords, fidXY);
-    
+
     double *fid2XY = new double[4];
     DM->RAStoXYmatrix.GetPointer()->MultiplyPoint(coords2, fid2XY);
-    
+
     //DM->DisplayPolygon(fidXY, 1);
     //DM->DisplayPolygon(fid2XY, 2);
     //DM->DisplayLine(fidXY, fid2XY);
@@ -363,5 +373,3 @@ void vtkMRMLVesselSegmentationDisplayableManager::SetFiducialsMode( bool placing
     placingFiducials = placingFid;
 //    std::cout << "DM - Placing fiducials bool: " << placingFiducials << std::endl;
 }
-
-
