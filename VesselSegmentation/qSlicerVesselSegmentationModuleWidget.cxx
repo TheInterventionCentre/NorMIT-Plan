@@ -119,7 +119,7 @@ void qSlicerVesselSegmentationModuleWidget::setup()
 {
   Q_D(qSlicerVesselSegmentationModuleWidget);
   d->setupUi(this);
-    
+
   // connect events to node selection dropdown
   QObject::connect(d->ActiveVolumeNodeSelector, SIGNAL(currentNodeChanged(vtkMRMLNode*)), this, SLOT(nodeSelectionChanged(vtkMRMLNode*)));
   QObject::connect(this, SIGNAL(mrmlSceneChanged(vtkMRMLScene*)), d->ActiveVolumeNodeSelector, SLOT(setMRMLScene(vtkMRMLScene*)));
@@ -243,7 +243,7 @@ vesselSegmentationLogic()
 /*
  * Called when selector changes which image is selected
  */
-void qSlicerVesselSegmentationModuleWidget::nodeSelectionChanged(vtkMRMLNode* node)
+void qSlicerVesselSegmentationModuleWidget::nodeSelectionChanged(vtkMRMLNode* vtkNotUsed(node))
 {
   Q_D(qSlicerVesselSegmentationModuleWidget);
 
@@ -411,4 +411,3 @@ void qSlicerVesselSegmentationModuleWidget::onSetIterations(int value)
  {
    this->vesselSegmentationLogic()->IsHepaticMerge(false);
  }
-
