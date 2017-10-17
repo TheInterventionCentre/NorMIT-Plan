@@ -1,7 +1,7 @@
 set(KIT qSlicer${MODULE_NAME}Module)
 
-set(TEST_FILE "${ITK_DIR}/../ITKv4/Modules/External/SeedVesselSegmentation/test/Data/testImage3_large.nii.gz")
-set(TEST_FILE_SIMILARITY "${ITK_DIR}/../ITKv4/Modules/External/SeedVesselSegmentation/test/Data/testImage3_largeSimilarity.nii.gz")
+set(TEST_FILE "${CMAKE_CURRENT_SOURCE_DIR}/../Data/testImage3_large.nii.gz")
+set(TEST_FILE_SIMILARITY "${CMAKE_CURRENT_SOURCE_DIR}/../Data/testImage3_largeSimilarity.nii.gz")
 
 #-----------------------------------------------------------------------------
 
