@@ -121,14 +121,12 @@ void qSlicerVesselSegmentationModuleWidget::setup()
   d->setupUi(this);
     
   // connect events to node selection dropdown
-  QObject::connect(d->ActiveVolumeNodeSelector, SIGNAL(currentNodeChanged(vtkMRMLNode*)), this, SLOT(nodeSelectionChanged(vtkMRMLNode*)));
-  QObject::connect(this, SIGNAL(mrmlSceneChanged(vtkMRMLScene*)), d->ActiveVolumeNodeSelector, SLOT(setMRMLScene(vtkMRMLScene*)));
+  //QObject::connect(d->ActiveVolumeNodeSelector, SIGNAL(currentNodeChanged(vtkMRMLNode*)), this, SLOT(nodeSelectionChanged(vtkMRMLNode*)));
+  //QObject::connect(this, SIGNAL(mrmlSceneChanged(vtkMRMLScene*)), d->ActiveVolumeNodeSelector, SLOT(setMRMLScene(vtkMRMLScene*)));
 
-  //this->Module = dynamic_cast<qSlicerVesselSegmentationModule*>(this->module());
-  //this->ModuleLogic = vtkSlicerVesselSegmentationLogic::SafeDownCast(this->Module->logic());
-
-  vtkMRMLSelectionNode *selectionNode = vtkMRMLSelectionNode::SafeDownCast(this->vesselSegmentationLogic()->GetMRMLScene()->GetNodeByID("vtkMRMLSelectionNodeSingleton"));
-  selectionNode->SetReferenceActivePlaceNodeClassName("vtkMRMLMarkupsFiducialNode");
+  // causes generic module tests to fail
+  //vtkMRMLSelectionNode *selectionNode = vtkMRMLSelectionNode::SafeDownCast(this->vesselSegmentationLogic()->GetMRMLScene()->GetNodeByID("vtkMRMLSelectionNodeSingleton"));
+  //selectionNode->SetReferenceActivePlaceNodeClassName("vtkMRMLMarkupsFiducialNode");
 
   // connections to preprocessing widget
   QObject::connect(d->PreprocessingWidget,
@@ -140,7 +138,7 @@ void qSlicerVesselSegmentationModuleWidget::setup()
                    this,
                    SLOT(onSetLowerThreshold(int)));
   QObject::connect(d->PreprocessingWidget,
-                   SIGNAL(UTSpinChanged(int);),
+                   SIGNAL(UTSpinChanged(int)),
                    this,
                    SLOT(onSetUpperThreshold(int)));
   QObject::connect(d->PreprocessingWidget,
@@ -148,7 +146,7 @@ void qSlicerVesselSegmentationModuleWidget::setup()
                    this,
                    SLOT(onSetAlpha(int)));
   QObject::connect(d->PreprocessingWidget,
-                   SIGNAL(BetaSpinChanged(int);),
+                   SIGNAL(BetaSpinChanged(int)),
                    this,
                    SLOT(onSetBeta(int)));
   QObject::connect(d->PreprocessingWidget,
@@ -156,7 +154,7 @@ void qSlicerVesselSegmentationModuleWidget::setup()
                    this,
                    SLOT(onSetConductance(int)));
   QObject::connect(d->PreprocessingWidget,
-                   SIGNAL(IterationsSpinChanged(int);),
+                   SIGNAL(IterationsSpinChanged(int)),
                    this,
                    SLOT(onSetIterations(int)));
 
@@ -199,7 +197,6 @@ void qSlicerVesselSegmentationModuleWidget::setup()
                    SIGNAL(OnPortalMergeSelected()),
                    this,
                    SLOT(onPortalMerge()));
-
 
   this->Superclass::setup();
 }
@@ -245,11 +242,19 @@ vesselSegmentationLogic()
  */
 void qSlicerVesselSegmentationModuleWidget::nodeSelectionChanged(vtkMRMLNode* node)
 {
+
   Q_D(qSlicerVesselSegmentationModuleWidget);
 
   std::cout << "Widget - Node selection changed " << std::endl;
-  vtkMRMLScalarVolumeNode *activeVol = vtkMRMLScalarVolumeNode::SafeDownCast(d->ActiveVolumeNodeSelector->currentNode() );
-  vtkMRMLVolumeNode *volNode = vtkMRMLVolumeNode::SafeDownCast(d->ActiveVolumeNodeSelector->currentNode() );
+
+  if (!vtkMRMLScalarVolumeNode::SafeDownCast(node))
+  {
+    qWarning() << Q_FUNC_INFO << "nodeSelectionChanged: passed in node is not a volume";
+    return;
+  }
+
+  vtkMRMLScalarVolumeNode *activeVol = vtkMRMLScalarVolumeNode::SafeDownCast( node );
+  vtkMRMLVolumeNode *volNode = vtkMRMLVolumeNode::SafeDownCast( node );
 
   // FIX for if the load image before loading the module
   if(volNode == NULL)
@@ -261,7 +266,6 @@ void qSlicerVesselSegmentationModuleWidget::nodeSelectionChanged(vtkMRMLNode* no
   }
 
   this->vesselSegmentationLogic()->SetActiveVolumeNode(volNode);
-
   this->vesselSegmentationLogic()->SetActiveVolume(activeVol);
 }
 
