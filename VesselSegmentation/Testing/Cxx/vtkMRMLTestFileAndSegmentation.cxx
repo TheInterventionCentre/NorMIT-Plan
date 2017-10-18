@@ -73,14 +73,14 @@ int vtkMRMLTestFileAndSegmentation(int argc, char * argv[]  )
 
   std::cout << "Created scene and logic" << std::endl;
 
-  const char* fileName1 = "/Users/louise/Documents/build/Slicer-master/ITKv4/Modules/External/SeedVesselSegmentation/test/Data/testImage3_large.nii.gz";
+  const char* fileName1 = "../Data/testImage3_large.nii.gz";
   if (argc > 1)
     {
     fileName1 = argv[1];
     }
   std::cout << "Using file name segment " << fileName1 << std::endl;
 
-  const char* fileName2 = "/Users/louise/Documents/build/Slicer-master/ITKv4/Modules/External/SeedVesselSegmentation/test/Data/testImage3_largeSimilarity.nii.gz";
+  const char* fileName2 = "../Data/testImage3_largeSimilarity.nii.gz";
   if (argc > 2)
     {
     fileName2 = argv[2];

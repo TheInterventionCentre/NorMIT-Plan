@@ -1,7 +1,7 @@
 set(KIT qSlicer${MODULE_NAME}Module)
 
-set(TEST_FILE "${ITK_DIR}/../ITKv4/Modules/External/SeedVesselSegmentation/test/Data/testImage3_large.nii.gz")
-set(TEST_FILE_SIMILARITY "${ITK_DIR}/../ITKv4/Modules/External/SeedVesselSegmentation/test/Data/testImage3_largeSimilarity.nii.gz")
+set(TEST_FILE "${CMAKE_CURRENT_SOURCE_DIR}/../Data/testImage3_large.nii.gz")
+set(TEST_FILE_SIMILARITY "${CMAKE_CURRENT_SOURCE_DIR}/../Data/testImage3_largeSimilarity.nii.gz")
 
 #-----------------------------------------------------------------------------
 
@@ -11,11 +11,18 @@ set(KIT_TEST_SRCS
   EXTRA_INCLUDE vtkTestingOutputWindow.h
 )
 
+set(${KIT}_INCLUDE_DIRECTORIES
+  ${CMAKE_BINARY_DIR}/${MODULE_NAME}
+)
+
 #-----------------------------------------------------------------------------
 slicerMacroConfigureModuleCxxTestDriver(
   NAME ${KIT}
   SOURCES ${KIT_TEST_SRCS}
-  #TARGET_LIBRARIES vtkSlicerVolumesModuleLogic
+  TARGET_LIBRARIES 
+  vtkSlicerVesselSegmentationModuleMRMLDisplayableManager
+  vtkSlicerVesselSegmentationModuleLogic
+  qSlicerVesselSegmentationModuleWidgets
   WITH_VTK_DEBUG_LEAKS_CHECK
   WITH_VTK_ERROR_OUTPUT_CHECK
 )

@@ -71,7 +71,7 @@ int vtkMRMLTestFiducialList( int argc, char * argv[] )
 
   std::cout << "Created scene and logic" << std::endl;
 
-  const char* fileName = "/Users/louise/Documents/build/Slicer-master/ITKv4/Modules/External/SeedVesselSegmentation/test/Data/testImage3_large.nii.gz";
+  const char* fileName = "../Data/testImage3_large.nii.gz";
   if (argc > 1)
     {
     fileName = argv[1];
