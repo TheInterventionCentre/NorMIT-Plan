@@ -240,7 +240,7 @@ vesselSegmentationLogic()
 /*
  * Called when selector changes which image is selected
  */
-void qSlicerVesselSegmentationModuleWidget::nodeSelectionChanged(vtkMRMLNode* vtkNotUsed(node))
+void qSlicerVesselSegmentationModuleWidget::nodeSelectionChanged(vtkMRMLNode* node)
 {
 
   Q_D(qSlicerVesselSegmentationModuleWidget);
