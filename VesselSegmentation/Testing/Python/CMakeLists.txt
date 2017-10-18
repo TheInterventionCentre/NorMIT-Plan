@@ -1,2 +1,2 @@
 
-slicer_add_python_test(SCRIPT scriptedTest.py)
+slicer_add_python_test(SCRIPT OpenSlicerSwitchToModuleTest.py)
