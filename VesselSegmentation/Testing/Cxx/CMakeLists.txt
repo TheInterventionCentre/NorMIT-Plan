@@ -3,6 +3,7 @@ set(KIT qSlicer${MODULE_NAME}Module)
 #-----------------------------------------------------------------------------
 
 set(KIT_TEST_SRCS
+  vtkMRMLVesselSegmentationSeedNodeTest1.cxx
   EXTRA_INCLUDE vtkTestingOutputWindow.h
 )
 
@@ -15,6 +16,7 @@ slicerMacroConfigureModuleCxxTestDriver(
   NAME ${KIT}
   SOURCES ${KIT_TEST_SRCS}
   TARGET_LIBRARIES 
+  vtkSlicerVesselSegmentationModuleMRML
   vtkSlicerVesselSegmentationModuleMRMLDisplayableManager
   vtkSlicerVesselSegmentationModuleLogic
   qSlicerVesselSegmentationModuleWidgets
@@ -23,4 +25,5 @@ slicerMacroConfigureModuleCxxTestDriver(
 )
 
 #-----------------------------------------------------------------------------
-
+# Test seed node
+simple_test(vtkMRMLVesselSegmentationSeedNodeTest1)
