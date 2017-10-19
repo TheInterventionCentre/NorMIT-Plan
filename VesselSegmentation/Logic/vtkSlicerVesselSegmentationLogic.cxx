@@ -35,7 +35,7 @@
 
 // VesselSegmentation Logic includes
 #include "vtkSlicerVesselSegmentationLogic.h"
-//#include "LiverImagePreProcessing.h"
+#include "vtkMRMLVesselSegmentationSeedNode.h"
 #include <itkVesselSegmentationPreProcessingFilter.h>
 
 // MRML includes
@@ -485,6 +485,23 @@ void vtkSlicerVesselSegmentationLogic::CallPreprocessing()
   std::cout << "Tried to add preprocessed vtk data as node" << std::endl;
 }
 
+void vtkSlicerVesselSegmentationLogic::PreprocessImage( int lowerThreshold, int upperThreshold, int alpha, int beta, int conductance, int interations )
+{
+  // check have valid image data
+  if (!this->activeVol)
+  {
+    vtkErrorMacro("PreprocessImage: no active volume.")
+    return;
+  }
+  if (!this->activeVol->GetImageData())
+  {
+    vtkErrorMacro("PreprocessImage: active volume does not have data.")
+    return;
+  }
+
+
+}
+
 
 //---------------------------------------------------------------------------
 /**
@@ -735,6 +752,28 @@ void vtkSlicerVesselSegmentationLogic::CallSegmentationAlgorithm()
 }
 
 
+void vtkSlicerVesselSegmentationLogic::SegmentVesselsFromWidget(bool isHepatic)
+{
+
+}
+
+void vtkSlicerVesselSegmentationLogic::SegmentVessels(vtkMRMLVesselSegmentationSeedNode *SeedNode, bool isHepatic)
+{
+  // check have valid image data
+  if (!this->activeVol)
+  {
+    vtkErrorMacro("SegmentVessels: no active volume.")
+    return;
+  }
+  if (!this->activeVol->GetImageData())
+  {
+    vtkErrorMacro("SegmentVessels: active volume does not have data.")
+    return;
+  }
+
+
+}
+
 //---------------------------------------------------------------------------
 /**
 * Section to do with hepatic and portal splitting
@@ -806,6 +845,12 @@ void vtkSlicerVesselSegmentationLogic::CallMergeLabelMaps()
     std::cout << "Do not have 2 label maps" << std::endl;
   }
 }
+
+void vtkSlicerVesselSegmentationLogic::MergeLabelMaps()
+{
+
+}
+
 
 void vtkSlicerVesselSegmentationLogic::CallAssignSeeds()
 {
@@ -994,6 +1039,17 @@ void vtkSlicerVesselSegmentationLogic::CallAssignSeeds()
   //this->CallMergeLabelMaps();
   this->mergedUpdated = false;
 }
+
+void vtkSlicerVesselSegmentationLogic::SplitVesselsFromWidget(bool isHepatic)
+{
+
+}
+
+void vtkSlicerVesselSegmentationLogic::SplitVessels(vtkMRMLVesselSegmentationSeedNode *SeedNode, bool isHepatic)
+{
+
+}
+
 
 /**
  * Set the boolean isHepatic

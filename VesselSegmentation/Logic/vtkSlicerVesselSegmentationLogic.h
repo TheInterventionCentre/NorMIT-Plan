@@ -60,6 +60,7 @@
 #include "vtkVesselSegHelper.h" // includes itk seed filter
 
 class vtkMRMLNode;
+class vtkMRMLVesselSegmentationSeedNode;
 class vtkMatrix4x4;
 class vtkMRMLScalarVolumeNode;
 class vtkMRMLLabelMapVolumeNode;
@@ -98,20 +99,31 @@ public:
    */
   void CallPreprocessing();
 
+  void PreprocessImage( int lowerThreshold, int upperThreshold, int alpha, int beta, int conductance, int interations );
+
   /**
    * Calls the segmentation algorithm (needs seeds)
    */
   void CallSegmentationAlgorithm();
+
+  void SegmentVesselsFromWidget(bool isHepatic);
+  void SegmentVessels(vtkMRMLVesselSegmentationSeedNode *SeedNode, bool isHepatic);
 
   /**
    * Calls the a merge of the hepatic and portal label maps
    */
   void CallMergeLabelMaps();
 
+  void MergeLabelMaps();
+
   /**
    * Calls to assign the seed to either portal or hepatic (in an overlapping area)
    */
   void CallAssignSeeds();
+
+  void SplitVesselsFromWidget(bool isHepatic);
+  void SplitVessels(vtkMRMLVesselSegmentationSeedNode *SeedNode, bool isHepatic);
+
 
   /**
    * Set the active volume node
