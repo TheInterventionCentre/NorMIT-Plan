@@ -97,9 +97,7 @@ public:
   /**
    * Calls the image preprocessing (needs an input image)
    */
-  void CallPreprocessing();
-
-  void PreprocessImage( int lowerThreshold, int upperThreshold, int alpha, int beta, int conductance, int interations );
+  void PreprocessImage( int lowerThreshold, int upperThreshold, int alpha, int beta, int conductance, int iterations );
 
   /**
    * Calls the segmentation algorithm (needs seeds)
@@ -188,48 +186,6 @@ public:
   void IsHepaticMerge(bool isHepatic);
 
   /**
-   * Set the lower threshold for preprocessing
-   *
-   * @param value for the threshold
-   */
-  void SetLowerThreshold(int value);
-
-  /**
-   * Set the upper threshold for preprocessing
-   *
-   * @param value for the threshold
-   */
-  void SetUpperThreshold(int value);
-
-  /**
-   * Set the alpha value for preprocessing
-   *
-   * @param value for alpha
-   */
-  void SetAlpha(int value);
-
-  /**
-   * Set the beta value for preprocessing
-   *
-   * @param value for beta
-   */
-  void SetBeta(int value);
-
-  /**
-   * Set the conductance value for preprocessing
-   *
-   * @param value for conductance
-   */
-  void SetConductance(int value);
-
-  /**
-   * Set the number of iterations for preprocessing
-   *
-   * @param value for iterations
-   */
-  void SetIterations(int value);
-
-  /**
    * Helper function to update the 3D models
    */
   void UpdateModels();
@@ -298,13 +254,6 @@ private:
   static bool markupJustAdded;
   bool hepaticSeg;
   bool hepaticMerge;
-
-  int lowerThreshold;
-  int upperThreshold;
-  int alpha;
-  int beta;
-  int conductance;
-  int interations;
 
   vtkNew<vtkMatrix4x4> IJKtoRASmatrix;
   vtkNew<vtkMatrix4x4> RAStoIJKmatrix;

@@ -123,13 +123,6 @@ vtkSlicerVesselSegmentationLogic::vtkSlicerVesselSegmentationLogic()
   hepaticUpdated = false;
   portalUpdated = false;
   mergedUpdated = false;
-
-  lowerThreshold = 100;
-  upperThreshold = 250;
-  alpha = 20;
-  beta = 160;
-  conductance = 20;
-  interations = 30;
 }
 
 //----------------------------------------------------------------------------
@@ -375,118 +368,20 @@ void vtkSlicerVesselSegmentationLogic::DeleteFiducials()
   }
 }
 
-
-/**
- * set all the variables from spin boxes
- * for the preprocessing
- */
-void vtkSlicerVesselSegmentationLogic::SetLowerThreshold(int value)
-{
-  this->lowerThreshold = value;
-}
-void vtkSlicerVesselSegmentationLogic::SetUpperThreshold(int value)
-{
-  this->upperThreshold = value;
-}
-void vtkSlicerVesselSegmentationLogic::SetAlpha(int value)
-{
-  this->alpha = value;
-}
-void vtkSlicerVesselSegmentationLogic::SetBeta(int value)
-{
-  this->beta = value;
-}
-void vtkSlicerVesselSegmentationLogic::SetConductance(int value)
-{
-  this->conductance = value;
-}
-void vtkSlicerVesselSegmentationLogic::SetIterations(int value)
-{
-  this->interations = value;
-}
-
 //---------------------------------------------------------------------------
 /**
 * Call preprocessing (pipeline of a bunch of ITK filters)
 */
-void vtkSlicerVesselSegmentationLogic::CallPreprocessing()
+void vtkSlicerVesselSegmentationLogic::PreprocessImage( int lowerThreshold, int upperThreshold, int alpha, int beta, int conductance, int iterations )
 {
-  // Need to cast data the first time to get it into float
-  vtkSmartPointer<vtkImageCast> cast = vtkSmartPointer<vtkImageCast>::New();
-  cast->SetOutputScalarTypeToFloat();
-  cast->SetInputData( this->activeVol->GetImageData() );
-  cast->Update();
-  std::cout << "Finished casting" << std::endl;
-  // casting is not in place (makes a copy), so switch what data the node is pointing to
-  this->activeVol->SetAndObserveImageData(cast->GetOutput());
-
-  vtkVesselSegHelper::SeedImageType::Pointer itkConvertedImage = vtkVesselSegHelper::ConvertVolumeNodeToItkImage(this->activeVol);
-  if (itkConvertedImage.IsNull() == true )
+  if(this->activeVol == NULL)
   {
-    std::cerr
-      << "Conversion to ITK not successful"
-      << std::endl;
+    // try to get the active volume if we don't have one
+    vtkMRMLSelectionNode *selectionNode = vtkMRMLSelectionNode::SafeDownCast(this->GetMRMLScene()->GetNodeByID("vtkMRMLSelectionNodeSingleton"));
+    char *activeVolID = selectionNode->GetActiveVolumeID();
+    activeVol = vtkMRMLScalarVolumeNode::SafeDownCast(this->GetMRMLScene()->GetNodeByID(activeVolID));
+    this->SetActiveVolume(activeVol);
   }
-  std::cout << "Converted to ITK" << std::endl;
-
-  // Delcare the type of objectness measure image filter
-  typedef itk::VesselSegmentationPreProcessingFilter<vtkVesselSegHelper::SeedImageType, vtkVesselSegHelper::SeedImageType > VesselPreProcessingFilterType;
-
-  // Create a vesselness Filter
-  VesselPreProcessingFilterType::Pointer VesselPreProcessingFilter = VesselPreProcessingFilterType::New();
-
-  //Connect to input image
-  VesselPreProcessingFilter->SetInput( itkConvertedImage );
-
-  VesselPreProcessingFilter->SetLowerThreshold(this->lowerThreshold);
-  VesselPreProcessingFilter->SetUpperThreshold(this->upperThreshold);
-  VesselPreProcessingFilter->SetAlpha(this->alpha);
-  VesselPreProcessingFilter->SetBeta(this->beta);
-  VesselPreProcessingFilter->SetConductance(this->conductance);
-  VesselPreProcessingFilter->SetNumberOfIterations(this->interations);
-
-  // pass everything into function
-  itk::TimeProbe clock1;
-  clock1.Start();
-  VesselPreProcessingFilter->Update();
-  clock1.Stop();
-  std::cout<<"PreProcessing - done" << std::endl << "Time taken for PreProcessing : "<< clock1.GetMean() <<"sec\n"<< std::endl;
-
-  preprocessedImg = VesselPreProcessingFilter->GetOutput();
-
-  preprocessedImg->ReleaseDataFlagOff();
-  preprocessedImg->DisconnectPipeline();
-
-  // at this point it should be a copy of the data? since it is the output of a non in place filter...
-  vtkSmartPointer<vtkImageData> tempVtkImageData = vtkVesselSegHelper::ConvertItkImageToVtkImageData(preprocessedImg);
-  //vtkSmartPointer<vtkMRMLScalarVolumeNode> preprocessedNode = vtkVesselSegHelper::ConvertItkImageToVolumeNode(preprocessedImg, true);
-
-  if (tempVtkImageData == NULL)
-  {
-    std::cerr
-      << "Conversion to VTK not successful"
-      << std::endl;
-  }
-  std::cout << "Converted image to VTK " << std::endl;
-
-  // Need to cast data to get it to be copied so it doesn't go out of scope if we make more than one preprocessed image
-  vtkSmartPointer<vtkImageCast> cast2 = vtkSmartPointer<vtkImageCast>::New();
-  cast2->SetOutputScalarTypeToFloat();
-  cast2->SetInputData( tempVtkImageData );
-  cast2->Update();
-  std::cout << "Finished casting" << std::endl;
-  // casting is not in place (makes a copy), so switch what data the node is pointing to
-
-  vtkSmartPointer<vtkMRMLScalarVolumeNode> preprocessedNode = vtkVesselSegHelper::ConvertVtkImageDataToVolumeNode(cast2->GetOutput(), preprocessedImg, true);
-
-  //preprocessedNode->SetName("preprocessedImage");
-  this->GetMRMLScene()->AddNode(preprocessedNode);
-
-  std::cout << "Tried to add preprocessed vtk data as node" << std::endl;
-}
-
-void vtkSlicerVesselSegmentationLogic::PreprocessImage( int lowerThreshold, int upperThreshold, int alpha, int beta, int conductance, int interations )
-{
   // check have valid image data
   if (!this->activeVol)
   {
@@ -499,7 +394,74 @@ void vtkSlicerVesselSegmentationLogic::PreprocessImage( int lowerThreshold, int 
     return;
   }
 
+  // Need to cast data the first time to get it into float
+  vtkSmartPointer<vtkImageCast> cast = vtkSmartPointer<vtkImageCast>::New();
+  cast->SetOutputScalarTypeToFloat();
+  cast->SetInputData( this->activeVol->GetImageData() );
+  cast->Update();
+  std::cout << "Finished casting" << std::endl;
+  // casting is not in place (makes a copy), so switch what data the node is pointing to
+  this->activeVol->SetAndObserveImageData(cast->GetOutput());
 
+  vtkVesselSegHelper::SeedImageType::Pointer itkConvertedImage = vtkVesselSegHelper::ConvertVolumeNodeToItkImage(this->activeVol);
+  if (itkConvertedImage.IsNull() == true )
+  {
+    vtkErrorMacro("PreprocessImage: conversion to ITK not successful.")
+    return;
+  }
+
+  // Declare the type of objectness measure image filter
+  typedef itk::VesselSegmentationPreProcessingFilter<vtkVesselSegHelper::SeedImageType, vtkVesselSegHelper::SeedImageType > VesselPreProcessingFilterType;
+
+  // Create a vesselness Filter
+  VesselPreProcessingFilterType::Pointer VesselPreProcessingFilter = VesselPreProcessingFilterType::New();
+
+  //Connect to input image
+  VesselPreProcessingFilter->SetInput( itkConvertedImage );
+
+  VesselPreProcessingFilter->SetLowerThreshold(lowerThreshold);
+  VesselPreProcessingFilter->SetUpperThreshold(upperThreshold);
+  VesselPreProcessingFilter->SetAlpha(alpha);
+  VesselPreProcessingFilter->SetBeta(beta);
+  VesselPreProcessingFilter->SetConductance(conductance);
+  VesselPreProcessingFilter->SetNumberOfIterations(iterations);
+
+  // pass everything into function
+  itk::TimeProbe clock1;
+  clock1.Start();
+  VesselPreProcessingFilter->Update();
+  clock1.Stop();
+  std::cout << "PreprocessImage: preprocessing done" << std::endl << "Time taken for PreProcessing : " << clock1.GetMean() << "sec\n" << std::endl;
+
+  preprocessedImg = VesselPreProcessingFilter->GetOutput();
+
+  preprocessedImg->ReleaseDataFlagOff();
+  preprocessedImg->DisconnectPipeline();
+
+  // at this point it should be a copy of the data? since it is the output of a non in place filter...
+  vtkSmartPointer<vtkImageData> tempVtkImageData = vtkVesselSegHelper::ConvertItkImageToVtkImageData(preprocessedImg);
+  //vtkSmartPointer<vtkMRMLScalarVolumeNode> preprocessedNode = vtkVesselSegHelper::ConvertItkImageToVolumeNode(preprocessedImg, true);
+
+  if (tempVtkImageData == NULL)
+  {
+    vtkErrorMacro("PreprocessImage: conversion to ITK not successful.")
+    return;
+  }
+
+  // Need to cast data to get it to be copied so it doesn't go out of scope if we make more than one preprocessed image
+  vtkSmartPointer<vtkImageCast> cast2 = vtkSmartPointer<vtkImageCast>::New();
+  cast2->SetOutputScalarTypeToFloat();
+  cast2->SetInputData( tempVtkImageData );
+  cast2->Update();
+  std::cout << "Finished casting" << std::endl;
+  // casting is not in place (makes a copy), so switch what data the node is pointing to
+
+  vtkSmartPointer<vtkMRMLScalarVolumeNode> preprocessedNode = vtkVesselSegHelper::ConvertVtkImageDataToVolumeNode(cast2->GetOutput(), preprocessedImg, true);
+
+  preprocessedNode->SetName("preprocessedImage");
+  this->GetMRMLScene()->AddNode(preprocessedNode);
+
+  std::cout << "PreprocessImage: tried to add preprocessed vtk data as node" << std::endl;
 }
 
 

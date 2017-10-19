@@ -54,7 +54,7 @@ class QString;
  *
  * \brief Contains widgets for preprocessing the images for vessel segmentation
  *
- * This class sends and receives information to/from qSlicerVesselSegmentationModuleWidget
+ * This class sends and receives information to/from qSlicerVesselSegmentationLogic
  */
 class Q_SLICER_MODULE_VESSELSEGMENTATION_WIDGETS_EXPORT qSlicerVesselSegmentationPreprocessingWidget
   : public QWidget
@@ -72,50 +72,15 @@ class Q_SLICER_MODULE_VESSELSEGMENTATION_WIDGETS_EXPORT qSlicerVesselSegmentatio
 
  /**
   * Signal emited when the preprocessing button is clicked
-  */
- void PreprocessingClicked();
-
- /**
-  * Signal emited when the lower threshold spin value is changed
   *
-  * @param value from spin box
+  * @param lower threshold from spin box
+  * @param upper threshold from spin box
+  * @param alpha from spin box
+  * @param beta from spin box
+  * @param conductance from spin box
+  * @param interations from spin box
   */
- void LTSpinChanged(int value);
-
- /**
-  * Signal emited when the upper threshold spin value is changed
-  *
-  * @param value from spin box
-  */
- void UTSpinChanged(int value);
-
- /**
-  * Signal emited when the alpha spin value is changed
-  *
-  * @param value from spin box
-  */
- void AlphaSpinChanged(int value);
-
- /**
-  * Signal emited when the beta spin value is changed
-  *
-  * @param value from spin box
-  */
- void BetaSpinChanged(int value);
-
- /**
-  * Signal emited when the conductance spin value is changed
-  *
-  * @param value from spin box
-  */
- void ConductanceSpinChanged(int value);
-
- /**
-  * Signal emited when the iterations spin value is changed
-  *
-  * @param value from spin box
-  */
- void IterationsSpinChanged(int value);
+ void PreprocessingClicked(int lowerThreshold, int upperThreshold, int alpha, int beta, int conductance, int iterations);
 
 
  protected slots:
@@ -126,55 +91,62 @@ class Q_SLICER_MODULE_VESSELSEGMENTATION_WIDGETS_EXPORT qSlicerVesselSegmentatio
  void PreProcessing();
 
  /**
-  * When lower threshold spin box is changed
-  *
-  * @param value of spin box.
-  */
- void OnLTSpin(int value);
+   * Triggered when lower threshold spin box is changed
+   *
+   * @param value of spin box.
+   */
+  void OnLTSpin(int value);
 
- /**
-  * When upper threshold spin box is changed
-  *
-  * @param value of spin box.
-  */
- void OnUTSpin(int value);
+  /**
+   * Triggered when upper threshold spin box is changed
+   *
+   * @param value of spin box.
+   */
+  void OnUTSpin(int value);
 
- /**
-  * When alpha spin box is changed
-  *
-  * @param value of spin box.
-  */
- void OnAlphaSpin(int value);
+  /**
+   * Triggered when alpha spin box is changed
+   *
+   * @param value of spin box.
+   */
+  void OnAlphaSpin(int value);
 
- /**
-  * When beta spin box is changed
-  *
-  * @param value of spin box.
-  */
- void OnBetaSpin(int value);
+  /**
+   * Triggered when beta spin box is changed
+   *
+   * @param value of spin box.
+   */
+  void OnBetaSpin(int value);
 
- /**
-  * When conductance spin box is changed
-  *
-  * @param value of spin box.
-  */
- void OnConductanceSpin(int value);
+  /**
+   * Triggered when conductance spin box is changed
+   *
+   * @param value of spin box.
+   */
+  void OnConductanceSpin(int value);
 
- /**
-  * When iteration spin box is changed
-  *
-  * @param value of spin box.
-  */
- void OnIterationsSpin(int value);
+  /**
+   * Triggered when iteration spin box is changed
+   *
+   * @param value of spin box.
+   */
+  void OnIterationsSpin(int value);
 
  protected:
   QScopedPointer<qSlicerVesselSegmentationPreprocessingWidgetPrivate> d_ptr;
+
+  // values for the preprocessing
+  int lowerThreshold;
+  int upperThreshold;
+  int alpha;
+  int beta;
+  int conductance;
+  int iterations;
 
  private:
   Q_DECLARE_PRIVATE(qSlicerVesselSegmentationPreprocessingWidget);
   Q_DISABLE_COPY(qSlicerVesselSegmentationPreprocessingWidget);
 };
-
 
 
 #endif /* VESSELSEGMENTATION_WIDGETS_QSLICERVESSELSEGMENTATIONPREPROCESSINGWIDGET_H_ */
