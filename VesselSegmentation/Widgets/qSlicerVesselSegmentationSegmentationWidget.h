@@ -80,16 +80,6 @@ class Q_SLICER_MODULE_VESSELSEGMENTATION_WIDGETS_EXPORT qSlicerVesselSegmentatio
   */
  void RunSegmentClicked(bool isHepatic);
 
- /**
-  * Signal emitted when the hepatic radio button is selected
-  */
- //void HepaticSegSelected();
-
- /**
-  * Signal emitted when the portal radio button is selected
-  */
- //void PortalSegSelected();
-
  protected slots:
 
  /**

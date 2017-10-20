@@ -77,7 +77,6 @@ public slots:
    */
    void onPreprocessing(int lowerThreshold, int upperThreshold, int alpha, int beta, int conductance, int iterations);
 
-
  /**
   * Called when the place seeds button is clicked
   * connected to signal from segmentation widget: PlaceSeedsSegClicked()
@@ -91,21 +90,6 @@ public slots:
    * This function sends the parameter information up to the Logic
    */
   void onRunSegment(bool isHepatic);
-
-  /**
-   * Called when the hepatic radio button is selected
-   * connected to signal from segmentation widget: HepaticSegSelected()
-   * This function sends the parameter information up to the Logic
-   */
-  //void onHepaticSeg();
-
-  /**
-   * Called when the portal radio button is selected
-   * connected to signal from segmentation widget: PortalSegSelected()
-   * This function sends the parameter information up to the Logic
-   */
-  //void onPortalSeg();
-
 
   /**
    * Called when the merge labelmaps button is clicked
@@ -126,21 +110,7 @@ public slots:
    * connected to signal from splitting widget: RunSeedAssignmentClicked()
    * This function sends the parameter information up to the Logic
    */
-  void onRunSeedAssignment();
-
-  /**
-   * Called when the hepatic radio button is selected
-   * connected to signal from splitting widget: HepaticMergeSelected()
-   * This function sends the parameter information up to the Logic
-   */
-  void onHepaticMerge();
-
-  /**
-   * Called when the portal radio button is selected
-   * connected to signal from splitting widget: PortalMergeSelected()
-   * This function sends the parameter information up to the Logic
-   */
-  void onPortalMerge();
+  void onRunSeedAssignment(bool isHepatic);
 
 
 protected:

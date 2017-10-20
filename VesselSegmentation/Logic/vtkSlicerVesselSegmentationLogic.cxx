@@ -117,8 +117,6 @@ vtkStandardNewMacro(vtkSlicerVesselSegmentationLogic);
 vtkSlicerVesselSegmentationLogic::vtkSlicerVesselSegmentationLogic()
 {
   nodeObserversSet = false;
-  hepaticSeg = true;
-  hepaticMerge = true;
 
   hepaticUpdated = false;
   portalUpdated = false;
@@ -180,7 +178,6 @@ void vtkSlicerVesselSegmentationLogic::UpdateFromMRMLScene()
 void vtkSlicerVesselSegmentationLogic
 ::OnMRMLSceneNodeAdded(vtkMRMLNode* addedNode)
 {
-
   vtkMRMLMarkupsNode* tempMarkupNode = vtkMRMLMarkupsNode::SafeDownCast(addedNode);
   vtkMRMLMarkupsFiducialNode* tempFiducialNode = vtkMRMLMarkupsFiducialNode::SafeDownCast(addedNode);
 
@@ -228,9 +225,8 @@ void vtkSlicerVesselSegmentationLogic
  */
 void vtkSlicerVesselSegmentationLogic::OnMRMLNodeModified(vtkMRMLNode* modifiedNode)
 {
-    if(this->markupJustAdded)
-    {
-
+  if(this->markupJustAdded)
+  {
     std::cout << "node modified called LOGIC " << std::endl;
     vtkMRMLMarkupsFiducialNode* tempFiducialNode = vtkMRMLMarkupsFiducialNode::SafeDownCast(modifiedNode);
 
@@ -274,8 +270,6 @@ OnMRMLMarkupAdded(vtkObject *vtkNotUsed(caller),
 		long unsigned int vtkNotUsed(eventId),
 		void *clientData, void *vtkNotUsed(callData))
 {
-  //std::cout << "on markup added called" << std::endl;
-
   vtkSlicerVesselSegmentationLogic* logic = reinterpret_cast<vtkSlicerVesselSegmentationLogic*>(clientData);
 
   logic->markupJustAdded = true;
@@ -296,8 +290,8 @@ void vtkSlicerVesselSegmentationLogic::SetActiveVolumeNode(vtkMRMLVolumeNode *ac
   {
     selectionNode->SetActiveVolumeID(activeNode->GetID());
   }
-
 }
+
 /**
  * Set Active volume when use dropdown
  */
@@ -305,11 +299,15 @@ void vtkSlicerVesselSegmentationLogic::SetActiveVolume(vtkMRMLScalarVolumeNode *
 {
   std::cout << "LOGIC - set active Volume: " << activeVolume << std::endl;
   this->activeVol = activeVolume;
+
+  // TODO: propagate volume selection so see in 3 views
 }
+
 vtkSmartPointer<vtkMRMLScalarVolumeNode> vtkSlicerVesselSegmentationLogic::GetActiveVolume()
 {
   return this->activeVol;
 }
+
 /**
  * Get the last fiducials
  */
@@ -326,6 +324,7 @@ double* vtkSlicerVesselSegmentationLogic::GetLastFiducialCoordinate()
     return NULL;
   }
 }
+
 /**
  * Returns the fiducial list
  */
@@ -333,6 +332,7 @@ std::vector<double*> vtkSlicerVesselSegmentationLogic::GetFiducialList()
 {
   return fiducialVector;
 }
+
 /**
  * Returns the boolean markupJustAdded
  */
@@ -750,7 +750,6 @@ void vtkSlicerVesselSegmentationLogic::CallMergeLabelMaps()
    * loop through them, and in places they both segmented - make it purple
    *
    */
-
   if((this->hepaticITKdata.IsNotNull()) && (this->portalITKdata.IsNotNull()))
   {
     std::cout << "Can Merge the two label maps" << std::endl;
@@ -767,11 +766,9 @@ void vtkSlicerVesselSegmentationLogic::CallMergeLabelMaps()
 
     if (mergedVTKImage.GetPointer()  == NULL )
     {
-      std::cerr
-        << "Conversion to VTK not successful"
-        << std::endl;
+      vtkErrorMacro("CallMergeLabelMaps: Conversion to VTK not successful.")
+      return;
     }
-    std::cout << "Converted image to VTK " << std::endl;
 
     if(this->mergedLabelMap == NULL)
     {
@@ -806,7 +803,8 @@ void vtkSlicerVesselSegmentationLogic::CallMergeLabelMaps()
     mrmlAppLogic->PropagateVolumeSelection();
   }
   else {
-    std::cout << "Do not have 2 label maps" << std::endl;
+    vtkErrorMacro("CallMergeLabelMaps: Do not have 2 label maps.")
+    return;
   }
 }
 
@@ -815,8 +813,17 @@ void vtkSlicerVesselSegmentationLogic::MergeLabelMaps()
 
 }
 
+void vtkSlicerVesselSegmentationLogic::SplitVesselsFromWidget(bool isHepatic)
+{
+  // create empty node to pass into function for now
+  vtkMRMLVesselSegmentationSeedNode *node1 = vtkMRMLVesselSegmentationSeedNode::New();
 
-void vtkSlicerVesselSegmentationLogic::CallAssignSeeds()
+  this->SplitVessels(node1, isHepatic);
+
+  node1->Delete();
+}
+
+void vtkSlicerVesselSegmentationLogic::SplitVessels(vtkMRMLVesselSegmentationSeedNode *SeedNode, bool isHepatic)
 {
   std::cout << "LOGIC - Assign seeds (seg) " << std::endl;
 
@@ -913,11 +920,11 @@ void vtkSlicerVesselSegmentationLogic::CallAssignSeeds()
     // Loop over each connected object to find minimum distance
     for(unsigned int n = 0; n < this->onlyOverlapLabelMap->GetNumberOfLabelObjects(); n++)
     {
-    	ShapeLabelObjectType * labelObject = this->onlyOverlapLabelMap->GetNthLabelObject(n);
+        ShapeLabelObjectType * labelObject = this->onlyOverlapLabelMap->GetNthLabelObject(n);
 
-    	// check if this connected object is of value 9 in label map
-    	itOrg.SetIndex(labelObject->GetIndex(0));
-    	int labelValue = itOrg.Get();
+        // check if this connected object is of value 9 in label map
+        itOrg.SetIndex(labelObject->GetIndex(0));
+        int labelValue = itOrg.Get();
 
         std::cout << "Found a label of: " << labelObject->GetLabel() << " underlying label: " << labelValue <<
             " number of pixels: " << labelObject->GetNumberOfPixels();
@@ -941,7 +948,7 @@ void vtkSlicerVesselSegmentationLogic::CallAssignSeeds()
 
     // Change Selected LabelObject as Hepatic or Portal
     ShapeLabelObjectType * selectedLabelObject = this->onlyOverlapLabelMap->GetNthLabelObject(labelObjectNumber);
-    if(this->hepaticMerge) // hepatic
+    if(isHepatic) // hepatic
     {
         for(unsigned int pixelId = 0; pixelId < selectedLabelObject->Size(); pixelId++)
         {
@@ -1002,35 +1009,6 @@ void vtkSlicerVesselSegmentationLogic::CallAssignSeeds()
 
   //this->CallMergeLabelMaps();
   this->mergedUpdated = false;
-}
-
-void vtkSlicerVesselSegmentationLogic::SplitVesselsFromWidget(bool isHepatic)
-{
-
-}
-
-void vtkSlicerVesselSegmentationLogic::SplitVessels(vtkMRMLVesselSegmentationSeedNode *SeedNode, bool isHepatic)
-{
-
-}
-
-
-/**
- * Set the boolean isHepatic
- * true = working on hepatic
- * false = working on portal
- */
-void vtkSlicerVesselSegmentationLogic::IsHepaticSeg(bool isHepatic)
-{
-  this->hepaticSeg = isHepatic;
-  std::cout << "LOGIC - Hepatic? (seg): " << this->hepaticSeg << std::endl;
-
-}
-
-void vtkSlicerVesselSegmentationLogic::IsHepaticMerge(bool isHepatic)
-{
-  this->hepaticMerge = isHepatic;
-  std::cout << "LOGIC - Hepatic? (merge): " << this->hepaticMerge << std::endl;
 
 }
 

@@ -115,8 +115,6 @@ public:
   /**
    * Calls to assign the seed to either portal or hepatic (in an overlapping area)
    */
-  void CallAssignSeeds();
-
   void SplitVesselsFromWidget(bool isHepatic);
   void SplitVessels(vtkMRMLVesselSegmentationSeedNode *SeedNode, bool isHepatic);
 
@@ -168,20 +166,6 @@ public:
    * @return boolean if a markup was added
    */
   static bool GetMarkupJustAdded();
-
-  /**
-   * Set whether working on hepatic or portal for segmentation
-   *
-   * @param bool where true if hepatic
-   */
-  void IsHepaticSeg(bool isHepatic);
-
-  /**
-   * Set whether working on hepatic or portal for merge
-   *
-   * @param bool where true if hepatic
-   */
-  void IsHepaticMerge(bool isHepatic);
 
   /**
    * Helper function to update the 3D models
@@ -250,8 +234,6 @@ protected:
 private:    
   bool nodeObserversSet;
   static bool markupJustAdded;
-  bool hepaticSeg;
-  bool hepaticMerge;
 
   vtkNew<vtkMatrix4x4> IJKtoRASmatrix;
   vtkNew<vtkMatrix4x4> RAStoIJKmatrix;

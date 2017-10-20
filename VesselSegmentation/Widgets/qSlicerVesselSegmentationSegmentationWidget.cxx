@@ -117,7 +117,6 @@ void qSlicerVesselSegmentationSegmentationWidget::OnHepaticSeg()
   std::cout << "Widget - On Hepatic (Segment)" << std::endl;
 
   this->isHepatic = true;
-  //emit HepaticSegSelected();
 }
 
 void qSlicerVesselSegmentationSegmentationWidget::OnPortalSeg()
@@ -125,6 +124,5 @@ void qSlicerVesselSegmentationSegmentationWidget::OnPortalSeg()
   std::cout << "Widget - On Portal (segment)" << std::endl;
 
   this->isHepatic = false;
-  //emit PortalSegSelected();
 }
 

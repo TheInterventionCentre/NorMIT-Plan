@@ -143,16 +143,6 @@ void qSlicerVesselSegmentationModuleWidget::setup()
                    SIGNAL(RunSegmentClicked(bool)),
                    this,
                    SLOT(onRunSegment(bool)));
-  /*
-  QObject::connect(d->SegmentationWidget,
-                   SIGNAL(HepaticSegSelected()),
-                   this,
-                   SLOT(onHepaticSeg()));
-  QObject::connect(d->SegmentationWidget,
-                   SIGNAL(PortalSegSelected()),
-                   this,
-                   SLOT(onPortalSeg()));
-  */
 
   // connections to splitting widget
   QObject::connect(d->SplittingWidget,
@@ -164,17 +154,9 @@ void qSlicerVesselSegmentationModuleWidget::setup()
                    this,
                    SLOT(onPlaceSeedsMerge()));
   QObject::connect(d->SplittingWidget,
-                   SIGNAL(RunSeedAssignmentClicked()),
+                   SIGNAL(RunSeedAssignmentClicked(bool)),
                    this,
-                   SLOT(onRunSeedAssignment()));
-  QObject::connect(d->SplittingWidget,
-                   SIGNAL(OnHepaticMergeSelected()),
-                   this,
-                   SLOT(onPortalMerge()));
-  QObject::connect(d->SplittingWidget,
-                   SIGNAL(OnPortalMergeSelected()),
-                   this,
-                   SLOT(onPortalMerge()));
+                   SLOT(onRunSeedAssignment(bool)));
 
   this->Superclass::setup();
 }
@@ -285,18 +267,6 @@ void qSlicerVesselSegmentationModuleWidget::onPreprocessing(int lowerThreshold, 
  }
 
  /*
- void qSlicerVesselSegmentationModuleWidget::onHepaticSeg()
- {
-   this->vesselSegmentationLogic()->IsHepaticSeg(true);
- }
-
- void qSlicerVesselSegmentationModuleWidget::onPortalSeg()
- {
-   this->vesselSegmentationLogic()->IsHepaticSeg(false);
- }
- */
-
- /*
   * Functions associated with splitting widget
   */
  void qSlicerVesselSegmentationModuleWidget::onMergeLabelMaps()
@@ -316,17 +286,7 @@ void qSlicerVesselSegmentationModuleWidget::onPreprocessing(int lowerThreshold, 
    vtkMRMLVesselSegmentationDisplayableManager::SetFiducialsMode(false);
  }
 
- void qSlicerVesselSegmentationModuleWidget::onRunSeedAssignment()
+ void qSlicerVesselSegmentationModuleWidget::onRunSeedAssignment(bool isHepatic)
  {
-   this->vesselSegmentationLogic()->CallAssignSeeds();
- }
-
- void qSlicerVesselSegmentationModuleWidget::onHepaticMerge()
- {
-   this->vesselSegmentationLogic()->IsHepaticMerge(true);
- }
-
- void qSlicerVesselSegmentationModuleWidget::onPortalMerge()
- {
-   this->vesselSegmentationLogic()->IsHepaticMerge(false);
+   this->vesselSegmentationLogic()->SplitVesselsFromWidget(isHepatic);
  }
