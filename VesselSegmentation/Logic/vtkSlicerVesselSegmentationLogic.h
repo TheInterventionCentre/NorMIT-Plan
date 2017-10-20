@@ -102,8 +102,6 @@ public:
   /**
    * Calls the segmentation algorithm (needs seeds)
    */
-  void CallSegmentationAlgorithm();
-
   void SegmentVesselsFromWidget(bool isHepatic);
   void SegmentVessels(vtkMRMLVesselSegmentationSeedNode *SeedNode, bool isHepatic);
 

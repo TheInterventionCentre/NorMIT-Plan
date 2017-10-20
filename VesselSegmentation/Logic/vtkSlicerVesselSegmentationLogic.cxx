@@ -469,26 +469,53 @@ void vtkSlicerVesselSegmentationLogic::PreprocessImage( int lowerThreshold, int 
 /**
 * Implementing calls to pass things into Rahul's algorithm (including lots of conversions)
 */
-void vtkSlicerVesselSegmentationLogic::CallSegmentationAlgorithm()
+void vtkSlicerVesselSegmentationLogic::SegmentVesselsFromWidget(bool isHepatic)
 {
+  if(this->activeVol == NULL)
+  {
+    // try to get the active volume if we don't have one
+    vtkMRMLSelectionNode *selectionNode = vtkMRMLSelectionNode::SafeDownCast(this->GetMRMLScene()->GetNodeByID("vtkMRMLSelectionNodeSingleton"));
+    char *activeVolID = selectionNode->GetActiveVolumeID();
+    activeVol = vtkMRMLScalarVolumeNode::SafeDownCast(this->GetMRMLScene()->GetNodeByID(activeVolID));
+    this->SetActiveVolume(activeVol);
+  }
+
+  // create empty node to pass into function for now
+  vtkMRMLVesselSegmentationSeedNode *node1 = vtkMRMLVesselSegmentationSeedNode::New();
+
+  this->SegmentVessels(node1, isHepatic);
+
+  node1->Delete();
+}
+
+void vtkSlicerVesselSegmentationLogic::SegmentVessels(vtkMRMLVesselSegmentationSeedNode *SeedNode, bool isHepatic)
+{
+  // check have valid image data
+  if (!this->activeVol)
+  {
+    vtkErrorMacro("SegmentVessels: no active volume.")
+    return;
+  }
+  if (!this->activeVol->GetImageData())
+  {
+    vtkErrorMacro("SegmentVessels: active volume does not have data.")
+    return;
+  }
 
   /*
    * check if we already have an image converted to ITK
    * if not then create it
    */
-  if( preprocessedImg.IsNull() == true ) {
+  if( this->preprocessedImg.IsNull() == true ) {
 
-    preprocessedImg = vtkVesselSegHelper::ConvertVolumeNodeToItkImage(this->activeVol);
+    this->preprocessedImg = vtkVesselSegHelper::ConvertVolumeNodeToItkImage(this->activeVol);
 
-    if( preprocessedImg.IsNull() == true  )
+    if( this->preprocessedImg.IsNull() == true  )
     {
-      std::cerr
-        << "Conversion to ITK not successful"
-        << std::endl;
+      vtkErrorMacro("SegmentVessels: conversion to ITK not successful.")
+      return;
     }
-    std::cout << "Converted image to ITK " << std::endl;
   }
-
 
   // create a list of pairs of fiducials
   typedef std::pair<vtkVesselSegHelper::Index3D, vtkVesselSegHelper::Index3D> fiducialPair;
@@ -536,7 +563,7 @@ void vtkSlicerVesselSegmentationLogic::CallSegmentationAlgorithm()
     std::cout << "Can call itk::SeedVesselSegmentationImageFilter " << preprocessedImg << std::endl;
 
     // HEPATIC radio button is selected
-    if(this->hepaticSeg == true)
+    if(isHepatic == true)
     {
       // instantiate filter
       itk::TimeProbe clock1;
@@ -610,18 +637,16 @@ void vtkSlicerVesselSegmentationLogic::CallSegmentationAlgorithm()
       std::cout<< "Done calling itk::SeedVesselSegmentationImageFilter" << std::endl << "Time taken for itk::SeedVesselSegmentationImageFilter : "<< clock1.GetMean() <<"sec\n"<< std::endl;
     }
 
-    if(this->hepaticSeg == true) // HEPATIC radio button is selected
+    if(isHepatic == true) // HEPATIC radio button is selected
     {
       // convert output of filter back to VTK
       vtkSmartPointer<vtkImageData> outVTKImage = vtkVesselSegHelper::ConvertItkImageToVtkImageData(this->hepaticITKdata);
 
       if (outVTKImage.GetPointer()  == NULL )
       {
-        std::cerr
-          << "Conversion to VTK not successful"
-          << std::endl;
+        vtkErrorMacro("SegmentVessels: conversion to VTK not successful.")
+        return;
       }
-      std::cout << "Converted image to VTK " << std::endl;
 
       if(this->hepaticLabelMap == NULL)
       {
@@ -664,11 +689,9 @@ void vtkSlicerVesselSegmentationLogic::CallSegmentationAlgorithm()
 
       if (outVTKImage.GetPointer()  == NULL )
       {
-        std::cerr
-          << "Conversion to VTK not successful"
-          << std::endl;
+        vtkErrorMacro("SegmentVessels: conversion to VTK not successful.")
+        return;
       }
-      std::cout << "Converted image to VTK " << std::endl;
 
       if(this->portalLabelMap == NULL)
       {
@@ -708,31 +731,10 @@ void vtkSlicerVesselSegmentationLogic::CallSegmentationAlgorithm()
   }
   else
   {
-    std::cout << "Cannot call Centreline " << this->activeVol << std::endl;
+    vtkErrorMacro("SegmentVessels: Cannot segment.")
+    return;
   }
   this->DeleteFiducials();
-}
-
-
-void vtkSlicerVesselSegmentationLogic::SegmentVesselsFromWidget(bool isHepatic)
-{
-
-}
-
-void vtkSlicerVesselSegmentationLogic::SegmentVessels(vtkMRMLVesselSegmentationSeedNode *SeedNode, bool isHepatic)
-{
-  // check have valid image data
-  if (!this->activeVol)
-  {
-    vtkErrorMacro("SegmentVessels: no active volume.")
-    return;
-  }
-  if (!this->activeVol->GetImageData())
-  {
-    vtkErrorMacro("SegmentVessels: active volume does not have data.")
-    return;
-  }
-
 
 }
 

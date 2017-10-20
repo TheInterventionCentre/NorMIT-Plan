@@ -140,9 +140,10 @@ void qSlicerVesselSegmentationModuleWidget::setup()
                    this,
                    SLOT(onPlaceSeedSeg()));
   QObject::connect(d->SegmentationWidget,
-                   SIGNAL(RunSegmentClicked()),
+                   SIGNAL(RunSegmentClicked(bool)),
                    this,
-                   SLOT(onRunSegment()));
+                   SLOT(onRunSegment(bool)));
+  /*
   QObject::connect(d->SegmentationWidget,
                    SIGNAL(HepaticSegSelected()),
                    this,
@@ -151,6 +152,7 @@ void qSlicerVesselSegmentationModuleWidget::setup()
                    SIGNAL(PortalSegSelected()),
                    this,
                    SLOT(onPortalSeg()));
+  */
 
   // connections to splitting widget
   QObject::connect(d->SplittingWidget,
@@ -277,31 +279,12 @@ void qSlicerVesselSegmentationModuleWidget::onPreprocessing(int lowerThreshold, 
    }
  }
 
- void qSlicerVesselSegmentationModuleWidget::onRunSegment()
+ void qSlicerVesselSegmentationModuleWidget::onRunSegment(bool isHepatic)
  {
-   std::cout << "Widget - run Segment" << std::endl;
-
-   vtkMRMLScalarVolumeNode *activeVol = this->vesselSegmentationLogic()->GetActiveVolume();
-
-   if(activeVol == NULL)
-   {
-     // get the active volume
-     vtkMRMLSelectionNode *selectionNode = vtkMRMLSelectionNode::SafeDownCast(this->vesselSegmentationLogic()->GetMRMLScene()->GetNodeByID("vtkMRMLSelectionNodeSingleton"));
-     char *activeVolID = selectionNode->GetActiveVolumeID();
-     activeVol = vtkMRMLScalarVolumeNode::SafeDownCast(this->vesselSegmentationLogic()->GetMRMLScene()->GetNodeByID(activeVolID));
-     this->vesselSegmentationLogic()->SetActiveVolume(activeVol);
-   }
-
-   if(activeVol == NULL)
-   {
-     std::cout << "No Active Volume..." << std::endl;
-   }
-   else {
-     std::cout << "Trying to call centreline" << std::endl;
-     this->vesselSegmentationLogic()->CallSegmentationAlgorithm();
-   }
+   this->vesselSegmentationLogic()->SegmentVesselsFromWidget(isHepatic);
  }
 
+ /*
  void qSlicerVesselSegmentationModuleWidget::onHepaticSeg()
  {
    this->vesselSegmentationLogic()->IsHepaticSeg(true);
@@ -311,7 +294,7 @@ void qSlicerVesselSegmentationModuleWidget::onPreprocessing(int lowerThreshold, 
  {
    this->vesselSegmentationLogic()->IsHepaticSeg(false);
  }
-
+ */
 
  /*
   * Functions associated with splitting widget

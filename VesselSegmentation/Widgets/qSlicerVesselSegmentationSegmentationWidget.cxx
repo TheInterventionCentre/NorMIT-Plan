@@ -87,6 +87,8 @@ qSlicerVesselSegmentationSegmentationWidget
 {
   Q_D(qSlicerVesselSegmentationSegmentationWidget);
   d->setupUi(this);
+
+  isHepatic = true;
 }
 
 //-----------------------------------------------------------------------------
@@ -108,19 +110,21 @@ void qSlicerVesselSegmentationSegmentationWidget::RunSegment()
 {
   std::cout << "Widget - Run Segment" << std::endl;
 
-  emit RunSegmentClicked();
+  emit RunSegmentClicked(this->isHepatic);
 }
 void qSlicerVesselSegmentationSegmentationWidget::OnHepaticSeg()
 {
-    std::cout << "Widget - On Hepatic (Segment)" << std::endl;
+  std::cout << "Widget - On Hepatic (Segment)" << std::endl;
 
-    emit HepaticSegSelected();
+  this->isHepatic = true;
+  //emit HepaticSegSelected();
 }
 
 void qSlicerVesselSegmentationSegmentationWidget::OnPortalSeg()
 {
-   std::cout << "Widget - On Portal (segment)" << std::endl;
+  std::cout << "Widget - On Portal (segment)" << std::endl;
 
-   emit PortalSegSelected();
+  this->isHepatic = false;
+  //emit PortalSegSelected();
 }
 

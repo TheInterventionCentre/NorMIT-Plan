@@ -90,21 +90,21 @@ public slots:
    * connected to signal from segmentation widget: RunSegmentClicked()
    * This function sends the parameter information up to the Logic
    */
-  void onRunSegment();
+  void onRunSegment(bool isHepatic);
 
   /**
    * Called when the hepatic radio button is selected
    * connected to signal from segmentation widget: HepaticSegSelected()
    * This function sends the parameter information up to the Logic
    */
-  void onHepaticSeg();
+  //void onHepaticSeg();
 
   /**
    * Called when the portal radio button is selected
    * connected to signal from segmentation widget: PortalSegSelected()
    * This function sends the parameter information up to the Logic
    */
-  void onPortalSeg();
+  //void onPortalSeg();
 
 
   /**
