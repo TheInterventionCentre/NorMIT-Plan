@@ -2,17 +2,17 @@ set(KIT qSlicer${MODULE_NAME}Module)
 
 set(TESTING_DATA "${CMAKE_CURRENT_SOURCE_DIR}/../Data")
 
-if(NOT EXISTS "${TESTING_DATA}/testImage3_large.nii.gz")
+if(NOT EXISTS "${TESTING_DATA}/testImage3_large.nii")
   # download image file from girder
-  file(DOWNLOAD https://data.kitware.com/api/v1/item/59e70a2c8d777f31ac647673/download ${TESTING_DATA}/testImage3_large.nii.gz)
+  file(DOWNLOAD https://data.kitware.com/api/v1/item/59ea6cec8d777f31ac6477c6/download ${TESTING_DATA}/testImage3_large.nii)
 endif()
-if(NOT EXISTS "${TESTING_DATA}/testImage3_largeSimilarity.nii.gz")
+if(NOT EXISTS "${TESTING_DATA}/testImage3_largeSimilarity.nii")
   # download similarity file from girder
-  file(DOWNLOAD https://data.kitware.com/api/v1/item/59e70a368d777f31ac647676/download ${TESTING_DATA}/testImage3_largeSimilarity.nii.gz)
+  file(DOWNLOAD https://data.kitware.com/api/v1/item/59ea6d0a8d777f31ac6477c9/download ${TESTING_DATA}/testImage3_largeSimilarity.nii)
 endif()
 
-set(TEST_FILE "${TESTING_DATA}/testImage3_large.nii.gz")
-set(TEST_FILE_SIMILARITY "${TESTING_DATA}/testImage3_largeSimilarity.nii.gz")
+set(TEST_FILE "${TESTING_DATA}/testImage3_large.nii")
+set(TEST_FILE_SIMILARITY "${TESTING_DATA}/testImage3_largeSimilarity.nii")
 
 #-----------------------------------------------------------------------------
 
