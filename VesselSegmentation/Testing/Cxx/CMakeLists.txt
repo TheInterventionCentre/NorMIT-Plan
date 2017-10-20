@@ -2,10 +2,14 @@ set(KIT qSlicer${MODULE_NAME}Module)
 
 set(TESTING_DATA "${CMAKE_CURRENT_SOURCE_DIR}/../Data")
 
-# download image file from girder
-file(DOWNLOAD https://data.kitware.com/api/v1/item/59e70a2c8d777f31ac647673/download ${TESTING_DATA}/testImage3_large.nii.gz)
-# download similarity file from girder
-file(DOWNLOAD https://data.kitware.com/api/v1/item/59e70a368d777f31ac647676/download ${TESTING_DATA}/testImage3_largeSimilarity.nii.gz)
+if(NOT EXISTS "${TESTING_DATA}/testImage3_large.nii.gz")
+  # download image file from girder
+  file(DOWNLOAD https://data.kitware.com/api/v1/item/59e70a2c8d777f31ac647673/download ${TESTING_DATA}/testImage3_large.nii.gz)
+endif()
+if(NOT EXISTS "${TESTING_DATA}/testImage3_largeSimilarity.nii.gz")
+  # download similarity file from girder
+  file(DOWNLOAD https://data.kitware.com/api/v1/item/59e70a368d777f31ac647676/download ${TESTING_DATA}/testImage3_largeSimilarity.nii.gz)
+endif()
 
 set(TEST_FILE "${TESTING_DATA}/testImage3_large.nii.gz")
 set(TEST_FILE_SIMILARITY "${TESTING_DATA}/testImage3_largeSimilarity.nii.gz")
