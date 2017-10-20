@@ -1,9 +1,20 @@
 set(KIT qSlicer${MODULE_NAME}Module)
 
+set(TESTING_DATA "${CMAKE_CURRENT_SOURCE_DIR}/../Data")
+
+# download image file from girder
+file(DOWNLOAD https://data.kitware.com/api/v1/item/59e70a2c8d777f31ac647673/download ${TESTING_DATA}/testImage3_large.nii.gz)
+# download similarity file from girder
+file(DOWNLOAD https://data.kitware.com/api/v1/item/59e70a368d777f31ac647676/download ${TESTING_DATA}/testImage3_largeSimilarity.nii.gz)
+
+set(TEST_FILE "${TESTING_DATA}/testImage3_large.nii.gz")
+set(TEST_FILE_SIMILARITY "${TESTING_DATA}/testImage3_largeSimilarity.nii.gz")
+
 #-----------------------------------------------------------------------------
 
 set(KIT_TEST_SRCS
   vtkMRMLVesselSegmentationSeedNodeTest1.cxx
+  vtkMRMLTestFileAndSegmentation.cxx
   EXTRA_INCLUDE vtkTestingOutputWindow.h
 )
 
@@ -27,3 +38,4 @@ slicerMacroConfigureModuleCxxTestDriver(
 #-----------------------------------------------------------------------------
 # Test seed node
 simple_test(vtkMRMLVesselSegmentationSeedNodeTest1)
+simple_test(vtkMRMLTestFileAndSegmentation ${TEST_FILE} ${TEST_FILE_SIMILARITY})
