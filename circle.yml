@@ -11,13 +11,14 @@ dependencies:
 compile:
   override:
     - mkdir /home/ubuntu/NorMIT-Plan-build
-    - cd /home/ubuntu/NorMIT-Plan-build; cmake ../NorMIT-Plan -DSlicer_DIR=/home/ubuntu/Slicer-Superbuild/Slicer-build
+    - cd /home/ubuntu/NorMIT-Plan-build; cmake ../NorMIT-Plan -DSlicer_DIR=/home/ubuntu/Slicer-v4.8.0-build/Slicer-build
     - cd /home/ubuntu/NorMIT-Plan-build; cmake .
-    - cd /home/ubuntu/NorMIT-Plan-build; make ExperimentalStart
-    - cd /home/ubuntu/NorMIT-Plan-build; make ExperimentalConfigure
-    - cd /home/ubuntu/NorMIT-Plan-build; make ExperimentalBuild
+    - if [ $(git rev-parse --abbrev-ref HEAD) == "development" ]; then export DASHBOARD_TRACK=Continuous; else export DASHBOARD_TRACK=Experimental; fi
+    - cd /home/ubuntu/NorMIT-Plan-build; make ${DASHBOARD_TRACK}Start
+    - cd /home/ubuntu/NorMIT-Plan-build; make ${DASHBOARD_TRACK}Configure
+    - cd /home/ubuntu/NorMIT-Plan-build; make ${DASHBOARD_TRACK}Build
 
 test:
   override:
-    - cd /home/ubuntu/NorMIT-Plan-build; make ExperimentalTest
-    - cd /home/ubuntu/NorMIT-Plan-build; make ExperimentalSubmit
+    - cd /home/ubuntu/NorMIT-Plan-build; make ${DASHBOARD_TRACK}Test
+    - cd /home/ubuntu/NorMIT-Plan-build; make ${DASHBOARD_TRACK}Submit
