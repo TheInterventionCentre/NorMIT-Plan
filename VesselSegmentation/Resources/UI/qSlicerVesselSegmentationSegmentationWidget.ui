@@ -27,6 +27,9 @@
           <property name="text">
            <string>Hepatic</string>
           </property>
+          <property name="checked">
+           <bool>true</bool>
+          </property>
          </widget>
         </item>
         <item>
@@ -107,14 +110,6 @@
    </item>
   </layout>
  </widget>
- <customwidgets>
-  <customwidget>
-   <class>qSlicerWidget</class>
-   <extends>QWidget</extends>
-   <header>qSlicerWidget.h</header>
-   <container>1</container>
-  </customwidget>
- </customwidgets>
  <tabstops>
   <tabstop>radioHepaticSeg</tabstop>
   <tabstop>radioPortalSeg</tabstop>
