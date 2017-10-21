@@ -13,12 +13,12 @@ compile:
     - mkdir /home/ubuntu/NorMIT-Plan-build
     - cd /home/ubuntu/NorMIT-Plan-build; cmake ../NorMIT-Plan -DSlicer_DIR=/home/ubuntu/Slicer-v4.8.0-build/Slicer-build
     - cd /home/ubuntu/NorMIT-Plan-build; cmake .
-    - if [ $(git rev-parse --abbrev-ref HEAD) == "development" ]; then export DASHBOARD_TRACK=Continuous; else export DASHBOARD_TRACK=Experimental; fi
-    - cd /home/ubuntu/NorMIT-Plan-build; make ${DASHBOARD_TRACK}Start
-    - cd /home/ubuntu/NorMIT-Plan-build; make ${DASHBOARD_TRACK}Configure
-    - cd /home/ubuntu/NorMIT-Plan-build; make ${DASHBOARD_TRACK}Build
+    
+    - cd /home/ubuntu/NorMIT-Plan-build; if [ ${CIRCLE_BRANCH} == "development" ]; make ContinuousStart; else make ExperimentalStart; fi
+    - cd /home/ubuntu/NorMIT-Plan-build; if [ ${CIRCLE_BRANCH} == "development" ]; make ContinuousConfigure; else make ExperimentalConfigure; fi
+    - cd /home/ubuntu/NorMIT-Plan-build; if [ ${CIRCLE_BRANCH} == "development" ]; make ContinuousBuild; else make ExperimentalBuild; fi
 
 test:
   override:
-    - cd /home/ubuntu/NorMIT-Plan-build; make ${DASHBOARD_TRACK}Test
-    - cd /home/ubuntu/NorMIT-Plan-build; make ${DASHBOARD_TRACK}Submit
+    - cd /home/ubuntu/NorMIT-Plan-build; if [ ${CIRCLE_BRANCH} == "development" ]; make ContinuousTest; else make ExperimentalTest; fi
+    - cd /home/ubuntu/NorMIT-Plan-build; if [ ${CIRCLE_BRANCH} == "development" ]; make ContinuousSubmit; else make ExperimentalSubmit; fi
