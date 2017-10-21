@@ -57,3 +57,4 @@ add_subdirectory(Doxygen)
 #-----------------------------------------------------------------------------
 include(${Slicer_EXTENSION_CPACK})
 
+include(CTest)
