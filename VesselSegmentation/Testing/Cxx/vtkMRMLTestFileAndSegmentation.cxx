@@ -49,6 +49,7 @@
 #include "itkSeedVesselSegmentationImageFilter.h"
 #include "itkIndex.h"
 #include "itkImageFileReader.h"
+#include "itkGiplImageIOFactory.h"
 #include "itkMinimumMaximumImageCalculator.h"
 
 // Qt includes
