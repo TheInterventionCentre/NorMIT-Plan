@@ -8,6 +8,11 @@ dependencies:
     - "/home/ubuntu/Slicer-v4.8.0-superbuild"
     - "/home/ubuntu/Slicer-v4.8.0-src"
 
+checkout:
+  post:
+    - if [ ${CIRCLE_BRANCH} == "development" ]; then git checkout ${CIRCLE_CI}; fi
+    
+    
 compile:
   override:
     - mkdir /home/ubuntu/NorMIT-Plan-build
