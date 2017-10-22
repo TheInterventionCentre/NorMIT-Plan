@@ -3,14 +3,14 @@ dependencies:
     - sudo apt-get update
     - sudo apt-get install cmake3 subversion qt4-qmake libqt4-dev python-dev
     - if [[ ! -e ~/Slicer-v4.8.0-src ]]; then curl https://s3-us-west-1.amazonaws.com/normit-plan.circleci/Slicer-v4.8.0-src.tar.gz | tar xj -C /home/ubuntu; fi
-    - if [[ ! -e ~/Slicer-v4.8.0-build ]]; then curl https://s3-us-west-1.amazonaws.com/normit-plan.circleci/Slicer-v4.8.0-superbuild.tar.gz |tar xj -C /home/ubuntu; fi
+    - if [[ ! -e ~/Slicer-v4.8.0-superbuild ]]; then curl https://s3-us-west-1.amazonaws.com/normit-plan.circleci/Slicer-v4.8.0-superbuild.tar.gz |tar xj -C /home/ubuntu; fi
   cache_directories:
     - "/home/ubuntu/Slicer-v4.8.0-superbuild"
     - "/home/ubuntu/Slicer-v4.8.0-src"
 
 checkout:
   post:
-    - if [ ${CIRCLE_BRANCH} == "development" ]; then git checkout ${CIRCLE_CI}; fi
+    - if [ ${CIRCLE_BRANCH} == "development" ]; then git checkout ${CIRCLE_SHA1}; fi
     
     
 compile:
