@@ -24,13 +24,21 @@ set(KIT_TEST_SRCS
 
 set(${KIT}_INCLUDE_DIRECTORIES
   ${CMAKE_BINARY_DIR}/${MODULE_NAME}
+  ${ITK_INCLUDE_DIRS}
 )
+
+set(${KIT}_TARGET_LIBRARIES
+  ${ITK_LIBRARIES}
+)
+message( itk libraries: )
+message( ${${KIT}_TARGET_LIBRARIES} )
 
 #-----------------------------------------------------------------------------
 slicerMacroConfigureModuleCxxTestDriver(
   NAME ${KIT}
   SOURCES ${KIT_TEST_SRCS}
-  TARGET_LIBRARIES 
+  INCLUDE_DIRECTORIES ${${KIT}_INCLUDE_DIRECTORIES}
+  TARGET_LIBRARIES ${${KIT}_TARGET_LIBRARIES}
   vtkSlicerVesselSegmentationModuleMRML
   vtkSlicerVesselSegmentationModuleMRMLDisplayableManager
   vtkSlicerVesselSegmentationModuleLogic

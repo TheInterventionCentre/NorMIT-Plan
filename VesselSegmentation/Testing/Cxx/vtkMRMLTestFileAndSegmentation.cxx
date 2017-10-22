@@ -47,10 +47,10 @@
 
 // ITK includes
 #include "itkSeedVesselSegmentationImageFilter.h"
-#include "itkIndex.h"
-#include "itkImageFileReader.h"
-#include "itkGiplImageIOFactory.h"
-#include "itkMinimumMaximumImageCalculator.h"
+#include <itkIndex.h>
+#include <itkImageFileReader.h>
+#include <itkGiplImageIOFactory.h>
+#include <itkMinimumMaximumImageCalculator.h>
 
 // Qt includes
 #include <qSlicerCoreIOManager.h>
@@ -98,6 +98,10 @@ bool testLoadFileAndSegment( const char* volumeName1, const char* volumeName2, v
   std::cout << "inside: testLoadFileAndSegment" << std::endl;
   //Retrieve a pointer to the mrml scene
   vtkMRMLScene *scene = logic->GetMRMLScene();
+
+  std::cout << "There are\n"
+            << itk::ObjectFactoryBase::CreateAllInstance( "itkImageIOBase" ).size()
+            << " IO objects available to the ImageFileReader.\n" << std::endl;
 
   vtkNew<vtkMRMLVolumeArchetypeStorageNode> storageNode1;
   vtkNew<vtkMRMLScalarVolumeNode> scalarNode1;
