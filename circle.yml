@@ -11,7 +11,7 @@ dependencies:
 compile:
   override:
     - mkdir /home/ubuntu/NorMIT-Plan-build
-    - cd /home/ubuntu/NorMIT-Plan-build; cmake ../NorMIT-Plan -DSlicer_DIR=/home/ubuntu/Slicer-v4.8.0-build/Slicer-superbuild
+    - cd /home/ubuntu/NorMIT-Plan-build; cmake ../NorMIT-Plan -DSlicer_DIR=/home/ubuntu/Slicer-v4.8.0-superbuild/Slicer-build
     - cd /home/ubuntu/NorMIT-Plan-build; cmake .
     
     - cd /home/ubuntu/NorMIT-Plan-build; if [ ${CIRCLE_BRANCH} == "development" ]; then make ContinuousStart; else make ExperimentalStart; fi
