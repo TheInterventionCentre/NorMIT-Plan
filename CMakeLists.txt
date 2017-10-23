@@ -2,10 +2,6 @@ cmake_minimum_required(VERSION 2.8.9)
 
 project(NorMIT-Plan)
 
-#-----------------------------------------------------------------------------
-include(CTest)
-
-
 set(NORMIT_PLAN_VERSION "4.6.0")
 
 #-----------------------------------------------------------------------------
@@ -61,3 +57,4 @@ add_subdirectory(Doxygen)
 #-----------------------------------------------------------------------------
 include(${Slicer_EXTENSION_CPACK})
 
+include(CTest)

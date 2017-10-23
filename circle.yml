@@ -2,22 +2,28 @@ dependencies:
   override:
     - sudo apt-get update
     - sudo apt-get install cmake3 subversion qt4-qmake libqt4-dev python-dev
-    - if [[ ! -e ~/Slicer ]]; then curl https://s3-us-west-1.amazonaws.com/normit-plan.circleci/Slicer.tar.gz | tar xj -C /home/ubuntu; fi
-    - if [[ ! -e ~/Slicer-Superbuild ]]; then curl https://s3-us-west-1.amazonaws.com/normit-plan.circleci/Slicer-Superbuild.tar.gz |tar xj -C /home/ubuntu; fi
+    - if [[ ! -e ~/Slicer-v4.8.0-src ]]; then curl https://s3-us-west-1.amazonaws.com/normit-plan.circleci/Slicer-v4.8.0-src.tar.gz | tar xj -C /home/ubuntu; fi
+    - if [[ ! -e ~/Slicer-v4.8.0-superbuild ]]; then curl https://s3-us-west-1.amazonaws.com/normit-plan.circleci/Slicer-v4.8.0-superbuild.tar.gz |tar xj -C /home/ubuntu; fi
   cache_directories:
-    - "/home/ubuntu/Slicer-Superbuild"
-    - "/home/ubuntu/Slicer"
+    - "/home/ubuntu/Slicer-v4.8.0-superbuild"
+    - "/home/ubuntu/Slicer-v4.8.0-src"
 
+checkout:
+  post:
+    - if [ ${CIRCLE_BRANCH} == "development" ]; then git checkout ${CIRCLE_SHA1}; fi
+    
+    
 compile:
   override:
     - mkdir /home/ubuntu/NorMIT-Plan-build
-    - cd /home/ubuntu/NorMIT-Plan-build; cmake ../NorMIT-Plan -DSlicer_DIR=/home/ubuntu/Slicer-Superbuild/Slicer-build
+    - cd /home/ubuntu/NorMIT-Plan-build; cmake ../NorMIT-Plan -DSlicer_DIR=/home/ubuntu/Slicer-v4.8.0-superbuild/Slicer-build
     - cd /home/ubuntu/NorMIT-Plan-build; cmake .
-    - cd /home/ubuntu/NorMIT-Plan-build; make ExperimentalStart
-    - cd /home/ubuntu/NorMIT-Plan-build; make ExperimentalConfigure
-    - cd /home/ubuntu/NorMIT-Plan-build; make ExperimentalBuild
+    
+    - cd /home/ubuntu/NorMIT-Plan-build; if [ ${CIRCLE_BRANCH} == "development" ]; then make ContinuousStart; else make ExperimentalStart; fi
+    - cd /home/ubuntu/NorMIT-Plan-build; if [ ${CIRCLE_BRANCH} == "development" ]; then make ContinuousConfigure; else make ExperimentalConfigure; fi
+    - cd /home/ubuntu/NorMIT-Plan-build; if [ ${CIRCLE_BRANCH} == "development" ]; then make ContinuousBuild; else make ExperimentalBuild; fi
 
 test:
   override:
-    - cd /home/ubuntu/NorMIT-Plan-build; make ExperimentalTest
-    - cd /home/ubuntu/NorMIT-Plan-build; make ExperimentalSubmit
+    - cd /home/ubuntu/NorMIT-Plan-build; if [ ${CIRCLE_BRANCH} == "development" ]; then make ContinuousTest; else make ExperimentalTest; fi
+    - cd /home/ubuntu/NorMIT-Plan-build; if [ ${CIRCLE_BRANCH} == "development" ]; then make ContinuousSubmit; else make ExperimentalSubmit; fi
