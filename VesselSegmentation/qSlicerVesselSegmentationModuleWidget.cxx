@@ -130,33 +130,9 @@ void qSlicerVesselSegmentationModuleWidget::setup()
 
   // connections to preprocessing widget
   QObject::connect(d->PreprocessingWidget,
-                   SIGNAL(PreprocessingClicked()),
+                   SIGNAL(PreprocessingClicked(int,int,unsigned int,int,unsigned int,unsigned int)),
                    this,
-                   SLOT(onPreprocessing()));
-  QObject::connect(d->PreprocessingWidget,
-                   SIGNAL(LTSpinChanged(int)),
-                   this,
-                   SLOT(onSetLowerThreshold(int)));
-  QObject::connect(d->PreprocessingWidget,
-                   SIGNAL(UTSpinChanged(int)),
-                   this,
-                   SLOT(onSetUpperThreshold(int)));
-  QObject::connect(d->PreprocessingWidget,
-                   SIGNAL(AlphaSpinChanged(int)),
-                   this,
-                   SLOT(onSetAlpha(int)));
-  QObject::connect(d->PreprocessingWidget,
-                   SIGNAL(BetaSpinChanged(int)),
-                   this,
-                   SLOT(onSetBeta(int)));
-  QObject::connect(d->PreprocessingWidget,
-                   SIGNAL(ConductanceSpinChanged(int)),
-                   this,
-                   SLOT(onSetConductance(int)));
-  QObject::connect(d->PreprocessingWidget,
-                   SIGNAL(IterationsSpinChanged(int)),
-                   this,
-                   SLOT(onSetIterations(int)));
+                   SLOT(onPreprocessing(int,int,unsigned int,int,unsigned int,unsigned int)));
 
   // connections to segmentation widget
   QObject::connect(d->SegmentationWidget,
@@ -164,17 +140,9 @@ void qSlicerVesselSegmentationModuleWidget::setup()
                    this,
                    SLOT(onPlaceSeedSeg()));
   QObject::connect(d->SegmentationWidget,
-                   SIGNAL(RunSegmentClicked()),
+                   SIGNAL(RunSegmentClicked(bool)),
                    this,
-                   SLOT(onRunSegment()));
-  QObject::connect(d->SegmentationWidget,
-                   SIGNAL(HepaticSegSelected()),
-                   this,
-                   SLOT(onHepaticSeg()));
-  QObject::connect(d->SegmentationWidget,
-                   SIGNAL(PortalSegSelected()),
-                   this,
-                   SLOT(onPortalSeg()));
+                   SLOT(onRunSegment(bool)));
 
   // connections to splitting widget
   QObject::connect(d->SplittingWidget,
@@ -186,17 +154,9 @@ void qSlicerVesselSegmentationModuleWidget::setup()
                    this,
                    SLOT(onPlaceSeedsMerge()));
   QObject::connect(d->SplittingWidget,
-                   SIGNAL(RunSeedAssignmentClicked()),
+                   SIGNAL(RunSeedAssignmentClicked(bool)),
                    this,
-                   SLOT(onRunSeedAssignment()));
-  QObject::connect(d->SplittingWidget,
-                   SIGNAL(OnHepaticMergeSelected()),
-                   this,
-                   SLOT(onPortalMerge()));
-  QObject::connect(d->SplittingWidget,
-                   SIGNAL(OnPortalMergeSelected()),
-                   this,
-                   SLOT(onPortalMerge()));
+                   SLOT(onRunSeedAssignment(bool)));
 
   this->Superclass::setup();
 }
@@ -215,7 +175,6 @@ void qSlicerVesselSegmentationModuleWidget::exit()
 }
 
 //-----------------------------------------------------------------------------
-/*
 void qSlicerVesselSegmentationModuleWidget::setMRMLScene(vtkMRMLScene* scene)
 {
   Q_D(qSlicerVesselSegmentationModuleWidget);
@@ -223,7 +182,7 @@ void qSlicerVesselSegmentationModuleWidget::setMRMLScene(vtkMRMLScene* scene)
   this->Superclass::setMRMLScene(scene);
 
   std::cout << "Widget - Set MRML scene called " << std::endl;
-}*/
+}
 
 //-----------------------------------------------------------------------------
 vtkSlicerVesselSegmentationLogic *qSlicerVesselSegmentationModuleWidget::
@@ -272,52 +231,9 @@ void qSlicerVesselSegmentationModuleWidget::nodeSelectionChanged(vtkMRMLNode* no
 /*
  * Functions associated with preprocessing widget
  */
-void qSlicerVesselSegmentationModuleWidget::onPreprocessing()
+void qSlicerVesselSegmentationModuleWidget::onPreprocessing(int lowerThreshold, int upperThreshold, int alpha, int beta, int conductance, int iterations)
 {
-  vtkMRMLScalarVolumeNode *activeVol = this->vesselSegmentationLogic()->GetActiveVolume();
-
-  if(activeVol == NULL)
-  {
-    // get the active volume
-    vtkMRMLSelectionNode *selectionNode = vtkMRMLSelectionNode::SafeDownCast(this->vesselSegmentationLogic()->GetMRMLScene()->GetNodeByID("vtkMRMLSelectionNodeSingleton"));
-    char *activeVolID = selectionNode->GetActiveVolumeID();
-    activeVol = vtkMRMLScalarVolumeNode::SafeDownCast(this->vesselSegmentationLogic()->GetMRMLScene()->GetNodeByID(activeVolID));
-    this->vesselSegmentationLogic()->SetActiveVolume(activeVol);
-  }
-
-  // if still null...
-  if(activeVol == NULL)
-  {
-    std::cout << "No Active Volume..." << std::endl;
-  }
-  else {
-    std::cout << "Trying to call preprocessing" << std::endl;
-    this->vesselSegmentationLogic()->CallPreprocessing();
-  }
-}
-void qSlicerVesselSegmentationModuleWidget::onSetLowerThreshold(int value)
-{
-  this->vesselSegmentationLogic()->SetLowerThreshold(value);
-}
-void qSlicerVesselSegmentationModuleWidget::onSetUpperThreshold(int value)
-{
-  this->vesselSegmentationLogic()->SetUpperThreshold(value);
-}
-void qSlicerVesselSegmentationModuleWidget::onSetAlpha(int value)
-{
-  this->vesselSegmentationLogic()->SetAlpha(value);
-}
-void qSlicerVesselSegmentationModuleWidget::onSetBeta(int value)
-{
-  this->vesselSegmentationLogic()->SetBeta(value);
-}
-void qSlicerVesselSegmentationModuleWidget::onSetConductance(int value)
-{
-  this->vesselSegmentationLogic()->SetConductance(value);
-}
-void qSlicerVesselSegmentationModuleWidget::onSetIterations(int value)
-{
-  this->vesselSegmentationLogic()->SetIterations(value);
+  this->vesselSegmentationLogic()->PreprocessImage( lowerThreshold, upperThreshold, alpha, beta, conductance, iterations);
 }
 
 
@@ -345,41 +261,10 @@ void qSlicerVesselSegmentationModuleWidget::onSetIterations(int value)
    }
  }
 
- void qSlicerVesselSegmentationModuleWidget::onRunSegment()
+ void qSlicerVesselSegmentationModuleWidget::onRunSegment(bool isHepatic)
  {
-   std::cout << "Widget - run Segment" << std::endl;
-
-   vtkMRMLScalarVolumeNode *activeVol = this->vesselSegmentationLogic()->GetActiveVolume();
-
-   if(activeVol == NULL)
-   {
-     // get the active volume
-     vtkMRMLSelectionNode *selectionNode = vtkMRMLSelectionNode::SafeDownCast(this->vesselSegmentationLogic()->GetMRMLScene()->GetNodeByID("vtkMRMLSelectionNodeSingleton"));
-     char *activeVolID = selectionNode->GetActiveVolumeID();
-     activeVol = vtkMRMLScalarVolumeNode::SafeDownCast(this->vesselSegmentationLogic()->GetMRMLScene()->GetNodeByID(activeVolID));
-     this->vesselSegmentationLogic()->SetActiveVolume(activeVol);
-   }
-
-   if(activeVol == NULL)
-   {
-     std::cout << "No Active Volume..." << std::endl;
-   }
-   else {
-     std::cout << "Trying to call centreline" << std::endl;
-     this->vesselSegmentationLogic()->CallSegmentationAlgorithm();
-   }
+   this->vesselSegmentationLogic()->SegmentVesselsFromWidget(isHepatic);
  }
-
- void qSlicerVesselSegmentationModuleWidget::onHepaticSeg()
- {
-   this->vesselSegmentationLogic()->IsHepaticSeg(true);
- }
-
- void qSlicerVesselSegmentationModuleWidget::onPortalSeg()
- {
-   this->vesselSegmentationLogic()->IsHepaticSeg(false);
- }
-
 
  /*
   * Functions associated with splitting widget
@@ -401,17 +286,7 @@ void qSlicerVesselSegmentationModuleWidget::onSetIterations(int value)
    vtkMRMLVesselSegmentationDisplayableManager::SetFiducialsMode(false);
  }
 
- void qSlicerVesselSegmentationModuleWidget::onRunSeedAssignment()
+ void qSlicerVesselSegmentationModuleWidget::onRunSeedAssignment(bool isHepatic)
  {
-   this->vesselSegmentationLogic()->CallAssignSeeds();
- }
-
- void qSlicerVesselSegmentationModuleWidget::onHepaticMerge()
- {
-   this->vesselSegmentationLogic()->IsHepaticMerge(true);
- }
-
- void qSlicerVesselSegmentationModuleWidget::onPortalMerge()
- {
-   this->vesselSegmentationLogic()->IsHepaticMerge(false);
+   this->vesselSegmentationLogic()->SplitVesselsFromWidget(isHepatic);
  }

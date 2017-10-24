@@ -60,6 +60,7 @@
 
 
 class vtkMRMLNode;
+class vtkMRMLVesselSegmentationSeedNode;
 class vtkMatrix4x4;
 class vtkMRMLScalarVolumeNode;
 class vtkMRMLLabelMapVolumeNode;
@@ -94,24 +95,56 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   /**
-   * Calls the image preprocessing (needs an input image)
+   * Calls the image preprocessing (prerequisite: an input image).
+   *
+   * @param lower threshold.
+   * @pararm upper threshold.
+   * @param alpha.
+   * @param beta.
+   * @param conductance.
+   * @param number of interations.
    */
-  void CallPreprocessing();
+  void PreprocessImage( int lowerThreshold, int upperThreshold, unsigned int alpha, int beta, unsigned int conductance, unsigned int iterations );
 
   /**
-   * Calls the segmentation algorithm (needs seeds)
+   * Calls the segmentation algorithm.
+   *
+   * @param if the hepatic radio button is selected.
    */
-  void CallSegmentationAlgorithm();
+  void SegmentVesselsFromWidget(bool isHepatic);
 
   /**
-   * Calls the a merge of the hepatic and portal label maps
+   * Runs the segmentation algorithm (prerequisite: seeds).
+   *
+   * @param the seed node.
+   * @param if the hepatic radio button is selected.
+   */
+  void SegmentVessels(vtkMRMLVesselSegmentationSeedNode *seedNode, bool isHepatic);
+
+  /**
+   * Calls the a merge of the hepatic and portal label maps.
    */
   void CallMergeLabelMaps();
 
   /**
-   * Calls to assign the seed to either portal or hepatic (in an overlapping area)
+   * Combines the hepatic and portal label maps.
    */
-  void CallAssignSeeds();
+  void MergeLabelMaps();
+
+  /**
+   * Calls to assign the seed to either portal or hepatic.
+   *
+   * @param if the hepatic radio button is selected.
+   */
+  void SplitVesselsFromWidget(bool isHepatic);
+
+  /**
+   * Runs the algorithm to assign the seed to either portal or hepatic (in an overlapping area).
+   *
+   * @param the seed node.
+   * @param if the hepatic radio button is selected.
+   */
+  void SplitVessels(vtkMRMLVesselSegmentationSeedNode *seedNode, bool isHepatic);
 
   /**
    * Set the active volume node
@@ -134,6 +167,7 @@ public:
    */
   vtkSmartPointer<vtkMRMLScalarVolumeNode> GetActiveVolume();
     
+
   // fiducial list methods
   /**
    * Get the coordinates of the last fiducial added
@@ -160,62 +194,6 @@ public:
    * @return boolean if a markup was added
    */
   static bool GetMarkupJustAdded();
-
-  /**
-   * Set whether working on hepatic or portal for segmentation
-   *
-   * @param bool where true if hepatic
-   */
-  void IsHepaticSeg(bool isHepatic);
-
-  /**
-   * Set whether working on hepatic or portal for merge
-   *
-   * @param bool where true if hepatic
-   */
-  void IsHepaticMerge(bool isHepatic);
-
-  /**
-   * Set the lower threshold for preprocessing
-   *
-   * @param value for the threshold
-   */
-  void SetLowerThreshold(int value);
-
-  /**
-   * Set the upper threshold for preprocessing
-   *
-   * @param value for the threshold
-   */
-  void SetUpperThreshold(int value);
-
-  /**
-   * Set the alpha value for preprocessing
-   *
-   * @param value for alpha
-   */
-  void SetAlpha(int value);
-
-  /**
-   * Set the beta value for preprocessing
-   *
-   * @param value for beta
-   */
-  void SetBeta(int value);
-
-  /**
-   * Set the conductance value for preprocessing
-   *
-   * @param value for conductance
-   */
-  void SetConductance(int value);
-
-  /**
-   * Set the number of iterations for preprocessing
-   *
-   * @param value for iterations
-   */
-  void SetIterations(int value);
 
   /**
    * Helper function to update the 3D models
@@ -256,8 +234,6 @@ protected:
    */
   virtual void UpdateFromMRMLScene();
 
-  //virtual void OnMRMLSceneChanged(vtkMRMLNode* node);
-
   /**
    * Method to control actions when a new MRML node is added to the MRML scene.
    *
@@ -284,15 +260,6 @@ protected:
 private:    
   bool nodeObserversSet;
   static bool markupJustAdded;
-  bool hepaticSeg;
-  bool hepaticMerge;
-
-  int lowerThreshold;
-  int upperThreshold;
-  int alpha;
-  int beta;
-  int conductance;
-  int interations;
 
   vtkNew<vtkMatrix4x4> IJKtoRASmatrix;
   vtkNew<vtkMatrix4x4> RAStoIJKmatrix;

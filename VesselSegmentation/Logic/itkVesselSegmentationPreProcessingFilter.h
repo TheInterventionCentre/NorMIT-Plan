@@ -166,13 +166,13 @@ namespace itk
         
         typedef itk::LinearInterpolateImageFunction< InputImageType, double >  InterpolatorType;
         
-        double m_LowerThreshold;
-        double m_UpperThreshold;
-        double m_Alpha;
-        double m_Beta;
-        double m_Conductance;
-        
-        int m_NumberOfIterations;
+        int m_LowerThreshold;
+        int m_UpperThreshold;
+        int m_Beta;
+
+        unsigned int m_Alpha;
+        unsigned int m_Conductance;
+        unsigned int m_NumberOfIterations;
         
     };
 }  //end namespace itk

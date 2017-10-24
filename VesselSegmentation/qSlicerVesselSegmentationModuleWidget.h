@@ -51,8 +51,8 @@ class vtkMRMLNode;
  *
  * \brief Widget class for the module, contains the interface for the module.
  *
- * This class sends and receives information to/from the subwidgets (such as qSlicerVesselSegmentationPreprocessingWidget)
- * and also sends and receives information to/from the module logic (vtkSlicerResectionPlanningLogic)
+ * This class sends and receives information to/from the subwidgets (such as qSlicerVesselSegmentationSegmentationWidget)
+ * And makes connections from those to the module logic
  *
  */
 class Q_SLICER_QTMODULES_VESSELSEGMENTATION_EXPORT qSlicerVesselSegmentationModuleWidget :
@@ -75,62 +75,7 @@ public slots:
    * connected to signal from preprocessing widget: preprocessingClicked()
    * This function sends the parameter information up to the Logic
    */
-   void onPreprocessing();
-
-  /**
-   * Called when the lower threshold value is changed
-   * connected to signal from preprocessing widget: LTSpinChanged()
-   * This function sends the parameter information up to the Logic
-   *
-   * @param value of spin
-   */
-  void onSetLowerThreshold(int value);
-
-  /**
-   * Called when the upper threshold value is changed
-   * connected to signal from preprocessing widget: UTSpinChanged()
-   * This function sends the parameter information up to the Logic
-   *
-   * @param value of spin
-   */
-  void onSetUpperThreshold(int value);
-
-  /**
-   * Called when the alpha value is changed
-   * connected to signal from preprocessing widget: AlphaSpinChanged()
-   * This function sends the parameter information up to the Logic
-   *
-   * @param value of spin
-   */
-  void onSetAlpha(int value);
-
-  /**
-   * Called when the beta value is changed
-   * connected to signal from preprocessing widget: BetaSpinChanged()
-   * This function sends the parameter information up to the Logic
-   *
-   * @param value of spin
-   */
-  void onSetBeta(int value);
-
-  /**
-   * Called when the conductance value is changed
-   * connected to signal from preprocessing widget: ConductanceSpinChanged()
-   * This function sends the parameter information up to the Logic
-   *
-   * @param value of spin
-   */
-  void onSetConductance(int value);
-
-  /**
-   * Called when the iterations value is changed
-   * connected to signal from preprocessing widget: IterationsSpinChanged()
-   * This function sends the parameter information up to the Logic
-   *
-   * @param value of spin
-   */
-  void onSetIterations(int value);
-
+   void onPreprocessing(int lowerThreshold, int upperThreshold, int alpha, int beta, int conductance, int iterations);
 
  /**
   * Called when the place seeds button is clicked
@@ -144,22 +89,7 @@ public slots:
    * connected to signal from segmentation widget: RunSegmentClicked()
    * This function sends the parameter information up to the Logic
    */
-  void onRunSegment();
-
-  /**
-   * Called when the hepatic radio button is selected
-   * connected to signal from segmentation widget: HepaticSegSelected()
-   * This function sends the parameter information up to the Logic
-   */
-  void onHepaticSeg();
-
-  /**
-   * Called when the portal radio button is selected
-   * connected to signal from segmentation widget: PortalSegSelected()
-   * This function sends the parameter information up to the Logic
-   */
-  void onPortalSeg();
-
+  void onRunSegment(bool isHepatic);
 
   /**
    * Called when the merge labelmaps button is clicked
@@ -180,21 +110,7 @@ public slots:
    * connected to signal from splitting widget: RunSeedAssignmentClicked()
    * This function sends the parameter information up to the Logic
    */
-  void onRunSeedAssignment();
-
-  /**
-   * Called when the hepatic radio button is selected
-   * connected to signal from splitting widget: HepaticMergeSelected()
-   * This function sends the parameter information up to the Logic
-   */
-  void onHepaticMerge();
-
-  /**
-   * Called when the portal radio button is selected
-   * connected to signal from splitting widget: PortalMergeSelected()
-   * This function sends the parameter information up to the Logic
-   */
-  void onPortalMerge();
+  void onRunSeedAssignment(bool isHepatic);
 
 
 protected:
@@ -209,11 +125,9 @@ protected:
     
 protected slots:
   void nodeSelectionChanged(vtkMRMLNode*);
-  //void setMRMLScene(vtkMRMLScene* scene);
+  void setMRMLScene(vtkMRMLScene* scene);
 
 private:
-  //qSlicerVesselSegmentationModule *Module;
-  //vtkSlicerVesselSegmentationLogic *ModuleLogic;
   vtkEventQtSlotConnect *connections;
 
   Q_DECLARE_PRIVATE(qSlicerVesselSegmentationModuleWidget);

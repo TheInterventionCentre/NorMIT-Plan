@@ -89,6 +89,8 @@ qSlicerVesselSegmentationSplittingWidget
 {
   Q_D(qSlicerVesselSegmentationSplittingWidget);
   d->setupUi(this);
+
+  isHepatic = true;
 }
 
 //-----------------------------------------------------------------------------
@@ -117,19 +119,19 @@ void qSlicerVesselSegmentationSplittingWidget::RunSeedAssignment()
 {
   std::cout << "Widget - Run seed assignment" << std::endl;
 
-  emit RunSeedAssignmentClicked();
+  emit RunSeedAssignmentClicked(this->isHepatic);
 }
 
 void qSlicerVesselSegmentationSplittingWidget::OnHepaticMerge()
 {
     std::cout << "Widget - On Hepatic (Merge)" << std::endl;
 
-    emit OnHepaticMergeSelected();
+    this->isHepatic = true;
 }
 
 void qSlicerVesselSegmentationSplittingWidget::OnPortalMerge()
 {
    std::cout << "Widget - On Portal (Merge)" << std::endl;
 
-   emit OnPortalMergeSelected();
+   this->isHepatic = true;
 }

@@ -47,11 +47,11 @@ namespace itk
     ::VesselSegmentationPreProcessingFilter()
     {
         // set defaults for member variables 
-        m_LowerThreshold = 100.0;
-        m_UpperThreshold = 250.0;
-        m_Alpha          = 20.0;
-        m_Beta           = 160.0;
-        m_Conductance    = 20.0;
+        m_LowerThreshold = 100;
+        m_UpperThreshold = 250;
+        m_Alpha          = 20;
+        m_Beta           = 160;
+        m_Conductance    = 20;
         
         m_NumberOfIterations = 30;
         

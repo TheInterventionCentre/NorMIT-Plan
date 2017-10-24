@@ -26,6 +26,7 @@ else()
 endif()
 
 #-----------------------------------------------------------------------------
+add_subdirectory(MRML)
 add_subdirectory(MRMLDM)
 add_subdirectory(Logic)
 add_subdirectory(Widgets)
@@ -41,6 +42,8 @@ set(MODULE_INCLUDE_DIRECTORIES
   ${CMAKE_CURRENT_BINARY_DIR}/Logic
   ${CMAKE_CURRENT_SOURCE_DIR}/Widgets
   ${CMAKE_CURRENT_BINARY_DIR}/Widgets
+  ${CMAKE_CURRENT_BINARY_DIR}/MRML
+  ${CMAKE_CURRENT_SOURCE_DIR}/MRML
   ${CMAKE_CURRENT_BINARY_DIR}/MRMLDM
   ${CMAKE_CURRENT_SOURCE_DIR}/MRMLDM
   )
