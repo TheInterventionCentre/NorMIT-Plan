@@ -95,29 +95,56 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   /**
-   * Calls the image preprocessing (needs an input image)
+   * Calls the image preprocessing (prerequisite: an input image).
+   *
+   * @param lower threshold.
+   * @pararm upper threshold.
+   * @param alpha.
+   * @param beta.
+   * @param conductance.
+   * @param number of interations.
    */
   void PreprocessImage( int lowerThreshold, int upperThreshold, unsigned int alpha, int beta, unsigned int conductance, unsigned int iterations );
 
   /**
-   * Calls the segmentation algorithm (needs seeds)
+   * Calls the segmentation algorithm.
+   *
+   * @param if the hepatic radio button is selected.
    */
   void SegmentVesselsFromWidget(bool isHepatic);
-  void SegmentVessels(vtkMRMLVesselSegmentationSeedNode *SeedNode, bool isHepatic);
 
   /**
-   * Calls the a merge of the hepatic and portal label maps
+   * Runs the segmentation algorithm (prerequisite: seeds).
+   *
+   * @param the seed node.
+   * @param if the hepatic radio button is selected.
+   */
+  void SegmentVessels(vtkMRMLVesselSegmentationSeedNode *seedNode, bool isHepatic);
+
+  /**
+   * Calls the a merge of the hepatic and portal label maps.
    */
   void CallMergeLabelMaps();
 
+  /**
+   * Combines the hepatic and portal label maps.
+   */
   void MergeLabelMaps();
 
   /**
-   * Calls to assign the seed to either portal or hepatic (in an overlapping area)
+   * Calls to assign the seed to either portal or hepatic.
+   *
+   * @param if the hepatic radio button is selected.
    */
   void SplitVesselsFromWidget(bool isHepatic);
-  void SplitVessels(vtkMRMLVesselSegmentationSeedNode *SeedNode, bool isHepatic);
 
+  /**
+   * Runs the algorithm to assign the seed to either portal or hepatic (in an overlapping area).
+   *
+   * @param the seed node.
+   * @param if the hepatic radio button is selected.
+   */
+  void SplitVessels(vtkMRMLVesselSegmentationSeedNode *seedNode, bool isHepatic);
 
   /**
    * Set the active volume node
@@ -140,6 +167,7 @@ public:
    */
   vtkSmartPointer<vtkMRMLScalarVolumeNode> GetActiveVolume();
     
+
   // fiducial list methods
   /**
    * Get the coordinates of the last fiducial added
@@ -205,8 +233,6 @@ protected:
    * Update the logic based on changes happening in the MRML scene.
    */
   virtual void UpdateFromMRMLScene();
-
-  //virtual void OnMRMLSceneChanged(vtkMRMLNode* node);
 
   /**
    * Method to control actions when a new MRML node is added to the MRML scene.

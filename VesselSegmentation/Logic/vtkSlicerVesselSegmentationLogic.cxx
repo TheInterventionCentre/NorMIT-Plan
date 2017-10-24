@@ -488,7 +488,7 @@ void vtkSlicerVesselSegmentationLogic::SegmentVesselsFromWidget(bool isHepatic)
   node1->Delete();
 }
 
-void vtkSlicerVesselSegmentationLogic::SegmentVessels(vtkMRMLVesselSegmentationSeedNode *SeedNode, bool isHepatic)
+void vtkSlicerVesselSegmentationLogic::SegmentVessels(vtkMRMLVesselSegmentationSeedNode *seedNode, bool isHepatic)
 {
   // check have valid image data
   if (!this->activeVol)
@@ -823,7 +823,7 @@ void vtkSlicerVesselSegmentationLogic::SplitVesselsFromWidget(bool isHepatic)
   node1->Delete();
 }
 
-void vtkSlicerVesselSegmentationLogic::SplitVessels(vtkMRMLVesselSegmentationSeedNode *SeedNode, bool isHepatic)
+void vtkSlicerVesselSegmentationLogic::SplitVessels(vtkMRMLVesselSegmentationSeedNode *seedNode, bool isHepatic)
 {
   std::cout << "LOGIC - Assign seeds (seg) " << std::endl;
 
