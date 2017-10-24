@@ -39,6 +39,10 @@
 // MRML includes
 #include "vtkMRMLScene.h"
 
+// VTK includes
+#include <vtkPoints.h>
+#include <vtkCollection.h>
+
 // STD includes
 #include <cassert>
 #include <sstream>
@@ -65,5 +69,14 @@ void vtkMRMLVesselSegmentationSeedNode::PrintSelf(ostream &vtkNotUsed(os),
 
 }
 
+void vtkMRMLVesselSegmentationSeedNode::AddSeedPoint(vtkPoints *newSeed)
+{
+  this->SeedList->AddItem(newSeed);
+}
+
+void vtkMRMLVesselSegmentationSeedNode::DeleteSeedPoints()
+{
+  this->SeedList->RemoveAllItems();
+}
 
 

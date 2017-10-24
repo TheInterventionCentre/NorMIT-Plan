@@ -42,7 +42,11 @@
 #include "vtkSlicerResectionPlanningModuleMRMLExport.h"
 
 // MRML includes
+#include <vtkNew.h>
 #include <vtkMRMLNode.h>
+
+class vtkCollection;
+class vtkPoints;
 
 /**
  * \ingroup VesselSegmentation
@@ -93,6 +97,11 @@ public:
    */
   virtual const char* GetIcon() {return "";}
 
+  vtkGetNewMacro(SeedList, vtkCollection); // create a getter for the seed list
+
+  void AddSeedPoint(vtkPoints *newSeed);
+
+  void DeleteSeedPoints();
 
 protected:
   vtkMRMLVesselSegmentationSeedNode();
@@ -100,6 +109,8 @@ protected:
 
   vtkMRMLVesselSegmentationSeedNode(const vtkMRMLVesselSegmentationSeedNode&);
   void operator=(const vtkMRMLVesselSegmentationSeedNode&);
+
+  vtkNew<vtkCollection> SeedList; // collection of vtkPoints
 };
 
 
