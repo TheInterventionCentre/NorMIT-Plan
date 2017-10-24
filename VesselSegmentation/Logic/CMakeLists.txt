@@ -16,8 +16,8 @@ message(STATUS "IncludeDirs_Logic: " ${${KIT}_INCLUDE_DIRECTORIES})
 set(${KIT}_SRCS
   vtkSlicer${MODULE_NAME}Logic.cxx
   vtkSlicer${MODULE_NAME}Logic.h
-  vtkVesselSegHelper.cxx
-  vtkVesselSegHelper.h
+  vtkVesselSegmentationHelper.cxx
+  vtkVesselSegmentationHelper.h
   #ITKFilters/itkSeedVesselSegmentationImageFilter.h
   )
 

@@ -420,7 +420,7 @@ void vtkSlicerVesselSegmentationLogic::CallPreprocessing()
   // casting is not in place (makes a copy), so switch what data the node is pointing to
   this->activeVol->SetAndObserveImageData(cast->GetOutput());
 
-  vtkVesselSegHelper::SeedImageType::Pointer itkConvertedImage = vtkVesselSegHelper::ConvertVolumeNodeToItkImage(this->activeVol);
+  vtkVesselSegmentationHelper::SeedImageType::Pointer itkConvertedImage = vtkVesselSegmentationHelper::ConvertVolumeNodeToItkImage(this->activeVol);
   if (itkConvertedImage.IsNull() == true )
   {
     std::cerr
@@ -430,7 +430,7 @@ void vtkSlicerVesselSegmentationLogic::CallPreprocessing()
   std::cout << "Converted to ITK" << std::endl;
 
   // Delcare the type of objectness measure image filter
-  typedef itk::VesselSegmentationPreProcessingFilter<vtkVesselSegHelper::SeedImageType, vtkVesselSegHelper::SeedImageType > VesselPreProcessingFilterType;
+  typedef itk::VesselSegmentationPreProcessingFilter<vtkVesselSegmentationHelper::SeedImageType, vtkVesselSegmentationHelper::SeedImageType > VesselPreProcessingFilterType;
 
   // Create a vesselness Filter
   VesselPreProcessingFilterType::Pointer VesselPreProcessingFilter = VesselPreProcessingFilterType::New();
@@ -458,8 +458,8 @@ void vtkSlicerVesselSegmentationLogic::CallPreprocessing()
   preprocessedImg->DisconnectPipeline();
 
   // at this point it should be a copy of the data? since it is the output of a non in place filter...
-  vtkSmartPointer<vtkImageData> tempVtkImageData = vtkVesselSegHelper::ConvertItkImageToVtkImageData(preprocessedImg);
-  //vtkSmartPointer<vtkMRMLScalarVolumeNode> preprocessedNode = vtkVesselSegHelper::ConvertItkImageToVolumeNode(preprocessedImg, true);
+  vtkSmartPointer<vtkImageData> tempVtkImageData = vtkVesselSegmentationHelper::ConvertItkImageToVtkImageData(preprocessedImg);
+  //vtkSmartPointer<vtkMRMLScalarVolumeNode> preprocessedNode = vtkVesselSegmentationHelper::ConvertItkImageToVolumeNode(preprocessedImg, true);
 
   if (tempVtkImageData == NULL)
   {
@@ -477,7 +477,7 @@ void vtkSlicerVesselSegmentationLogic::CallPreprocessing()
   std::cout << "Finished casting" << std::endl;
   // casting is not in place (makes a copy), so switch what data the node is pointing to
 
-  vtkSmartPointer<vtkMRMLScalarVolumeNode> preprocessedNode = vtkVesselSegHelper::ConvertVtkImageDataToVolumeNode(cast2->GetOutput(), preprocessedImg, true);
+  vtkSmartPointer<vtkMRMLScalarVolumeNode> preprocessedNode = vtkVesselSegmentationHelper::ConvertVtkImageDataToVolumeNode(cast2->GetOutput(), preprocessedImg, true);
 
   //preprocessedNode->SetName("preprocessedImage");
   this->GetMRMLScene()->AddNode(preprocessedNode);
@@ -499,7 +499,7 @@ void vtkSlicerVesselSegmentationLogic::CallSegmentationAlgorithm()
    */
   if( preprocessedImg.IsNull() == true ) {
 
-    preprocessedImg = vtkVesselSegHelper::ConvertVolumeNodeToItkImage(this->activeVol);
+    preprocessedImg = vtkVesselSegmentationHelper::ConvertVolumeNodeToItkImage(this->activeVol);
 
     if( preprocessedImg.IsNull() == true  )
     {
@@ -512,7 +512,7 @@ void vtkSlicerVesselSegmentationLogic::CallSegmentationAlgorithm()
 
 
   // create a list of pairs of fiducials
-  typedef std::pair<vtkVesselSegHelper::Index3D, vtkVesselSegHelper::Index3D> fiducialPair;
+  typedef std::pair<vtkVesselSegmentationHelper::Index3D, vtkVesselSegmentationHelper::Index3D> fiducialPair;
   std::vector<fiducialPair> fidAndFid;
 
   // have at least 2 fiducials, so try to calculate direction
@@ -530,8 +530,8 @@ void vtkSlicerVesselSegmentationLogic::CallSegmentationAlgorithm()
     this->RAStoIJKmatrix.GetPointer()->MultiplyPoint(vector1, fidIJK1);
     this->RAStoIJKmatrix.GetPointer()->MultiplyPoint(vector2, fidIJK2);
 
-    vtkVesselSegHelper::Index3D coord1;
-    vtkVesselSegHelper::Index3D coord2;
+    vtkVesselSegmentationHelper::Index3D coord1;
+    vtkVesselSegmentationHelper::Index3D coord2;
 
     // the direction seed
     coord1[0] = fidIJK1[0];
@@ -562,7 +562,7 @@ void vtkSlicerVesselSegmentationLogic::CallSegmentationAlgorithm()
       // instantiate filter
       itk::TimeProbe clock1;
       clock1.Start();
-      typedef itk::SeedVesselSegmentationImageFilter<vtkVesselSegHelper::SeedImageType, vtkVesselSegHelper::SeedImageType>  SeedFilterType;
+      typedef itk::SeedVesselSegmentationImageFilter<vtkVesselSegmentationHelper::SeedImageType, vtkVesselSegmentationHelper::SeedImageType>  SeedFilterType;
 
       int n = fidAndFid.size();
       std::cout << "Seed list length: " << n << std::endl;
@@ -599,7 +599,7 @@ void vtkSlicerVesselSegmentationLogic::CallSegmentationAlgorithm()
       // instantiate filter
       itk::TimeProbe clock1;
       clock1.Start();
-      typedef itk::SeedVesselSegmentationImageFilter<vtkVesselSegHelper::SeedImageType, vtkVesselSegHelper::SeedImageType>  SeedFilterType;
+      typedef itk::SeedVesselSegmentationImageFilter<vtkVesselSegmentationHelper::SeedImageType, vtkVesselSegmentationHelper::SeedImageType>  SeedFilterType;
 
       int n = fidAndFid.size();
       std::cout << "Seed list length: " << n << std::endl;
@@ -634,7 +634,7 @@ void vtkSlicerVesselSegmentationLogic::CallSegmentationAlgorithm()
     if(this->hepaticSeg == true) // HEPATIC radio button is selected
     {
       // convert output of filter back to VTK
-      vtkSmartPointer<vtkImageData> outVTKImage = vtkVesselSegHelper::ConvertItkImageToVtkImageData(this->hepaticITKdata);
+      vtkSmartPointer<vtkImageData> outVTKImage = vtkVesselSegmentationHelper::ConvertItkImageToVtkImageData(this->hepaticITKdata);
 
       if (outVTKImage.GetPointer()  == NULL )
       {
@@ -681,7 +681,7 @@ void vtkSlicerVesselSegmentationLogic::CallSegmentationAlgorithm()
     else // PORTAL radio button is selected
     {
       // convert output of filter back to VTK
-      vtkSmartPointer<vtkImageData> outVTKImage = vtkVesselSegHelper::ConvertItkImageToVtkImageData(this->portalITKdata);
+      vtkSmartPointer<vtkImageData> outVTKImage = vtkVesselSegmentationHelper::ConvertItkImageToVtkImageData(this->portalITKdata);
 
       if (outVTKImage.GetPointer()  == NULL )
       {
@@ -752,7 +752,7 @@ void vtkSlicerVesselSegmentationLogic::CallMergeLabelMaps()
   {
     std::cout << "Can Merge the two label maps" << std::endl;
 
-    typedef itk::AddImageFilter<vtkVesselSegHelper::SeedImageType,vtkVesselSegHelper::SeedImageType> AddFilterType;
+    typedef itk::AddImageFilter<vtkVesselSegmentationHelper::SeedImageType,vtkVesselSegmentationHelper::SeedImageType> AddFilterType;
     AddFilterType::Pointer addFilter = AddFilterType::New();
     addFilter->SetInput1(this->hepaticITKdata);
     addFilter->SetInput2(this->portalITKdata);
@@ -760,7 +760,7 @@ void vtkSlicerVesselSegmentationLogic::CallMergeLabelMaps()
     this->mergedITKdata = addFilter->GetOutput();
 
     // convert output of add filter back to VTK
-    vtkSmartPointer<vtkImageData> mergedVTKImage = vtkVesselSegHelper::ConvertItkImageToVtkImageData(this->mergedITKdata);
+    vtkSmartPointer<vtkImageData> mergedVTKImage = vtkVesselSegmentationHelper::ConvertItkImageToVtkImageData(this->mergedITKdata);
 
     if (mergedVTKImage.GetPointer()  == NULL )
     {
@@ -832,7 +832,7 @@ void vtkSlicerVesselSegmentationLogic::CallAssignSeeds()
 
     //Cast image for LabelMap
     typedef itk::Image<LabelType, 3>  LabelImageType;
-    typedef itk::CastImageFilter< vtkVesselSegHelper::SeedImageType, LabelImageType > CastFilterType;
+    typedef itk::CastImageFilter< vtkVesselSegmentationHelper::SeedImageType, LabelImageType > CastFilterType;
     CastFilterType::Pointer castFilter = CastFilterType::New();
     castFilter->SetInput(mergedITKdata);
     castFilter->Update();
@@ -926,9 +926,9 @@ void vtkSlicerVesselSegmentationLogic::CallAssignSeeds()
     }
 
     // assign object
-    itk::ImageRegionIteratorWithIndex<vtkVesselSegHelper::SeedImageType> itMerged(mergedITKdata, mergedITKdata->GetRequestedRegion());
-    itk::ImageRegionIteratorWithIndex<vtkVesselSegHelper::SeedImageType> itHepatic(hepaticITKdata, hepaticITKdata->GetRequestedRegion());
-    itk::ImageRegionIteratorWithIndex<vtkVesselSegHelper::SeedImageType> itPortal(portalITKdata, portalITKdata->GetRequestedRegion());
+    itk::ImageRegionIteratorWithIndex<vtkVesselSegmentationHelper::SeedImageType> itMerged(mergedITKdata, mergedITKdata->GetRequestedRegion());
+    itk::ImageRegionIteratorWithIndex<vtkVesselSegmentationHelper::SeedImageType> itHepatic(hepaticITKdata, hepaticITKdata->GetRequestedRegion());
+    itk::ImageRegionIteratorWithIndex<vtkVesselSegmentationHelper::SeedImageType> itPortal(portalITKdata, portalITKdata->GetRequestedRegion());
 
     // Change Selected LabelObject as Hepatic or Portal
     ShapeLabelObjectType * selectedLabelObject = this->onlyOverlapLabelMap->GetNthLabelObject(labelObjectNumber);

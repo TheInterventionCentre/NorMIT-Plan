@@ -55,10 +55,10 @@
 #include <qSlicerCoreIOManager.h>
 #include <qSlicerCoreApplication.h>
 #include <qSlicerIO.h>
+#include <vtkVesselSegmentationHelper.h>
 
 // module includes
 #include "vtkSlicerVesselSegmentationLogic.h"
-#include "vtkVesselSegHelper.h"
 
 bool testLoadFileAndSegment( const char* volumeName1, const char* volumeName2, vtkSlicerVesselSegmentationLogic* logic );
 
