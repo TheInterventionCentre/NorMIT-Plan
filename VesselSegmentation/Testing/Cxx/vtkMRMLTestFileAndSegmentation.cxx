@@ -34,11 +34,11 @@
   =========================================================================*/
 
 // MRML includes
-#include "vtkMRMLCoreTestingMacros.h"
-#include "vtkMRMLScene.h"
-#include "vtkMRMLNode.h"
+#include <vtkMRMLCoreTestingMacros.h>
+#include <vtkMRMLScene.h>
+#include <vtkMRMLNode.h>
 #include <vtkMRMLMarkupsFiducialNode.h>
-#include "vtkMRMLScalarVolumeNode.h"
+#include <vtkMRMLScalarVolumeNode.h>
 #include <vtkMRMLVolumeArchetypeStorageNode.h>
 #include <vtkMatrix4x4.h>
 
@@ -48,21 +48,21 @@
 // ITK IO factory includes
 #include <itkConfigure.h>
 #include <itkFactoryRegistration.h>
+#include <itkImageIOFactory.h>
 
 // ITK includes
 #include "itkSeedVesselSegmentationImageFilter.h"
 #include <itkIndex.h>
 #include <itkImageFileReader.h>
-#include <itkImageIOFactory.h>
 #include <itkMinimumMaximumImageCalculator.h>
 
 // Qt includes
 #include <qSlicerCoreIOManager.h>
 #include <qSlicerCoreApplication.h>
 #include <qSlicerIO.h>
-#include <vtkVesselSegmentationHelper.h>
 
 // module includes
+#include "vtkVesselSegmentationHelper.h"
 #include "vtkSlicerVesselSegmentationLogic.h"
 
 bool testLoadFileAndSegment( const char* volumeName1, const char* volumeName2, vtkSlicerVesselSegmentationLogic* logic );

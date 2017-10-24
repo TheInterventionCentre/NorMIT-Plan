@@ -34,17 +34,20 @@
   =========================================================================*/
 
 // MRML includes
-#include "vtkMRMLCoreTestingMacros.h"
-#include "vtkMRMLScene.h"
-#include "vtkMRMLNode.h"
-#include <vtkMRMLMarkupsFiducialNode.h>
-#include "vtkMRMLScalarVolumeNode.h"
+#include <vtkMRMLCoreTestingMacros.h>
+#include <vtkMRMLScene.h>
+#include <vtkMRMLNode.h>
+#include <vtkMRMLScalarVolumeNode.h>
 #include <vtkMRMLVolumeArchetypeStorageNode.h>
-#include <vtkMatrix4x4.h>
 
 // VTK includes
 #include <vtkNew.h>
 #include <vtkImageData.h>
+
+// ITK IO factory includes
+#include <itkConfigure.h>
+#include <itkFactoryRegistration.h>
+#include <itkImageIOFactory.h>
 
 // ITK includes
 #include <itkImageFileReader.h>
@@ -62,6 +65,8 @@ bool testImageConversions( const char* volumeName1, vtkSlicerVesselSegmentationL
 
 int vtkVesselSegmentationHelperTest1(int argc, char * argv[]  )
 {
+  itk::itkFactoryRegistration();
+
   bool res = false;
 
   vtkNew<vtkMRMLScene> scene;
@@ -86,8 +91,10 @@ int vtkVesselSegmentationHelperTest1(int argc, char * argv[]  )
 bool testImageConversions( const char* volumeName1, vtkSlicerVesselSegmentationLogic* logic )
 {
   std::cout << "inside: testConvertImage" << std::endl;
-  //Retrieve a pointer to the mrml scene
-  vtkMRMLScene *scene = logic->GetMRMLScene();
+
+  std::cout << "There are\n"
+            << itk::ObjectFactoryBase::CreateAllInstance( "itkImageIOBase" ).size()
+            << " IO objects available to the ImageFileReader.\n" << std::endl;
 
   vtkNew<vtkMRMLVolumeArchetypeStorageNode> storageNode1;
   vtkNew<vtkMRMLScalarVolumeNode> scalarNode1;
