@@ -130,9 +130,9 @@ void qSlicerVesselSegmentationModuleWidget::setup()
 
   // connections to preprocessing widget
   QObject::connect(d->PreprocessingWidget,
-                   SIGNAL(PreprocessingClicked(int,int,int,int,int,int)),
+                   SIGNAL(PreprocessingClicked(int,int,unsigned int,int,unsigned int,unsigned int)),
                    this,
-                   SLOT(onPreprocessing(int,int,int,int,int,int)));
+                   SLOT(onPreprocessing(int,int,unsigned int,int,unsigned int,unsigned int)));
 
   // connections to segmentation widget
   QObject::connect(d->SegmentationWidget,

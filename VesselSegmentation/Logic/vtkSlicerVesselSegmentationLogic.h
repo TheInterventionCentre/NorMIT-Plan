@@ -97,7 +97,7 @@ public:
   /**
    * Calls the image preprocessing (needs an input image)
    */
-  void PreprocessImage( int lowerThreshold, int upperThreshold, int alpha, int beta, int conductance, int iterations );
+  void PreprocessImage( int lowerThreshold, int upperThreshold, unsigned int alpha, int beta, unsigned int conductance, unsigned int iterations );
 
   /**
    * Calls the segmentation algorithm (needs seeds)

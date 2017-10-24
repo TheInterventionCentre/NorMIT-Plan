@@ -126,7 +126,7 @@ void qSlicerVesselSegmentationPreprocessingWidget::OnUTSpin(int value)
   int upperThreshold = value;
 }
 
-void qSlicerVesselSegmentationPreprocessingWidget::OnAlphaSpin(int value)
+void qSlicerVesselSegmentationPreprocessingWidget::OnAlphaSpin(unsigned int value)
 {
   std::cout << "Widget - On Alpha spin " << value << std::endl;
 
@@ -140,14 +140,14 @@ void qSlicerVesselSegmentationPreprocessingWidget::OnBetaSpin(int value)
   int beta = value;
 }
 
-void qSlicerVesselSegmentationPreprocessingWidget::OnConductanceSpin(int value)
+void qSlicerVesselSegmentationPreprocessingWidget::OnConductanceSpin(unsigned int value)
 {
   std::cout << "Widget - On Conductance spin " << value << std::endl;
 
   int conductance = value;
 }
 
-void qSlicerVesselSegmentationPreprocessingWidget::OnIterationsSpin(int value)
+void qSlicerVesselSegmentationPreprocessingWidget::OnIterationsSpin(unsigned int value)
 {
   std::cout << "Widget - On Iterations spin " << value << std::endl;
 

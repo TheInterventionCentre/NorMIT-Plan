@@ -372,7 +372,7 @@ void vtkSlicerVesselSegmentationLogic::DeleteFiducials()
 /**
 * Call preprocessing (pipeline of a bunch of ITK filters)
 */
-void vtkSlicerVesselSegmentationLogic::PreprocessImage( int lowerThreshold, int upperThreshold, int alpha, int beta, int conductance, int iterations )
+void vtkSlicerVesselSegmentationLogic::PreprocessImage( int lowerThreshold, int upperThreshold, unsigned int alpha, int beta, unsigned int conductance, unsigned int iterations )
 {
   if(this->activeVol == NULL)
   {

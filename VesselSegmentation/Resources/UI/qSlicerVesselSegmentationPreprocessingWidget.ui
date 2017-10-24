@@ -41,10 +41,10 @@
            <item>
             <widget class="QSpinBox" name="LTspinBox">
              <property name="minimum">
-              <number>-200</number>
+              <number>-1000</number>
              </property>
              <property name="maximum">
-              <number>500</number>
+              <number>1000</number>
              </property>
              <property name="value">
               <number>100</number>
@@ -61,10 +61,10 @@
            <item>
             <widget class="QSpinBox" name="UTspinBox">
              <property name="minimum">
-              <number>-200</number>
+              <number>-1000</number>
              </property>
              <property name="maximum">
-              <number>500</number>
+              <number>1000</number>
              </property>
              <property name="value">
               <number>250</number>
@@ -88,7 +88,7 @@
               <number>0</number>
              </property>
              <property name="maximum">
-              <number>50</number>
+              <number>100</number>
              </property>
              <property name="value">
               <number>20</number>
@@ -105,10 +105,10 @@
            <item>
             <widget class="QSpinBox" name="BetaSpinBox">
              <property name="minimum">
-              <number>-200</number>
+              <number>-1000</number>
              </property>
              <property name="maximum">
-              <number>500</number>
+              <number>1000</number>
              </property>
              <property name="value">
               <number>160</number>
@@ -128,11 +128,14 @@
            </item>
            <item>
             <widget class="QSpinBox" name="ConductanceSpinBox">
+             <property name="minimum">
+              <number>0</number>
+             </property>
              <property name="maximum">
               <number>50</number>
              </property>
              <property name="value">
-              <number>20</number>
+              <number>25</number>
              </property>
             </widget>
            </item>
@@ -191,12 +194,6 @@
   </layout>
  </widget>
  <customwidgets>
-  <customwidget>
-   <class>qSlicerWidget</class>
-   <extends>QWidget</extends>
-   <header>qSlicerWidget.h</header>
-   <container>1</container>
-  </customwidget>
   <customwidget>
    <class>ctkCollapsibleButton</class>
    <extends>QWidget</extends>
@@ -261,7 +258,7 @@
    <sender>AlphaSpinBox</sender>
    <signal>valueChanged(int)</signal>
    <receiver>qSlicerVesselSegmentationPreprocessingWidget</receiver>
-   <slot>OnAlphaSpin(int)</slot>
+   <slot>OnAlphaSpin(unsigned int)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>176</x>
@@ -293,7 +290,7 @@
    <sender>ConductanceSpinBox</sender>
    <signal>valueChanged(int)</signal>
    <receiver>qSlicerVesselSegmentationPreprocessingWidget</receiver>
-   <slot>OnConductanceSpin(int)</slot>
+   <slot>OnConductanceSpin(unsigned int)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>162</x>
@@ -309,7 +306,7 @@
    <sender>IterationsSpinBox</sender>
    <signal>valueChanged(int)</signal>
    <receiver>qSlicerVesselSegmentationPreprocessingWidget</receiver>
-   <slot>OnIterationsSpin(int)</slot>
+   <slot>OnIterationsSpin(unsigned int)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>386</x>

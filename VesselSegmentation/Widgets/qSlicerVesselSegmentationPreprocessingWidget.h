@@ -80,7 +80,7 @@ class Q_SLICER_MODULE_VESSELSEGMENTATION_WIDGETS_EXPORT qSlicerVesselSegmentatio
   * @param conductance from spin box
   * @param interations from spin box
   */
- void PreprocessingClicked(int lowerThreshold, int upperThreshold, int alpha, int beta, int conductance, int iterations);
+ void PreprocessingClicked(int lowerThreshold, int upperThreshold, unsigned int alpha, int beta, unsigned int conductance, unsigned int iterations);
 
 
  protected slots:
@@ -109,7 +109,7 @@ class Q_SLICER_MODULE_VESSELSEGMENTATION_WIDGETS_EXPORT qSlicerVesselSegmentatio
    *
    * @param value of spin box.
    */
-  void OnAlphaSpin(int value);
+  void OnAlphaSpin(unsigned int value);
 
   /**
    * Triggered when beta spin box is changed
@@ -123,14 +123,14 @@ class Q_SLICER_MODULE_VESSELSEGMENTATION_WIDGETS_EXPORT qSlicerVesselSegmentatio
    *
    * @param value of spin box.
    */
-  void OnConductanceSpin(int value);
+  void OnConductanceSpin(unsigned int value);
 
   /**
    * Triggered when iteration spin box is changed
    *
    * @param value of spin box.
    */
-  void OnIterationsSpin(int value);
+  void OnIterationsSpin(unsigned int value);
 
  protected:
   QScopedPointer<qSlicerVesselSegmentationPreprocessingWidgetPrivate> d_ptr;
@@ -138,10 +138,10 @@ class Q_SLICER_MODULE_VESSELSEGMENTATION_WIDGETS_EXPORT qSlicerVesselSegmentatio
   // values for the preprocessing
   int lowerThreshold;
   int upperThreshold;
-  int alpha;
+  unsigned int alpha;
   int beta;
-  int conductance;
-  int iterations;
+  unsigned int conductance;
+  unsigned int iterations;
 
  private:
   Q_DECLARE_PRIVATE(qSlicerVesselSegmentationPreprocessingWidget);
