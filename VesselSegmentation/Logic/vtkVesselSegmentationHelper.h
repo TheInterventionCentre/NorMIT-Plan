@@ -1,6 +1,6 @@
 /*=========================================================================
   Program: NorMIT-Plan
-  Module: vtkVesselSegHelper.h
+  Module: vtkVesselSegmentationHelper.h
 
   Copyright (c) 2017, The Intervention Centre, Oslo University Hospital
 
@@ -32,8 +32,8 @@
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   =========================================================================*/
 
-#ifndef __vtkVesselSegHelper_h
-#define __vtkVesselSegHelper_h
+#ifndef __vtkVesselSegmentationHelper_h
+#define __vtkVesselSegmentationHelper_h
 
 #include <vtkObject.h>
 #include <vtkSmartPointer.h>
@@ -53,13 +53,13 @@ class vtkMatrix4x4;
  *  Class that contains helper methods to get / prepare the data needed for calling Rahul's algorithm.
  *  This includes conversion between itk and vtk images.
  */
-class vtkVesselSegHelper: public vtkObject
+class vtkVesselSegmentationHelper: public vtkObject
 {
     
 public:
     
-    static vtkVesselSegHelper *New();
-    vtkTypeMacro(vtkVesselSegHelper, vtkObject);
+    static vtkVesselSegmentationHelper *New();
+    vtkTypeMacro(vtkVesselSegmentationHelper, vtkObject);
 
     typedef itk::Index<3> Index3D;
     typedef itk::Vector<double,3> Vector3D;
@@ -89,8 +89,8 @@ public:
 
 protected:
 
-    vtkVesselSegHelper();
-    ~vtkVesselSegHelper();
+    vtkVesselSegmentationHelper();
+    ~vtkVesselSegmentationHelper();
     
 private:
     

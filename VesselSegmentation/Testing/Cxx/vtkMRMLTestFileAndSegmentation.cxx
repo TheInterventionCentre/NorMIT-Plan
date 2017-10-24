@@ -34,11 +34,11 @@
   =========================================================================*/
 
 // MRML includes
-#include "vtkMRMLCoreTestingMacros.h"
-#include "vtkMRMLScene.h"
-#include "vtkMRMLNode.h"
+#include <vtkMRMLCoreTestingMacros.h>
+#include <vtkMRMLScene.h>
+#include <vtkMRMLNode.h>
 #include <vtkMRMLMarkupsFiducialNode.h>
-#include "vtkMRMLScalarVolumeNode.h"
+#include <vtkMRMLScalarVolumeNode.h>
 #include <vtkMRMLVolumeArchetypeStorageNode.h>
 #include <vtkMatrix4x4.h>
 
@@ -48,12 +48,12 @@
 // ITK IO factory includes
 #include <itkConfigure.h>
 #include <itkFactoryRegistration.h>
+#include <itkImageIOFactory.h>
 
 // ITK includes
 #include "itkSeedVesselSegmentationImageFilter.h"
 #include <itkIndex.h>
 #include <itkImageFileReader.h>
-#include <itkImageIOFactory.h>
 #include <itkMinimumMaximumImageCalculator.h>
 
 // Qt includes
@@ -62,8 +62,8 @@
 #include <qSlicerIO.h>
 
 // module includes
+#include "vtkVesselSegmentationHelper.h"
 #include "vtkSlicerVesselSegmentationLogic.h"
-#include "vtkVesselSegHelper.h"
 
 bool testLoadFileAndSegment( const char* volumeName1, const char* volumeName2, vtkSlicerVesselSegmentationLogic* logic );
 
@@ -144,7 +144,7 @@ bool testLoadFileAndSegment( const char* volumeName1, const char* volumeName2, v
     SeedVesselFilterType::Pointer seedVesselFilter = SeedVesselFilterType::New();
 
     // get image
-    ImageType::Pointer preprocessedImg = vtkVesselSegHelper::ConvertVolumeNodeToItkImage(logic->GetActiveVolume());
+    ImageType::Pointer preprocessedImg = vtkVesselSegmentationHelper::ConvertVolumeNodeToItkImage(logic->GetActiveVolume());
 
     // Connect to input image
     seedVesselFilter->SetInput( preprocessedImg );
@@ -268,7 +268,7 @@ bool testLoadFileAndSegment( const char* volumeName1, const char* volumeName2, v
     }
 
     // get image
-    ImageType::Pointer similarityImg = vtkVesselSegHelper::ConvertVolumeNodeToItkImage(logic->GetActiveVolume());
+    ImageType::Pointer similarityImg = vtkVesselSegmentationHelper::ConvertVolumeNodeToItkImage(logic->GetActiveVolume());
 
     typedef itk::MinimumMaximumImageCalculator <ImageType> ImageCalculatorFilterType;
 
