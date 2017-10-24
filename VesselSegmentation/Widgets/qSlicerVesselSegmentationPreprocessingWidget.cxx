@@ -109,49 +109,49 @@ void qSlicerVesselSegmentationPreprocessingWidget::PreProcessing()
 {
   std::cout << "Widget - On PreProcessing" << std::endl;
 
-  emit PreprocessingClicked(lowerThreshold, upperThreshold, alpha, beta, conductance, iterations);
+  emit PreprocessingClicked(this->lowerThreshold, this->upperThreshold, this->alpha, this->beta, this->conductance, this->iterations);
 }
 
 void qSlicerVesselSegmentationPreprocessingWidget::OnLTSpin(int value)
 {
   std::cout << "Widget - On LT spin " << value << std::endl;
 
-  int lowerThreshold = value;
+  this->lowerThreshold = value;
 }
 
 void qSlicerVesselSegmentationPreprocessingWidget::OnUTSpin(int value)
 {
   std::cout << "Widget - On UT spin " << value << std::endl;
 
-  int upperThreshold = value;
+  this->upperThreshold = value;
 }
 
 void qSlicerVesselSegmentationPreprocessingWidget::OnAlphaSpin(unsigned int value)
 {
   std::cout << "Widget - On Alpha spin " << value << std::endl;
 
-  int alpha = value;
+  this->alpha = value;
 }
 
 void qSlicerVesselSegmentationPreprocessingWidget::OnBetaSpin(int value)
 {
   std::cout << "Widget - On Beta spin " << value << std::endl;
 
-  int beta = value;
+  this->beta = value;
 }
 
 void qSlicerVesselSegmentationPreprocessingWidget::OnConductanceSpin(unsigned int value)
 {
   std::cout << "Widget - On Conductance spin " << value << std::endl;
 
-  int conductance = value;
+  this->conductance = value;
 }
 
 void qSlicerVesselSegmentationPreprocessingWidget::OnIterationsSpin(unsigned int value)
 {
   std::cout << "Widget - On Iterations spin " << value << std::endl;
 
-  int iterations = value;
+  this->iterations = value;
 }
 
 
