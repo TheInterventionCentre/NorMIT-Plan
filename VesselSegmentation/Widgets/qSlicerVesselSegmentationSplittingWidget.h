@@ -84,17 +84,7 @@ class Q_SLICER_MODULE_VESSELSEGMENTATION_WIDGETS_EXPORT qSlicerVesselSegmentatio
  /**
   * Signal emitted when the run seed assignment button is clicked
   */
- void RunSeedAssignmentClicked();
-
- /**
-  * Signal emitted when the hepatic radio button is selected
-  */
- void OnHepaticMergeSelected();
-
- /**
-  * Signal emitted when the portal radio button is selected
-  */
- void OnPortalMergeSelected();
+ void RunSeedAssignmentClicked(bool isHepatic);
 
  protected slots:
 
@@ -125,6 +115,8 @@ class Q_SLICER_MODULE_VESSELSEGMENTATION_WIDGETS_EXPORT qSlicerVesselSegmentatio
 
  protected:
   QScopedPointer<qSlicerVesselSegmentationSplittingWidgetPrivate> d_ptr;
+
+  bool isHepatic;
 
  private:
   Q_DECLARE_PRIVATE(qSlicerVesselSegmentationSplittingWidget);

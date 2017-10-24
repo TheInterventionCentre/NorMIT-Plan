@@ -18,11 +18,11 @@ set(${KIT}_SRCS
   vtkSlicer${MODULE_NAME}Logic.h
   vtkVesselSegHelper.cxx
   vtkVesselSegHelper.h
-  #ITKFilters/itkSeedVesselSegmentationImageFilter.h
   )
 
 set(${KIT}_TARGET_LIBRARIES
   ${ITK_LIBRARIES}
+  vtkSlicerVesselSegmentationModuleMRML
   vtkSlicerMarkupsModuleMRML
   vtkSlicerMarkupsModuleMRMLDisplayableManager
   vtkSlicerMarkupsModuleLogic
