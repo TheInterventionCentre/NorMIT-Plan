@@ -54,9 +54,42 @@
 int vtkMRMLVesselSegmentationSeedNodeTest1(int, char *[])
 {
   vtkNew<vtkMRMLVesselSegmentationSeedNode> node1;
+  vtkNew<vtkMRMLVesselSegmentationSeedNode> node2;
 
   // Basic node tests
   EXERCISE_ALL_BASIC_MRML_METHODS(node1.GetPointer());
+
+  //----------------------------------------------------------------------------
+  // Adding seeds tests
+  node1->SetSeed1(1.0,2.0,3.0);
+
+  float *node1_seed1 = node1->GetSeed1();
+
+  if( node1_seed1[0] != 1.0 || node1_seed1[1] != 2.0 || node1_seed1[2] != 3.0 )
+  {
+    std::cerr << "Seed1 did not match with what was set" << std::endl;
+    return EXIT_FAILURE;
+  }
+
+  node1->SetSeed2(4.0,5.0,6.0);
+
+  float *node1_seed2 = node1->GetSeed2();
+
+  if( node1_seed2[0] != 4.0 || node1_seed2[1] != 5.0 || node1_seed2[2] != 6.0 )
+  {
+    std::cerr << "Seed2 did not match with what was set" << std::endl;
+    return EXIT_FAILURE;
+  }
+
+  // try getting a seed when nothing has been set (should be 0,0,0)
+  float *node2_seed1 = node2->GetSeed1();
+  //std::cout << "node not set contains: " << node2_seed1[0] << " " << node2_seed1[1] << " " << node2_seed1[2] << std::endl;
+
+  if( node2_seed1[0] != 0.0 || node2_seed1[1] != 0.0 || node2_seed1[2] != 0.0 )
+  {
+    std::cerr << "Seed1 was not initialized correctly" << std::endl;
+    return EXIT_FAILURE;
+  }
 
   return EXIT_SUCCESS;
 }

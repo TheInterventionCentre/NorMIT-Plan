@@ -45,9 +45,6 @@
 #include <vtkNew.h>
 #include <vtkMRMLNode.h>
 
-class vtkCollection;
-class vtkPoints;
-
 /**
  * \ingroup VesselSegmentation
  *
@@ -97,11 +94,11 @@ public:
    */
   virtual const char* GetIcon() {return "";}
 
-  vtkGetNewMacro(SeedList, vtkCollection); // create a getter for the seed list
+  vtkSetVector3Macro(Seed1, float);
+  vtkGetVector3Macro(Seed1, float);
 
-  void AddSeedPoint(vtkPoints *newSeed);
-
-  void DeleteSeedPoints();
+  vtkSetVector3Macro(Seed2, float);
+  vtkGetVector3Macro(Seed2, float);
 
 protected:
   vtkMRMLVesselSegmentationSeedNode();
@@ -110,7 +107,8 @@ protected:
   vtkMRMLVesselSegmentationSeedNode(const vtkMRMLVesselSegmentationSeedNode&);
   void operator=(const vtkMRMLVesselSegmentationSeedNode&);
 
-  vtkNew<vtkCollection> SeedList; // collection of vtkPoints
+  float Seed1 [3];
+  float Seed2 [3];
 };
 
 
