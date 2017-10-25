@@ -495,8 +495,6 @@ OnMRMLSceneNodeAdded(vtkMRMLNode *node)
     return;
     }
 
-  this->GetMRMLViewNode()->SetUseDepthPeeling(1);
-
   if (!this->GetRenderer())
     {
     vtkErrorMacro("No renderer.");
