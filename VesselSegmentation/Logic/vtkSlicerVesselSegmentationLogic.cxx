@@ -374,14 +374,6 @@ void vtkSlicerVesselSegmentationLogic::DeleteFiducials()
 */
 void vtkSlicerVesselSegmentationLogic::PreprocessImage( int lowerThreshold, int upperThreshold, unsigned int alpha, int beta, unsigned int conductance, unsigned int iterations )
 {
-  if(this->activeVol == NULL)
-  {
-    // try to get the active volume if we don't have one
-    vtkMRMLSelectionNode *selectionNode = vtkMRMLSelectionNode::SafeDownCast(this->GetMRMLScene()->GetNodeByID("vtkMRMLSelectionNodeSingleton"));
-    char *activeVolID = selectionNode->GetActiveVolumeID();
-    activeVol = vtkMRMLScalarVolumeNode::SafeDownCast(this->GetMRMLScene()->GetNodeByID(activeVolID));
-    this->SetActiveVolume(activeVol);
-  }
   // check have valid image data
   if (!this->activeVol)
   {
@@ -471,15 +463,6 @@ void vtkSlicerVesselSegmentationLogic::PreprocessImage( int lowerThreshold, int 
 */
 void vtkSlicerVesselSegmentationLogic::SegmentVesselsFromWidget(bool isHepatic)
 {
-  if(this->activeVol == NULL)
-  {
-    // try to get the active volume if we don't have one
-    vtkMRMLSelectionNode *selectionNode = vtkMRMLSelectionNode::SafeDownCast(this->GetMRMLScene()->GetNodeByID("vtkMRMLSelectionNodeSingleton"));
-    char *activeVolID = selectionNode->GetActiveVolumeID();
-    activeVol = vtkMRMLScalarVolumeNode::SafeDownCast(this->GetMRMLScene()->GetNodeByID(activeVolID));
-    this->SetActiveVolume(activeVol);
-  }
-
   // create empty node to pass into function for now
   vtkMRMLVesselSegmentationSeedNode *node1 = vtkMRMLVesselSegmentationSeedNode::New();
 
@@ -825,7 +808,11 @@ void vtkSlicerVesselSegmentationLogic::SplitVesselsFromWidget(bool isHepatic)
 
 void vtkSlicerVesselSegmentationLogic::SplitVessels(vtkMRMLVesselSegmentationSeedNode *vtkNotUsed(seedNode), bool isHepatic)
 {
-  std::cout << "LOGIC - Assign seeds (seg) " << std::endl;
+  if (this->fiducialVector.size() <= 0)
+  {
+    vtkErrorMacro("CallAssignSeeds: Do not have any fiducials.")
+    return;
+  }
 
   // have at least 1 fiducial
   while(this->fiducialVector.size() > 0)
