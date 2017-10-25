@@ -39,6 +39,9 @@
 // MRML includes
 #include "vtkMRMLScene.h"
 
+// VTK includes
+
+
 // STD includes
 #include <cassert>
 #include <sstream>
@@ -64,6 +67,5 @@ void vtkMRMLVesselSegmentationSeedNode::PrintSelf(ostream &vtkNotUsed(os),
 {
 
 }
-
 
 

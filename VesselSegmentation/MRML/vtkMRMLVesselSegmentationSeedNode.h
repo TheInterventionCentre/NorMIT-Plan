@@ -42,6 +42,7 @@
 #include "vtkSlicerResectionPlanningModuleMRMLExport.h"
 
 // MRML includes
+#include <vtkNew.h>
 #include <vtkMRMLNode.h>
 
 /**
@@ -93,6 +94,11 @@ public:
    */
   virtual const char* GetIcon() {return "";}
 
+  vtkSetVector3Macro(Seed1, float);
+  vtkGetVector3Macro(Seed1, float);
+
+  vtkSetVector3Macro(Seed2, float);
+  vtkGetVector3Macro(Seed2, float);
 
 protected:
   vtkMRMLVesselSegmentationSeedNode();
@@ -100,6 +106,9 @@ protected:
 
   vtkMRMLVesselSegmentationSeedNode(const vtkMRMLVesselSegmentationSeedNode&);
   void operator=(const vtkMRMLVesselSegmentationSeedNode&);
+
+  float Seed1 [3];
+  float Seed2 [3];
 };
 
 
