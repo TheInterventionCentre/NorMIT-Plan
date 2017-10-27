@@ -91,7 +91,7 @@ int vtkMRMLVesselSegmentationLogicTest1(int , char * [] )
 
   TESTING_OUTPUT_ASSERT_ERRORS_BEGIN();
   logic->SplitVesselsFromWidget(true); // isHepatic = true
-  TESTING_OUTPUT_ASSERT_ERRORS(1); // should fail at error where do not have any fiducials
+  TESTING_OUTPUT_ASSERT_ERRORS(1); // should fail at error where do not have a seed
   TESTING_OUTPUT_ASSERT_ERRORS_END();
 
   return EXIT_SUCCESS;

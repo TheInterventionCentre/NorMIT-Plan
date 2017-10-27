@@ -83,7 +83,7 @@ int vtkMRMLVesselSegmentationSeedNodeTest1(int, char *[])
 
   // try getting a seed when nothing has been set (should be 0,0,0)
   double *node2_seed1 = node2->GetSeed1();
-  //std::cout << "Node not set contains (should be 0,0,0): " << node2_seed1[0] << " " << node2_seed1[1] << " " << node2_seed1[2] << std::endl;
+  std::cout << "Node not set contains (should be 0,0,0): " << node2_seed1[0] << " " << node2_seed1[1] << " " << node2_seed1[2] << std::endl;
 
   if( node2_seed1[0] != 0.0 && node2_seed1[1] != 0.0 && node2_seed1[2] != 0.0 )
   {

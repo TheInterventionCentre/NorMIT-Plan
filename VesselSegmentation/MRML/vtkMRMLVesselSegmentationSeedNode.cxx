@@ -52,6 +52,13 @@ vtkMRMLNodeNewMacro(vtkMRMLVesselSegmentationSeedNode);
 //----------------------------------------------------------------------------
 vtkMRMLVesselSegmentationSeedNode::vtkMRMLVesselSegmentationSeedNode()
 {
+  this->Seed1[0] = 0.0;
+  this->Seed1[1] = 0.0;
+  this->Seed1[2] = 0.0;
+
+  this->Seed2[0] = 0.0;
+  this->Seed2[1] = 0.0;
+  this->Seed2[2] = 0.0;
 
 }
 

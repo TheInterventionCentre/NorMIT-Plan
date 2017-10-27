@@ -337,15 +337,12 @@ void vtkSlicerVesselSegmentationLogic::PreprocessImage( int lowerThreshold, int 
 */
 void vtkSlicerVesselSegmentationLogic::SegmentVesselsFromWidget(bool isHepatic)
 {
-  // create empty node to pass into function for now
-  vtkMRMLVesselSegmentationSeedNode *node1 = vtkMRMLVesselSegmentationSeedNode::New();
+  vtkSmartPointer<vtkMRMLVesselSegmentationSeedNode> node1 = vtkSmartPointer<vtkMRMLVesselSegmentationSeedNode>::New();
 
   // get the node from the scene?
   //vtkMRMLVesselSegmentationSeedNode *testNode = vtkMRMLVesselSegmentationSeedNode::SafeDownCast(this->GetMRMLScene()->GetNodeByID("VesselSegmentationSeed"));
 
-  this->SegmentVessels(node1, isHepatic);
-
-  node1->Delete();
+  this->SplitVessels(node1.GetPointer(), isHepatic);
 }
 
 void vtkSlicerVesselSegmentationLogic::SegmentVessels(vtkMRMLVesselSegmentationSeedNode *seedNode, bool isHepatic)
@@ -415,17 +412,6 @@ void vtkSlicerVesselSegmentationLogic::SegmentVessels(vtkMRMLVesselSegmentationS
   coord2[0] = seedIJK2[0];
   coord2[1] = seedIJK2[1];
   coord2[2] = seedIJK2[2];
-
-  if( seed1[0] == 0.0 && seed1[1] == 0.0 && seed1[2] == 0.0  )
-  {
-    vtkErrorMacro("SegmentVessels: seed1 not initialized.")
-    return;
-  }
-  if( seed2[0] == 0.0 && seed2[1] == 0.0 && seed2[2] == 0.0  )
-  {
-    vtkErrorMacro("SegmentVessels: seed2 not initialized.")
-    return;
-  }
 
   // create filter
   typedef itk::SeedVesselSegmentationImageFilter<vtkVesselSegHelper::SeedImageType, vtkVesselSegHelper::SeedImageType>  SeedFilterType;
@@ -664,18 +650,18 @@ void vtkSlicerVesselSegmentationLogic::MergeLabelMaps()
 void vtkSlicerVesselSegmentationLogic::SplitVesselsFromWidget(bool isHepatic)
 {
   // create empty node to pass into function for now
-  vtkMRMLVesselSegmentationSeedNode *node1 = vtkMRMLVesselSegmentationSeedNode::New();
+  vtkSmartPointer<vtkMRMLVesselSegmentationSeedNode> node1 = vtkSmartPointer<vtkMRMLVesselSegmentationSeedNode>::New();
 
-  this->SplitVessels(node1, isHepatic);
-
-  node1->Delete();
+  this->SplitVessels(node1.GetPointer(), isHepatic);
 }
 
 void vtkSlicerVesselSegmentationLogic::SplitVessels(vtkMRMLVesselSegmentationSeedNode *seedNode, bool isHepatic)
 {
   double *seed1 = seedNode->GetSeed1();
 
-  if( seed1[0] == 0.0 && seed1[1] == 0.0 && seed1[2] == 0.0  )
+  std::cout << "Seed node: " << seed1[0] << " " << seed1[1] << " " << seed1[2] << std::endl;
+
+  if( seed1[0] == 0.0 && seed1[1] == 0.0 && seed1[2] == 0.0 )
   {
     vtkErrorMacro("CallAssignSeeds: Do not have a seed set.")
     return;
