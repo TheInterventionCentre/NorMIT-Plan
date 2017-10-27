@@ -111,7 +111,7 @@ SetMRMLSceneInternal(vtkMRMLScene *newScene)
 }
 
 void vtkMRMLVesselSegmentationDisplayableManager::
-OnMRMLSceneNodeAdded(vtkMRMLNode *addedNode)
+OnMRMLSceneNodeAdded(vtkMRMLNode* vtkNotUsed(addedNode))
 {
   // TODO: observe all seed nodes added to scene
 

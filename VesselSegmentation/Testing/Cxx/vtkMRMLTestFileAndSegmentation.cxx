@@ -142,7 +142,7 @@ bool testLoadFileAndSegment( const char* volumeName1, const char* volumeName2, c
   // Declare the types of the images
   typedef itk::Image<PixelType,Dim> ImageType;
 
-  typedef itk::SeedVesselSegmentationImageFilter<ImageType, ImageType> SeedVesselFilterType;
+  //typedef itk::SeedVesselSegmentationImageFilter<ImageType, ImageType> SeedVesselFilterType;
 
   /*
   //create conversion matrices

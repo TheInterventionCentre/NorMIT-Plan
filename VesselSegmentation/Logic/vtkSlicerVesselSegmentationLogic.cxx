@@ -163,7 +163,7 @@ void vtkSlicerVesselSegmentationLogic::UpdateFromMRMLScene()
  * set up observers of particular nodes
  */
 void vtkSlicerVesselSegmentationLogic
-::OnMRMLSceneNodeAdded(vtkMRMLNode* addedNode)
+::OnMRMLSceneNodeAdded(vtkMRMLNode* vtkNotUsed(addedNode))
 {
 
 }
@@ -179,7 +179,7 @@ void vtkSlicerVesselSegmentationLogic
 /*
  * Node in scene modified
  */
-void vtkSlicerVesselSegmentationLogic::OnMRMLNodeModified(vtkMRMLNode* modifiedNode)
+void vtkSlicerVesselSegmentationLogic::OnMRMLNodeModified(vtkMRMLNode* vtkNotUsed(modifiedNode))
 {
 
 }
@@ -375,8 +375,6 @@ void vtkSlicerVesselSegmentationLogic::SegmentVessels(vtkMRMLVesselSegmentationS
   }
 
   // get the pair of seeds in the right format for the itk filter
-  typedef std::pair<vtkVesselSegHelper::Index3D, vtkVesselSegHelper::Index3D> seedPair;
-
   double *seed1 = seedNode->GetSeed1();
   double *seed2 = seedNode->GetSeed2();
 
