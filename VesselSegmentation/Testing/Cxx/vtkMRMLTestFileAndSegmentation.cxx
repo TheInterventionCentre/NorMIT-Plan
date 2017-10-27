@@ -89,7 +89,7 @@ int vtkMRMLTestFileAndSegmentation(int argc, char * argv[]  )
     }
   std::cout << "Using file name segment " << fileName1 << std::endl;
 
-  const char* fileName2 = "../Data/testImage3_largeSimilarity.nrrd";
+  const char* fileName2 = "../Data/testImage3_similaritySlicer.nrrd";
   if (argc > 2)
     {
     fileName2 = argv[2];
@@ -273,9 +273,9 @@ bool testLoadFileAndSegment( const char* volumeName1, const char* volumeName2, c
   */
 
   // call the segmentation
-  logic->SegmentVessels(seedNode.GetPointer(), true);
+  logic->SegmentVessels(seedNode.GetPointer(), false);
 
-  ImageType::Pointer output = logic->GetHepaticITKData();
+  ImageType::Pointer output = logic->GetPortalITKData();
 
   typedef itk::ImageFileWriter<ImageType> FileWriterType;
 
@@ -324,7 +324,7 @@ bool testLoadFileAndSegment( const char* volumeName1, const char* volumeName2, c
   double minPx= imageCalculatorFilter->GetMinimum();
   double diff = 0;
   unsigned int nPix = 0;
-  itk::ImageRegionIterator<ImageType> itFilterOutput(logic->GetHepaticITKData(), logic->GetHepaticITKData()->GetLargestPossibleRegion());
+  itk::ImageRegionIterator<ImageType> itFilterOutput(output, output->GetLargestPossibleRegion());
   itk::ImageRegionIterator<ImageType> itSimilarityInput(similarityImg, similarityImg->GetLargestPossibleRegion());
 
   for(itFilterOutput.GoToBegin(), itSimilarityInput.GoToBegin(); !itSimilarityInput.IsAtEnd(); ++itFilterOutput, ++itSimilarityInput)
