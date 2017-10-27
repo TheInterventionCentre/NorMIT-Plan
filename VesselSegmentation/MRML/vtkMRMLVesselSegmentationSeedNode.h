@@ -94,11 +94,11 @@ public:
    */
   virtual const char* GetIcon() {return "";}
 
-  vtkSetVector3Macro(Seed1, float);
-  vtkGetVector3Macro(Seed1, float);
+  vtkSetVector3Macro(Seed1, double);
+  vtkGetVector3Macro(Seed1, double);
 
-  vtkSetVector3Macro(Seed2, float);
-  vtkGetVector3Macro(Seed2, float);
+  vtkSetVector3Macro(Seed2, double);
+  vtkGetVector3Macro(Seed2, double);
 
 protected:
   vtkMRMLVesselSegmentationSeedNode();
@@ -107,8 +107,8 @@ protected:
   vtkMRMLVesselSegmentationSeedNode(const vtkMRMLVesselSegmentationSeedNode&);
   void operator=(const vtkMRMLVesselSegmentationSeedNode&);
 
-  float Seed1 [3];
-  float Seed2 [3];
+  double Seed1 [3];
+  double Seed2 [3];
 };
 
 

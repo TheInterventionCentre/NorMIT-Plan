@@ -13,6 +13,7 @@ endif()
 
 set(TEST_FILE "${TESTING_DATA}/testImage3_large.nrrd")
 set(TEST_FILE_SIMILARITY "${TESTING_DATA}/testImage3_largeSimilarity.nrrd")
+set(TEST_OUTPUT "${TESTING_DATA}/testOutput.nrrd")
 
 #-----------------------------------------------------------------------------
 # ITK 
@@ -63,4 +64,5 @@ slicerMacroConfigureModuleCxxTestDriver(
 # Test seed node
 simple_test(vtkMRMLVesselSegmentationSeedNodeTest1)
 simple_test(vtkMRMLVesselSegmentationLogicTest1)
-simple_test(vtkMRMLTestFileAndSegmentation ${TEST_FILE} ${TEST_FILE_SIMILARITY})
+#simple_test(vtkMRMLTestFileAndSegmentation ${TEST_FILE} ${TEST_FILE_SIMILARITY})
+simple_test(vtkMRMLTestFileAndSegmentation ${TEST_FILE} ${TEST_FILE_SIMILARITY} ${TEST_OUTPUT})

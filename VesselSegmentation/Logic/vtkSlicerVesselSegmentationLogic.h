@@ -94,6 +94,8 @@ public:
    */
   void PrintSelf(ostream& os, vtkIndent indent);
 
+  void AddSeedNode();
+
   /**
    * Calls the image preprocessing (prerequisite: an input image).
    *
@@ -167,34 +169,6 @@ public:
    */
   vtkSmartPointer<vtkMRMLScalarVolumeNode> GetActiveVolume();
     
-
-  // fiducial list methods
-  /**
-   * Get the coordinates of the last fiducial added
-   *
-   * @return double* to fiducial
-   */
-  static double* GetLastFiducialCoordinate();
-
-  /**
-   * Get the list of fiducials
-   *
-   * @return std::vector<double*> list of fiducials
-   */
-  static std::vector<double*> GetFiducialList();
-
-  /**
-   * Delete the list of fiducials
-   */
-  void DeleteFiducials();
-
-  /**
-   * If a markup was added
-   *
-   * @return boolean if a markup was added
-   */
-  static bool GetMarkupJustAdded();
-
   /**
    * Helper function to update the 3D models
    */
@@ -204,6 +178,9 @@ public:
    * Helper function to reset the 3D view
    */
   void Reset3DView();
+
+  vtkVesselSegHelper::SeedImageType::Pointer GetPortalITKData();
+  vtkVesselSegHelper::SeedImageType::Pointer GetHepaticITKData();
 
 protected:
   vtkSlicerVesselSegmentationLogic();
@@ -255,18 +232,13 @@ protected:
    */
   virtual void OnMRMLNodeModified(vtkMRMLNode* node);
     
-  static void OnMRMLMarkupAdded(vtkObject *caller, unsigned long int id, void *clientData, void *callerData);
-    
 private:    
-  bool nodeObserversSet;
-  static bool markupJustAdded;
-
   vtkNew<vtkMatrix4x4> IJKtoRASmatrix;
   vtkNew<vtkMatrix4x4> RAStoIJKmatrix;
 
   static std::vector<double*> fiducialVector;
   vtkSmartPointer<vtkMRMLScalarVolumeNode> activeVol;
-  vtkVesselSegHelper::SeedImageType::Pointer preprocessedImg; //= vtkVesselSegHelper::SeedImageType::New();
+  vtkVesselSegHelper::SeedImageType::Pointer preprocessedImg;
 
   int vtkScalarType;
 

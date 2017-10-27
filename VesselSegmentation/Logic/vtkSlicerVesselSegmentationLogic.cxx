@@ -36,14 +36,12 @@
 // VesselSegmentation Logic includes
 #include "vtkSlicerVesselSegmentationLogic.h"
 #include "vtkMRMLVesselSegmentationSeedNode.h"
-#include <itkVesselSegmentationPreProcessingFilter.h>
+#include "itkVesselSegmentationPreProcessingFilter.h"
 
 // MRML includes
 #include <vtkMRMLScene.h>
 #include <vtkMRMLScalarVolumeNode.h>
-#include <vtkMRMLMarkupsFiducialNode.h>
-#include <vtkMRMLMarkupsNode.h>
-#include <vtkMRMLAnnotationLinesNode.h>
+
 #include <vtkMRMLSelectionNode.h>
 #include <vtkMRMLInteractionNode.h>
 #include <vtkMRMLVolumeNode.h>
@@ -104,9 +102,6 @@
 #include <iostream>
 #include <cmath>
 
-std::vector<double*> vtkSlicerVesselSegmentationLogic::fiducialVector;
-bool vtkSlicerVesselSegmentationLogic::markupJustAdded;
-
 //----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkSlicerVesselSegmentationLogic);
 
@@ -116,8 +111,6 @@ vtkStandardNewMacro(vtkSlicerVesselSegmentationLogic);
  */
 vtkSlicerVesselSegmentationLogic::vtkSlicerVesselSegmentationLogic()
 {
-  nodeObserversSet = false;
-
   hepaticUpdated = false;
   portalUpdated = false;
   mergedUpdated = false;
@@ -126,11 +119,7 @@ vtkSlicerVesselSegmentationLogic::vtkSlicerVesselSegmentationLogic()
 //----------------------------------------------------------------------------
 vtkSlicerVesselSegmentationLogic::~vtkSlicerVesselSegmentationLogic()
 {
-  // delete all the vector data (pointers to arrays)
-  int s = fiducialVector.size();
-  for(int i = 0; i < s; i++) {
-    delete[] fiducialVector[i];
-  }
+
 }
 
 //----------------------------------------------------------------------------
@@ -149,8 +138,6 @@ void vtkSlicerVesselSegmentationLogic::SetMRMLSceneInternal(vtkMRMLScene * newSc
   //events->InsertNextValue(vtkMRMLCrosshairNode::CursorPositionModifiedEvent);
 
   this->SetAndObserveMRMLSceneEventsInternal(newScene, events.GetPointer());
-  this->nodeObserversSet = false;
-  this->markupJustAdded = false;
 }
 
 void vtkSlicerVesselSegmentationLogic::ObserveMRMLScene()
@@ -178,38 +165,7 @@ void vtkSlicerVesselSegmentationLogic::UpdateFromMRMLScene()
 void vtkSlicerVesselSegmentationLogic
 ::OnMRMLSceneNodeAdded(vtkMRMLNode* addedNode)
 {
-  vtkMRMLMarkupsNode* tempMarkupNode = vtkMRMLMarkupsNode::SafeDownCast(addedNode);
-  vtkMRMLMarkupsFiducialNode* tempFiducialNode = vtkMRMLMarkupsFiducialNode::SafeDownCast(addedNode);
 
-  if((tempMarkupNode != NULL) && (tempFiducialNode != NULL))
-  {
-    std::cout << "added node called & both not null." << std::endl;
-
-    if(this->nodeObserversSet == false)
-    {
-      std::cout << "Now observing: " << tempMarkupNode << " " << tempFiducialNode << std::endl;
-      this->nodeObserversSet = true;
-
-      /* Observe markup node */
-      vtkSmartPointer<vtkCallbackCommand> markupAddedCallback = vtkSmartPointer<vtkCallbackCommand>::New();
-      markupAddedCallback->SetCallback(this->OnMRMLMarkupAdded);
-      markupAddedCallback->SetClientData(this);
-
-      tempMarkupNode->AddObserver(vtkMRMLMarkupsNode::MarkupAddedEvent, markupAddedCallback);
-
-      tempMarkupNode->InvokeEvent(vtkMRMLMarkupsNode::MarkupAddedEvent);
-      /* ----------------------- */
-
-      /* Observe fiducial node */
-      vtkNew<vtkIntArray> events;
-      events->InsertNextValue(vtkCommand::ModifiedEvent);
-      vtkUnObserveMRMLNodeMacro(tempFiducialNode);
-      vtkObserveMRMLNodeEventsMacro(tempFiducialNode, events.GetPointer());
-
-      tempFiducialNode->InvokeEvent(vtkCommand::ModifiedEvent);
-      /* ----------------------- */
-    }
-  }
 }
 
 //---------------------------------------------------------------------------
@@ -225,54 +181,7 @@ void vtkSlicerVesselSegmentationLogic
  */
 void vtkSlicerVesselSegmentationLogic::OnMRMLNodeModified(vtkMRMLNode* modifiedNode)
 {
-  if(this->markupJustAdded)
-  {
-    std::cout << "node modified called LOGIC " << std::endl;
-    vtkMRMLMarkupsFiducialNode* tempFiducialNode = vtkMRMLMarkupsFiducialNode::SafeDownCast(modifiedNode);
 
-    if(tempFiducialNode != NULL)
-    {
-
-      int n = tempFiducialNode->GetNumberOfFiducials();
-      std::cout << "Fiducial vector: " << n << std::endl;
-
-      if( !this->activeVol )
-      {
-    	return;
-      }
-      vtkSmartPointer<vtkMatrix4x4> mat = vtkSmartPointer<vtkMatrix4x4>::New();
-      this->activeVol->GetIJKToRASMatrix(mat);
-      this->IJKtoRASmatrix->DeepCopy(mat);
-      this->RAStoIJKmatrix->DeepCopy(mat);
-      this->RAStoIJKmatrix->Invert();
-
-      if( n > 0 ) {
-        double *coords = new double[4];
-        tempFiducialNode->GetNthFiducialWorldCoordinates((n-1),coords);
-        std::cout << "world coords: " << coords[0] << " " << coords[1] << " ";
-        std::cout << coords[2] << " " << coords[3] << std::endl;
-
-        // add fiducial to our list of fiducials
-        this->fiducialVector.push_back(coords);
-        this->markupJustAdded = false;
-      }
-    }
-  }
-}
-
-/**
- * Markup added to scene
- * change boolean markupJustAdded for other part of code
- * !!! This appears to fire before the coordinates are set. !!!
- */
-void vtkSlicerVesselSegmentationLogic::
-OnMRMLMarkupAdded(vtkObject *vtkNotUsed(caller),
-		long unsigned int vtkNotUsed(eventId),
-		void *clientData, void *vtkNotUsed(callData))
-{
-  vtkSlicerVesselSegmentationLogic* logic = reinterpret_cast<vtkSlicerVesselSegmentationLogic*>(clientData);
-
-  logic->markupJustAdded = true;
 }
 
 void vtkSlicerVesselSegmentationLogic::SetActiveVolumeNode(vtkMRMLVolumeNode *activeNode)
@@ -290,6 +199,12 @@ void vtkSlicerVesselSegmentationLogic::SetActiveVolumeNode(vtkMRMLVolumeNode *ac
   {
     selectionNode->SetActiveVolumeID(activeNode->GetID());
   }
+
+  vtkSmartPointer<vtkMatrix4x4> mat = vtkSmartPointer<vtkMatrix4x4>::New();
+  this->activeVol->GetIJKToRASMatrix(mat);
+  this->IJKtoRASmatrix->DeepCopy(mat);
+  this->RAStoIJKmatrix->DeepCopy(mat);
+  this->RAStoIJKmatrix->Invert();
 }
 
 /**
@@ -300,6 +215,12 @@ void vtkSlicerVesselSegmentationLogic::SetActiveVolume(vtkMRMLScalarVolumeNode *
   std::cout << "LOGIC - set active Volume: " << activeVolume << std::endl;
   this->activeVol = activeVolume;
 
+  vtkSmartPointer<vtkMatrix4x4> mat = vtkSmartPointer<vtkMatrix4x4>::New();
+  this->activeVol->GetIJKToRASMatrix(mat);
+  this->IJKtoRASmatrix->DeepCopy(mat);
+  this->RAStoIJKmatrix->DeepCopy(mat);
+  this->RAStoIJKmatrix->Invert();
+
   // TODO: propagate volume selection so see in 3 views
 }
 
@@ -308,64 +229,17 @@ vtkSmartPointer<vtkMRMLScalarVolumeNode> vtkSlicerVesselSegmentationLogic::GetAc
   return this->activeVol;
 }
 
-/**
- * Get the last fiducials
- */
-double* vtkSlicerVesselSegmentationLogic::GetLastFiducialCoordinate()
+//-------------------------------------------------------------------------------
+void vtkSlicerVesselSegmentationLogic::AddSeedNode()
 {
-  int s = fiducialVector.size();
+  assert(this->GetMRMLScene() != 0);
 
-  if(s > 0)
-  {
-    return fiducialVector[s-1];
-  }
-  else
-  {
-    return NULL;
-  }
-}
+  vtkMRMLScene *scene = this->GetMRMLScene();
 
-/**
- * Returns the fiducial list
- */
-std::vector<double*> vtkSlicerVesselSegmentationLogic::GetFiducialList()
-{
-  return fiducialVector;
-}
-
-/**
- * Returns the boolean markupJustAdded
- */
-bool vtkSlicerVesselSegmentationLogic::GetMarkupJustAdded()
-{
-  return markupJustAdded;
-}
-
-void vtkSlicerVesselSegmentationLogic::DeleteFiducials()
-{
-  // delete the fiducials
-  vtkCollection *listNodes = this->GetMRMLScene()->GetNodesByClass("vtkMRMLMarkupsNode");
-
-  // loop through collection to get the fiducial node
-  int l = listNodes->GetNumberOfItems();
-  for(int i = 0; i < l; i++)
-  {
-    vtkMRMLMarkupsFiducialNode* tempMarkupNode = vtkMRMLMarkupsFiducialNode::SafeDownCast(listNodes->GetItemAsObject(0));
-    if( tempMarkupNode != NULL )
-    {
-        std::cout << "Deleting Markups " << tempMarkupNode << std::endl;
-
-        //int n = tempMarkupNode->GetNumberOfMarkups();
-        tempMarkupNode->RemoveAllMarkups();
-    }
-  }
-  listNodes->Delete();
-
-  // delete all the vector data (pointers to arrays)
-  int s = fiducialVector.size();
-  for(int i = 0; i < s; i++) {
-    delete[] fiducialVector[i];
-  }
+  // Add a seed node
+  vtkSmartPointer<vtkMRMLVesselSegmentationSeedNode> seedNode =
+    vtkSmartPointer<vtkMRMLVesselSegmentationSeedNode>::New();
+  scene->AddNode(seedNode);
 }
 
 //---------------------------------------------------------------------------
@@ -466,12 +340,15 @@ void vtkSlicerVesselSegmentationLogic::SegmentVesselsFromWidget(bool isHepatic)
   // create empty node to pass into function for now
   vtkMRMLVesselSegmentationSeedNode *node1 = vtkMRMLVesselSegmentationSeedNode::New();
 
+  // get the node from the scene?
+  //vtkMRMLVesselSegmentationSeedNode *testNode = vtkMRMLVesselSegmentationSeedNode::SafeDownCast(this->GetMRMLScene()->GetNodeByID("VesselSegmentationSeed"));
+
   this->SegmentVessels(node1, isHepatic);
 
   node1->Delete();
 }
 
-void vtkSlicerVesselSegmentationLogic::SegmentVessels(vtkMRMLVesselSegmentationSeedNode *vtkNotUsed(seedNode), bool isHepatic)
+void vtkSlicerVesselSegmentationLogic::SegmentVessels(vtkMRMLVesselSegmentationSeedNode *seedNode, bool isHepatic)
 {
   // check have valid image data
   if (!this->activeVol)
@@ -500,128 +377,92 @@ void vtkSlicerVesselSegmentationLogic::SegmentVessels(vtkMRMLVesselSegmentationS
     }
   }
 
-  // create a list of pairs of fiducials
-  typedef std::pair<vtkVesselSegHelper::Index3D, vtkVesselSegHelper::Index3D> fiducialPair;
-  std::vector<fiducialPair> fidAndFid;
+  // get the pair of seeds in the right format for the itk filter
+  typedef std::pair<vtkVesselSegHelper::Index3D, vtkVesselSegHelper::Index3D> seedPair;
 
-  // have at least 2 fiducials, so try to calculate direction
-  while(this->fiducialVector.size() > 1)
+  double *seed1 = seedNode->GetSeed1();
+  double *seed2 = seedNode->GetSeed2();
+
+  if( seed1[0] == 0.0 && seed1[1] == 0.0 && seed1[2] == 0.0  )
   {
-    // get the last 2 fiducials, and take them off the vector
-    double *vector1 = this->fiducialVector.back(); // the direction seed
-    this->fiducialVector.pop_back();
-    double *vector2 = this->fiducialVector.back(); // the actual first seed
-    this->fiducialVector.pop_back();
-
-    double *fidIJK1 = new double[4]; // the direction seed
-    double *fidIJK2 = new double[4]; // the actual first seed
-    // use the ijk matrix to convert the points
-    this->RAStoIJKmatrix.GetPointer()->MultiplyPoint(vector1, fidIJK1);
-    this->RAStoIJKmatrix.GetPointer()->MultiplyPoint(vector2, fidIJK2);
-
-    vtkVesselSegHelper::Index3D coord1;
-    vtkVesselSegHelper::Index3D coord2;
-
-    // the direction seed
-    coord1[0] = fidIJK1[0];
-    coord1[1] = fidIJK1[1];
-    coord1[2] = fidIJK1[2];
-    // the actual first seed
-    coord2[0] = fidIJK2[0];
-    coord2[1] = fidIJK2[1];
-    coord2[2] = fidIJK2[2];
-
-    fiducialPair tempPair(coord2, coord1);
-    fidAndFid.push_back(tempPair);
-
-    std::cout << "Seed list: " << tempPair.first << tempPair.second << std::endl;
+    vtkErrorMacro("CallAssignSeeds: Do not have first seed set.")
+    return;
+  }
+  if( seed2[0] == 0.0 && seed2[1] == 0.0 && seed2[2] == 0.0  )
+  {
+    vtkErrorMacro("CallAssignSeeds: Do not have second seed set.")
+    return;
   }
 
+  const double seed1_0[4] = {seed1[0], seed1[1], seed1[2], 0}; // IJK
+  const double seed2_0[4] = {seed2[0], seed2[1], seed2[2], 0}; // IJK
+
+  double *seedIJK1 = new double[4]; // the actual first seed
+  double *seedIJK2 = new double[4]; // the direction seed
+
+  // use the ijk matrix to convert the points
+  this->RAStoIJKmatrix.GetPointer()->MultiplyPoint(seed1_0, seedIJK1);
+  this->RAStoIJKmatrix.GetPointer()->MultiplyPoint(seed2_0, seedIJK2);
+
+  vtkVesselSegHelper::Index3D coord1;
+  vtkVesselSegHelper::Index3D coord2;
+
+  // the actual first seed
+  coord1[0] = seedIJK1[0];
+  coord1[1] = seedIJK1[1];
+  coord1[2] = seedIJK1[2];
+  // the direction seed
+  coord2[0] = seedIJK2[0];
+  coord2[1] = seedIJK2[1];
+  coord2[2] = seedIJK2[2];
+
+  if( seed1[0] == 0.0 && seed1[1] == 0.0 && seed1[2] == 0.0  )
+  {
+    vtkErrorMacro("SegmentVessels: seed1 not initialized.")
+    return;
+  }
+  if( seed2[0] == 0.0 && seed2[1] == 0.0 && seed2[2] == 0.0  )
+  {
+    vtkErrorMacro("SegmentVessels: seed2 not initialized.")
+    return;
+  }
+
+  // create filter
+  typedef itk::SeedVesselSegmentationImageFilter<vtkVesselSegHelper::SeedImageType, vtkVesselSegHelper::SeedImageType>  SeedFilterType;
+  SeedFilterType::Pointer filter = SeedFilterType::New();
   /*
    * Have what is needed to call rahul's algorithm
-   * fiducial list and an ITK image
+   * as pair of seeds and an ITK image
    */
-  if( (fidAndFid.size() > 0) && (preprocessedImg.IsNotNull()) )
+  if( preprocessedImg.IsNotNull() )
   {
     std::cout << "Can call itk::SeedVesselSegmentationImageFilter " << preprocessedImg << std::endl;
 
-    // HEPATIC radio button is selected
-    if(isHepatic == true)
-    {
-      // instantiate filter
-      itk::TimeProbe clock1;
-      clock1.Start();
-      typedef itk::SeedVesselSegmentationImageFilter<vtkVesselSegHelper::SeedImageType, vtkVesselSegHelper::SeedImageType>  SeedFilterType;
-
-      int n = fidAndFid.size();
-      std::cout << "Seed list length: " << n << std::endl;
-
-      // loop through all the fiducials
-      for( int i=0; i < n; i++)
-      {
-        fiducialPair tempPair;
-        tempPair = fidAndFid.back(); // get last thing on list
-        fidAndFid.pop_back(); // take it out of list
-        std::cout << "Seed IJK: " << tempPair.first << std::endl;
-        std::cout << "Direction seed: " << tempPair.second << std::endl;
-
-        // Create a seed filter
-        SeedFilterType::Pointer filter = SeedFilterType::New();
-        filter->SetInput(preprocessedImg);
-        filter->SetSeed(tempPair.first);
-        filter->SetDirectionSeed(tempPair.second);
-        filter->SetOutputLabel(4);
-        if( this->hepaticITKdata.IsNotNull() )
-        {
-          filter->SetPreviousOutput(this->hepaticITKdata);
-        }
-        filter->Update();
-
-        this->hepaticITKdata  = filter->GetOutput();
-      }
-      clock1.Stop();
-      std::cout<< "Done calling itk::SeedVesselSegmentationImageFilter" << std::endl << "Time taken for itk::SeedVesselSegmentationImageFilter : "<< clock1.GetMean() <<"sec\n"<< std::endl;
-
-    }
-    else // PORTAL radio button is selected
-    {
-      // instantiate filter
-      itk::TimeProbe clock1;
-      clock1.Start();
-      typedef itk::SeedVesselSegmentationImageFilter<vtkVesselSegHelper::SeedImageType, vtkVesselSegHelper::SeedImageType>  SeedFilterType;
-
-      int n = fidAndFid.size();
-      std::cout << "Seed list length: " << n << std::endl;
-
-      // loop through all the fiducials
-      for( int i=0; i < n; i++)
-      {
-        fiducialPair tempPair;
-        tempPair = fidAndFid.back(); // get last thing on list
-        fidAndFid.pop_back(); // take it out of list
-        std::cout << "Seed IJK: " << tempPair.first << std::endl;
-        std::cout << "Direction seed: " << tempPair.second << std::endl;
-
-        // Create a seed filter
-        SeedFilterType::Pointer filter = SeedFilterType::New();
-        filter->SetInput(preprocessedImg);
-        filter->SetSeed(tempPair.first);
-        filter->SetDirectionSeed(tempPair.second);
-        filter->SetOutputLabel(5);
-        if( this->portalITKdata.IsNotNull() )
-        {
-          filter->SetPreviousOutput(this->portalITKdata);
-        }
-        filter->Update();
-
-        this->portalITKdata  = filter->GetOutput();
-      }
-      clock1.Stop();
-      std::cout<< "Done calling itk::SeedVesselSegmentationImageFilter" << std::endl << "Time taken for itk::SeedVesselSegmentationImageFilter : "<< clock1.GetMean() <<"sec\n"<< std::endl;
-    }
-
     if(isHepatic == true) // HEPATIC radio button is selected
     {
+      // instantiate filter
+      itk::TimeProbe clock1;
+      clock1.Start();
+
+      std::cout << "Seed IJK: " << coord1 << std::endl;
+      std::cout << "Direction seed: " << coord2 << std::endl;
+
+      filter->SetInput(preprocessedImg);
+      filter->SetSeed(coord1);
+      filter->SetDirectionSeed(coord2);
+      filter->SetOutputLabel(4);
+      if( this->hepaticITKdata.IsNotNull() )
+      {
+        filter->SetPreviousOutput(this->hepaticITKdata);
+      }
+      filter->Update();
+
+      this->hepaticITKdata  = filter->GetOutput();
+      clock1.Stop();
+      std::cout << "Done calling itk::SeedVesselSegmentationImageFilter" << std::endl;
+      std::cout << "Time taken for itk::SeedVesselSegmentationImageFilter : "<< clock1.GetMean() <<"sec\n"<< std::endl;
+
+      //----------------------------------------------------------------------------
       // convert output of filter back to VTK
       vtkSmartPointer<vtkImageData> outVTKImage = vtkVesselSegHelper::ConvertItkImageToVtkImageData(this->hepaticITKdata);
 
@@ -642,13 +483,14 @@ void vtkSlicerVesselSegmentationLogic::SegmentVessels(vtkMRMLVesselSegmentationS
         std::cout << "Created hepaticLabelMap " << std::endl;
 
         // make this label map the selected one
-        vtkMRMLSelectionNode *selectionNode = vtkMRMLSelectionNode::SafeDownCast(this->GetMRMLScene()->GetNodeByID("vtkMRMLSelectionNodeSingleton"));
+        //vtkMRMLSelectionNode *selectionNode = vtkMRMLSelectionNode::SafeDownCast(this->GetMRMLScene()->GetNodeByID("vtkMRMLSelectionNodeSingleton"));
 
-        selectionNode->SetActiveLabelVolumeID(hepaticLabelMap->GetID());
-        selectionNode->SetReferenceActiveLabelVolumeID(hepaticLabelMap->GetID());
+        // causes a crash?
+        //selectionNode->SetActiveLabelVolumeID(hepaticLabelMap->GetID());
+        //selectionNode->SetReferenceActiveLabelVolumeID(hepaticLabelMap->GetID());
 
-        vtkMRMLApplicationLogic *mrmlAppLogic = this->GetMRMLApplicationLogic();
-        mrmlAppLogic->PropagateVolumeSelection();
+        //vtkMRMLApplicationLogic *mrmlAppLogic = this->GetMRMLApplicationLogic();
+        //mrmlAppLogic->PropagateVolumeSelection();
 
         // have updated hepatic, but now merged is not up to date
         this->hepaticUpdated = true;
@@ -663,10 +505,35 @@ void vtkSlicerVesselSegmentationLogic::SegmentVessels(vtkMRMLVesselSegmentationS
         this->hepaticUpdated = true;
         this->mergedUpdated = false;
       }
-
     }
     else // PORTAL radio button is selected
     {
+      // instantiate filter
+      itk::TimeProbe clock1;
+      clock1.Start();
+      typedef itk::SeedVesselSegmentationImageFilter<vtkVesselSegHelper::SeedImageType, vtkVesselSegHelper::SeedImageType>  SeedFilterType;
+
+      std::cout << "Seed IJK: " << coord1 << std::endl;
+      std::cout << "Direction seed: " << coord2 << std::endl;
+
+      // Create a seed filter
+      SeedFilterType::Pointer filter = SeedFilterType::New();
+      filter->SetInput(preprocessedImg);
+      filter->SetSeed(coord1);
+      filter->SetDirectionSeed(coord2);
+      filter->SetOutputLabel(5);
+      if( this->portalITKdata.IsNotNull() )
+      {
+        filter->SetPreviousOutput(this->portalITKdata);
+      }
+      filter->Update();
+
+      this->portalITKdata  = filter->GetOutput();
+      clock1.Stop();
+      std::cout << "Done calling itk::SeedVesselSegmentationImageFilter" << std::endl;
+      std::cout << "Time taken for itk::SeedVesselSegmentationImageFilter : "<< clock1.GetMean() <<"sec\n"<< std::endl;
+
+      //----------------------------------------------------------------------------
       // convert output of filter back to VTK
       vtkSmartPointer<vtkImageData> outVTKImage = vtkVesselSegHelper::ConvertItkImageToVtkImageData(this->portalITKdata);
 
@@ -687,13 +554,13 @@ void vtkSlicerVesselSegmentationLogic::SegmentVessels(vtkMRMLVesselSegmentationS
         std::cout << "Created portalLabelMap " << std::endl;
 
         // make this label map the selected one
-        vtkMRMLSelectionNode *selectionNode = vtkMRMLSelectionNode::SafeDownCast(this->GetMRMLScene()->GetNodeByID("vtkMRMLSelectionNodeSingleton"));
+        //vtkMRMLSelectionNode *selectionNode = vtkMRMLSelectionNode::SafeDownCast(this->GetMRMLScene()->GetNodeByID("vtkMRMLSelectionNodeSingleton"));
 
-        selectionNode->SetActiveLabelVolumeID(portalLabelMap->GetID());
-        selectionNode->SetReferenceActiveLabelVolumeID(portalLabelMap->GetID());
+        //selectionNode->SetActiveLabelVolumeID(portalLabelMap->GetID());
+        //selectionNode->SetReferenceActiveLabelVolumeID(portalLabelMap->GetID());
 
-        vtkMRMLApplicationLogic *mrmlAppLogic = this->GetMRMLApplicationLogic();
-        mrmlAppLogic->PropagateVolumeSelection();
+        //vtkMRMLApplicationLogic *mrmlAppLogic = this->GetMRMLApplicationLogic();
+        //mrmlAppLogic->PropagateVolumeSelection();
 
         // have updated portal, but now merged is not up to date
         this->portalUpdated = true;
@@ -710,15 +577,13 @@ void vtkSlicerVesselSegmentationLogic::SegmentVessels(vtkMRMLVesselSegmentationS
       }
     }
     // will updated models if data has been modified: portalUpdated or hepaticUpdated
-    this->UpdateModels();
+    //this->UpdateModels();
   }
   else
   {
-    vtkErrorMacro("SegmentVessels: Cannot segment.")
+    vtkErrorMacro("SegmentVessels: Cannot segment, since do not have preprocessed image.")
     return;
   }
-  this->DeleteFiducials();
-
 }
 
 //---------------------------------------------------------------------------
@@ -775,15 +640,15 @@ void vtkSlicerVesselSegmentationLogic::CallMergeLabelMaps()
       this->mergedUpdated = true;
     }
 
-    vtkMRMLSelectionNode *selectionNode = vtkMRMLSelectionNode::SafeDownCast(this->GetMRMLScene()->GetNodeByID("vtkMRMLSelectionNodeSingleton"));
+    //vtkMRMLSelectionNode *selectionNode = vtkMRMLSelectionNode::SafeDownCast(this->GetMRMLScene()->GetNodeByID("vtkMRMLSelectionNodeSingleton"));
     //vtkMRMLDisplayNode *displayNode = vtkMRMLDisplayNode::SafeDownCast(this->GetMRMLScene()->GetNodeByID("vtkMRMLDisplayNodeSingleton"));
 
-    std::cout << "Trying to select merged label map" << std::endl;
-    selectionNode->SetActiveLabelVolumeID(mergedLabelMap->GetID());
-    selectionNode->SetReferenceActiveLabelVolumeID(mergedLabelMap->GetID());
+    //std::cout << "Trying to select merged label map" << std::endl;
+    //selectionNode->SetActiveLabelVolumeID(mergedLabelMap->GetID());
+    //selectionNode->SetReferenceActiveLabelVolumeID(mergedLabelMap->GetID());
 
-    vtkMRMLApplicationLogic *mrmlAppLogic = this->GetMRMLApplicationLogic();
-    mrmlAppLogic->PropagateVolumeSelection();
+    //vtkMRMLApplicationLogic *mrmlAppLogic = this->GetMRMLApplicationLogic();
+    //mrmlAppLogic->PropagateVolumeSelection();
   }
   else {
     vtkErrorMacro("CallMergeLabelMaps: Do not have 2 label maps.")
@@ -806,189 +671,182 @@ void vtkSlicerVesselSegmentationLogic::SplitVesselsFromWidget(bool isHepatic)
   node1->Delete();
 }
 
-void vtkSlicerVesselSegmentationLogic::SplitVessels(vtkMRMLVesselSegmentationSeedNode *vtkNotUsed(seedNode), bool isHepatic)
+void vtkSlicerVesselSegmentationLogic::SplitVessels(vtkMRMLVesselSegmentationSeedNode *seedNode, bool isHepatic)
 {
-  if (this->fiducialVector.size() <= 0)
+  double *seed1 = seedNode->GetSeed1();
+
+  if( seed1[0] == 0.0 && seed1[1] == 0.0 && seed1[2] == 0.0  )
   {
-    vtkErrorMacro("CallAssignSeeds: Do not have any fiducials.")
+    vtkErrorMacro("CallAssignSeeds: Do not have a seed set.")
     return;
   }
 
-  // have at least 1 fiducial
-  while(this->fiducialVector.size() > 0)
+  const double seed1_0[4] = {seed1[0], seed1[1], seed1[2], 0}; // IJK
+  // have a seed
+  double *seedIJK = new double[4];
+  // use the ijk matrix to convert the points
+  this->RAStoIJKmatrix.GetPointer()->MultiplyPoint(seed1_0, seedIJK); // may not be needed, was commented out in old code???
+
+  itk::Point<double, 3> seedLPS;
+  seedLPS[0] = - seedIJK[0];
+  seedLPS[1] = - seedIJK[1];
+  seedLPS[2] = seedIJK[2];
+
+  std::cout << "Seed in LPS-coordinate: " << seedLPS[0] << " " << seedLPS[1] << " " << seedLPS[2] << std::endl;
+
+  //Cast image for LabelMap
+  typedef itk::Image<LabelType, 3>  LabelImageType;
+  typedef itk::CastImageFilter< vtkVesselSegHelper::SeedImageType, LabelImageType > CastFilterType;
+  CastFilterType::Pointer castFilter = CastFilterType::New();
+  castFilter->SetInput(mergedITKdata);
+  castFilter->Update();
+
+  // create image with just overlapping areas (overlapping areas added lower down)
+  LabelImageType::Pointer OnlyOverlap = LabelImageType::New();
+  OnlyOverlap->CopyInformation(castFilter->GetOutput());
+  OnlyOverlap->SetRegions(castFilter->GetOutput()->GetRequestedRegion());
+  OnlyOverlap->Allocate();
+  OnlyOverlap->FillBuffer(0);
+
+  itk::ImageRegionIteratorWithIndex<LabelImageType> itOrg(castFilter->GetOutput(), castFilter->GetOutput()->GetRequestedRegion());
+  itk::ImageRegionIteratorWithIndex<LabelImageType> itOnlyOverlap(OnlyOverlap, OnlyOverlap->GetRequestedRegion());
+
+  // Copy only overlapping regions to the image created above
+  for(itOrg.GoToBegin(), itOnlyOverlap.GoToBegin(); !itOrg.IsAtEnd(); ++itOrg, ++itOnlyOverlap)
   {
-    // get the seed position
-    double *vector = this->fiducialVector.back();
-    fiducialVector.pop_back();
-
-    double *fidIJK = new double[4];
-    // use the ijk matrix to convert the points
-    //this->RAStoIJKmatrix.GetPointer()->MultiplyPoint(vector, fidIJK);
-    fidIJK = vector;
-
-    itk::Point<double, 3> fidLPS;
-    fidLPS[0] = - fidIJK[0];
-    fidLPS[1] = - fidIJK[1];
-    fidLPS[2] = fidIJK[2];
-
-    std::cout << "Seed in LPS-coordinate: " << fidLPS[0] << " " << fidLPS[1] << " " << fidLPS[2] << std::endl;
-
-    //Cast image for LabelMap
-    typedef itk::Image<LabelType, 3>  LabelImageType;
-    typedef itk::CastImageFilter< vtkVesselSegHelper::SeedImageType, LabelImageType > CastFilterType;
-    CastFilterType::Pointer castFilter = CastFilterType::New();
-    castFilter->SetInput(mergedITKdata);
-    castFilter->Update();
-
-    // create image with just overlapping areas (overlapping areas added lower down)
-    LabelImageType::Pointer OnlyOverlap = LabelImageType::New();
-    OnlyOverlap->CopyInformation(castFilter->GetOutput());
-    OnlyOverlap->SetRegions(castFilter->GetOutput()->GetRequestedRegion());
-    OnlyOverlap->Allocate();
-    OnlyOverlap->FillBuffer(0);
-
-    itk::ImageRegionIteratorWithIndex<LabelImageType> itOrg(castFilter->GetOutput(), castFilter->GetOutput()->GetRequestedRegion());
-    itk::ImageRegionIteratorWithIndex<LabelImageType> itOnlyOverlap(OnlyOverlap, OnlyOverlap->GetRequestedRegion());
-
-    // Copy only overlapping regions to the image created above
-    for(itOrg.GoToBegin(), itOnlyOverlap.GoToBegin(); !itOrg.IsAtEnd(); ++itOrg, ++itOnlyOverlap)
+    if(itOrg.Get() == 9)
     {
-      if(itOrg.Get() == 9)
-      {
-       itOnlyOverlap.Set( 1 );
-      }
-    }
-
-    // if first time, or if segmentations have been updated
-    if( this->onlyOverlapLabelMap.IsNull() || this->mergedUpdated == true )
-    {
-      itk::TimeProbe clock1;
-      clock1.Start();
-
-      //Structuring Element for Dilation filter
-      typedef itk::BinaryBallStructuringElement< LabelType, 3 > StructuringElementType;
-      StructuringElementType structuringElement;
-      structuringElement.SetRadius(4);
-      structuringElement.CreateStructuringElement();
-
-      //Dilation filter for increasing the border size of the object
-      typedef itk::BinaryDilateImageFilter <LabelImageType, LabelImageType, StructuringElementType>  BinaryDilateImageFilterType;
-      BinaryDilateImageFilterType::Pointer dilateFilter = BinaryDilateImageFilterType::New();
-      dilateFilter->SetInput(OnlyOverlap);
-      dilateFilter->SetKernel(structuringElement);
-      dilateFilter->SetBackgroundValue(0);
-      dilateFilter->SetForegroundValue(1);
-
-      //Label connected objects separately
-      typedef itk::ConnectedComponentImageFilter <LabelImageType, LabelImageType >   ConnectedComponentImageFilterType;
-      ConnectedComponentImageFilterType::Pointer connectedComponent =   ConnectedComponentImageFilterType::New ();
-      connectedComponent->SetInput(dilateFilter->GetOutput());
-      connectedComponent->SetBackgroundValue(0);
-
-      //Convert LabelImage to LabelMap containing connected labelObjects
-      typedef itk::LabelImageToShapeLabelMapFilter< LabelImageType, LabelMapType> LabelImageToLabelMapFilterType;
-      LabelImageToLabelMapFilterType::Pointer labelImageToLabelMapFilter = LabelImageToLabelMapFilterType::New();
-      labelImageToLabelMapFilter->SetInput(connectedComponent->GetOutput());
-      labelImageToLabelMapFilter->SetBackgroundValue( itk::NumericTraits< LabelType >::Zero );
-      labelImageToLabelMapFilter->Update();
-
-      clock1.Stop();
-      std::cout<<"Dilation and Connected Components - done" << std::endl << "Time taken : "<< clock1.GetMean() <<"sec\n"<< std::endl;
-
-      this->onlyOverlapLabelMap = labelImageToLabelMapFilter->GetOutput();
-    }
-
-    //Find LabelObject containing Seed
-    unsigned int labelObjectNumber = 0;
-    double distance = 0.0;
-    double minDistance = 100000.0;
-    itk::Point<double, 3> objectCentroid;
-
-    // Loop over each connected object to find minimum distance
-    for(unsigned int n = 0; n < this->onlyOverlapLabelMap->GetNumberOfLabelObjects(); n++)
-    {
-        ShapeLabelObjectType * labelObject = this->onlyOverlapLabelMap->GetNthLabelObject(n);
-
-        // check if this connected object is of value 9 in label map
-        itOrg.SetIndex(labelObject->GetIndex(0));
-        int labelValue = itOrg.Get();
-
-        std::cout << "Found a label of: " << labelObject->GetLabel() << " underlying label: " << labelValue <<
-            " number of pixels: " << labelObject->GetNumberOfPixels();
-
-        objectCentroid = labelObject->GetCentroid();
-        std::cout << "  coordinates of Centroid :" << objectCentroid  << std::endl;
-        distance = fidLPS.EuclideanDistanceTo(objectCentroid);
-
-        if((minDistance > distance) && (labelObject->GetNumberOfPixels() > 100))
-        {
-            minDistance = distance;
-            labelObjectNumber = n;
-            std::cout << "Distance and label object number set: " << distance << " " << n << std::endl;
-        }
-    }
-
-    // assign object
-    itk::ImageRegionIteratorWithIndex<vtkVesselSegHelper::SeedImageType> itMerged(mergedITKdata, mergedITKdata->GetRequestedRegion());
-    itk::ImageRegionIteratorWithIndex<vtkVesselSegHelper::SeedImageType> itHepatic(hepaticITKdata, hepaticITKdata->GetRequestedRegion());
-    itk::ImageRegionIteratorWithIndex<vtkVesselSegHelper::SeedImageType> itPortal(portalITKdata, portalITKdata->GetRequestedRegion());
-
-    // Change Selected LabelObject as Hepatic or Portal
-    ShapeLabelObjectType * selectedLabelObject = this->onlyOverlapLabelMap->GetNthLabelObject(labelObjectNumber);
-    if(isHepatic) // hepatic
-    {
-        for(unsigned int pixelId = 0; pixelId < selectedLabelObject->Size(); pixelId++)
-        {
-            itMerged.SetIndex(selectedLabelObject->GetIndex(pixelId));
-            if(itMerged.Get()) // merged region exists
-            {
-              // change the merged label map to hepatic
-              itMerged.Set(4);
-              // erase the portal in this area
-              itPortal.SetIndex(selectedLabelObject->GetIndex(pixelId));
-              itPortal.Set(0);
-              // ensure the hepatic label map is also correct
-              itHepatic.SetIndex(selectedLabelObject->GetIndex(pixelId));
-              if(!itHepatic.Get())
-              {
-                itHepatic.Set(4);
-              }
-            }
-        }
-    }
-    else // portal
-    {
-        for(unsigned int pixelId = 0; pixelId < selectedLabelObject->Size(); pixelId++)
-        {
-            itMerged.SetIndex(selectedLabelObject->GetIndex(pixelId));
-            if(itMerged.Get()) // merged region exists
-            {
-              // change the merged label map to portal
-              itMerged.Set(5);
-              // erase the hepatic in this area
-              itHepatic.SetIndex(selectedLabelObject->GetIndex(pixelId));
-              itHepatic.Set(0);
-              // ensure the portal label map is also correct
-              itPortal.SetIndex(selectedLabelObject->GetIndex(pixelId));
-              if(!itPortal.Get())
-              {
-                itPortal.Set(5);
-              }
-            }
-        }
+      itOnlyOverlap.Set( 1 );
     }
   }
 
-  vtkMRMLSelectionNode *selectionNode = vtkMRMLSelectionNode::SafeDownCast(this->GetMRMLScene()->GetNodeByID("vtkMRMLSelectionNodeSingleton"));
+  // if first time, or if segmentations have been updated
+  if( this->onlyOverlapLabelMap.IsNull() || this->mergedUpdated == true )
+  {
+    itk::TimeProbe clock1;
+    clock1.Start();
 
-  std::cout << "Trying to select merged label map" << std::endl;
-  selectionNode->SetActiveLabelVolumeID(this->mergedLabelMap->GetID());
-  selectionNode->SetReferenceActiveLabelVolumeID(this->mergedLabelMap->GetID());
+    //Structuring Element for Dilation filter
+    typedef itk::BinaryBallStructuringElement< LabelType, 3 > StructuringElementType;
+    StructuringElementType structuringElement;
+    structuringElement.SetRadius(4);
+    structuringElement.CreateStructuringElement();
 
-  vtkMRMLApplicationLogic *mrmlAppLogic = this->GetMRMLApplicationLogic();
-  mrmlAppLogic->PropagateVolumeSelection();
+    //Dilation filter for increasing the border size of the object
+    typedef itk::BinaryDilateImageFilter <LabelImageType, LabelImageType, StructuringElementType>  BinaryDilateImageFilterType;
+    BinaryDilateImageFilterType::Pointer dilateFilter = BinaryDilateImageFilterType::New();
+    dilateFilter->SetInput(OnlyOverlap);
+    dilateFilter->SetKernel(structuringElement);
+    dilateFilter->SetBackgroundValue(0);
+    dilateFilter->SetForegroundValue(1);
 
-  this->DeleteFiducials();
+    //Label connected objects separately
+    typedef itk::ConnectedComponentImageFilter <LabelImageType, LabelImageType >   ConnectedComponentImageFilterType;
+    ConnectedComponentImageFilterType::Pointer connectedComponent =   ConnectedComponentImageFilterType::New ();
+    connectedComponent->SetInput(dilateFilter->GetOutput());
+    connectedComponent->SetBackgroundValue(0);
+
+    //Convert LabelImage to LabelMap containing connected labelObjects
+    typedef itk::LabelImageToShapeLabelMapFilter< LabelImageType, LabelMapType> LabelImageToLabelMapFilterType;
+    LabelImageToLabelMapFilterType::Pointer labelImageToLabelMapFilter = LabelImageToLabelMapFilterType::New();
+    labelImageToLabelMapFilter->SetInput(connectedComponent->GetOutput());
+    labelImageToLabelMapFilter->SetBackgroundValue( itk::NumericTraits< LabelType >::Zero );
+    labelImageToLabelMapFilter->Update();
+
+    clock1.Stop();
+    std::cout<<"Dilation and Connected Components - done" << std::endl << "Time taken : "<< clock1.GetMean() <<"sec\n"<< std::endl;
+
+    this->onlyOverlapLabelMap = labelImageToLabelMapFilter->GetOutput();
+  }
+
+  //Find LabelObject containing Seed
+  unsigned int labelObjectNumber = 0;
+  double distance = 0.0;
+  double minDistance = 100000.0;
+  itk::Point<double, 3> objectCentroid;
+
+  // Loop over each connected object to find minimum distance
+  for(unsigned int n = 0; n < this->onlyOverlapLabelMap->GetNumberOfLabelObjects(); n++)
+  {
+    ShapeLabelObjectType * labelObject = this->onlyOverlapLabelMap->GetNthLabelObject(n);
+
+    // check if this connected object is of value 9 in label map
+    itOrg.SetIndex(labelObject->GetIndex(0));
+    int labelValue = itOrg.Get();
+
+    std::cout << "Found a label of: " << labelObject->GetLabel() << " underlying label: " << labelValue <<
+            " number of pixels: " << labelObject->GetNumberOfPixels();
+
+    objectCentroid = labelObject->GetCentroid();
+    std::cout << "  coordinates of Centroid :" << objectCentroid  << std::endl;
+    distance = seedLPS.EuclideanDistanceTo(objectCentroid);
+
+    if((minDistance > distance) && (labelObject->GetNumberOfPixels() > 100))
+    {
+      minDistance = distance;
+      labelObjectNumber = n;
+      std::cout << "Distance and label object number set: " << distance << " " << n << std::endl;
+    }
+  }
+
+  // assign object
+  itk::ImageRegionIteratorWithIndex<vtkVesselSegHelper::SeedImageType> itMerged(mergedITKdata, mergedITKdata->GetRequestedRegion());
+  itk::ImageRegionIteratorWithIndex<vtkVesselSegHelper::SeedImageType> itHepatic(hepaticITKdata, hepaticITKdata->GetRequestedRegion());
+  itk::ImageRegionIteratorWithIndex<vtkVesselSegHelper::SeedImageType> itPortal(portalITKdata, portalITKdata->GetRequestedRegion());
+
+  // Change Selected LabelObject as Hepatic or Portal
+  ShapeLabelObjectType * selectedLabelObject = this->onlyOverlapLabelMap->GetNthLabelObject(labelObjectNumber);
+  if(isHepatic) // hepatic
+  {
+    for(unsigned int pixelId = 0; pixelId < selectedLabelObject->Size(); pixelId++)
+    {
+      itMerged.SetIndex(selectedLabelObject->GetIndex(pixelId));
+      if(itMerged.Get()) // merged region exists
+        {
+          // change the merged label map to hepatic
+          itMerged.Set(4);
+          // erase the portal in this area
+          itPortal.SetIndex(selectedLabelObject->GetIndex(pixelId));
+          itPortal.Set(0);
+          // ensure the hepatic label map is also correct
+          itHepatic.SetIndex(selectedLabelObject->GetIndex(pixelId));
+          if(!itHepatic.Get())
+          {
+            itHepatic.Set(4);
+          }
+        }
+    }
+  }
+  else // portal
+  {
+    for(unsigned int pixelId = 0; pixelId < selectedLabelObject->Size(); pixelId++)
+    {
+      itMerged.SetIndex(selectedLabelObject->GetIndex(pixelId));
+      if(itMerged.Get()) // merged region exists
+      {
+        // change the merged label map to portal
+        itMerged.Set(5);
+        // erase the hepatic in this area
+        itHepatic.SetIndex(selectedLabelObject->GetIndex(pixelId));
+        itHepatic.Set(0);
+        // ensure the portal label map is also correct
+        itPortal.SetIndex(selectedLabelObject->GetIndex(pixelId));
+        if(!itPortal.Get())
+        {
+          itPortal.Set(5);
+        }
+      }
+    }
+  }
+
+  //vtkMRMLSelectionNode *selectionNode = vtkMRMLSelectionNode::SafeDownCast(this->GetMRMLScene()->GetNodeByID("vtkMRMLSelectionNodeSingleton"));
+
+  //std::cout << "Trying to select merged label map" << std::endl;
+  //selectionNode->SetActiveLabelVolumeID(this->mergedLabelMap->GetID());
+  //selectionNode->SetReferenceActiveLabelVolumeID(this->mergedLabelMap->GetID());
+
+  //vtkMRMLApplicationLogic *mrmlAppLogic = this->GetMRMLApplicationLogic();
+  //mrmlAppLogic->PropagateVolumeSelection();
 
   this->hepaticUpdated = true;
   this->portalUpdated = true;
@@ -996,7 +854,6 @@ void vtkSlicerVesselSegmentationLogic::SplitVessels(vtkMRMLVesselSegmentationSee
 
   //this->CallMergeLabelMaps();
   this->mergedUpdated = false;
-
 }
 
 void vtkSlicerVesselSegmentationLogic::UpdateModels()
@@ -1008,7 +865,7 @@ void vtkSlicerVesselSegmentationLogic::UpdateModels()
     vtkSmartPointer<vtkImageToStructuredPoints> structuredPointsHepatic = vtkSmartPointer<vtkImageToStructuredPoints>::New();
     vtkSmartPointer<vtkDiscreteMarchingCubes> mCubesHepatic = vtkSmartPointer<vtkDiscreteMarchingCubes>::New();
 
-    structuredPointsHepatic->SetInputData(hepaticLabelMap->GetImageData());
+    structuredPointsHepatic->SetInputData(this->hepaticLabelMap->GetImageData());
     structuredPointsHepatic->Update();
     mCubesHepatic->SetInputConnection(structuredPointsHepatic->GetOutputPort());
     mCubesHepatic->SetValue(0,4);
@@ -1036,21 +893,22 @@ void vtkSlicerVesselSegmentationLogic::UpdateModels()
 
     if( this->hepaticModelNode == NULL )
     {
+      std::cout << "Creating hepatic model" << std::endl;
       // first time to create hepatic model node
-      hepaticModelNode = vtkSmartPointer<vtkMRMLModelNode>::New();
-      hepaticModelNode->SetName("hepaticVesselModel");
-      hepaticModelNode->SetAndObservePolyData(transformFilter->GetOutput());
-      this->GetMRMLScene()->AddNode(hepaticModelNode);
+      this->hepaticModelNode = vtkSmartPointer<vtkMRMLModelNode>::New();
+      this->hepaticModelNode->SetName("hepaticVesselModel");
+      this->hepaticModelNode->SetAndObservePolyData(transformFilter->GetOutput());
+      this->GetMRMLScene()->AddNode(this->hepaticModelNode);
 
       // also need a display node
-      hepaticModelDisplayNode = vtkSmartPointer<vtkMRMLModelDisplayNode>::New();
-      hepaticModelDisplayNode->SetColor(0,0,1); // blue
-      this->GetMRMLScene()->AddNode(hepaticModelDisplayNode);
-      hepaticModelNode->SetAndObserveDisplayNodeID(hepaticModelDisplayNode->GetID());
+      this->hepaticModelDisplayNode = vtkSmartPointer<vtkMRMLModelDisplayNode>::New();
+      this->hepaticModelDisplayNode->SetColor(0,0,1); // blue
+      this->GetMRMLScene()->AddNode(this->hepaticModelDisplayNode);
+      this->hepaticModelNode->SetAndObserveDisplayNodeID(this->hepaticModelDisplayNode->GetID());
     }
     else // add to 3D model, as already have nodes
     {
-      hepaticModelNode->SetAndObservePolyData(transformFilter->GetOutput());
+      this->hepaticModelNode->SetAndObservePolyData(transformFilter->GetOutput());
       std::cout << "Tried to add to hepaticModel" << std::endl;
     }
     this->hepaticUpdated = false;
@@ -1061,7 +919,7 @@ void vtkSlicerVesselSegmentationLogic::UpdateModels()
     vtkSmartPointer<vtkImageToStructuredPoints> structuredPointsPortal = vtkSmartPointer<vtkImageToStructuredPoints>::New();
     vtkSmartPointer<vtkDiscreteMarchingCubes> mCubesPortal = vtkSmartPointer<vtkDiscreteMarchingCubes>::New();
 
-    structuredPointsPortal->SetInputData(portalLabelMap->GetImageData());
+    structuredPointsPortal->SetInputData(this->portalLabelMap->GetImageData());
     structuredPointsPortal->Update();
     mCubesPortal->SetInputConnection(structuredPointsPortal->GetOutputPort());
     mCubesPortal->SetValue(0,5);
@@ -1087,23 +945,24 @@ void vtkSlicerVesselSegmentationLogic::UpdateModels()
     transformFilter->SetTransform(translation);
     transformFilter->Update();
 
-    if( portalModelNode == NULL )
+    if( this->portalModelNode == NULL )
     {
+      std::cout << "Creating portal model" << std::endl;
       // first time to create portal model node
-      portalModelNode = vtkSmartPointer<vtkMRMLModelNode>::New();
-      portalModelNode->SetName("portalVesselModel");
-      portalModelNode->SetAndObservePolyData(transformFilter->GetOutput());
-      this->GetMRMLScene()->AddNode(portalModelNode);
+      this->portalModelNode = vtkSmartPointer<vtkMRMLModelNode>::New();
+      this->portalModelNode->SetName("portalVesselModel");
+      this->portalModelNode->SetAndObservePolyData(transformFilter->GetOutput());
+      this->GetMRMLScene()->AddNode(this->portalModelNode);
 
       // also need a display node
-      portalModelDisplayNode = vtkSmartPointer<vtkMRMLModelDisplayNode>::New();
-      portalModelDisplayNode->SetColor(1,0,0); // red
-      this->GetMRMLScene()->AddNode(portalModelDisplayNode);
-      portalModelNode->SetAndObserveDisplayNodeID(portalModelDisplayNode->GetID());
+      this->portalModelDisplayNode = vtkSmartPointer<vtkMRMLModelDisplayNode>::New();
+      this->portalModelDisplayNode->SetColor(1,0,0); // red
+      this->GetMRMLScene()->AddNode(this->portalModelDisplayNode);
+      this->portalModelNode->SetAndObserveDisplayNodeID(this->portalModelDisplayNode->GetID());
     }
     else // add to 3D model, as already have nodes
     {
-      portalModelNode->SetAndObservePolyData(transformFilter->GetOutput());
+      this->portalModelNode->SetAndObservePolyData(transformFilter->GetOutput());
       std::cout << "Tried to add to portalModel" << std::endl;
     }
     this->portalUpdated = false;
@@ -1114,13 +973,14 @@ void vtkSlicerVesselSegmentationLogic::UpdateModels()
 
 void vtkSlicerVesselSegmentationLogic::Reset3DView()
 {
+  std::cout << "LOGIC - reset 3D view" << std::endl;
 
   //Hide Labels and cube
-  vtkMRMLScene *mrmlScene = qSlicerApplication::application()->mrmlScene();
+  //vtkMRMLScene *mrmlScene = qSlicerApplication::application()->mrmlScene();
+  vtkMRMLScene *mrmlScene = this->GetMRMLScene();
   vtkSmartPointer<vtkCollection> views;
   views.TakeReference(mrmlScene->GetNodesByClassByName("vtkMRMLViewNode",
                                                        "View1"));
-
   vtkMRMLViewNode *view = vtkMRMLViewNode::SafeDownCast(views->GetItemAsObject(0));
   if(view)
     {
@@ -1128,14 +988,11 @@ void vtkSlicerVesselSegmentationLogic::Reset3DView()
     view->SetBoxVisible(false);
     }
 
-  //Reset the camera
-  qSlicerLayoutManager *layoutManager =
-    qSlicerApplication::application()->layoutManager();
+  //Reset the camera (this causes a crash from testing)
+  qSlicerLayoutManager *layoutManager = qSlicerApplication::application()->layoutManager();
 
-  qMRMLThreeDWidget *threeDWidget =
-    layoutManager->threeDWidget(0);
-  qMRMLThreeDView *threeDView =
-    threeDWidget->threeDView();
+  qMRMLThreeDWidget *threeDWidget = layoutManager->threeDWidget(0);
+  qMRMLThreeDView *threeDView = threeDWidget->threeDView();
   vtkRenderWindow *renderWindow = threeDView->renderWindow();
 
   vtkRendererCollection *renderers = renderWindow->GetRenderers();
@@ -1147,3 +1004,14 @@ void vtkSlicerVesselSegmentationLogic::Reset3DView()
     renderer->ResetCamera();
     }
 }
+
+vtkVesselSegHelper::SeedImageType::Pointer vtkSlicerVesselSegmentationLogic::GetPortalITKData()
+{
+  return this->portalITKdata;
+}
+
+vtkVesselSegHelper::SeedImageType::Pointer vtkSlicerVesselSegmentationLogic::GetHepaticITKData()
+{
+  return this->hepaticITKdata;
+}
+

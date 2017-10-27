@@ -59,9 +59,6 @@
 #include "vtkMRMLVesselSegmentationDisplayableManager.h"
 
 // MRML includes
-#include "vtkMRMLMarkupsNode.h"
-#include "vtkMRMLMarkupsFiducialNode.h"
-#include "vtkMRMLAnnotationRulerNode.h"
 #include "vtkMRMLNode.h"
 
 // VTK includes
@@ -123,10 +120,6 @@ void qSlicerVesselSegmentationModuleWidget::setup()
   // connect events to node selection dropdown
   //QObject::connect(d->ActiveVolumeNodeSelector, SIGNAL(currentNodeChanged(vtkMRMLNode*)), this, SLOT(nodeSelectionChanged(vtkMRMLNode*)));
   //QObject::connect(this, SIGNAL(mrmlSceneChanged(vtkMRMLScene*)), d->ActiveVolumeNodeSelector, SLOT(setMRMLScene(vtkMRMLScene*)));
-
-  // causes generic module tests to fail
-  //vtkMRMLSelectionNode *selectionNode = vtkMRMLSelectionNode::SafeDownCast(this->vesselSegmentationLogic()->GetMRMLScene()->GetNodeByID("vtkMRMLSelectionNodeSingleton"));
-  //selectionNode->SetReferenceActivePlaceNodeClassName("vtkMRMLMarkupsFiducialNode");
 
   // connections to preprocessing widget
   QObject::connect(d->PreprocessingWidget,
@@ -250,14 +243,10 @@ void qSlicerVesselSegmentationModuleWidget::onPreprocessing(int lowerThreshold, 
    {
      interactionNode->SetPlaceModePersistence(0);
      interactionNode->SetCurrentInteractionMode(vtkMRMLInteractionNode::ViewTransform);
-
-     vtkMRMLVesselSegmentationDisplayableManager::SetFiducialsMode(false);
    }
    else {
      interactionNode->SetPlaceModePersistence(1);
      interactionNode->SetCurrentInteractionMode(vtkMRMLInteractionNode::Place);
-
-     vtkMRMLVesselSegmentationDisplayableManager::SetFiducialsMode(true);
    }
  }
 
@@ -282,8 +271,6 @@ void qSlicerVesselSegmentationModuleWidget::onPreprocessing(int lowerThreshold, 
 
    interactionNode->SetPlaceModePersistence(0);
    interactionNode->SetCurrentInteractionMode(vtkMRMLInteractionNode::Place);
-
-   vtkMRMLVesselSegmentationDisplayableManager::SetFiducialsMode(false);
  }
 
  void qSlicerVesselSegmentationModuleWidget::onRunSeedAssignment(bool isHepatic)

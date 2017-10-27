@@ -34,11 +34,11 @@
   =========================================================================*/
 
 // MRML includes
-#include "vtkMRMLCoreTestingMacros.h"
-#include "vtkMRMLScene.h"
-#include "vtkMRMLNode.h"
+#include <vtkMRMLCoreTestingMacros.h>
+#include <vtkMRMLScene.h>
+#include <vtkMRMLNode.h>
 #include <vtkMRMLMarkupsFiducialNode.h>
-#include "vtkMRMLScalarVolumeNode.h"
+#include <vtkMRMLScalarVolumeNode.h>
 #include <vtkMRMLVolumeArchetypeStorageNode.h>
 #include <vtkMatrix4x4.h>
 
@@ -53,6 +53,7 @@
 #include "itkSeedVesselSegmentationImageFilter.h"
 #include <itkIndex.h>
 #include <itkImageFileReader.h>
+#include <itkImageFileWriter.h>
 #include <itkImageIOFactory.h>
 #include <itkMinimumMaximumImageCalculator.h>
 
@@ -63,9 +64,10 @@
 
 // module includes
 #include "vtkSlicerVesselSegmentationLogic.h"
+#include "vtkMRMLVesselSegmentationSeedNode.h"
 #include "vtkVesselSegHelper.h"
 
-bool testLoadFileAndSegment( const char* volumeName1, const char* volumeName2, vtkSlicerVesselSegmentationLogic* logic );
+bool testLoadFileAndSegment( const char* volumeName1, const char* volumeName2, const char* volumeName3, vtkSlicerVesselSegmentationLogic* logic );
 
 int vtkMRMLTestFileAndSegmentation(int argc, char * argv[]  )
 {
@@ -80,26 +82,33 @@ int vtkMRMLTestFileAndSegmentation(int argc, char * argv[]  )
 
   std::cout << "Created scene and logic" << std::endl;
 
-  const char* fileName1 = "../Data/testImage3_large.nii";
+  const char* fileName1 = "../Data/testImage3_large.nrrd";
   if (argc > 1)
     {
     fileName1 = argv[1];
     }
   std::cout << "Using file name segment " << fileName1 << std::endl;
 
-  const char* fileName2 = "../Data/testImage3_largeSimilarity.nii";
+  const char* fileName2 = "../Data/testImage3_largeSimilarity.nrrd";
   if (argc > 2)
     {
     fileName2 = argv[2];
     }
   std::cout << "Using file name similarity " << fileName2 << std::endl;
 
-  res = testLoadFileAndSegment(fileName1, fileName2, logic.GetPointer());
+  const char* fileName3 = "../Data/testOutput.nrrd";
+  if (argc > 3)
+    {
+    fileName3 = argv[3];
+    }
+  std::cout << "Using file output name " << fileName3 << std::endl;
+
+  res = testLoadFileAndSegment(fileName1, fileName2, fileName3, logic.GetPointer());
 
   return res ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
-bool testLoadFileAndSegment( const char* volumeName1, const char* volumeName2, vtkSlicerVesselSegmentationLogic* logic )
+bool testLoadFileAndSegment( const char* volumeName1, const char* volumeName2, const char* volumeName3, vtkSlicerVesselSegmentationLogic* logic )
 {
   std::cout << "inside: testLoadFileAndSegment" << std::endl;
 
@@ -126,192 +135,226 @@ bool testLoadFileAndSegment( const char* volumeName1, const char* volumeName2, v
     return false;
   }
 
-  // add the fiducial node
-  vtkSmartPointer<vtkMRMLMarkupsFiducialNode> fidNode = vtkSmartPointer<vtkMRMLMarkupsFiducialNode>::New();
-  scene->AddNode(fidNode);
-  std::cout << "added fiducial node to scene" << std::endl;
+  // Define the dimension of the images
+  const unsigned char Dim = 3;
+  typedef float PixelType;
 
-    // Define the dimension of the images
-    const unsigned char Dim = 3;
-    typedef float PixelType;
+  // Declare the types of the images
+  typedef itk::Image<PixelType,Dim> ImageType;
 
-    // Declare the types of the images
-    typedef itk::Image<PixelType,Dim> ImageType;
+  typedef itk::SeedVesselSegmentationImageFilter<ImageType, ImageType> SeedVesselFilterType;
 
-    typedef itk::SeedVesselSegmentationImageFilter<ImageType, ImageType> SeedVesselFilterType;
+  /*
+  //create conversion matrices
+  vtkNew<vtkMatrix4x4> IJKtoRASmatrix;
+  vtkNew<vtkMatrix4x4> RAStoIJKmatrix;
 
-    // Create a vesselness Filter
-    SeedVesselFilterType::Pointer seedVesselFilter = SeedVesselFilterType::New();
+  vtkSmartPointer<vtkMatrix4x4> mat = vtkSmartPointer<vtkMatrix4x4>::New();
+  logic->GetActiveVolume()->GetIJKToRASMatrix(mat);
+  IJKtoRASmatrix->DeepCopy(mat);
+  RAStoIJKmatrix->DeepCopy(mat);
+  RAStoIJKmatrix->Invert();
+  */
 
-    // get image
-    ImageType::Pointer preprocessedImg = vtkVesselSegHelper::ConvertVolumeNodeToItkImage(logic->GetActiveVolume());
+  //--------------------------
+  // add the seed node, set the seeds
+  //--------------------------
+  vtkNew<vtkMRMLVesselSegmentationSeedNode> seedNode;
+  scene->AddNode(seedNode.GetPointer());
+  std::cout << "added seed node to scene" << std::endl;
 
-    // Connect to input image
-    seedVesselFilter->SetInput( preprocessedImg );
+  // Seed IJK: 155, 118, 41
+  // Direction seed IJK: 145, 116, 55
 
-    //create conversion matrices
-    vtkNew<vtkMatrix4x4> IJKtoRASmatrix;
-    vtkNew<vtkMatrix4x4> RAStoIJKmatrix;
+  // Seed RAS: 34.15 34.15 158.375 (older test)
+  // Direction seed RAS: 40.4 36.625 167.125 (older test)
 
-    vtkSmartPointer<vtkMatrix4x4> mat = vtkSmartPointer<vtkMatrix4x4>::New();
-    logic->GetActiveVolume()->GetIJKToRASMatrix(mat);
-    IJKtoRASmatrix->DeepCopy(mat);
-    RAStoIJKmatrix->DeepCopy(mat);
-    RAStoIJKmatrix->Invert();
+  // Seed RAS: -96.875 -73.75 25.625 (newer test)
+  // Direction seed RAS: -90.625 -72.5 34.375 (newer test)
 
-    // Seed RAS: 34.15 34.15 158.375
-    // Direction seed RAS: 40.4 36.625 167.125
-    // Seed IJK: 155, 118, 41
-    // Direction seed IJK: 145, 116, 55
+  /*
+  // conversion from known IJK to RAS (for this test image)
+  const double seed1[4] = {155, 118, 41, 0}; // IJK
+  const double seed2[4] = {145, 116, 55, 0}; // IJK
 
-    // add 1st fiducial
-    double inPos[3] = {34.15, 34.15, 158.375}; // RAS
-    fidNode->AddFiducial(inPos[0], inPos[1], inPos[2]);
-    // add 2nd (direction) fiducial
-    double inPos2[3] = {40.4, 36.625, 167.125}; // RAS
-    fidNode->AddFiducial(inPos2[0], inPos2[1], inPos2[2]);
+  double *seedRAS1 = new double[4]; // the first seed
+  double *seedRAS2 = new double[4]; // the direction seed
 
-    itk::Index<Dim> seed;
-    itk::Index<Dim> directionSeed;
-    double *fidIJK1 = new double[4]; // the actual first seed
-    double *fidIJK2 = new double[4]; // the direction seed
+  // use the ijk matrix to convert the points
+  IJKtoRASmatrix.GetPointer()->MultiplyPoint(seed1, seedRAS1);
+  IJKtoRASmatrix.GetPointer()->MultiplyPoint(seed2, seedRAS2);
 
-    std::vector<double*> list = logic->GetFiducialList();
-    if(list.size() == 2)
-    {
-      double *pos2 = list.back(); // the direction seed
-      list.pop_back();
-      double *pos1 = list.back(); // the actual first seed
-      list.pop_back();
-      // convert to IJK
-      RAStoIJKmatrix.GetPointer()->MultiplyPoint(pos1, fidIJK1);
-      RAStoIJKmatrix.GetPointer()->MultiplyPoint(pos2, fidIJK2);
-      seed[0] = fidIJK1[0];
-      seed[1] = fidIJK1[1];
-      seed[2] = fidIJK1[2];
-      directionSeed[0] = fidIJK2[0];
-      directionSeed[1] = fidIJK2[1];
-      directionSeed[2] = fidIJK2[2];
-    }
-    else
-    {
-      std::cout << "Do not have 2 fiducials" << std::endl;
+  std::cout << "Seed ras1 (155, 118, 41): " << seedRAS1[0] << " " << seedRAS1[1] << " " << seedRAS1[2] << " " << seedRAS1[3] << std::endl;
+  std::cout << "Seed ras2 (145, 116, 55): " << seedRAS2[0] << " " << seedRAS2[1] << " " << seedRAS2[2] << " " << seedRAS2[3] << std::endl;
+  */
+
+  // add 1st seed
+  double inPos[3] = {-96.875, -73.75, 25.625}; // RAS
+  seedNode->SetSeed1(inPos[0], inPos[1], inPos[2]);
+  // add 2nd (direction) seed
+  double inPos2[3] = {-90.625, -72.5, 34.375}; // RAS
+  seedNode->SetSeed2(inPos2[0], inPos2[1], inPos2[2]);
+
+  /*
+  double *seed1 = seedNode->GetSeed1();
+  double *seed2 = seedNode->GetSeed2();
+
+  std::cout << "Seed1: " << seed1[0] << " " << seed1[1] << " " << seed1[2] << std::endl;
+  std::cout << "Seed2: " << seed2[0] << " " << seed2[1] << " " << seed2[2] << std::endl;
+
+  if( seed1[0] == 0.0 && seed1[1] == 0.0 && seed1[2] == 0.0 )
+  {
+    std::cout << "Seed1 not set" << std::endl;
+    return false;
+  }
+  else if( seed2[0] == 0.0 && seed2[1] == 0.0 && seed2[2] == 0.0 )
+  {
+    std::cout << "Seed2 not set" << std::endl;
+    return false;
+  }
+
+  const double seed1_0[4] = {seed1[0], seed1[1], seed1[2], 0}; // IJK
+  const double seed2_0[4] = {seed2[0], seed2[1], seed2[2], 0}; // IJK
+  double *seedIJK1 = new double[4]; // the first seed
+  double *seedIJK2 = new double[4]; // the direction seed
+
+  // use the ijk matrix to convert the points
+  RAStoIJKmatrix.GetPointer()->MultiplyPoint(seed1_0, seedIJK1);
+  RAStoIJKmatrix.GetPointer()->MultiplyPoint(seed2_0, seedIJK2);
+
+  std::cout << "Seed IJK1 (155, 118, 41): " << seedIJK1[0] << " " << seedIJK1[1] << " " << seedIJK1[2] << std::endl;
+  std::cout << "Seed IJK2 (145, 116, 55): " << seedIJK2[0] << " " << seedIJK2[1] << " " << seedIJK2[2] << std::endl;
+
+  itk::Index<Dim> seed;
+  itk::Index<Dim> directionSeed;
+
+  // the actual first seed
+  seed[0] = seedIJK1[0];
+  seed[1] = seedIJK1[1];
+  seed[2] = seedIJK1[2];
+  // the direction seed
+  directionSeed[0] = seedIJK2[0];
+  directionSeed[1] = seedIJK2[1];
+  directionSeed[2] = seedIJK2[2];
+
+  std::cout << "Seed: " << seed[0] << " " << seed[1] << " " << seed[2] << std::endl;
+  std::cout << "Direction seed: " << directionSeed[0] << " " << directionSeed[1] << " " << directionSeed[2] << std::endl;
+
+  if( !(seed[0] <= 156 && seed[0] >= 154) )
+  {
+    std::cout << "Seed[0] is not correct in IJK (155): " << seed[0] << std::endl;
+    return false;
+  }
+  else if( !(seed[1] <= 119 && seed[1] >= 117) )
+  {
+    std::cout << "Seed[1] is not correct in IJK (118): " << seed[1] << std::endl;
+    return false;
+  }
+  else if( seed[2] != 41 )
+  {
+    std::cout << "Seed[2] is not correct in IJK (41): " << seed[2] << std::endl;
+    return false;
+  }
+  else if( !(directionSeed[0] <= 146 && directionSeed[0] >= 144) )
+  {
+    std::cout << "directionSeed[0] is not correct in IJK (145): " << directionSeed[0] << std::endl;
+    return false;
+  }
+  else if( !(directionSeed[1] <= 117 && directionSeed[1] >= 115) )
+  {
+    std::cout << "directionSeed[1] is not correct in IJK (116): " << directionSeed[1] << std::endl;
+    return false;
+  }
+  else if( directionSeed[2] != 55 )
+  {
+    std::cout << "directionSeed[2] is not correct in IJK (55): " << directionSeed[2] << std::endl;
+    return false;
+  }
+  */
+
+  // call the segmentation
+  logic->SegmentVessels(seedNode.GetPointer(), true);
+
+  ImageType::Pointer output = logic->GetHepaticITKData();
+
+  typedef itk::ImageFileWriter<ImageType> FileWriterType;
+
+  FileWriterType::Pointer writer = FileWriterType::New();
+  writer->SetFileName(volumeName3);
+  writer->SetInput(output);
+
+  try
+  {
+      writer->Update();
+  }
+  catch (itk::ExceptionObject &e)
+  {
+      std::cerr << e << std::endl;
+      return EXIT_FAILURE;
+  }
+
+  //--------------------------
+  //Similarity Check
+  //--------------------------
+  vtkNew<vtkMRMLVolumeArchetypeStorageNode> storageNode2;
+  vtkNew<vtkMRMLScalarVolumeNode> scalarNode2;
+
+  storageNode2->SetFileName(volumeName2);
+  std::cout << "Try to load the file" << std::endl;
+  storageNode2->ReadData(scalarNode2.GetPointer());
+  logic->SetActiveVolume(scalarNode2.GetPointer());
+
+  std::cout << "active volume node segmentation = " << logic->GetActiveVolume() << std::endl;
+  if( logic->GetActiveVolume() == NULL)
+  {
+    std::cout << "active volume node is null pointer" << std::endl;
+    return false;
+  }
+
+  // get similarity image
+  ImageType::Pointer similarityImg = vtkVesselSegHelper::ConvertVolumeNodeToItkImage(logic->GetActiveVolume());
+
+  typedef itk::MinimumMaximumImageCalculator <ImageType> ImageCalculatorFilterType;
+
+  ImageCalculatorFilterType::Pointer imageCalculatorFilter = ImageCalculatorFilterType::New ();
+  imageCalculatorFilter->SetImage(similarityImg);
+  imageCalculatorFilter->Compute();
+
+  double maxPx= imageCalculatorFilter->GetMaximum();
+  double minPx= imageCalculatorFilter->GetMinimum();
+  double diff = 0;
+  unsigned int nPix = 0;
+  itk::ImageRegionIterator<ImageType> itFilterOutput(logic->GetHepaticITKData(), logic->GetHepaticITKData()->GetLargestPossibleRegion());
+  itk::ImageRegionIterator<ImageType> itSimilarityInput(similarityImg, similarityImg->GetLargestPossibleRegion());
+
+  for(itFilterOutput.GoToBegin(), itSimilarityInput.GoToBegin(); !itSimilarityInput.IsAtEnd(); ++itFilterOutput, ++itSimilarityInput)
+  {
+      double err = (double)(itSimilarityInput.Get()) - (double)(itFilterOutput.Get());
+      diff += err*err;
+      nPix++;
+  }
+
+  if (nPix > 0)
+  {
+      double NormRMSError = sqrt( diff / (double)nPix )/(maxPx-minPx);
+      std::cout << "Normalised RMS Error = " << NormRMSError << std::endl;
+
+      if (vnl_math_isnan(NormRMSError))
+      {
+          std::cout << "Normalised RMS Error is NaN! nPix: " << nPix << std::endl;
+          return false;
+      }
+      if (NormRMSError > 0.001)
+      {
+          std::cout << "Normalised RMS Error exceeds threshold (" << 0.001 << ")" << std::endl;
+          return false;
+      }
+  }
+  else
+  {
+      std::cout << "No pixels in output!" << std::endl;
       return false;
-    }
+  }
 
-
-    std::cout << "Seed IJK: " << seed[0] << " " << seed[1] << " " << seed[2] << std::endl;
-    std::cout << "Direction seed IJK: " << directionSeed[0] << " " << directionSeed[1] << " " << directionSeed[2] << std::endl;
-    if( !(seed[0] <= 156 && seed[0] >= 154) )
-    {
-      std::cout << "Seed[0] is not correct in IJK (155): " << seed[0] << std::endl;
-      return false;
-    }
-    else if( !(seed[1] <= 119 && seed[1] >= 117) )
-    {
-      std::cout << "Seed[1] is not correct in IJK (118): " << seed[1] << std::endl;
-      return false;
-    }
-    else if( seed[2] != 41 )
-    {
-      std::cout << "Seed[2] is not correct in IJK (41): " << seed[2] << std::endl;
-      return false;
-    }
-    else if( !(directionSeed[0] <= 146 && directionSeed[0] >= 144) )
-    {
-      std::cout << "directionSeed[0] is not correct in IJK (145): " << directionSeed[0] << std::endl;
-      return false;
-    }
-    else if( !(directionSeed[1] <= 117 && directionSeed[1] >= 115) )
-    {
-      std::cout << "directionSeed[1] is not correct in IJK (116): " << directionSeed[1] << std::endl;
-      return false;
-    }
-    else if( directionSeed[2] != 55 )
-    {
-      std::cout << "directionSeed[2] is not correct in IJK (55): " << directionSeed[2] << std::endl;
-      return false;
-    }
-
-    seedVesselFilter->SetSeed(seed);
-    seedVesselFilter->SetDirectionSeed(directionSeed);
-    seedVesselFilter->SetOutputLabel(2);
-
-    try
-    {
-        seedVesselFilter->Update();
-    }
-    catch (itk::ExceptionObject &e)
-    {
-        std::cerr << e << std::endl;
-        return false;
-    }
-
-
-    //--------------------------
-    //Similarity Check
-    //--------------------------
-
-    vtkNew<vtkMRMLVolumeArchetypeStorageNode> storageNode2;
-    vtkNew<vtkMRMLScalarVolumeNode> scalarNode2;
-
-    storageNode2->SetFileName(volumeName2);
-    std::cout << "Try to load the file" << std::endl;
-    storageNode2->ReadData(scalarNode2.GetPointer());
-    logic->SetActiveVolume(scalarNode2.GetPointer());
-
-    std::cout << "active volume node segmentation = " << logic->GetActiveVolume() << std::endl;
-    if( logic->GetActiveVolume() == NULL)
-    {
-      std::cout << "active volume node is null pointer" << std::endl;
-      return false;
-    }
-
-    // get image
-    ImageType::Pointer similarityImg = vtkVesselSegHelper::ConvertVolumeNodeToItkImage(logic->GetActiveVolume());
-
-    typedef itk::MinimumMaximumImageCalculator <ImageType> ImageCalculatorFilterType;
-
-    ImageCalculatorFilterType::Pointer imageCalculatorFilter = ImageCalculatorFilterType::New ();
-    imageCalculatorFilter->SetImage(similarityImg);
-    imageCalculatorFilter->Compute();
-
-    double maxPx= imageCalculatorFilter->GetMaximum();
-    double minPx= imageCalculatorFilter->GetMinimum();
-    double diff = 0;
-    unsigned int nPix = 0;
-    itk::ImageRegionIterator<ImageType> itFilterOutput(seedVesselFilter->GetOutput(), seedVesselFilter->GetOutput()->GetLargestPossibleRegion());
-    itk::ImageRegionIterator<ImageType> itSimilarityInput(similarityImg, similarityImg->GetLargestPossibleRegion());
-
-    for(itFilterOutput.GoToBegin(), itSimilarityInput.GoToBegin(); !itSimilarityInput.IsAtEnd(); ++itFilterOutput, ++itSimilarityInput)
-    {
-        double err = (double)(itSimilarityInput.Get()) - (double)(itFilterOutput.Get());
-        diff += err*err;
-        nPix++;
-    }
-
-    if (nPix > 0)
-    {
-        double NormRMSError = sqrt( diff / (double)nPix )/(maxPx-minPx);
-        std::cout << "Normalised RMS Error = " << NormRMSError << std::endl;
-
-        if (vnl_math_isnan(NormRMSError))
-        {
-            std::cout << "Normalised RMS Error is NaN! nPix: " << nPix << std::endl;
-            return false;
-        }
-        if (NormRMSError > 0.1)
-        {
-            std::cout << "Normalised RMS Error exceeds threshold (" << 0.1 << ")" << std::endl;
-            return false;
-        }
-    }
-    else
-    {
-        std::cout << "No pixels in output!" << std::endl;
-        return false;
-    }
-
-
-    return true;
+  return true;
 }
