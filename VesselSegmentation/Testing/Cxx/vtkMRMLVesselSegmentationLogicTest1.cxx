@@ -85,7 +85,7 @@ int vtkMRMLVesselSegmentationLogicTest1(int , char * [] )
   TESTING_OUTPUT_ASSERT_ERRORS_END();
 
   TESTING_OUTPUT_ASSERT_ERRORS_BEGIN();
-  logic->CallMergeLabelMaps();
+  logic->MergeLabelMaps();
   TESTING_OUTPUT_ASSERT_ERRORS(1); // should fail at error where do not have both label maps
   TESTING_OUTPUT_ASSERT_ERRORS_END();
 

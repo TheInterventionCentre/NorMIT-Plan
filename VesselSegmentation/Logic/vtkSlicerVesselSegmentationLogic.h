@@ -61,7 +61,6 @@
 
 class vtkMRMLNode;
 class vtkMRMLVesselSegmentationSeedNode;
-class vtkMatrix4x4;
 class vtkMRMLScalarVolumeNode;
 class vtkMRMLLabelMapVolumeNode;
 class vtkMRMLModelNode;
@@ -124,11 +123,6 @@ public:
   void SegmentVessels(vtkMRMLVesselSegmentationSeedNode *seedNode, bool isHepatic);
 
   /**
-   * Calls the a merge of the hepatic and portal label maps.
-   */
-  void CallMergeLabelMaps();
-
-  /**
    * Combines the hepatic and portal label maps.
    */
   void MergeLabelMaps();
@@ -149,27 +143,6 @@ public:
   void SplitVessels(vtkMRMLVesselSegmentationSeedNode *seedNode, bool isHepatic);
 
   /**
-   * Set the active volume node
-   *
-   * @param the vtkMRMLVolumeNode
-   */
-  void SetActiveVolumeNode(vtkMRMLVolumeNode *ActiveVolumeNode);
-
-  /**
-   * Set the active volume
-   *
-   * @param the vtkMRMLScalarVolumeNode
-   */
-  void SetActiveVolume(vtkMRMLScalarVolumeNode *activeVolume);
-
-  /**
-   * Get the active volume
-   *
-   * @return the vtkSmartPointer to a vtkMRMLScalarVolumeNode
-   */
-  vtkSmartPointer<vtkMRMLScalarVolumeNode> GetActiveVolume();
-    
-  /**
    * Helper function to update the 3D models
    */
   void UpdateModels();
@@ -185,8 +158,6 @@ public:
 protected:
   vtkSlicerVesselSegmentationLogic();
   virtual ~vtkSlicerVesselSegmentationLogic();
-
-  vtkSmartPointer<vtkMRMLVolumeNode> ActiveVolumeNode;
 
   /**
    * Setting the MRML scene internally.
@@ -233,11 +204,6 @@ protected:
   virtual void OnMRMLNodeModified(vtkMRMLNode* node);
     
 private:    
-  vtkNew<vtkMatrix4x4> IJKtoRASmatrix;
-  vtkNew<vtkMatrix4x4> RAStoIJKmatrix;
-
-  static std::vector<double*> fiducialVector;
-  vtkSmartPointer<vtkMRMLScalarVolumeNode> activeVol;
   vtkVesselSegHelper::SeedImageType::Pointer preprocessedImg;
 
   int vtkScalarType;

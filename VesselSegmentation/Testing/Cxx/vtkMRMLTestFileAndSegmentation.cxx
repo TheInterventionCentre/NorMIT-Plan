@@ -41,6 +41,7 @@
 #include <vtkMRMLScalarVolumeNode.h>
 #include <vtkMRMLVolumeArchetypeStorageNode.h>
 #include <vtkMatrix4x4.h>
+#include <vtkMRMLSelectionNode.h>
 
 // VTK includes
 #include <vtkNew.h>
@@ -126,14 +127,25 @@ bool testLoadFileAndSegment( const char* volumeName1, const char* volumeName2, c
   std::cout << "Try to load the file" << std::endl;
   storageNode1->ReadData(scalarNode1.GetPointer());
   std::cout << "Past read data" << std::endl;
-  logic->SetActiveVolume(scalarNode1.GetPointer());
 
-  std::cout << "active volume node segmentation = " << logic->GetActiveVolume() << std::endl;
-  if( logic->GetActiveVolume() == NULL)
-  {
-    std::cout << "active volume node is null pointer" << std::endl;
+  vtkMRMLSelectionNode *selectionNode = vtkMRMLSelectionNode::
+      SafeDownCast(scene->GetNodeByID("vtkMRMLSelectionNodeSingleton"));
+
+  char *activeVolID = selectionNode->GetActiveVolumeID();
+  vtkSmartPointer<vtkMRMLScalarVolumeNode> activeVol =
+      vtkMRMLScalarVolumeNode::SafeDownCast(scene->GetNodeByID(activeVolID));
+
+  // check have valid image data
+  if (!activeVol)
+    {
+    std::cout << "testLoadFileAndSegment: no active volume." << std::endl;
     return false;
-  }
+    }
+  if (!activeVol->GetImageData())
+    {
+    std::cout << "testLoadFileAndSegment: active volume does not have data." << std::endl;
+    return false;
+    }
 
   // Define the dimension of the images
   const unsigned char Dim = 3;
@@ -302,17 +314,25 @@ bool testLoadFileAndSegment( const char* volumeName1, const char* volumeName2, c
   storageNode2->SetFileName(volumeName2);
   std::cout << "Try to load the file" << std::endl;
   storageNode2->ReadData(scalarNode2.GetPointer());
-  logic->SetActiveVolume(scalarNode2.GetPointer());
 
-  std::cout << "active volume node segmentation = " << logic->GetActiveVolume() << std::endl;
-  if( logic->GetActiveVolume() == NULL)
-  {
-    std::cout << "active volume node is null pointer" << std::endl;
-    return false;
-  }
+  char *activeVolID2 = selectionNode->GetActiveVolumeID();
+   vtkSmartPointer<vtkMRMLScalarVolumeNode> activeVol2 =
+       vtkMRMLScalarVolumeNode::SafeDownCast(scene->GetNodeByID(activeVolID2));
+
+   // check have valid image data
+   if (!activeVol2)
+     {
+     std::cout << "testLoadFileAndSegment: no active volume similarity." << std::endl;
+     return false;
+     }
+   if (!activeVol2->GetImageData())
+     {
+     std::cout << "testLoadFileAndSegment: active volume does not have data for similarity." << std::endl;
+     return false;
+     }
 
   // get similarity image
-  ImageType::Pointer similarityImg = vtkVesselSegHelper::ConvertVolumeNodeToItkImage(logic->GetActiveVolume());
+  ImageType::Pointer similarityImg = vtkVesselSegHelper::ConvertVolumeNodeToItkImage(activeVol2);
 
   typedef itk::MinimumMaximumImageCalculator <ImageType> ImageCalculatorFilterType;
 
