@@ -248,7 +248,7 @@ void vtkSlicerVesselSegmentationLogic::PreprocessImage( int lowerThreshold,
 {
   if (!this->GetMRMLScene())
     {
-    vtkErrorMacro("No MRML scene.");
+    vtkErrorMacro(" PreprocessImage: No MRML scene.");
     return;
     }
   vtkMRMLScene *scene = this->GetMRMLScene();
@@ -256,7 +256,20 @@ void vtkSlicerVesselSegmentationLogic::PreprocessImage( int lowerThreshold,
   vtkMRMLSelectionNode *selectionNode = vtkMRMLSelectionNode::
       SafeDownCast(scene->GetNodeByID("vtkMRMLSelectionNodeSingleton"));
 
+  if(selectionNode == NULL )
+    {
+    vtkErrorMacro("PreprocessImage: no valid selection node.")
+    return;
+    }
+
   char *activeVolID = selectionNode->GetActiveVolumeID();
+
+  if(activeVolID == NULL)
+    {
+    vtkErrorMacro("PreprocessImage: no active volume ID.")
+    return;
+    }
+
   vtkSmartPointer<vtkMRMLScalarVolumeNode> activeVol =
       vtkMRMLScalarVolumeNode::SafeDownCast(scene->GetNodeByID(activeVolID));
 
@@ -366,9 +379,9 @@ void vtkSlicerVesselSegmentationLogic::SegmentVesselsFromWidget(bool isHepatic)
 void vtkSlicerVesselSegmentationLogic::SegmentVessels(
     vtkMRMLVesselSegmentationSeedNode *seedNode, bool isHepatic)
 {
-  if (!this->GetMRMLScene())
+  if(!this->GetMRMLScene())
     {
-    vtkErrorMacro("No MRML scene.");
+    vtkErrorMacro("SegmentVessels: No MRML scene.");
     return;
     }
   vtkMRMLScene *scene = this->GetMRMLScene();
@@ -376,7 +389,20 @@ void vtkSlicerVesselSegmentationLogic::SegmentVessels(
   vtkMRMLSelectionNode *selectionNode = vtkMRMLSelectionNode::
       SafeDownCast(scene->GetNodeByID("vtkMRMLSelectionNodeSingleton"));
 
+  if(selectionNode == NULL)
+    {
+    vtkErrorMacro("SegmentVessels: no valid selection node.")
+    return;
+    }
+
   char *activeVolID = selectionNode->GetActiveVolumeID();
+
+  if(activeVolID == NULL)
+    {
+    vtkErrorMacro("SegmentVessels: no active volume ID.")
+    return;
+    }
+
   vtkSmartPointer<vtkMRMLScalarVolumeNode> activeVol =
       vtkMRMLScalarVolumeNode::SafeDownCast(scene->GetNodeByID(activeVolID));
 
@@ -601,9 +627,9 @@ void vtkSlicerVesselSegmentationLogic::SegmentVessels(
 */
 void vtkSlicerVesselSegmentationLogic::MergeLabelMaps()
 {
-  if (!this->GetMRMLScene())
+  if(!this->GetMRMLScene())
     {
-    vtkErrorMacro("No MRML scene.");
+    vtkErrorMacro("SegmentVessels: No MRML scene.");
     return;
     }
   vtkMRMLScene *scene = this->GetMRMLScene();
@@ -611,7 +637,20 @@ void vtkSlicerVesselSegmentationLogic::MergeLabelMaps()
   vtkMRMLSelectionNode *selectionNode = vtkMRMLSelectionNode::
       SafeDownCast(scene->GetNodeByID("vtkMRMLSelectionNodeSingleton"));
 
+  if(selectionNode == NULL)
+    {
+    vtkErrorMacro("SegmentVessels: no valid selection node.")
+    return;
+    }
+
   char *activeVolID = selectionNode->GetActiveVolumeID();
+
+  if(activeVolID == NULL)
+    {
+    vtkErrorMacro("SegmentVessels: no active volume ID.")
+    return;
+    }
+
   vtkSmartPointer<vtkMRMLScalarVolumeNode> activeVol =
       vtkMRMLScalarVolumeNode::SafeDownCast(scene->GetNodeByID(activeVolID));
 
@@ -707,9 +746,9 @@ void vtkSlicerVesselSegmentationLogic::SplitVesselsFromWidget(bool isHepatic)
 
 void vtkSlicerVesselSegmentationLogic::SplitVessels(vtkMRMLVesselSegmentationSeedNode *seedNode, bool isHepatic)
 {
-  if (!this->GetMRMLScene())
+  if(!this->GetMRMLScene())
     {
-    vtkErrorMacro("No MRML scene.");
+    vtkErrorMacro("SegmentVessels: No MRML scene.");
     return;
     }
   vtkMRMLScene *scene = this->GetMRMLScene();
@@ -717,7 +756,20 @@ void vtkSlicerVesselSegmentationLogic::SplitVessels(vtkMRMLVesselSegmentationSee
   vtkMRMLSelectionNode *selectionNode = vtkMRMLSelectionNode::
       SafeDownCast(scene->GetNodeByID("vtkMRMLSelectionNodeSingleton"));
 
+  if(selectionNode == NULL)
+    {
+    vtkErrorMacro("SegmentVessels: no valid selection node.")
+    return;
+    }
+
   char *activeVolID = selectionNode->GetActiveVolumeID();
+
+  if(activeVolID == NULL)
+    {
+    vtkErrorMacro("SegmentVessels: no active volume ID.")
+    return;
+    }
+
   vtkSmartPointer<vtkMRMLScalarVolumeNode> activeVol =
       vtkMRMLScalarVolumeNode::SafeDownCast(scene->GetNodeByID(activeVolID));
 
