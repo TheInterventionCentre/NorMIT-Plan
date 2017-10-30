@@ -94,10 +94,36 @@ public:
    */
   virtual const char* GetIcon() {return "";}
 
+  /**
+   * Set seed1
+   *
+   * @param value of seed1 double x.
+   * @param value of seed1 double y.
+   * @param value of seed1 double z.
+   */
   vtkSetVector3Macro(Seed1, double);
+
+  /**
+   * Set seed2
+   *
+   * @param value of seed2 double x.
+   * @param value of seed2 double y.
+   * @param value of seed2 double z.
+   */
   vtkGetVector3Macro(Seed1, double);
 
+  /**
+   * Get seed1
+   *
+   * @return value of seed1 double* x,y,z.
+   */
   vtkSetVector3Macro(Seed2, double);
+
+  /**
+   * Get seed2
+   *
+   * @return value of seed2 double* x,y,z.
+   */
   vtkGetVector3Macro(Seed2, double);
 
 protected:
