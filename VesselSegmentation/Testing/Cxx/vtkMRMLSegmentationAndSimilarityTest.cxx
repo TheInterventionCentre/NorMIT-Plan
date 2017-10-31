@@ -42,6 +42,7 @@
 #include <vtkMRMLVolumeArchetypeStorageNode.h>
 #include <vtkMatrix4x4.h>
 #include <vtkMRMLSelectionNode.h>
+#include <vtkMRMLApplicationLogic.h>
 
 // VTK includes
 #include <vtkNew.h>
@@ -130,6 +131,11 @@ bool testLoadFileAndSegment( const char* volumeName1, const char* volumeName2, c
 
   vtkSmartPointer<vtkMRMLSelectionNode> selectionNode =
     vtkSmartPointer<vtkMRMLSelectionNode>::New();
+
+  vtkSmartPointer<vtkMRMLApplicationLogic> appLogic =
+    vtkSmartPointer<vtkMRMLApplicationLogic>::New();
+
+  logic->SetMRMLApplicationLogic(appLogic);
 
   scene->AddNode(selectionNode);
   scene->AddNode(scalarNode1);
