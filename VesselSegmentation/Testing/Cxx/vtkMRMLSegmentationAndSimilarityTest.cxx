@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program: NorMIT-Plan
-  Module: vtkMRMLTestFileAndSegmentation.cxx
+  Module: vtkMRMLSegmentationAndSimilarityTest.cxx
 
   Copyright (c) 2017, The Intervention Centre, Oslo University Hospital
 
@@ -68,13 +68,11 @@
 #include "vtkMRMLVesselSegmentationSeedNode.h"
 #include "vtkVesselSegHelper.h"
 
-bool testLoadFileAndSegment( const char* volumeName1, const char* volumeName2, const char* volumeName3, vtkSlicerVesselSegmentationLogic* logic );
+bool testLoadFileAndSegment(const char* volumeName1, const char* volumeName2, const char* volumeName3, vtkSlicerVesselSegmentationLogic* logic);
 
-int vtkMRMLTestFileAndSegmentation(int argc, char * argv[]  )
+int vtkMRMLSegmentationAndSimilarityTest(int argc, char * argv[]  )
 {
   itk::itkFactoryRegistration();
-
-  bool res = false;
 
   vtkNew<vtkMRMLScene> scene;
   vtkNew<vtkSlicerVesselSegmentationLogic> logic;
@@ -104,7 +102,7 @@ int vtkMRMLTestFileAndSegmentation(int argc, char * argv[]  )
     }
   std::cout << "Using file output name " << fileName3 << std::endl;
 
-  res = testLoadFileAndSegment(fileName1, fileName2, fileName3, logic.GetPointer());
+  bool res = testLoadFileAndSegment(fileName1, fileName2, fileName3, logic.GetPointer());
 
   return res ? EXIT_SUCCESS : EXIT_FAILURE;
 }
@@ -120,20 +118,25 @@ bool testLoadFileAndSegment( const char* volumeName1, const char* volumeName2, c
             << itk::ObjectFactoryBase::CreateAllInstance( "itkImageIOBase" ).size()
             << " IO objects available to the ImageFileReader.\n" << std::endl;
 
-  vtkNew<vtkMRMLVolumeArchetypeStorageNode> storageNode1;
-  vtkNew<vtkMRMLScalarVolumeNode> scalarNode1;
+  vtkSmartPointer<vtkMRMLVolumeArchetypeStorageNode> storageNode1 =
+      vtkSmartPointer<vtkMRMLVolumeArchetypeStorageNode>::New();
+  vtkSmartPointer<vtkMRMLScalarVolumeNode> scalarNode1 =
+      vtkSmartPointer<vtkMRMLScalarVolumeNode>::New();
 
   storageNode1->SetFileName(volumeName1);
   std::cout << "Try to load the file" << std::endl;
   storageNode1->ReadData(scalarNode1.GetPointer());
   std::cout << "Past read data" << std::endl;
 
-  vtkMRMLSelectionNode *selectionNode = vtkMRMLSelectionNode::
-      SafeDownCast(scene->GetNodeByID("vtkMRMLSelectionNodeSingleton"));
+  vtkSmartPointer<vtkMRMLSelectionNode> selectionNode =
+    vtkSmartPointer<vtkMRMLSelectionNode>::New();
 
-  char *activeVolID = selectionNode->GetActiveVolumeID();
-  vtkSmartPointer<vtkMRMLScalarVolumeNode> activeVol =
-      vtkMRMLScalarVolumeNode::SafeDownCast(scene->GetNodeByID(activeVolID));
+  scene->AddNode(selectionNode);
+  scene->AddNode(scalarNode1);
+  char* id = scalarNode1->GetID();
+  selectionNode->SetActiveVolumeID(id);
+
+  vtkSmartPointer<vtkMRMLScalarVolumeNode> activeVol = logic->GetActiveVolume();
 
   // check have valid image data
   if (!activeVol)
@@ -308,28 +311,34 @@ bool testLoadFileAndSegment( const char* volumeName1, const char* volumeName2, c
   //--------------------------
   //Similarity Check
   //--------------------------
-  vtkNew<vtkMRMLVolumeArchetypeStorageNode> storageNode2;
-  vtkNew<vtkMRMLScalarVolumeNode> scalarNode2;
+
+  vtkSmartPointer<vtkMRMLVolumeArchetypeStorageNode> storageNode2 =
+      vtkSmartPointer<vtkMRMLVolumeArchetypeStorageNode>::New();
+  vtkSmartPointer<vtkMRMLScalarVolumeNode> scalarNode2 =
+      vtkSmartPointer<vtkMRMLScalarVolumeNode>::New();
 
   storageNode2->SetFileName(volumeName2);
   std::cout << "Try to load the file" << std::endl;
   storageNode2->ReadData(scalarNode2.GetPointer());
+  std::cout << "Past read data" << std::endl;
 
-  char *activeVolID2 = selectionNode->GetActiveVolumeID();
-   vtkSmartPointer<vtkMRMLScalarVolumeNode> activeVol2 =
-       vtkMRMLScalarVolumeNode::SafeDownCast(scene->GetNodeByID(activeVolID2));
+  scene->AddNode(scalarNode2);
+  char* id2 = scalarNode2->GetID();
+  selectionNode->SetActiveVolumeID(id2);
 
-   // check have valid image data
-   if (!activeVol2)
-     {
-     std::cout << "testLoadFileAndSegment: no active volume similarity." << std::endl;
-     return false;
-     }
-   if (!activeVol2->GetImageData())
-     {
-     std::cout << "testLoadFileAndSegment: active volume does not have data for similarity." << std::endl;
-     return false;
-     }
+  vtkSmartPointer<vtkMRMLScalarVolumeNode> activeVol2 = logic->GetActiveVolume();
+
+  // check have valid image data
+  if (!activeVol2)
+    {
+    std::cout << "testLoadFileAndSegment: no active volume." << std::endl;
+    return false;
+    }
+  if (!activeVol2->GetImageData())
+    {
+    std::cout << "testLoadFileAndSegment: active volume does not have data." << std::endl;
+    return false;
+    }
 
   // get similarity image
   ImageType::Pointer similarityImg = vtkVesselSegHelper::ConvertVolumeNodeToItkImage(activeVol2);

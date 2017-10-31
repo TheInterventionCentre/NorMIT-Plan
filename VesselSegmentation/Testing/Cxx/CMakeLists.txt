@@ -35,7 +35,7 @@ include(${ITK_USE_FILE})
 set(KIT_TEST_SRCS
   vtkMRMLVesselSegmentationSeedNodeTest1.cxx
   vtkMRMLVesselSegmentationLogicTest1.cxx
-  vtkMRMLTestFileAndSegmentation.cxx
+  vtkMRMLSegmentationAndSimilarityTest.cxx
   EXTRA_INCLUDE vtkTestingOutputWindow.h
 )
 
@@ -65,4 +65,4 @@ slicerMacroConfigureModuleCxxTestDriver(
 simple_test(vtkMRMLVesselSegmentationSeedNodeTest1)
 simple_test(vtkMRMLVesselSegmentationLogicTest1)
 #simple_test(vtkMRMLTestFileAndSegmentation ${TEST_FILE} ${TEST_FILE_SIMILARITY})
-simple_test(vtkMRMLTestFileAndSegmentation ${TEST_FILE} ${TEST_FILE_SIMILARITY} ${TEST_OUTPUT})
+simple_test(vtkMRMLSegmentationAndSimilarityTest ${TEST_FILE} ${TEST_FILE_SIMILARITY} ${TEST_OUTPUT})
