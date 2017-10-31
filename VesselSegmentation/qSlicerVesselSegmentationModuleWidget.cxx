@@ -67,6 +67,7 @@
 // Qt includes
 #include <qSlicerCoreIOManager.h>
 #include <qSlicerCoreApplication.h>
+#include <qSlicerApplication.h>
 #include <qSlicerIO.h>
 
 # include "qSlicerCorePythonManager.h"
@@ -196,13 +197,6 @@ void qSlicerVesselSegmentationModuleWidget::nodeSelectionChanged(vtkMRMLNode* no
 {
   Q_D(qSlicerVesselSegmentationModuleWidget);
 
-  if (!this->vesselSegmentationLogic()->GetMRMLScene())
-    {
-    qWarning() << Q_FUNC_INFO << "No MRML scene.";
-    return;
-    }
-  vtkMRMLScene *scene = this->vesselSegmentationLogic()->GetMRMLScene();
-
   std::cout << "Widget - Node selection changed " << std::endl;
 
   if (!vtkMRMLScalarVolumeNode::SafeDownCast(node))
@@ -212,18 +206,10 @@ void qSlicerVesselSegmentationModuleWidget::nodeSelectionChanged(vtkMRMLNode* no
     }
 
   vtkMRMLScalarVolumeNode *activeVol = vtkMRMLScalarVolumeNode::SafeDownCast( node );
-  vtkMRMLVolumeNode *volNode = vtkMRMLVolumeNode::SafeDownCast( node );
-
-  // FIX for if the load image before loading the module
-  if(volNode == NULL)
-    {
-    vtkMRMLSelectionNode *selectionNode = vtkMRMLSelectionNode::SafeDownCast(this->vesselSegmentationLogic()->GetMRMLScene()->GetNodeByID("vtkMRMLSelectionNodeSingleton"));
-    char *activeVolID = selectionNode->GetActiveVolumeID();
-    activeVol = vtkMRMLScalarVolumeNode::SafeDownCast(this->vesselSegmentationLogic()->GetMRMLScene()->GetNodeByID(activeVolID));
-    volNode = vtkMRMLVolumeNode::SafeDownCast(this->vesselSegmentationLogic()->GetMRMLScene()->GetNodeByID(activeVolID));
-    }
 
   // TODO: update things based on the active volume?
+  this->vesselSegmentationLogic()->SetAndPropagateActiveVolume(activeVol);
+  activeVol = this->vesselSegmentationLogic()->GetActiveVolume();
 }
 
 //------------------------------------------------------------------------------

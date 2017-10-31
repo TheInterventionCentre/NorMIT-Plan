@@ -456,15 +456,7 @@ void vtkSlicerVesselSegmentationLogic::SegmentVessels(
       this->GetMRMLScene()->AddNode(hepaticLabelMap);
 
       // make this label map the selected one
-      //vtkMRMLSelectionNode *selectionNode = vtkMRMLSelectionNode::
-          //SafeDownCast(this->GetMRMLScene()->GetNodeByID("vtkMRMLSelectionNodeSingleton"));
-
-      // causes a crash?
-      //selectionNode->SetActiveLabelVolumeID(hepaticLabelMap->GetID());
-      //selectionNode->SetReferenceActiveLabelVolumeID(hepaticLabelMap->GetID());
-
-      //vtkMRMLApplicationLogic *mrmlAppLogic = this->GetMRMLApplicationLogic();
-      //mrmlAppLogic->PropagateVolumeSelection();
+      this->SetAndPropagateActiveLabel(this->hepaticLabelMap);
 
       // have updated hepatic, but now merged is not up to date
       this->hepaticUpdated = true;
@@ -527,14 +519,7 @@ void vtkSlicerVesselSegmentationLogic::SegmentVessels(
         this->GetMRMLScene()->AddNode(portalLabelMap);
 
         // make this label map the selected one
-        //vtkMRMLSelectionNode *selectionNode = vtkMRMLSelectionNode::
-            //SafeDownCast(this->GetMRMLScene()->GetNodeByID("vtkMRMLSelectionNodeSingleton"));
-
-        //selectionNode->SetActiveLabelVolumeID(portalLabelMap->GetID());
-        //selectionNode->SetReferenceActiveLabelVolumeID(portalLabelMap->GetID());
-
-        //vtkMRMLApplicationLogic *mrmlAppLogic = this->GetMRMLApplicationLogic();
-        //mrmlAppLogic->PropagateVolumeSelection();
+        this->SetAndPropagateActiveLabel(this->portalLabelMap);
 
         // have updated portal, but now merged is not up to date
         this->portalUpdated = true;
@@ -627,15 +612,7 @@ void vtkSlicerVesselSegmentationLogic::MergeLabelMaps()
     this->mergedUpdated = true;
     }
 
-  //vtkMRMLSelectionNode *selectionNode = vtkMRMLSelectionNode::SafeDownCast(this->GetMRMLScene()->GetNodeByID("vtkMRMLSelectionNodeSingleton"));
-  //vtkMRMLDisplayNode *displayNode = vtkMRMLDisplayNode::SafeDownCast(this->GetMRMLScene()->GetNodeByID("vtkMRMLDisplayNodeSingleton"));
-
-  //std::cout << "Trying to select merged label map" << std::endl;
-  //selectionNode->SetActiveLabelVolumeID(mergedLabelMap->GetID());
-  //selectionNode->SetReferenceActiveLabelVolumeID(mergedLabelMap->GetID());
-
-  //vtkMRMLApplicationLogic *mrmlAppLogic = this->GetMRMLApplicationLogic();
-  //mrmlAppLogic->PropagateVolumeSelection();
+  this->SetAndPropagateActiveLabel(this->mergedLabelMap);
 }
 
 void vtkSlicerVesselSegmentationLogic::SplitVesselsFromWidget(bool isHepatic)
@@ -830,16 +807,6 @@ void vtkSlicerVesselSegmentationLogic::SplitVessels(vtkMRMLVesselSegmentationSee
       }
     }
 
-  //vtkMRMLSelectionNode *selectionNode =
-   //vtkMRMLSelectionNode::SafeDownCast(this->GetMRMLScene()->GetNodeByID("vtkMRMLSelectionNodeSingleton"));
-
-  //std::cout << "Trying to select merged label map" << std::endl;
-  //selectionNode->SetActiveLabelVolumeID(this->mergedLabelMap->GetID());
-  //selectionNode->SetReferenceActiveLabelVolumeID(this->mergedLabelMap->GetID());
-
-  //vtkMRMLApplicationLogic *mrmlAppLogic = this->GetMRMLApplicationLogic();
-  //mrmlAppLogic->PropagateVolumeSelection();
-
   this->hepaticUpdated = true;
   this->portalUpdated = true;
   this->UpdateModels();
@@ -855,7 +822,7 @@ void vtkSlicerVesselSegmentationLogic::UpdateModels()
   // check have valid activevol
   if (!activeVol)
     {
-    vtkErrorMacro("SplitVessels: could not get active volume.")
+    vtkErrorMacro("UpdateModels: could not get active volume.")
     return;
     }
 
@@ -1063,6 +1030,67 @@ vtkMRMLScalarVolumeNode* vtkSlicerVesselSegmentationLogic::GetActiveVolume()
     }
 
   return activeVol;
+}
+
+void vtkSlicerVesselSegmentationLogic::SetAndPropagateActiveVolume(vtkMRMLScalarVolumeNode* activeVol)
+{
+  if(!this->GetMRMLScene())
+    {
+    vtkErrorMacro("SetAndPropagateActiveVolume: No MRML scene.");
+    return;
+    }
+  vtkMRMLScene *scene = this->GetMRMLScene();
+
+  vtkMRMLSelectionNode *selectionNode = vtkMRMLSelectionNode::
+      SafeDownCast(scene->GetNodeByID("vtkMRMLSelectionNodeSingleton"));
+
+  if(selectionNode == NULL)
+    {
+    vtkErrorMacro("SetAndPropagateActiveVolume: no valid selection node.")
+    return;
+    }
+
+  selectionNode->SetActiveVolumeID(activeVol->GetID());
+
+  vtkMRMLApplicationLogic *mrmlAppLogic = this->GetMRMLApplicationLogic();
+  if(mrmlAppLogic == NULL)
+    {
+    vtkErrorMacro("SetAndPropagateActiveVolume: cannot get mrml app logic.")
+    return;
+    }
+
+  mrmlAppLogic->PropagateVolumeSelection();
+}
+
+void vtkSlicerVesselSegmentationLogic::SetAndPropagateActiveLabel(vtkMRMLLabelMapVolumeNode* activelLabel)
+{
+  if(!this->GetMRMLScene())
+    {
+    vtkErrorMacro("SetAndPropagateActiveLabel: No MRML scene.");
+    return;
+    }
+  vtkMRMLScene *scene = this->GetMRMLScene();
+
+  vtkMRMLSelectionNode *selectionNode = vtkMRMLSelectionNode::
+      SafeDownCast(scene->GetNodeByID("vtkMRMLSelectionNodeSingleton"));
+
+  if(selectionNode == NULL)
+    {
+    vtkErrorMacro("SetAndPropagateActiveLabel: no valid selection node.")
+    return;
+    }
+
+  selectionNode->SetActiveLabelVolumeID(activelLabel->GetID());
+  selectionNode->SetReferenceActiveLabelVolumeID(activelLabel->GetID());
+
+  vtkMRMLApplicationLogic *mrmlAppLogic = this->GetMRMLApplicationLogic();
+  if(mrmlAppLogic == NULL)
+    {
+    vtkErrorMacro("SetAndPropagateActiveLabel: cannot get mrml app logic.")
+    return;
+    }
+
+  mrmlAppLogic->PropagateVolumeSelection();
 }
 
 vtkVesselSegHelper::SeedImageType::Pointer vtkSlicerVesselSegmentationLogic::GetPortalITKData()

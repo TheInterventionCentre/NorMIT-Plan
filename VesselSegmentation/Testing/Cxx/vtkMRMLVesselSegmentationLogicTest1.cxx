@@ -42,6 +42,7 @@
 #include <vtkMRMLScene.h>
 #include <vtkMRMLSelectionNode.h>
 #include <vtkMRMLScalarVolumeNode.h>
+#include <vtkMRMLLabelMapVolumeNode.h>
 
 #include <vtkTestingOutputWindow.h>
 
@@ -155,6 +156,60 @@ public:
     vtkDebugMacro("END: OnGetActiveVolumeTest5"
                   << "------------------------------");
   }
+
+  //------------------------------------------------------------------------------
+  void OnSetAndPropagateActiveVolumeTest1()
+    {
+    vtkDebugMacro("BEGIN: OnSetAndPropagateActiveVolumeTest1"
+                  << "------------------------------");
+    // trigger error: cannot get mrml app logic
+
+    vtkSmartPointer<vtkMRMLScene> scene =
+      vtkSmartPointer<vtkMRMLScene>::New();
+    vtkSmartPointer<vtkMRMLSelectionNode> selectionNode =
+      vtkSmartPointer<vtkMRMLSelectionNode>::New();
+    vtkSmartPointer<vtkMRMLScalarVolumeNode> activeVol =
+      vtkSmartPointer<vtkMRMLScalarVolumeNode>::New();
+
+    this->Superclass::SetMRMLScene(scene);
+    scene->AddNode(selectionNode);
+    scene->AddNode(activeVol);
+    char* id = activeVol->GetID();
+    selectionNode->SetActiveVolumeID(id);
+
+    TESTING_OUTPUT_ASSERT_ERRORS_BEGIN();
+    SetAndPropagateActiveVolume(activeVol);
+    TESTING_OUTPUT_ASSERT_ERRORS_END();
+    vtkDebugMacro("END: OnSetAndPropagateActiveVolumeTest1"
+                  << "------------------------------");
+    }
+
+  //------------------------------------------------------------------------------
+  void OnSetAndPropagateActiveLabelTest1()
+    {
+    vtkDebugMacro("BEGIN: OnSetAndPropagateActiveLabelTest1"
+                  << "------------------------------");
+    // trigger error: cannot get mrml app logic
+
+    vtkSmartPointer<vtkMRMLScene> scene =
+      vtkSmartPointer<vtkMRMLScene>::New();
+    vtkSmartPointer<vtkMRMLSelectionNode> selectionNode =
+      vtkSmartPointer<vtkMRMLSelectionNode>::New();
+    vtkSmartPointer<vtkMRMLLabelMapVolumeNode> activeLabel =
+      vtkSmartPointer<vtkMRMLLabelMapVolumeNode>::New();
+
+    this->Superclass::SetMRMLScene(scene);
+    scene->AddNode(selectionNode);
+    scene->AddNode(activeLabel);
+    char* id = activeLabel->GetID();
+    selectionNode->SetActiveVolumeID(id);
+
+    TESTING_OUTPUT_ASSERT_ERRORS_BEGIN();
+    SetAndPropagateActiveLabel(activeLabel);
+    TESTING_OUTPUT_ASSERT_ERRORS_END();
+    vtkDebugMacro("END: OnSetAndPropagateActiveLabelTest1"
+                  << "------------------------------");
+    }
 
   //------------------------------------------------------------------------------
   void OnPreprocessTest1(int lowerThreshold,
@@ -320,6 +375,15 @@ int vtkMRMLVesselSegmentationLogicTest1(int , char * [] )
   logicTest = vtkSmartPointer<vtkSlicerVesselSegmentationLogicTest>::New();
   logicTest->DebugOn();
   logicTest->OnGetActiveVolumeTest5();
+
+
+  logicTest = vtkSmartPointer<vtkSlicerVesselSegmentationLogicTest>::New();
+  logicTest->DebugOn();
+  logicTest->OnSetAndPropagateActiveVolumeTest1();
+
+  logicTest = vtkSmartPointer<vtkSlicerVesselSegmentationLogicTest>::New();
+  logicTest->DebugOn();
+  logicTest->OnSetAndPropagateActiveLabelTest1();
 
 
   // pass in defaults

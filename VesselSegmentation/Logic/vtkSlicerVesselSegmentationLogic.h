@@ -156,10 +156,24 @@ public:
   /**
    * Method to get active volume.
    *
-   * @param scalar volume node pointer, throws errors
+   * @return scalar volume node pointer, throws errors
    * and returns null if do not have active volume.
    */
   vtkMRMLScalarVolumeNode* GetActiveVolume();
+
+  /**
+   * Method to set and propagate selection of active volume.
+   *
+   * @param scalar volume node pointer.
+   */
+  void SetAndPropagateActiveVolume(vtkMRMLScalarVolumeNode*);
+
+  /**
+   * Method to set and propagate selection of active label.
+   *
+   * @param label volume node pointer.
+   */
+  void SetAndPropagateActiveLabel(vtkMRMLLabelMapVolumeNode*);
 
   vtkVesselSegHelper::SeedImageType::Pointer GetPortalITKData();
   vtkVesselSegHelper::SeedImageType::Pointer GetHepaticITKData();
