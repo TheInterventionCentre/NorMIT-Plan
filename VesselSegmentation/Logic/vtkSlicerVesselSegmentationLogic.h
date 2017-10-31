@@ -60,6 +60,7 @@
 #include "vtkVesselSegHelper.h" // includes itk seed filter
 
 class vtkMRMLNode;
+class vtkMRMLScene;
 class vtkMRMLVesselSegmentationSeedNode;
 class vtkMRMLScalarVolumeNode;
 class vtkMRMLLabelMapVolumeNode;
@@ -152,6 +153,14 @@ public:
    */
   void Reset3DView();
 
+  /**
+   * Method to get active volume.
+   *
+   * @param scalar volume node pointer, throws errors
+   * and returns null if do not have active volume.
+   */
+  vtkMRMLScalarVolumeNode* GetActiveVolume();
+
   vtkVesselSegHelper::SeedImageType::Pointer GetPortalITKData();
   vtkVesselSegHelper::SeedImageType::Pointer GetHepaticITKData();
 
@@ -203,7 +212,7 @@ protected:
    */
   virtual void OnMRMLNodeModified(vtkMRMLNode* node);
     
-private:    
+private:
   vtkVesselSegHelper::SeedImageType::Pointer preprocessedImg;
 
   int vtkScalarType;
