@@ -43,8 +43,9 @@
 
 
 // STD includes
-#include <cassert>
 #include <sstream>
+#include <iostream>
+#include <cmath>
 
 //----------------------------------------------------------------------------
 vtkMRMLNodeNewMacro(vtkMRMLVesselSegmentationSeedNode);
@@ -69,10 +70,14 @@ vtkMRMLVesselSegmentationSeedNode::~vtkMRMLVesselSegmentationSeedNode()
 }
 
 //------------------------------------------------------------------------------
-void vtkMRMLVesselSegmentationSeedNode::PrintSelf(ostream &vtkNotUsed(os),
-                                            vtkIndent vtkNotUsed(nIndent))
+void vtkMRMLVesselSegmentationSeedNode::PrintSelf(ostream& os, vtkIndent indent)
 {
+  this->Superclass::PrintSelf(os, indent);
 
+  os << indent << "vtkMRMLVesselSegmentationSeedNode: " << this->GetClassName() << "\n";
+
+  os << indent << "Seed1: " << this->Seed1 << "\n";
+  os << indent << "Seed2: " << this->Seed2 << "\n";
 }
 
 

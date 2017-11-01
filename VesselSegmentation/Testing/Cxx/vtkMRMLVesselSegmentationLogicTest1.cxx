@@ -41,6 +41,7 @@
 #include <vtkMRMLInteractionNode.h>
 #include <vtkMRMLScene.h>
 #include <vtkMRMLSelectionNode.h>
+#include <vtkMRMLViewNode.h>
 #include <vtkMRMLScalarVolumeNode.h>
 #include <vtkMRMLLabelMapVolumeNode.h>
 
@@ -55,9 +56,30 @@ public:
   vtkTypeMacro(vtkSlicerVesselSegmentationLogicTest,
       vtkSlicerVesselSegmentationLogic);
 
-  void OnGetActiveVolumeTest1()
+  void SetMRMLSceneInternalTest1()
   {
-    vtkDebugMacro("BEGIN: OnGetActiveVolumeTest1"
+    vtkDebugMacro("BEGIN: SetMRMLSceneInternalTest1"
+                  << "------------------------------");
+    // trigger error:
+
+    vtkSmartPointer<vtkMRMLScene> scene =
+      vtkSmartPointer<vtkMRMLScene>::New();
+
+    this->Superclass::SetMRMLScene(scene);
+
+    // checks we don't already have any errors
+    TESTING_OUTPUT_ASSERT_ERRORS_BEGIN();
+    SetMRMLSceneInternal(scene);
+    TESTING_OUTPUT_ASSERT_ERRORS(0); // check only have 1 error
+    TESTING_OUTPUT_RESET(); // reset to clear errors + warnings
+    vtkDebugMacro("END: SetMRMLSceneInternalTest1"
+                  << "------------------------------");
+  }
+
+  //------------------------------------------------------------------------------
+  void GetActiveVolumeTest1()
+  {
+    vtkDebugMacro("BEGIN: GetActiveVolumeTest1"
                   << "------------------------------");
     // trigger error: no MRML scene.
 
@@ -65,14 +87,15 @@ public:
 
     TESTING_OUTPUT_ASSERT_ERRORS_BEGIN();
     GetActiveVolume();
+    // checks you get at least 1 error and resets
     TESTING_OUTPUT_ASSERT_ERRORS_END();
-    vtkDebugMacro("END: OnGetActiveVolumeTest1"
+    vtkDebugMacro("END: GetActiveVolumeTest1"
                   << "------------------------------");
   }
 
-  void OnGetActiveVolumeTest2()
+  void GetActiveVolumeTest2()
   {
-    vtkDebugMacro("BEGIN: OnGetActiveVolumeTest2"
+    vtkDebugMacro("BEGIN: GetActiveVolumeTest2"
                   << "------------------------------");
     // trigger error: no valid selection node.
 
@@ -84,13 +107,13 @@ public:
     TESTING_OUTPUT_ASSERT_ERRORS_BEGIN();
     GetActiveVolume();
     TESTING_OUTPUT_ASSERT_ERRORS_END();
-    vtkDebugMacro("END: OnGetActiveVolumeTest2"
+    vtkDebugMacro("END: GetActiveVolumeTest2"
                   << "------------------------------");
   }
 
-  void OnGetActiveVolumeTest3()
+  void GetActiveVolumeTest3()
   {
-    vtkDebugMacro("BEGIN: OnGetActiveVolumeTest3"
+    vtkDebugMacro("BEGIN: GetActiveVolumeTest3"
                   << "------------------------------");
     // trigger error: no active volume ID.
 
@@ -105,13 +128,13 @@ public:
     TESTING_OUTPUT_ASSERT_ERRORS_BEGIN();
     GetActiveVolume();
     TESTING_OUTPUT_ASSERT_ERRORS_END();
-    vtkDebugMacro("END: OnGetActiveVolumeTest3"
+    vtkDebugMacro("END: GetActiveVolumeTest3"
                   << "------------------------------");
   }
 
-  void OnGetActiveVolumeTest4()
+  void GetActiveVolumeTest4()
   {
-    vtkDebugMacro("BEGIN: OnGetActiveVolumeTest4"
+    vtkDebugMacro("BEGIN: GetActiveVolumeTest4"
                   << "------------------------------");
     // trigger error: no active volume.
 
@@ -127,13 +150,13 @@ public:
     TESTING_OUTPUT_ASSERT_ERRORS_BEGIN();
     GetActiveVolume();
     TESTING_OUTPUT_ASSERT_ERRORS_END();
-    vtkDebugMacro("END: OnGetActiveVolumeTest4"
+    vtkDebugMacro("END: GetActiveVolumeTest4"
                   << "------------------------------");
   }
 
-  void OnGetActiveVolumeTest5()
+  void GetActiveVolumeTest5()
   {
-    vtkDebugMacro("BEGIN: OnGetActiveVolumeTest5"
+    vtkDebugMacro("BEGIN: GetActiveVolumeTest5"
                   << "------------------------------");
     // trigger error: active volume does not have data.
 
@@ -153,14 +176,14 @@ public:
     TESTING_OUTPUT_ASSERT_ERRORS_BEGIN();
     GetActiveVolume();
     TESTING_OUTPUT_ASSERT_ERRORS_END();
-    vtkDebugMacro("END: OnGetActiveVolumeTest5"
+    vtkDebugMacro("END: GetActiveVolumeTest5"
                   << "------------------------------");
   }
 
   //------------------------------------------------------------------------------
-  void OnSetAndPropagateActiveVolumeTest1()
+  void SetAndPropagateActiveVolumeTest1()
     {
-    vtkDebugMacro("BEGIN: OnSetAndPropagateActiveVolumeTest1"
+    vtkDebugMacro("BEGIN: SetAndPropagateActiveVolumeTest1"
                   << "------------------------------");
     // trigger error: cannot get mrml app logic
 
@@ -180,14 +203,14 @@ public:
     TESTING_OUTPUT_ASSERT_ERRORS_BEGIN();
     SetAndPropagateActiveVolume(activeVol);
     TESTING_OUTPUT_ASSERT_ERRORS_END();
-    vtkDebugMacro("END: OnSetAndPropagateActiveVolumeTest1"
+    vtkDebugMacro("END: SetAndPropagateActiveVolumeTest1"
                   << "------------------------------");
     }
 
   //------------------------------------------------------------------------------
-  void OnSetAndPropagateActiveLabelTest1()
+  void SetAndPropagateActiveLabelTest1()
     {
-    vtkDebugMacro("BEGIN: OnSetAndPropagateActiveLabelTest1"
+    vtkDebugMacro("BEGIN: SetAndPropagateActiveLabelTest1"
                   << "------------------------------");
     // trigger error: cannot get mrml app logic
 
@@ -207,19 +230,19 @@ public:
     TESTING_OUTPUT_ASSERT_ERRORS_BEGIN();
     SetAndPropagateActiveLabel(activeLabel);
     TESTING_OUTPUT_ASSERT_ERRORS_END();
-    vtkDebugMacro("END: OnSetAndPropagateActiveLabelTest1"
+    vtkDebugMacro("END: SetAndPropagateActiveLabelTest1"
                   << "------------------------------");
     }
 
   //------------------------------------------------------------------------------
-  void OnPreprocessTest1(int lowerThreshold,
+  void PreprocessTest1(int lowerThreshold,
                          int upperThreshold,
                          unsigned int alpha,
                          int beta,
                          unsigned int conductance,
                          unsigned int iterations)
   {
-    vtkDebugMacro("BEGIN: OnPreprocessTest1"
+    vtkDebugMacro("BEGIN: PreprocessTest1"
                   << "------------------------------");
     // trigger error: could not get active volume.
 
@@ -236,17 +259,34 @@ public:
     char* id = activeVol->GetID();
     selectionNode->SetActiveVolumeID(id);
 
+    TESTING_OUTPUT_ASSERT_ERRORS_BEGIN();
     PreprocessImage(lowerThreshold, upperThreshold, alpha, beta, conductance, iterations);
     TESTING_OUTPUT_ASSERT_ERRORS(2);
     TESTING_OUTPUT_RESET();
-    vtkDebugMacro("END: OnPreprocessTest1"
+    vtkDebugMacro("END: PreprocessTest1"
                   << "------------------------------");
   }
 
   //------------------------------------------------------------------------------
-  void OnSegmentVesselsTest1(bool isHepatic)
+  void SegmentVesselsFromWidgetTest1(bool isHepatic)
+  {
+    vtkDebugMacro("BEGIN: SegmentVesselsFromWidgetTest1"
+                  << "------------------------------");
+    // trigger error: no MRML scene.
+
+    this->Superclass::SetMRMLScene(NULL);
+
+    TESTING_OUTPUT_ASSERT_ERRORS_BEGIN();
+    SegmentVesselsFromWidget(isHepatic);
+    TESTING_OUTPUT_ASSERT_ERRORS_END();
+    vtkDebugMacro("END: SegmentVesselsFromWidgetTest1"
+                  << "------------------------------");
+  }
+
+  //------------------------------------------------------------------------------
+  void SegmentVesselsTest1(bool isHepatic)
     {
-    vtkDebugMacro("BEGIN: OnSegmentVesselsTest1"
+    vtkDebugMacro("BEGIN: SegmentVesselsTest1"
                   << "------------------------------");
     // trigger error: could not get active volume.
 
@@ -266,17 +306,18 @@ public:
     vtkSmartPointer<vtkMRMLVesselSegmentationSeedNode> seedNode =
         vtkSmartPointer<vtkMRMLVesselSegmentationSeedNode>::New();
 
+    TESTING_OUTPUT_ASSERT_ERRORS_BEGIN();
     SegmentVessels(seedNode, isHepatic);
     TESTING_OUTPUT_ASSERT_ERRORS(2);
     TESTING_OUTPUT_RESET();
-    vtkDebugMacro("END: OnSegmentVesselsTest1"
+    vtkDebugMacro("END: SegmentVesselsTest1"
                   << "------------------------------");
     }
 
   //------------------------------------------------------------------------------
-  void OnMergeLabelMapsTest1()
+  void MergeLabelMapsTest1()
     {
-    vtkDebugMacro("BEGIN: OnMergeLabelMapsTest1"
+    vtkDebugMacro("BEGIN: MergeLabelMapsTest1"
                   << "------------------------------");
     // trigger error: could not get active volume.
 
@@ -293,17 +334,34 @@ public:
     char* id = activeVol->GetID();
     selectionNode->SetActiveVolumeID(id);
 
+    TESTING_OUTPUT_ASSERT_ERRORS_BEGIN();
     MergeLabelMaps();
     TESTING_OUTPUT_ASSERT_ERRORS(2);
     TESTING_OUTPUT_RESET();
-    vtkDebugMacro("END: OnMergeLabelMapsTest1"
+    vtkDebugMacro("END: MergeLabelMapsTest1"
                   << "------------------------------");
     }
 
   //------------------------------------------------------------------------------
-  void OnSplitVesselsTest1(bool isHepatic)
+  void SplitVesselsFromWidgetTest1(bool isHepatic)
+  {
+    vtkDebugMacro("BEGIN: SplitVesselsFromWidgetTest1"
+                  << "------------------------------");
+    // trigger error: no MRML scene.
+
+    this->Superclass::SetMRMLScene(NULL);
+
+    TESTING_OUTPUT_ASSERT_ERRORS_BEGIN();
+    SplitVesselsFromWidget(isHepatic);
+    TESTING_OUTPUT_ASSERT_ERRORS_END();
+    vtkDebugMacro("END: SplitVesselsFromWidgetTest1"
+                  << "------------------------------");
+  }
+
+  //------------------------------------------------------------------------------
+  void SplitVesselsTest1(bool isHepatic)
     {
-    vtkDebugMacro("BEGIN: OnSplitVesselsTest1"
+    vtkDebugMacro("BEGIN: SplitVesselsTest1"
                   << "------------------------------");
     // trigger error: could not get active volume.
 
@@ -323,13 +381,78 @@ public:
     vtkSmartPointer<vtkMRMLVesselSegmentationSeedNode> seedNode =
         vtkSmartPointer<vtkMRMLVesselSegmentationSeedNode>::New();
 
+    TESTING_OUTPUT_ASSERT_ERRORS_BEGIN();
     SplitVessels(seedNode, isHepatic);
     TESTING_OUTPUT_ASSERT_ERRORS(2);
     TESTING_OUTPUT_RESET();
-    vtkDebugMacro("END: OnSplitVesselsTest1"
+    vtkDebugMacro("END: SplitVesselsTest1"
                   << "------------------------------");
     }
 
+  //------------------------------------------------------------------------------
+  void UpdateModelsTest1()
+    {
+    vtkDebugMacro("BEGIN: UpdateModelsTest1"
+                  << "------------------------------");
+    // trigger error: could not get active volume.
+
+    vtkSmartPointer<vtkMRMLScene> scene =
+      vtkSmartPointer<vtkMRMLScene>::New();
+    vtkSmartPointer<vtkMRMLSelectionNode> selectionNode =
+      vtkSmartPointer<vtkMRMLSelectionNode>::New();
+    vtkSmartPointer<vtkMRMLScalarVolumeNode> activeVol =
+      vtkSmartPointer<vtkMRMLScalarVolumeNode>::New();
+
+    this->Superclass::SetMRMLScene(scene);
+    scene->AddNode(selectionNode);
+    scene->AddNode(activeVol);
+    char* id = activeVol->GetID();
+    selectionNode->SetActiveVolumeID(id);
+
+    vtkSmartPointer<vtkMRMLVesselSegmentationSeedNode> seedNode =
+        vtkSmartPointer<vtkMRMLVesselSegmentationSeedNode>::New();
+
+    TESTING_OUTPUT_ASSERT_ERRORS_BEGIN();
+    UpdateModels();
+    TESTING_OUTPUT_ASSERT_ERRORS(2);
+    TESTING_OUTPUT_RESET();
+    vtkDebugMacro("END: UpdateModelsTest1"
+                  << "------------------------------");
+    }
+
+  //------------------------------------------------------------------------------
+  void Reset3DViewTest1()
+    {
+    vtkDebugMacro("BEGIN: Reset3DViewTest1"
+                  << "------------------------------");
+    // trigger error: no MRML scene.
+
+    this->Superclass::SetMRMLScene(NULL);
+
+    TESTING_OUTPUT_ASSERT_ERRORS_BEGIN();
+    Reset3DView();
+    TESTING_OUTPUT_ASSERT_ERRORS_END();
+    vtkDebugMacro("END: Reset3DViewTest1"
+                  << "------------------------------");
+    }
+
+    void Reset3DViewTest2()
+    {
+    vtkDebugMacro("BEGIN: Reset3DViewTest2"
+                  << "------------------------------");
+    // trigger error: No view node.
+
+    vtkSmartPointer<vtkMRMLScene> scene =
+      vtkSmartPointer<vtkMRMLScene>::New();
+
+    this->Superclass::SetMRMLScene(scene);
+
+    TESTING_OUTPUT_ASSERT_ERRORS_BEGIN();
+    Reset3DView();
+    TESTING_OUTPUT_ASSERT_ERRORS_END();
+    vtkDebugMacro("END: Reset3DViewTest2"
+                  << "------------------------------");
+    }
 
 protected:
   vtkSlicerVesselSegmentationLogicTest(){TESTING_OUTPUT_RESET();}
@@ -347,7 +470,7 @@ int vtkMRMLVesselSegmentationLogicTest1(int , char * [] )
   //----------------------------------------------------------------------------
   // UNIT Tests
   // ======================
-  // Error checking of several higher level functions:
+  // Particularly error checking of several higher level functions:
   // CallPreprocessing
   // CallSegmentationAlgorithm
   // CallMergeLabelMaps
@@ -358,32 +481,36 @@ int vtkMRMLVesselSegmentationLogicTest1(int , char * [] )
 
   logicTest = vtkSmartPointer<vtkSlicerVesselSegmentationLogicTest>::New();
   logicTest->DebugOn();
-  logicTest->OnGetActiveVolumeTest1();
+  logicTest->SetMRMLSceneInternalTest1();
 
   logicTest = vtkSmartPointer<vtkSlicerVesselSegmentationLogicTest>::New();
   logicTest->DebugOn();
-  logicTest->OnGetActiveVolumeTest2();
+  logicTest->GetActiveVolumeTest1();
 
   logicTest = vtkSmartPointer<vtkSlicerVesselSegmentationLogicTest>::New();
   logicTest->DebugOn();
-  logicTest->OnGetActiveVolumeTest3();
+  logicTest->GetActiveVolumeTest2();
 
   logicTest = vtkSmartPointer<vtkSlicerVesselSegmentationLogicTest>::New();
   logicTest->DebugOn();
-  logicTest->OnGetActiveVolumeTest4();
+  logicTest->GetActiveVolumeTest3();
 
   logicTest = vtkSmartPointer<vtkSlicerVesselSegmentationLogicTest>::New();
   logicTest->DebugOn();
-  logicTest->OnGetActiveVolumeTest5();
+  logicTest->GetActiveVolumeTest4();
+
+  logicTest = vtkSmartPointer<vtkSlicerVesselSegmentationLogicTest>::New();
+  logicTest->DebugOn();
+  logicTest->GetActiveVolumeTest5();
 
 
   logicTest = vtkSmartPointer<vtkSlicerVesselSegmentationLogicTest>::New();
   logicTest->DebugOn();
-  logicTest->OnSetAndPropagateActiveVolumeTest1();
+  logicTest->SetAndPropagateActiveVolumeTest1();
 
   logicTest = vtkSmartPointer<vtkSlicerVesselSegmentationLogicTest>::New();
   logicTest->DebugOn();
-  logicTest->OnSetAndPropagateActiveLabelTest1();
+  logicTest->SetAndPropagateActiveLabelTest1();
 
 
   // pass in defaults
@@ -396,7 +523,7 @@ int vtkMRMLVesselSegmentationLogicTest1(int , char * [] )
 
   logicTest = vtkSmartPointer<vtkSlicerVesselSegmentationLogicTest>::New();
   logicTest->DebugOn();
-  logicTest->OnPreprocessTest1(lowerThreshold,
+  logicTest->PreprocessTest1(lowerThreshold,
                                upperThreshold,
                                alpha,
                                beta,
@@ -407,15 +534,36 @@ int vtkMRMLVesselSegmentationLogicTest1(int , char * [] )
 
   logicTest = vtkSmartPointer<vtkSlicerVesselSegmentationLogicTest>::New();
   logicTest->DebugOn();
-  logicTest->OnSegmentVesselsTest1(isHepatic);
+  logicTest->SegmentVesselsFromWidgetTest1(isHepatic);
 
   logicTest = vtkSmartPointer<vtkSlicerVesselSegmentationLogicTest>::New();
   logicTest->DebugOn();
-  logicTest->OnMergeLabelMapsTest1();
+  logicTest->SegmentVesselsTest1(isHepatic);
 
   logicTest = vtkSmartPointer<vtkSlicerVesselSegmentationLogicTest>::New();
   logicTest->DebugOn();
-  logicTest->OnSplitVesselsTest1(isHepatic);
+  logicTest->MergeLabelMapsTest1();
+
+  logicTest = vtkSmartPointer<vtkSlicerVesselSegmentationLogicTest>::New();
+  logicTest->DebugOn();
+  logicTest->SplitVesselsFromWidgetTest1(isHepatic);
+
+  logicTest = vtkSmartPointer<vtkSlicerVesselSegmentationLogicTest>::New();
+  logicTest->DebugOn();
+  logicTest->SplitVesselsTest1(isHepatic);
+
+
+  logicTest = vtkSmartPointer<vtkSlicerVesselSegmentationLogicTest>::New();
+  logicTest->DebugOn();
+  logicTest->UpdateModelsTest1();
+
+  logicTest = vtkSmartPointer<vtkSlicerVesselSegmentationLogicTest>::New();
+  logicTest->DebugOn();
+  logicTest->Reset3DViewTest1();
+
+  logicTest = vtkSmartPointer<vtkSlicerVesselSegmentationLogicTest>::New();
+  logicTest->DebugOn();
+  logicTest->Reset3DViewTest2();
 
 
   // END: UNIT Tests

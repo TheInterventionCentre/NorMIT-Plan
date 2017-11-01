@@ -70,7 +70,7 @@ class vtkMRMLModelDisplayNode;
 /// \ingroup Slicer_QtModules_ExtensionTemplate
 /**
  * This class contains the functions that handle adding listeners when nodes are added to the MRML scene.
- * It also handles the fiducials, and calling rahul's algorithm.
+ * It also handles the seed nodes, and calling the segmentation algorithm.
  * The hepatic and portal label maps and models are also created and handled inside this class.
  */
 class VTK_SLICER_VESSELSEGMENTATION_MODULE_LOGIC_EXPORT vtkSlicerVesselSegmentationLogic :
@@ -94,10 +94,14 @@ public:
    */
   void PrintSelf(ostream& os, vtkIndent indent);
 
+  /**
+   * Add an empty seed node to the MRML scene
+   */
   void AddSeedNode();
 
   /**
-   * Calls the image preprocessing (prerequisite: an input image).
+   * Calls preprocessing to enhance the vesselness of the image
+   * (prerequisite: an input image).
    *
    * @param lower threshold.
    * @pararm upper threshold.
@@ -109,14 +113,15 @@ public:
   void PreprocessImage( int lowerThreshold, int upperThreshold, unsigned int alpha, int beta, unsigned int conductance, unsigned int iterations );
 
   /**
-   * Calls the segmentation algorithm.
+   * Calls the segmentation algorithm when the button is pressed.
    *
    * @param if the hepatic radio button is selected.
    */
   void SegmentVesselsFromWidget(bool isHepatic);
 
   /**
-   * Runs the segmentation algorithm (prerequisite: seeds).
+   * Runs the segmentation algorithm.
+   * (prerequisite: an input image (preprocessed) and a seed node (with 2 points set)
    *
    * @param the seed node.
    * @param if the hepatic radio button is selected.
@@ -136,7 +141,8 @@ public:
   void SplitVesselsFromWidget(bool isHepatic);
 
   /**
-   * Runs the algorithm to assign the seed to either portal or hepatic (in an overlapping area).
+   * Runs the algorithm to assign the area around the seed to either portal or hepatic
+   * (if in an overlapping area).
    *
    * @param the seed node.
    * @param if the hepatic radio button is selected.
@@ -175,8 +181,19 @@ public:
    */
   void SetAndPropagateActiveLabel(vtkMRMLLabelMapVolumeNode*);
 
-  vtkVesselSegHelper::SeedImageType::Pointer GetPortalITKData();
+  /**
+   * Method to get the hepatic ITK data.
+   *
+   * @return pointer to hepatic ITK data.
+   */
   vtkVesselSegHelper::SeedImageType::Pointer GetHepaticITKData();
+
+  /**
+   * Method to get the portal ITK data.
+   *
+   * @return pointer to portal ITK data.
+   */
+  vtkVesselSegHelper::SeedImageType::Pointer GetPortalITKData();
 
 protected:
   vtkSlicerVesselSegmentationLogic();

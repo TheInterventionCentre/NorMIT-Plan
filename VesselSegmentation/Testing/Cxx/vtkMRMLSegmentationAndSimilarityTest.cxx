@@ -294,7 +294,9 @@ bool testLoadFileAndSegment( const char* volumeName1, const char* volumeName2, c
   */
 
   // call the segmentation
-  logic->SegmentVessels(seedNode.GetPointer(), false);
+  TESTING_OUTPUT_ASSERT_ERRORS_BEGIN();
+  logic->SegmentVessels(seedNode.GetPointer(), false);\
+  TESTING_OUTPUT_ASSERT_ERRORS_END();
 
   ImageType::Pointer output = logic->GetPortalITKData();
 
