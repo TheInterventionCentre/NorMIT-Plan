@@ -51,8 +51,10 @@ class vtkMatrix4x4;
 class vtkActor2D;
 
 /**
- * This class contains the display related functions, as well as event triggered functions related to the display.
- * This class handles the drawing of the line between two fiducials, and other vtk rendered visuals.
+ * \ingroup VesselSegmentation
+ *
+ * This class encapsulates the functionality to display the projection of the
+ * seeds in the 2D slices.
  */
 class VTK_SLICER_VESSELSEGMENTATION_MODULE_MRMLDISPLAYABLEMANAGER_EXPORT
 vtkMRMLVesselSegmentationDisplayableManager
@@ -77,11 +79,11 @@ vtkMRMLVesselSegmentationDisplayableManager
     void PrintSelf(ostream& os, vtkIndent indent);
 
     /*
-     * Set if are in mode to place fiducials
+     * Set if are in mode to place seeds
      *
-     * @param bool where true is placing fiducials
+     * @param bool where true is placing seeds
      */
-    static void SetFiducialsMode(bool placingFid);
+    static void SetSeedsMode(bool seedMode);
     
   protected:
     vtkMRMLVesselSegmentationDisplayableManager();
@@ -131,28 +133,22 @@ vtkMRMLVesselSegmentationDisplayableManager
      */
     virtual void OnMRMLSceneEndClose();
     
-    static void OnFiducialNodeModified(vtkObject *caller, unsigned long int id, void *clientData, void *callerData);
-    
     static void OnCrosshairPositionModified(vtkObject *caller, unsigned long int id, void *clientData, void *callerData);
   
     static void OnSliceNodeModified(vtkObject *caller, unsigned long int id, void *clientData, void *callerData);
 
-    void DisplayLine(double *coord1, double *coord2);
-    void DisplayPolygon(double *coord, int w);
-
     vtkNew<vtkMatrix4x4> RAStoXYmatrix;
     
   private:
-    vtkNew<vtkActor2D> lineActor;
-    vtkNew<vtkActor2D> polygon1Actor;
-    vtkNew<vtkActor2D> polygon2Actor;
+    vtkMRMLVesselSegmentationDisplayableManager(
+      const vtkMRMLVesselSegmentationDisplayableManager&);
+    void operator=(const vtkMRMLVesselSegmentationDisplayableManager&);
 
-    vtkNew<vtkCallbackCommand> UpdateFiducialCommand;
     vtkNew<vtkCallbackCommand> UpdateMatrixCommand;
     vtkNew<vtkCallbackCommand> UpdateCursorCommand;
 
     bool sliceListenerSet;
-    static bool placingFiducials;
+    static bool placingSeeds;
     double *lastCursorPosition;
 };
 

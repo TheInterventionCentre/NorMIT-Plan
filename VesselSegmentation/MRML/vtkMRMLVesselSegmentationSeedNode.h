@@ -94,11 +94,37 @@ public:
    */
   virtual const char* GetIcon() {return "";}
 
-  vtkSetVector3Macro(Seed1, float);
-  vtkGetVector3Macro(Seed1, float);
+  /**
+   * Set seed1
+   *
+   * @param value of seed1 double x.
+   * @param value of seed1 double y.
+   * @param value of seed1 double z.
+   */
+  vtkSetVector3Macro(Seed1, double);
 
-  vtkSetVector3Macro(Seed2, float);
-  vtkGetVector3Macro(Seed2, float);
+  /**
+   * Set seed2
+   *
+   * @param value of seed2 double x.
+   * @param value of seed2 double y.
+   * @param value of seed2 double z.
+   */
+  vtkGetVector3Macro(Seed1, double);
+
+  /**
+   * Get seed1
+   *
+   * @return value of seed1 double* x,y,z.
+   */
+  vtkSetVector3Macro(Seed2, double);
+
+  /**
+   * Get seed2
+   *
+   * @return value of seed2 double* x,y,z.
+   */
+  vtkGetVector3Macro(Seed2, double);
 
 protected:
   vtkMRMLVesselSegmentationSeedNode();
@@ -107,8 +133,8 @@ protected:
   vtkMRMLVesselSegmentationSeedNode(const vtkMRMLVesselSegmentationSeedNode&);
   void operator=(const vtkMRMLVesselSegmentationSeedNode&);
 
-  float Seed1 [3];
-  float Seed2 [3];
+  double Seed1 [3];
+  double Seed2 [3];
 };
 
 

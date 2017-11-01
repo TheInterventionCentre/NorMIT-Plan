@@ -60,8 +60,8 @@
 #include "vtkVesselSegHelper.h" // includes itk seed filter
 
 class vtkMRMLNode;
+class vtkMRMLScene;
 class vtkMRMLVesselSegmentationSeedNode;
-class vtkMatrix4x4;
 class vtkMRMLScalarVolumeNode;
 class vtkMRMLLabelMapVolumeNode;
 class vtkMRMLModelNode;
@@ -70,7 +70,7 @@ class vtkMRMLModelDisplayNode;
 /// \ingroup Slicer_QtModules_ExtensionTemplate
 /**
  * This class contains the functions that handle adding listeners when nodes are added to the MRML scene.
- * It also handles the fiducials, and calling rahul's algorithm.
+ * It also handles the seed nodes, and calling the segmentation algorithm.
  * The hepatic and portal label maps and models are also created and handled inside this class.
  */
 class VTK_SLICER_VESSELSEGMENTATION_MODULE_LOGIC_EXPORT vtkSlicerVesselSegmentationLogic :
@@ -95,7 +95,13 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   /**
-   * Calls the image preprocessing (prerequisite: an input image).
+   * Add an empty seed node to the MRML scene
+   */
+  void AddSeedNode();
+
+  /**
+   * Calls preprocessing to enhance the vesselness of the image
+   * (prerequisite: an input image).
    *
    * @param lower threshold.
    * @pararm upper threshold.
@@ -107,24 +113,20 @@ public:
   void PreprocessImage( int lowerThreshold, int upperThreshold, unsigned int alpha, int beta, unsigned int conductance, unsigned int iterations );
 
   /**
-   * Calls the segmentation algorithm.
+   * Calls the segmentation algorithm when the button is pressed.
    *
    * @param if the hepatic radio button is selected.
    */
   void SegmentVesselsFromWidget(bool isHepatic);
 
   /**
-   * Runs the segmentation algorithm (prerequisite: seeds).
+   * Runs the segmentation algorithm.
+   * (prerequisite: an input image (preprocessed) and a seed node (with 2 points set)
    *
    * @param the seed node.
    * @param if the hepatic radio button is selected.
    */
   void SegmentVessels(vtkMRMLVesselSegmentationSeedNode *seedNode, bool isHepatic);
-
-  /**
-   * Calls the a merge of the hepatic and portal label maps.
-   */
-  void CallMergeLabelMaps();
 
   /**
    * Combines the hepatic and portal label maps.
@@ -139,61 +141,13 @@ public:
   void SplitVesselsFromWidget(bool isHepatic);
 
   /**
-   * Runs the algorithm to assign the seed to either portal or hepatic (in an overlapping area).
+   * Runs the algorithm to assign the area around the seed to either portal or hepatic
+   * (if in an overlapping area).
    *
    * @param the seed node.
    * @param if the hepatic radio button is selected.
    */
   void SplitVessels(vtkMRMLVesselSegmentationSeedNode *seedNode, bool isHepatic);
-
-  /**
-   * Set the active volume node
-   *
-   * @param the vtkMRMLVolumeNode
-   */
-  void SetActiveVolumeNode(vtkMRMLVolumeNode *ActiveVolumeNode);
-
-  /**
-   * Set the active volume
-   *
-   * @param the vtkMRMLScalarVolumeNode
-   */
-  void SetActiveVolume(vtkMRMLScalarVolumeNode *activeVolume);
-
-  /**
-   * Get the active volume
-   *
-   * @return the vtkSmartPointer to a vtkMRMLScalarVolumeNode
-   */
-  vtkSmartPointer<vtkMRMLScalarVolumeNode> GetActiveVolume();
-    
-
-  // fiducial list methods
-  /**
-   * Get the coordinates of the last fiducial added
-   *
-   * @return double* to fiducial
-   */
-  static double* GetLastFiducialCoordinate();
-
-  /**
-   * Get the list of fiducials
-   *
-   * @return std::vector<double*> list of fiducials
-   */
-  static std::vector<double*> GetFiducialList();
-
-  /**
-   * Delete the list of fiducials
-   */
-  void DeleteFiducials();
-
-  /**
-   * If a markup was added
-   *
-   * @return boolean if a markup was added
-   */
-  static bool GetMarkupJustAdded();
 
   /**
    * Helper function to update the 3D models
@@ -205,11 +159,45 @@ public:
    */
   void Reset3DView();
 
+  /**
+   * Method to get active volume.
+   *
+   * @return scalar volume node pointer, throws errors
+   * and returns null if do not have active volume.
+   */
+  vtkMRMLScalarVolumeNode* GetActiveVolume();
+
+  /**
+   * Method to set and propagate selection of active volume.
+   *
+   * @param scalar volume node pointer.
+   */
+  void SetAndPropagateActiveVolume(vtkMRMLScalarVolumeNode*);
+
+  /**
+   * Method to set and propagate selection of active label.
+   *
+   * @param label volume node pointer.
+   */
+  void SetAndPropagateActiveLabel(vtkMRMLLabelMapVolumeNode*);
+
+  /**
+   * Method to get the hepatic ITK data.
+   *
+   * @return pointer to hepatic ITK data.
+   */
+  vtkVesselSegHelper::SeedImageType::Pointer GetHepaticITKData();
+
+  /**
+   * Method to get the portal ITK data.
+   *
+   * @return pointer to portal ITK data.
+   */
+  vtkVesselSegHelper::SeedImageType::Pointer GetPortalITKData();
+
 protected:
   vtkSlicerVesselSegmentationLogic();
   virtual ~vtkSlicerVesselSegmentationLogic();
-
-  vtkSmartPointer<vtkMRMLVolumeNode> ActiveVolumeNode;
 
   /**
    * Setting the MRML scene internally.
@@ -255,18 +243,8 @@ protected:
    */
   virtual void OnMRMLNodeModified(vtkMRMLNode* node);
     
-  static void OnMRMLMarkupAdded(vtkObject *caller, unsigned long int id, void *clientData, void *callerData);
-    
-private:    
-  bool nodeObserversSet;
-  static bool markupJustAdded;
-
-  vtkNew<vtkMatrix4x4> IJKtoRASmatrix;
-  vtkNew<vtkMatrix4x4> RAStoIJKmatrix;
-
-  static std::vector<double*> fiducialVector;
-  vtkSmartPointer<vtkMRMLScalarVolumeNode> activeVol;
-  vtkVesselSegHelper::SeedImageType::Pointer preprocessedImg; //= vtkVesselSegHelper::SeedImageType::New();
+private:
+  vtkVesselSegHelper::SeedImageType::Pointer preprocessedImg;
 
   int vtkScalarType;
 

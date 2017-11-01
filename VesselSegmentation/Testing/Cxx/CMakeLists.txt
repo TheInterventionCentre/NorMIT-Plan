@@ -6,13 +6,14 @@ if(NOT EXISTS "${TESTING_DATA}/testImage3_large.nrrd")
   # download image file from girder
   file(DOWNLOAD https://data.kitware.com/api/v1/file/59ee0c9d8d777f31ac64783f/download ${TESTING_DATA}/testImage3_large.nrrd)
 endif()
-if(NOT EXISTS "${TESTING_DATA}/testImage3_largeSimilarity.nrrd")
+if(NOT EXISTS "${TESTING_DATA}/testImage3_similaritySlicer.nrrd")
   # download similarity file from girder
-  file(DOWNLOAD https://data.kitware.com/api/v1/file/59ee0cb68d777f31ac647842/download ${TESTING_DATA}/testImage3_largeSimilarity.nrrd)
+  file(DOWNLOAD https://data.kitware.com/api/v1/file/59f34a818d777f31ac647e92/download ${TESTING_DATA}/testImage3_similaritySlicer.nrrd)
 endif()
 
 set(TEST_FILE "${TESTING_DATA}/testImage3_large.nrrd")
-set(TEST_FILE_SIMILARITY "${TESTING_DATA}/testImage3_largeSimilarity.nrrd")
+set(TEST_FILE_SIMILARITY "${TESTING_DATA}/testImage3_similaritySlicer.nrrd")
+set(TEST_OUTPUT "${TESTING_DATA}/testOutput.nrrd")
 
 #-----------------------------------------------------------------------------
 # ITK 
@@ -34,7 +35,7 @@ include(${ITK_USE_FILE})
 set(KIT_TEST_SRCS
   vtkMRMLVesselSegmentationSeedNodeTest1.cxx
   vtkMRMLVesselSegmentationLogicTest1.cxx
-  vtkMRMLTestFileAndSegmentation.cxx
+  vtkMRMLSegmentationAndSimilarityTest.cxx
   EXTRA_INCLUDE vtkTestingOutputWindow.h
 )
 
@@ -63,4 +64,5 @@ slicerMacroConfigureModuleCxxTestDriver(
 # Test seed node
 simple_test(vtkMRMLVesselSegmentationSeedNodeTest1)
 simple_test(vtkMRMLVesselSegmentationLogicTest1)
-simple_test(vtkMRMLTestFileAndSegmentation ${TEST_FILE} ${TEST_FILE_SIMILARITY})
+#simple_test(vtkMRMLTestFileAndSegmentation ${TEST_FILE} ${TEST_FILE_SIMILARITY})
+simple_test(vtkMRMLSegmentationAndSimilarityTest ${TEST_FILE} ${TEST_FILE_SIMILARITY} ${TEST_OUTPUT})
