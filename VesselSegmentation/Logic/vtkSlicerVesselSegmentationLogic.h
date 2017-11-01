@@ -57,7 +57,7 @@
 // MRML includes
 #include "vtkSlicerVesselSegmentationModuleLogicExport.h"
 
-#include "vtkVesselSegHelper.h" // includes itk seed filter
+#include "vtkVesselSegmentationHelper.h" // includes itk seed filter
 
 class vtkMRMLNode;
 class vtkMRMLScene;
@@ -186,14 +186,14 @@ public:
    *
    * @return pointer to hepatic ITK data.
    */
-  vtkVesselSegHelper::SeedImageType::Pointer GetHepaticITKData();
+  vtkVesselSegmentationHelper::SeedImageType::Pointer GetHepaticITKData();
 
   /**
    * Method to get the portal ITK data.
    *
    * @return pointer to portal ITK data.
    */
-  vtkVesselSegHelper::SeedImageType::Pointer GetPortalITKData();
+  vtkVesselSegmentationHelper::SeedImageType::Pointer GetPortalITKData();
 
 protected:
   vtkSlicerVesselSegmentationLogic();
@@ -244,24 +244,24 @@ protected:
   virtual void OnMRMLNodeModified(vtkMRMLNode* node);
     
 private:
-  vtkVesselSegHelper::SeedImageType::Pointer preprocessedImg;
+  vtkVesselSegmentationHelper::SeedImageType::Pointer preprocessedImg;
 
   int vtkScalarType;
 
   bool hepaticUpdated;
-  vtkVesselSegHelper::SeedImageType::Pointer hepaticITKdata;
+  vtkVesselSegmentationHelper::SeedImageType::Pointer hepaticITKdata;
   vtkSmartPointer<vtkMRMLModelNode> hepaticModelNode;
   vtkSmartPointer<vtkMRMLModelDisplayNode> hepaticModelDisplayNode;
   vtkSmartPointer<vtkMRMLLabelMapVolumeNode> hepaticLabelMap;
 
   bool portalUpdated;
-  vtkVesselSegHelper::SeedImageType::Pointer portalITKdata;
+  vtkVesselSegmentationHelper::SeedImageType::Pointer portalITKdata;
   vtkSmartPointer<vtkMRMLModelNode> portalModelNode;
   vtkSmartPointer<vtkMRMLModelDisplayNode> portalModelDisplayNode;
   vtkSmartPointer<vtkMRMLLabelMapVolumeNode> portalLabelMap;
 
   bool mergedUpdated;
-  vtkVesselSegHelper::SeedImageType::Pointer mergedITKdata;
+  vtkVesselSegmentationHelper::SeedImageType::Pointer mergedITKdata;
   vtkSmartPointer<vtkMRMLModelDisplayNode> mergedModelDisplayNode;
   vtkSmartPointer<vtkMRMLLabelMapVolumeNode> mergedLabelMap;
 
