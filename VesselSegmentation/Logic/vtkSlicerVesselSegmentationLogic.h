@@ -32,13 +32,7 @@
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   =========================================================================*/
 
-/**
- * \ingroup VesselSegmentation
- *
- * \brief This class contains methods to support the high-level actions that the
- * user performs and which are related to the module. The class also serves as
- * coordinator between the MRML reality and the GUI.
- */
+
 #ifndef __vtkSlicerVesselSegmentationLogic_h
 #define __vtkSlicerVesselSegmentationLogic_h
 
@@ -67,8 +61,13 @@ class vtkMRMLLabelMapVolumeNode;
 class vtkMRMLModelNode;
 class vtkMRMLModelDisplayNode;
 
-/// \ingroup Slicer_QtModules_ExtensionTemplate
 /**
+ * \ingroup VesselSegmentation
+ *
+ * \brief This class contains methods to support the high-level actions that the
+ * user performs and which are related to the module. The class also serves as
+ * coordinator between the MRML reality and the GUI.
+ *
  * This class contains the functions that handle adding listeners when nodes are added to the MRML scene.
  * It also handles the seed nodes, and calling the segmentation algorithm.
  * The hepatic and portal label maps and models are also created and handled inside this class.

@@ -62,10 +62,163 @@
 #include "vtkVesselSegmentationHelper.h"
 #include "vtkSlicerVesselSegmentationLogic.h"
 
-bool testImageConversions( const char* volumeName1, vtkSlicerVesselSegmentationLogic* logic );
+#include <vtkTestingOutputWindow.h>
 
+
+class vtkVesselSegmentationHelperTest:
+  public vtkVesselSegmentationHelper
+{
+public:
+  static vtkVesselSegmentationHelperTest* New();
+  vtkTypeMacro(vtkVesselSegmentationHelperTest,
+      vtkVesselSegmentationHelper);
+
+  void ConvertVolumeNodeToItkImageTest1()
+  {
+    vtkDebugMacro("BEGIN: ConvertVolumeNodeToItkImageTest1"
+                  << "------------------------------");
+    // trigger error: Pointer to vtkMRMLScalarVolumeNode is NULL
+
+    // checks we don't already have any errors
+    TESTING_OUTPUT_ASSERT_ERRORS_BEGIN();
+    ConvertVolumeNodeToItkImage(NULL);
+    TESTING_OUTPUT_ASSERT_ERRORS(0); // check only have 1 error
+    TESTING_OUTPUT_RESET(); // reset to clear errors + warnings
+    vtkDebugMacro("END: ConvertVolumeNodeToItkImageTest1"
+                  << "------------------------------");
+  }
+
+  void ConvertVtkImageDataToItkImageTest1()
+  {
+    vtkDebugMacro("BEGIN: ConvertVtkImageDataToItkImageTest1"
+                  << "------------------------------");
+    // trigger error: Pointer to vtkImageData is NULL
+
+    // checks we don't already have any errors
+    TESTING_OUTPUT_ASSERT_ERRORS_BEGIN();
+    ConvertVtkImageDataToItkImage(NULL, NULL, NULL, NULL);
+    TESTING_OUTPUT_ASSERT_ERRORS(0); // check only have 1 error
+    TESTING_OUTPUT_RESET(); // reset to clear errors + warnings
+    vtkDebugMacro("END: ConvertVtkImageDataToItkImageTest1"
+                  << "------------------------------");
+  }
+
+  void ConvertItkImageToVtkImageDataTest1()
+  {
+    vtkDebugMacro("BEGIN: ConvertItkImageToVtkImageDataTest1"
+                  << "------------------------------");
+    // trigger error: itkImage (input image) is null
+
+    itk::Image<unsigned int, 3>::Pointer itkImage = NULL;
+
+    // checks we don't already have any errors
+    TESTING_OUTPUT_ASSERT_ERRORS_BEGIN();
+    ConvertItkImageToVtkImageData(itkImage);
+    TESTING_OUTPUT_ASSERT_ERRORS(0); // check only have 1 error
+    TESTING_OUTPUT_RESET(); // reset to clear errors + warnings
+    vtkDebugMacro("END: ConvertItkImageToVtkImageDataTest2"
+                  << "------------------------------");
+  }
+
+  void ConvertItkImageToVtkImageDataTest2()
+  {
+    vtkDebugMacro("BEGIN: ConvertItkImageToVtkImageDataTest2"
+                  << "------------------------------");
+    // trigger error: itkImage (input image) is null
+
+    SeedImageType::Pointer itkImage = NULL;
+
+    // checks we don't already have any errors
+    TESTING_OUTPUT_ASSERT_ERRORS_BEGIN();
+    ConvertItkImageToVtkImageData(itkImage);
+    TESTING_OUTPUT_ASSERT_ERRORS(0); // check only have 1 error
+    TESTING_OUTPUT_RESET(); // reset to clear errors + warnings
+    vtkDebugMacro("END: ConvertItkImageToVtkImageDataTest2"
+                  << "------------------------------");
+  }
+
+  void ConvertItkImageToVolumeNodeTest1()
+  {
+    vtkDebugMacro("BEGIN: ConvertItkImageToVolumeNodeTest1"
+                  << "------------------------------");
+    // trigger error: itkImage empty pointer
+
+    SeedImageType::Pointer itkImage = NULL;
+
+    // checks we don't already have any errors
+    TESTING_OUTPUT_ASSERT_ERRORS_BEGIN();
+    ConvertItkImageToVolumeNode(itkImage, false);
+    TESTING_OUTPUT_ASSERT_ERRORS(0); // check only have 1 error
+    TESTING_OUTPUT_RESET(); // reset to clear errors + warnings
+    vtkDebugMacro("END: ConvertItkImageToVolumeNodeTest2"
+                  << "------------------------------");
+  }
+
+  void ConvertVtkImageDataToVolumeNodeTest1()
+  {
+    vtkDebugMacro("BEGIN: ConvertVtkImageDataToVolumeNodeTest1"
+                  << "------------------------------");
+    // trigger error: Pointer to vtkImageData is NULL
+
+    vtkImageData *vtkData = NULL;
+    SeedImageType::Pointer itkImage = NULL;
+
+    // checks we don't already have any errors
+    TESTING_OUTPUT_ASSERT_ERRORS_BEGIN();
+    ConvertVtkImageDataToVolumeNode(vtkData, itkImage, false);
+    TESTING_OUTPUT_ASSERT_ERRORS(0); // check only have 1 error
+    TESTING_OUTPUT_RESET(); // reset to clear errors + warnings
+    vtkDebugMacro("END: ConvertVtkImageDataToVolumeNodeTest2"
+                  << "------------------------------");
+  }
+
+protected:
+  vtkVesselSegmentationHelperTest(){TESTING_OUTPUT_RESET();}
+  ~vtkVesselSegmentationHelperTest(){TESTING_OUTPUT_RESET();}
+};
+
+//------------------------------------------------------------------------------
+vtkStandardNewMacro(vtkVesselSegmentationHelperTest);
+
+//------------------------------------------------------------------------------
+bool loadImageAndTestConversions( const char* volumeName1, vtkSlicerVesselSegmentationLogic* logic );
+
+//------------------------------------------------------------------------------
 int vtkVesselSegmentationHelperTest1(int argc, char * argv[]  )
 {
+  TESTING_OUTPUT_INIT();
+  //----------------------------------------------------------------------------
+  // UNIT Tests
+
+  vtkSmartPointer<vtkVesselSegmentationHelperTest> logicTest;
+
+  logicTest = vtkSmartPointer<vtkVesselSegmentationHelperTest>::New();
+  logicTest->DebugOn();
+  logicTest->ConvertVolumeNodeToItkImageTest1();
+
+  logicTest = vtkSmartPointer<vtkVesselSegmentationHelperTest>::New();
+  logicTest->DebugOn();
+  logicTest->ConvertVtkImageDataToItkImageTest1();
+
+  logicTest = vtkSmartPointer<vtkVesselSegmentationHelperTest>::New();
+  logicTest->DebugOn();
+  logicTest->ConvertItkImageToVtkImageDataTest1();
+
+  logicTest = vtkSmartPointer<vtkVesselSegmentationHelperTest>::New();
+  logicTest->DebugOn();
+  logicTest->ConvertItkImageToVtkImageDataTest2();
+
+  logicTest = vtkSmartPointer<vtkVesselSegmentationHelperTest>::New();
+  logicTest->DebugOn();
+  logicTest->ConvertItkImageToVolumeNodeTest1();
+
+  logicTest = vtkSmartPointer<vtkVesselSegmentationHelperTest>::New();
+  logicTest->DebugOn();
+  logicTest->ConvertVtkImageDataToVolumeNodeTest1();
+
+  // END: UNIT Tests
+  //----------------------------------------------------------------------------
+
   itk::itkFactoryRegistration();
 
   bool res = false;
@@ -84,12 +237,12 @@ int vtkVesselSegmentationHelperTest1(int argc, char * argv[]  )
     }
   std::cout << "Using file name " << fileName1 << std::endl;
 
-  res = testImageConversions(fileName1, logic.GetPointer());
+  res = loadImageAndTestConversions(fileName1, logic.GetPointer());
 
   return res ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
-bool testImageConversions( const char* volumeName1, vtkSlicerVesselSegmentationLogic* logic )
+bool loadImageAndTestConversions( const char* volumeName1, vtkSlicerVesselSegmentationLogic* logic )
 {
   std::cout << "inside: testConvertImage" << std::endl;
 
