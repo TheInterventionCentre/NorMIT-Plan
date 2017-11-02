@@ -1,6 +1,6 @@
 /*=========================================================================
   Program: NorMIT-Plan
-  Module: vtkMRMLVesselSegmentationDisplayableManager.cxx
+  Module: vtkMRMLVesselSegmentationDisplayableManager2D.cxx
 
   Copyright (c) 2017, The Intervention Centre, Oslo University Hospital
 
@@ -32,7 +32,6 @@
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   =========================================================================*/
 
-#include "vtkMRMLVesselSegmentationDisplayableManager.h"
 #include "vtkSlicerVesselSegmentationLogic.h"
 
 // MRML includes
@@ -57,6 +56,7 @@
 #include <vtkActor2D.h>
 #include <vtkProperty2D.h>
 #include <vtkLineSource.h>
+#include <vtkMRMLVesselSegmentationDisplayableManager2D.h>
 #include <vtkRegularPolygonSource.h>
 
 #include <vtkSlicerModelsLogic.h>
@@ -66,30 +66,30 @@
 #include <vector>
 
 
-vtkStandardNewMacro(vtkMRMLVesselSegmentationDisplayableManager);
-bool vtkMRMLVesselSegmentationDisplayableManager::placingSeeds;
+vtkStandardNewMacro(vtkMRMLVesselSegmentationDisplayableManager2D);
+bool vtkMRMLVesselSegmentationDisplayableManager2D::placingSeeds;
 
 //-------------------------------------------------------------------------------
-vtkMRMLVesselSegmentationDisplayableManager::
-vtkMRMLVesselSegmentationDisplayableManager()
+vtkMRMLVesselSegmentationDisplayableManager2D::
+vtkMRMLVesselSegmentationDisplayableManager2D()
 {
 
 }
 
-vtkMRMLVesselSegmentationDisplayableManager::
-~vtkMRMLVesselSegmentationDisplayableManager()
+vtkMRMLVesselSegmentationDisplayableManager2D::
+~vtkMRMLVesselSegmentationDisplayableManager2D()
 {
 
 }
 
-void vtkMRMLVesselSegmentationDisplayableManager::PrintSelf(ostream &os,
+void vtkMRMLVesselSegmentationDisplayableManager2D::PrintSelf(ostream &os,
                                                             vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
 //-------------------------------------------------------------------------------
-void vtkMRMLVesselSegmentationDisplayableManager::
+void vtkMRMLVesselSegmentationDisplayableManager2D::
 ProcessMRMLNodesEvents(vtkObject *caller,
                        unsigned long event,
                        void *callData)
@@ -98,7 +98,7 @@ ProcessMRMLNodesEvents(vtkObject *caller,
   this->RequestRender();
 }
 
-void vtkMRMLVesselSegmentationDisplayableManager::
+void vtkMRMLVesselSegmentationDisplayableManager2D::
 SetMRMLSceneInternal(vtkMRMLScene *newScene)
 {
   this->OnMRMLSceneEndClose();
@@ -110,7 +110,7 @@ SetMRMLSceneInternal(vtkMRMLScene *newScene)
   }
 }
 
-void vtkMRMLVesselSegmentationDisplayableManager::
+void vtkMRMLVesselSegmentationDisplayableManager2D::
 OnMRMLSceneNodeAdded(vtkMRMLNode* vtkNotUsed(addedNode))
 {
   // TODO: observe all seed nodes added to scene
@@ -145,30 +145,30 @@ OnMRMLSceneNodeAdded(vtkMRMLNode* vtkNotUsed(addedNode))
   this->RequestRender();
 }
 
-void vtkMRMLVesselSegmentationDisplayableManager::
+void vtkMRMLVesselSegmentationDisplayableManager2D::
 OnMRMLNodeModified(vtkMRMLNode *vtkNotUsed(modifiedNode))
 {
   this->RequestRender();
 }
 
-void vtkMRMLVesselSegmentationDisplayableManager::
+void vtkMRMLVesselSegmentationDisplayableManager2D::
 OnMRMLSceneNodeRemoved(vtkMRMLNode *vtkNotUsed(node))
 {
   this->RequestRender();
 }
 
-void vtkMRMLVesselSegmentationDisplayableManager::OnMRMLSceneEndClose()
+void vtkMRMLVesselSegmentationDisplayableManager2D::OnMRMLSceneEndClose()
 {
 
 }
 
-void vtkMRMLVesselSegmentationDisplayableManager::
+void vtkMRMLVesselSegmentationDisplayableManager2D::
 OnCrosshairPositionModified(vtkObject *caller,
                             long unsigned int vtkNotUsed(eventId),
                             void *clientData,
                             void *vtkNotUsed(callData))
 {
-  vtkMRMLVesselSegmentationDisplayableManager* DM = reinterpret_cast<vtkMRMLVesselSegmentationDisplayableManager*>(clientData);
+  vtkMRMLVesselSegmentationDisplayableManager2D* DM = reinterpret_cast<vtkMRMLVesselSegmentationDisplayableManager2D*>(clientData);
 
   vtkMRMLCrosshairNode* tempCrosshairNode = vtkMRMLCrosshairNode::SafeDownCast(caller);
 
@@ -188,12 +188,12 @@ OnCrosshairPositionModified(vtkObject *caller,
 
 }
 
-void vtkMRMLVesselSegmentationDisplayableManager::OnSliceNodeModified(vtkObject *vtkNotUsed(caller),
+void vtkMRMLVesselSegmentationDisplayableManager2D::OnSliceNodeModified(vtkObject *vtkNotUsed(caller),
                                                                       unsigned long int vtkNotUsed(id),
                                                                       void *clientData,
                                                                       void *vtkNotUsed(callerData))
 {
-  vtkMRMLVesselSegmentationDisplayableManager* DM = reinterpret_cast<vtkMRMLVesselSegmentationDisplayableManager*>(clientData);
+  vtkMRMLVesselSegmentationDisplayableManager2D* DM = reinterpret_cast<vtkMRMLVesselSegmentationDisplayableManager2D*>(clientData);
 
   vtkSmartPointer<vtkMRMLSliceNode> tempSliceNode = DM->GetMRMLSliceNode();
 
@@ -207,7 +207,7 @@ void vtkMRMLVesselSegmentationDisplayableManager::OnSliceNodeModified(vtkObject 
 
 }
 
-void vtkMRMLVesselSegmentationDisplayableManager::SetSeedsMode( bool seedMode )
+void vtkMRMLVesselSegmentationDisplayableManager2D::SetSeedsMode( bool seedMode )
 {
   placingSeeds = seedMode;
   //std::cout << "DM - Placing fiducials bool: " << placingFiducials << std::endl;

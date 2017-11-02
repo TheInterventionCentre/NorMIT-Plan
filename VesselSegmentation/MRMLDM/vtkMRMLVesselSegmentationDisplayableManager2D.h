@@ -1,6 +1,6 @@
 /*=========================================================================
   Program: NorMIT-Plan
-  Module: vtkMRMLVesselSegmentationDisplayableManager.h
+  Module: vtkMRMLVesselSegmentationDisplayableManager2D.h
 
   Copyright (c) 2017, The Intervention Centre, Oslo University Hospital
 
@@ -32,8 +32,8 @@
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   =========================================================================*/
 
-#ifndef __VesselSeg__vtkMRMLVesselSegmentationDisplayableManager_h
-#define __VesselSeg__vtkMRMLVesselSegmentationDisplayableManager_h
+#ifndef __VesselSeg__vtkMRMLVesselSegmentationDisplayableManager2D_h
+#define __VesselSeg__vtkMRMLVesselSegmentationDisplayableManager2D_h
 
 // MRML includes
 #include <vtkMRMLAbstractSliceViewDisplayableManager.h>
@@ -57,7 +57,7 @@ class vtkActor2D;
  * seeds in the 2D slices.
  */
 class VTK_SLICER_VESSELSEGMENTATION_MODULE_MRMLDISPLAYABLEMANAGER_EXPORT
-vtkMRMLVesselSegmentationDisplayableManager
+vtkMRMLVesselSegmentationDisplayableManager2D
 :public vtkMRMLAbstractSliceViewDisplayableManager
 {
   public:
@@ -66,8 +66,8 @@ vtkMRMLVesselSegmentationDisplayableManager
     *
     * @return a pointer to the new created object.
     */
-    static vtkMRMLVesselSegmentationDisplayableManager *New();
-    vtkTypeMacro(vtkMRMLVesselSegmentationDisplayableManager,
+    static vtkMRMLVesselSegmentationDisplayableManager2D *New();
+    vtkTypeMacro(vtkMRMLVesselSegmentationDisplayableManager2D,
                  vtkMRMLAbstractSliceViewDisplayableManager);
 
     /**
@@ -86,8 +86,8 @@ vtkMRMLVesselSegmentationDisplayableManager
     static void SetSeedsMode(bool seedMode);
     
   protected:
-    vtkMRMLVesselSegmentationDisplayableManager();
-    virtual ~vtkMRMLVesselSegmentationDisplayableManager();
+    vtkMRMLVesselSegmentationDisplayableManager2D();
+    virtual ~vtkMRMLVesselSegmentationDisplayableManager2D();
     
     /**
      * Process MRML nodes events
@@ -140,9 +140,9 @@ vtkMRMLVesselSegmentationDisplayableManager
     vtkNew<vtkMatrix4x4> RAStoXYmatrix;
     
   private:
-    vtkMRMLVesselSegmentationDisplayableManager(
-      const vtkMRMLVesselSegmentationDisplayableManager&);
-    void operator=(const vtkMRMLVesselSegmentationDisplayableManager&);
+    vtkMRMLVesselSegmentationDisplayableManager2D(
+      const vtkMRMLVesselSegmentationDisplayableManager2D&);
+    void operator=(const vtkMRMLVesselSegmentationDisplayableManager2D&);
 
     vtkNew<vtkCallbackCommand> UpdateMatrixCommand;
     vtkNew<vtkCallbackCommand> UpdateCursorCommand;

@@ -14,7 +14,7 @@ set(${KIT}_INCLUDE_DIRECTORIES
   )
 
 set(displayable_manager_SRCS
-  vtkMRMLVesselSegmentationDisplayableManager.cxx
+  vtkMRMLVesselSegmentationDisplayableManager2D.cxx
   )
 
 SlicerConfigureDisplayableManagerObjectFactory(

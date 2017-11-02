@@ -56,9 +56,6 @@
 #include "qSlicerVesselSegmentationModule.h"
 #include "vtkSlicerVesselSegmentationLogic.h"
 
-#include "vtkMRMLVesselSegmentationDisplayableManager.h"
-
-// MRML includes
 #include "vtkMRMLNode.h"
 
 // VTK includes
@@ -69,6 +66,7 @@
 #include <qSlicerCoreApplication.h>
 #include <qSlicerApplication.h>
 #include <qSlicerIO.h>
+#include <vtkMRMLVesselSegmentationDisplayableManager2D.h>
 
 # include "qSlicerCorePythonManager.h"
 
