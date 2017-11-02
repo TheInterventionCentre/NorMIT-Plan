@@ -35,7 +35,7 @@
 #ifndef __vtkVesselSegmentationHelper_h
 #define __vtkVesselSegmentationHelper_h
 
-#include <vtkObject.h>
+
 #include <vtkSmartPointer.h>
 
 #include <itkImage.h>
@@ -52,20 +52,12 @@ class vtkMatrix4x4;
  * \ingroup VesselSegmentation
  *
  * \brief Class that contains helper methods to get / prepare the data needed for segmentation.
- *  This includes conversion between itk and vtk images.
+ *  This includes conversion between itk and vtk images through static functions.
  */
-class vtkVesselSegmentationHelper: public vtkObject
+class vtkVesselSegmentationHelper
 {
     
 public:
-    
-    /**
-    * Standard vtk object instantiation method.
-    *
-    * @return a pointer to the newly created object.
-    */
-    static vtkVesselSegmentationHelper *New();
-    vtkTypeMacro(vtkVesselSegmentationHelper, vtkObject);
 
     typedef itk::Index<3> Index3D;
     typedef itk::Vector<double,3> Vector3D;

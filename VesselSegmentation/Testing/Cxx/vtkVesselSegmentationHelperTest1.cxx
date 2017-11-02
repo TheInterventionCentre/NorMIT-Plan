@@ -42,6 +42,7 @@
 #include <vtkMRMLSelectionNode.h>
 
 // VTK includes
+#include <vtkObject.h>
 #include <vtkNew.h>
 #include <vtkImageData.h>
 
@@ -66,12 +67,12 @@
 
 
 class vtkVesselSegmentationHelperTest:
-  public vtkVesselSegmentationHelper
+  public vtkObject
 {
 public:
   static vtkVesselSegmentationHelperTest* New();
   vtkTypeMacro(vtkVesselSegmentationHelperTest,
-      vtkVesselSegmentationHelper);
+      vtkObject);
 
   void ConvertVolumeNodeToItkImageTest1()
   {
@@ -81,7 +82,7 @@ public:
 
     // checks we don't already have any errors
     TESTING_OUTPUT_ASSERT_ERRORS_BEGIN();
-    ConvertVolumeNodeToItkImage(NULL);
+    vtkVesselSegmentationHelper::ConvertVolumeNodeToItkImage(NULL);
     TESTING_OUTPUT_ASSERT_ERRORS(0); // check only have 1 error
     TESTING_OUTPUT_RESET(); // reset to clear errors + warnings
     vtkDebugMacro("END: ConvertVolumeNodeToItkImageTest1"
@@ -96,7 +97,7 @@ public:
 
     // checks we don't already have any errors
     TESTING_OUTPUT_ASSERT_ERRORS_BEGIN();
-    ConvertVtkImageDataToItkImage(NULL, NULL, NULL, NULL);
+    vtkVesselSegmentationHelper::ConvertVtkImageDataToItkImage(NULL, NULL, NULL, NULL);
     TESTING_OUTPUT_ASSERT_ERRORS(0); // check only have 1 error
     TESTING_OUTPUT_RESET(); // reset to clear errors + warnings
     vtkDebugMacro("END: ConvertVtkImageDataToItkImageTest1"
@@ -113,7 +114,7 @@ public:
 
     // checks we don't already have any errors
     TESTING_OUTPUT_ASSERT_ERRORS_BEGIN();
-    ConvertItkImageToVtkImageData(itkImage);
+    vtkVesselSegmentationHelper::ConvertItkImageToVtkImageData(itkImage);
     TESTING_OUTPUT_ASSERT_ERRORS(0); // check only have 1 error
     TESTING_OUTPUT_RESET(); // reset to clear errors + warnings
     vtkDebugMacro("END: ConvertItkImageToVtkImageDataTest2"
@@ -126,11 +127,11 @@ public:
                   << "------------------------------");
     // trigger error: itkImage (input image) is null
 
-    SeedImageType::Pointer itkImage = NULL;
+    vtkVesselSegmentationHelper::SeedImageType::Pointer itkImage = NULL;
 
     // checks we don't already have any errors
     TESTING_OUTPUT_ASSERT_ERRORS_BEGIN();
-    ConvertItkImageToVtkImageData(itkImage);
+    vtkVesselSegmentationHelper::ConvertItkImageToVtkImageData(itkImage);
     TESTING_OUTPUT_ASSERT_ERRORS(0); // check only have 1 error
     TESTING_OUTPUT_RESET(); // reset to clear errors + warnings
     vtkDebugMacro("END: ConvertItkImageToVtkImageDataTest2"
@@ -143,11 +144,11 @@ public:
                   << "------------------------------");
     // trigger error: itkImage empty pointer
 
-    SeedImageType::Pointer itkImage = NULL;
+    vtkVesselSegmentationHelper::SeedImageType::Pointer itkImage = NULL;
 
     // checks we don't already have any errors
     TESTING_OUTPUT_ASSERT_ERRORS_BEGIN();
-    ConvertItkImageToVolumeNode(itkImage, false);
+    vtkVesselSegmentationHelper::ConvertItkImageToVolumeNode(itkImage, false);
     TESTING_OUTPUT_ASSERT_ERRORS(0); // check only have 1 error
     TESTING_OUTPUT_RESET(); // reset to clear errors + warnings
     vtkDebugMacro("END: ConvertItkImageToVolumeNodeTest2"
@@ -161,11 +162,11 @@ public:
     // trigger error: Pointer to vtkImageData is NULL
 
     vtkImageData *vtkData = NULL;
-    SeedImageType::Pointer itkImage = NULL;
+    vtkVesselSegmentationHelper::SeedImageType::Pointer itkImage = NULL;
 
     // checks we don't already have any errors
     TESTING_OUTPUT_ASSERT_ERRORS_BEGIN();
-    ConvertVtkImageDataToVolumeNode(vtkData, itkImage, false);
+    vtkVesselSegmentationHelper::ConvertVtkImageDataToVolumeNode(vtkData, itkImage, false);
     TESTING_OUTPUT_ASSERT_ERRORS(0); // check only have 1 error
     TESTING_OUTPUT_RESET(); // reset to clear errors + warnings
     vtkDebugMacro("END: ConvertVtkImageDataToVolumeNodeTest2"

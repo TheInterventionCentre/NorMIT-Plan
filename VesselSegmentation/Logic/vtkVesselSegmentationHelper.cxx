@@ -67,8 +67,6 @@
 #include <vtkVesselSegmentationHelper.h>
 
 
-vtkStandardNewMacro(vtkVesselSegmentationHelper);
-
 //---------------------------------------------------------------------------
 /**
  * Constructor
