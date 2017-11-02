@@ -37,6 +37,7 @@ set(KIT_TEST_SRCS
   vtkMRMLVesselSegmentationSeedNodeTest1.cxx
   vtkMRMLVesselSegmentationLogicTest1.cxx
   vtkMRMLSegmentationAndSimilarityTest.cxx
+  vtkVesselSegmentationHelperTest1.cxx
   EXTRA_INCLUDE vtkTestingOutputWindow.h
 )
 
@@ -67,3 +68,4 @@ simple_test(vtkMRMLVesselSegmentationSeedNodeTest1)
 simple_test(vtkMRMLVesselSegmentationLogicTest1)
 #simple_test(vtkMRMLTestFileAndSegmentation ${TEST_FILE} ${TEST_FILE_SIMILARITY})
 simple_test(vtkMRMLSegmentationAndSimilarityTest ${TEST_FILE} ${TEST_FILE_SIMILARITY} ${TEST_OUTPUT})
+simple_test(vtkVesselSegmentationHelperTest1 ${TEST_FILE})

@@ -1,6 +1,6 @@
 /*=========================================================================
   Program: NorMIT-Plan
-  Module: vtkVesselSegHelper.cxx
+  Module: vtkVesselSegmentationHelper.cxx
 
   Copyright (c) 2017, The Intervention Centre, Oslo University Hospital
 
@@ -35,8 +35,6 @@
 /* vtk to itk (and back) conversions mostly taken from SlicerRTCommon 
  https://github.com/SlicerRt/SlicerRT/blob/master/SlicerRtCommon/SlicerRtCommon.txx */
 
-#include "vtkVesselSegHelper.h"
-
 #include "vtkSlicerVesselSegmentationLogic.h"
 
 //VTK includes
@@ -66,53 +64,32 @@
 #include <itkImageRegionIteratorWithIndex.h>
 #include <itkImportImageFilter.h>
 #include <itkCastImageFilter.h>
+#include <vtkVesselSegmentationHelper.h>
 
-
-vtkStandardNewMacro(vtkVesselSegHelper);
 
 //---------------------------------------------------------------------------
 /**
  * Constructor
  */
-vtkVesselSegHelper::vtkVesselSegHelper()
+vtkVesselSegmentationHelper::vtkVesselSegmentationHelper()
 {
 
 }
 
 //---------------------------------------------------------------------------
-vtkVesselSegHelper::~vtkVesselSegHelper()
+vtkVesselSegmentationHelper::~vtkVesselSegmentationHelper()
 {
 }
 
 //---------------------------------------------------------------------------
-void vtkVesselSegHelper::PrintSelf(ostream &os, vtkIndent vtkNotUsed(indent))
+void vtkVesselSegmentationHelper::PrintSelf(ostream &os, vtkIndent vtkNotUsed(indent))
 {
     (void)os;
 }
 
-/**
- * Convert a point from RAS to LPS
- */
-bool vtkVesselSegHelper::ConvertRAStoLPS(double *inPoint, double *outPoint)
-{
-    // RAS (Slicer) to LPS (ITK) transform matrix
-    vtkSmartPointer<vtkMatrix4x4> ras2LpsTransformMatrix = vtkSmartPointer<vtkMatrix4x4>::New();
-    
-    ras2LpsTransformMatrix->SetElement(0,0,-1.0);
-    ras2LpsTransformMatrix->SetElement(1,1,-1.0);
-    ras2LpsTransformMatrix->SetElement(2,2, 1.0);
-    ras2LpsTransformMatrix->SetElement(3,3, 1.0);
-    
-    //double *temp = new double[3];
-    ras2LpsTransformMatrix.GetPointer()->MultiplyPoint(inPoint, outPoint);
-    
-    return true;
-}
-
-
 //------------------------------------------------------------------------------
-vtkVesselSegHelper::SeedImageType::Pointer
-vtkVesselSegHelper::ConvertVolumeNodeToItkImage(vtkMRMLScalarVolumeNode *inVolumeNode,
+vtkVesselSegmentationHelper::SeedImageType::Pointer
+vtkVesselSegmentationHelper::ConvertVolumeNodeToItkImage(vtkMRMLScalarVolumeNode *inVolumeNode,
                                         bool applyRasToWorld,
                                         bool applyRasToLps)
 {
@@ -130,7 +107,7 @@ vtkVesselSegHelper::ConvertVolumeNodeToItkImage(vtkMRMLScalarVolumeNode *inVolum
     vtkSmartPointer<vtkMatrix4x4>::New();
   inVolumeNode->GetIJKToRASMatrix(inVolumeToRasTransformMatrix);
 
-// Obtain RAS to World transform matrix
+  // Obtain RAS to World transform matrix
   vtkSmartPointer<vtkMatrix4x4> rasToWorldTransformMatrix = 0;
 
   if (applyRasToWorld)
@@ -162,7 +139,7 @@ vtkVesselSegHelper::ConvertVolumeNodeToItkImage(vtkMRMLScalarVolumeNode *inVolum
     }
 
   SeedImageType::Pointer outItkImage =
-      vtkVesselSegHelper::ConvertVtkImageDataToItkImage(inVolumeNode->GetImageData(),
+      vtkVesselSegmentationHelper::ConvertVtkImageDataToItkImage(inVolumeNode->GetImageData(),
                                               inVolumeToRasTransformMatrix,
                                               rasToWorldTransformMatrix,
                                               rasToLpsTransformMatrix);
@@ -171,8 +148,8 @@ vtkVesselSegHelper::ConvertVolumeNodeToItkImage(vtkMRMLScalarVolumeNode *inVolum
 }
 
 //------------------------------------------------------------------------------
-vtkVesselSegHelper::SeedImageType::Pointer
-vtkVesselSegHelper::ConvertVtkImageDataToItkImage(vtkImageData *inImageData,
+vtkVesselSegmentationHelper::SeedImageType::Pointer
+vtkVesselSegmentationHelper::ConvertVtkImageDataToItkImage(vtkImageData *inImageData,
                                           vtkMatrix4x4 *inToRasMatrix,
                                           vtkMatrix4x4 *rasToWorldMatrix,
                                           vtkMatrix4x4 *rasToLpsMatrix)
@@ -251,12 +228,12 @@ vtkVesselSegHelper::ConvertVtkImageDataToItkImage(vtkImageData *inImageData,
   // Set image extent
   int *extent = inImageData->GetExtent();
 
-  vtkVesselSegHelper::SeedImageType::SizeType inSize;
+  vtkVesselSegmentationHelper::SeedImageType::SizeType inSize;
   inSize[0] = extent[1] - extent[0] + 1;
   inSize[1] = extent[3] - extent[2] + 1;
   inSize[2] = extent[5] - extent[4] + 1;
-  vtkVesselSegHelper::SeedImageType::IndexType start = {0};
-  vtkVesselSegHelper::SeedImageType::RegionType region;
+  vtkVesselSegmentationHelper::SeedImageType::IndexType start = {0};
+  vtkVesselSegmentationHelper::SeedImageType::RegionType region;
   region.SetSize(inSize);
   region.SetIndex(start);
 
@@ -264,7 +241,7 @@ vtkVesselSegHelper::ConvertVtkImageDataToItkImage(vtkImageData *inImageData,
   << "vtkImageDataToItkImage: start import filter"
   << std::endl;
 
-  vtkVesselSegHelper::SeedImageType::Pointer imgReturn;
+  vtkVesselSegmentationHelper::SeedImageType::Pointer imgReturn;
   int scalarType = inImageData->GetScalarType();
 
 
@@ -314,7 +291,7 @@ vtkVesselSegHelper::ConvertVtkImageDataToItkImage(vtkImageData *inImageData,
       importFilter->SetImportPointer(pointerToData, dataSize, false);
       importFilter->Update();
 
-      typedef itk::CastImageFilter<InputImageType, vtkVesselSegHelper::SeedImageType> CastFilterType;
+      typedef itk::CastImageFilter<InputImageType, vtkVesselSegmentationHelper::SeedImageType> CastFilterType;
       CastFilterType::Pointer castFilter = CastFilterType::New();
       castFilter->SetInput(importFilter->GetOutput());
       castFilter->Update();
@@ -343,7 +320,7 @@ vtkVesselSegHelper::ConvertVtkImageDataToItkImage(vtkImageData *inImageData,
        importFilter->SetImportPointer(pointerToData, dataSize, false);
        importFilter->Update();
 
-       typedef itk::CastImageFilter<InputImageType, vtkVesselSegHelper::SeedImageType> CastFilterType;
+       typedef itk::CastImageFilter<InputImageType, vtkVesselSegmentationHelper::SeedImageType> CastFilterType;
        CastFilterType::Pointer castFilter = CastFilterType::New();
        castFilter->SetInput(importFilter->GetOutput());
        castFilter->Update();
@@ -372,18 +349,20 @@ vtkVesselSegHelper::ConvertVtkImageDataToItkImage(vtkImageData *inImageData,
        importFilter->SetImportPointer(pointerToData, dataSize, false);
        importFilter->Update();
 
-       typedef itk::CastImageFilter<InputImageType, vtkVesselSegHelper::SeedImageType> CastFilterType;
+       typedef itk::CastImageFilter<InputImageType, vtkVesselSegmentationHelper::SeedImageType> CastFilterType;
        CastFilterType::Pointer castFilter = CastFilterType::New();
        castFilter->SetInput(importFilter->GetOutput());
        castFilter->Update();
        imgReturn = castFilter->GetOutput();
 
     }
-  else {
-    std::cout
+  else
+    {
+    std::cerr
     << "vtkImageDataToItkImage: was not one of the scalar types"
     << std::endl;
-  }
+    return NULL;
+    }
   std::cout
   << "vtkImageDataToItkImage: end import filter"
   << std::endl;
@@ -395,14 +374,15 @@ vtkVesselSegHelper::ConvertVtkImageDataToItkImage(vtkImageData *inImageData,
 
 //------------------------------------------------------------------------------
 vtkSmartPointer<vtkImageData>
-vtkVesselSegHelper::ConvertItkImageToVtkImageData(itk::Image<unsigned int, 3>::Pointer itkImage)
+vtkVesselSegmentationHelper::ConvertItkImageToVtkImageData(itk::Image<unsigned int, 3>::Pointer itkImage)
 {
   if ( itkImage.IsNull() )
-  {
-    std::cout
+    {
+    std::cerr
     << "ItkImageToVtkImageData: itkImage (input image) is null"
     << std::endl;
-  }
+    return NULL;
+    }
 
   itk::Image<unsigned int, 3>::RegionType region = itkImage->GetBufferedRegion();
   itk::Image<unsigned int, 3>::SizeType imageSize = region.GetSize();
@@ -436,14 +416,15 @@ vtkVesselSegHelper::ConvertItkImageToVtkImageData(itk::Image<unsigned int, 3>::P
 
 //------------------------------------------------------------------------------
 vtkSmartPointer<vtkImageData>
-vtkVesselSegHelper::ConvertItkImageToVtkImageData(SeedImageType::Pointer itkImage)
+vtkVesselSegmentationHelper::ConvertItkImageToVtkImageData(SeedImageType::Pointer itkImage)
 {
   if ( itkImage.IsNull() )
-  {
-    std::cout
+    {
+    std::cerr
     << "ItkImageToVtkImageData: itkImage (input image) is null"
     << std::endl;
-  }
+    return NULL;
+    }
 
   SeedImageType::RegionType region = itkImage->GetBufferedRegion();
   SeedImageType::SizeType imageSize = region.GetSize();
@@ -477,7 +458,7 @@ vtkVesselSegHelper::ConvertItkImageToVtkImageData(SeedImageType::Pointer itkImag
 
 //------------------------------------------------------------------------------
 vtkSmartPointer<vtkMRMLScalarVolumeNode>
-vtkVesselSegHelper::
+vtkVesselSegmentationHelper::
 ConvertItkImageToVolumeNode(SeedImageType::Pointer itkImage,
                             bool applyLpsToRas)
 {
@@ -501,7 +482,7 @@ ConvertItkImageToVolumeNode(SeedImageType::Pointer itkImage,
   SeedImageType::DirectionType itkDirections =
     itkImage->GetDirection();
 
-  vtkSmartPointer<vtkImageData> outImageData = vtkVesselSegHelper::ConvertItkImageToVtkImageData(itkImage);
+  vtkSmartPointer<vtkImageData> outImageData = vtkVesselSegmentationHelper::ConvertItkImageToVtkImageData(itkImage);
 
   if (!outImageData)
   {
@@ -564,9 +545,17 @@ ConvertItkImageToVolumeNode(SeedImageType::Pointer itkImage,
 
 //------------------------------------------------------------------------------
 vtkSmartPointer<vtkMRMLScalarVolumeNode>
-vtkVesselSegHelper::
+vtkVesselSegmentationHelper::
 ConvertVtkImageDataToVolumeNode(vtkImageData *inImageData, SeedImageType::Pointer itkImage, bool applyLpsToRas)
 {
+  // Check for null pointer
+  if (inImageData == NULL)
+    {
+    std::cerr
+      << "vtkImageDataToItkImage: Pointer to vtkImageData is NULL"
+      << std::endl;
+    return NULL;
+    }
 
   vtkSmartPointer<vtkMRMLScalarVolumeNode> outVolumeNode =
     vtkSmartPointer<vtkMRMLScalarVolumeNode>::New();
@@ -630,14 +619,3 @@ ConvertVtkImageDataToVolumeNode(vtkImageData *inImageData, SeedImageType::Pointe
   return outVolumeNode;
 }
 
-
-//----------------------------------------------------------------------------
-void vtkVesselSegHelper::GetActiveNode(vtkMRMLScene* myMRMLScene)
-{
-    vtkMRMLSelectionNode *selectionNode = vtkMRMLSelectionNode::SafeDownCast(myMRMLScene->GetNodeByID("vtkMRMLSelectionNodeSingleton"));
-    char *activeVolID = selectionNode->GetActiveVolumeID();
-    vtkMRMLNode *activeVolume = myMRMLScene->GetNodeByID(activeVolID);
-    
-    std::cout << "Active Volume " << activeVolume << std::endl;
-
-}

@@ -67,7 +67,7 @@
 // module includes
 #include "vtkSlicerVesselSegmentationLogic.h"
 #include "vtkMRMLVesselSegmentationSeedNode.h"
-#include "vtkVesselSegHelper.h"
+#include "vtkVesselSegmentationHelper.h"
 
 bool testLoadFileAndSegment(const char* volumeName1, const char* volumeName2, const char* volumeName3, vtkSlicerVesselSegmentationLogic* logic);
 
@@ -349,7 +349,7 @@ bool testLoadFileAndSegment( const char* volumeName1, const char* volumeName2, c
     }
 
   // get similarity image
-  ImageType::Pointer similarityImg = vtkVesselSegHelper::ConvertVolumeNodeToItkImage(activeVol2);
+  ImageType::Pointer similarityImg = vtkVesselSegmentationHelper::ConvertVolumeNodeToItkImage(activeVol2);
 
   typedef itk::MinimumMaximumImageCalculator <ImageType> ImageCalculatorFilterType;
 

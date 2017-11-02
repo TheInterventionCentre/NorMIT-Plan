@@ -1,6 +1,6 @@
 /*=========================================================================
   Program: NorMIT-Plan
-  Module: vtkVesselSegHelper.h
+  Module: vtkVesselSegmentationHelper.h
 
   Copyright (c) 2017, The Intervention Centre, Oslo University Hospital
 
@@ -32,10 +32,10 @@
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   =========================================================================*/
 
-#ifndef __vtkVesselSegHelper_h
-#define __vtkVesselSegHelper_h
+#ifndef __vtkVesselSegmentationHelper_h
+#define __vtkVesselSegmentationHelper_h
 
-#include <vtkObject.h>
+
 #include <vtkSmartPointer.h>
 
 #include <itkImage.h>
@@ -48,18 +48,16 @@ class vtkMRMLScalarVolumeNode;
 class vtkImageData;
 class vtkMatrix4x4;
 
-
 /**
- *  Class that contains helper methods to get / prepare the data needed for calling Rahul's algorithm.
- *  This includes conversion between itk and vtk images.
+ * \ingroup VesselSegmentation
+ *
+ * \brief Class that contains helper methods to get / prepare the data needed for segmentation.
+ *  This includes conversion between itk and vtk images through static functions.
  */
-class vtkVesselSegHelper: public vtkObject
+class vtkVesselSegmentationHelper
 {
     
 public:
-    
-    static vtkVesselSegHelper *New();
-    vtkTypeMacro(vtkVesselSegHelper, vtkObject);
 
     typedef itk::Index<3> Index3D;
     typedef itk::Vector<double,3> Vector3D;
@@ -68,29 +66,71 @@ public:
     typedef itk::Image<short, 3> LabelMapType;
     typedef itk::Image<pixelType, 3> SeedImageType;
 
-    static void GetActiveNode(vtkMRMLScene* myMRMLScene);
-    
+    /**
+     * Standard vtk object function to print the properties of the object.
+     *
+     * @param os output stream where the properties should be printed to.
+     * @param indent indentation value.
+     */
     void PrintSelf(ostream &os, vtkIndent indent);
 
-    static bool ConvertRAStoLPS(double *inPoint, double *outPoint);
-    
+    /**
+     * Convert from a volume node to an ITK image.
+     *
+     * @param pointer to a vtkMRMLScalarVolumeNode.
+     * @return SeedImageType::Pointer.
+     */
     static SeedImageType::Pointer ConvertVolumeNodeToItkImage(vtkMRMLScalarVolumeNode *inVolumeNode,
                            bool applyRasToWorld=true,
                            bool applyRasToLps=true);
+    /**
+     * Convert from VTK image data to an ITK image.
+     *
+     * @param pointer to vtkImageData.
+     * @return SeedImageType::Pointer.
+     */
     static SeedImageType::Pointer ConvertVtkImageDataToItkImage(vtkImageData *inImageData,
                              vtkMatrix4x4 *inToRasMatrix=NULL,
                              vtkMatrix4x4 *inToWorldMatrix=NULL,
                              vtkMatrix4x4 *inRasToLpsMatrix=NULL);
 
+    /**
+     * Convert from an ITK image to an VTK image data.
+     *
+     * @param SeedImageType::Pointer.
+     * @return smart pointer to vtkImageData.
+     */
     static vtkSmartPointer<vtkImageData> ConvertItkImageToVtkImageData(SeedImageType::Pointer itkImage);
+
+    /**
+     * Convert from an ITK image to an VTK image data.
+     *
+     * @param itk::Image<unsigned int, 3>::Pointer.
+     * @return smart pointer to vtkImageData.
+     */
     static vtkSmartPointer<vtkImageData> ConvertItkImageToVtkImageData(itk::Image<unsigned int, 3>::Pointer itkImage);
+
+    /**
+     * Convert from an ITK image to a volume node.
+     *
+     * @param SeedImageType::Pointer.
+     * @return smart pointer to vtkMRMLScalarVolumeNode.
+     */
     static vtkSmartPointer<vtkMRMLScalarVolumeNode> ConvertItkImageToVolumeNode(SeedImageType::Pointer itkImage, bool applyRasToLps=true);
+
+    /**
+     * Convert from VTK image data to a volume node.
+     *
+     * @param pointer to vtkImageData.
+     * @param SeedImageType::Pointer for matching ITK image.
+     * @param Bool if should apply LPS to RAS conversion.
+     * @return smart pointer to vtkMRMLScalarVolumeNode.
+     */
     static vtkSmartPointer<vtkMRMLScalarVolumeNode> ConvertVtkImageDataToVolumeNode(vtkImageData *inImageData, SeedImageType::Pointer itkImage, bool applyLpsToRas);
 
 protected:
-
-    vtkVesselSegHelper();
-    ~vtkVesselSegHelper();
+    vtkVesselSegmentationHelper();
+    ~vtkVesselSegmentationHelper();
     
 private:
     
