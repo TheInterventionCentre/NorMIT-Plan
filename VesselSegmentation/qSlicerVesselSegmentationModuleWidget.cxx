@@ -216,7 +216,7 @@ void qSlicerVesselSegmentationModuleWidget::nodeSelectionChanged(vtkMRMLNode* no
 /*
  * Functions associated with preprocessing widget
  */
-void qSlicerVesselSegmentationModuleWidget::onPreprocessing(int lowerThreshold, int upperThreshold, int alpha, int beta, int conductance, int iterations)
+void qSlicerVesselSegmentationModuleWidget::onPreprocessing(int lowerThreshold, int upperThreshold, unsigned int alpha, int beta, unsigned int conductance, unsigned int iterations)
 {
   this->vesselSegmentationLogic()->PreprocessImage( lowerThreshold, upperThreshold, alpha, beta, conductance, iterations);
 }

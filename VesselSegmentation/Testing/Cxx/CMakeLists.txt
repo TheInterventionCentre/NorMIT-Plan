@@ -1,6 +1,7 @@
 set(KIT qSlicer${MODULE_NAME}Module)
 
-set(TESTING_DATA "${CMAKE_CURRENT_SOURCE_DIR}/../Data")
+file(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/${MODULE_NAME}/Testing/Cxx/Data")
+set(TESTING_DATA "${CMAKE_BINARY_DIR}/${MODULE_NAME}/Testing/Cxx/Data")
 
 if(NOT EXISTS "${TESTING_DATA}/testImage3_large.nrrd")
   # download image file from girder

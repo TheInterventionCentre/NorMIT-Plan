@@ -75,7 +75,7 @@ public slots:
    * connected to signal from preprocessing widget: preprocessingClicked()
    * This function sends the parameter information up to the Logic
    */
-   void onPreprocessing(int lowerThreshold, int upperThreshold, int alpha, int beta, int conductance, int iterations);
+   void onPreprocessing(int lowerThreshold, int upperThreshold, unsigned int alpha, int beta, unsigned int conductance, unsigned int iterations);
 
  /**
   * Called when the place seeds button is clicked

@@ -125,8 +125,8 @@ namespace itk
         itkGetConstMacro(Conductance, double);
         
         /** Set/Get macros for NumberOfInterations */
-        itkSetMacro(NumberOfIterations, int);
-        itkGetConstMacro(NumberOfIterations, int);
+        itkSetMacro(NumberOfIterations, unsigned int);
+        itkGetConstMacro(NumberOfIterations, unsigned int);
         
 #ifdef ITK_USE_CONCEPT_CHECKING
         // Begin concept checking
