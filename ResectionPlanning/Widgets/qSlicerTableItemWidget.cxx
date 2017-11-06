@@ -35,6 +35,10 @@
 // This module includes
 #include "qSlicerTableItemWidget.h"
 
+// Qt includes
+#include <QDebug>
+
+// STD includes
 #include <iostream>
 
 /// \ingroup Slicer_QtModules_ResectionPlanning
@@ -71,15 +75,15 @@ int qSlicerTableItemWidget::type() const
 }
 
 //-----------------------------------------------------------------------------
-void qSlicerTableItemWidget::setResectionName(const char *name)
+void qSlicerTableItemWidget::setResectionName(QString &name)
 {
   ui.resectionName->setText(name);
 }
 
 //-----------------------------------------------------------------------------
-const char* qSlicerTableItemWidget::getResectionName() const
+QString qSlicerTableItemWidget::getResectionName() const
 {
-  return ui.resectionName->text().toStdString().c_str();
+  return QString(ui.resectionName->text());
 }
 
 //------------------------------------------------------------------------------
@@ -98,6 +102,11 @@ bool qSlicerTableItemWidget::getResectionVisibility() const
 //------------------------------------------------------------------------------
 void qSlicerTableItemWidget::setResectionMargin(double margin)
 {
+  if (margin < 0.0 || margin > 100.0)
+    {
+    qWarning() << "Resection margin value should be in the range [0.0-100.0]";
+    return;
+    }
   ui.marginSpinbox->setValue(margin);
 }
 
@@ -108,12 +117,11 @@ double qSlicerTableItemWidget::getResectionMargin() const
 }
 
 //------------------------------------------------------------------------------
-void qSlicerTableItemWidget::setOpacity(int value)
+void qSlicerTableItemWidget::setResectionOpacity(int value)
 {
   if (value < 0 || value > 100)
     {
-    std::cerr << "Error: transparency value out of limits ([0-100]), got: "
-              << value << std::endl;
+    qWarning() << "Error: transparency value out of limits ([0-100])";
     return;
     }
 
@@ -121,7 +129,7 @@ void qSlicerTableItemWidget::setOpacity(int value)
 }
 
 //------------------------------------------------------------------------------
-int qSlicerTableItemWidget::getOpacity() const
+int qSlicerTableItemWidget::getResectionOpacity() const
 {
   return ui.opacitySlider->value();
 }

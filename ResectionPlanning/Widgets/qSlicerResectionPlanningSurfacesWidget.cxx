@@ -154,11 +154,11 @@ void qSlicerResectionPlanningSurfacesWidget
 
   //Create the table item widget
   qSlicerTableItemWidget *item = new qSlicerTableItemWidget();
-  item->setResectionName(resectionName.toStdString().c_str());
+  item->setResectionName(resectionName);
   item->setResectionMargin(resectionNode->GetResectionMargin());
   item->setResectionVisibility(resectionDisplayNode->GetVisibility());
   item->setWidgetVisibility(resectionDisplayNode->GetWidgetVisibility());
-  item->setOpacity(static_cast<int>(resectionDisplayNode->GetOpacity()*100));
+  item->setResectionOpacity(static_cast<int>(resectionDisplayNode->GetOpacity()*100));
 
   QObject::connect(item, SIGNAL(visibilityChanged(int)),
                    this, SLOT(changeResectionVisibility(int)));
