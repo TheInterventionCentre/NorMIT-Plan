@@ -126,6 +126,9 @@
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
+     <property name="maximum">
+      <double>100.000000000000000</double>
+     </property>
      <property name="singleStep">
       <double>0.500000000000000</double>
      </property>
@@ -153,6 +156,9 @@
       </sizepolicy>
      </property>
      <property name="maximum">
+      <number>100</number>
+     </property>
+     <property name="value">
       <number>100</number>
      </property>
      <property name="orientation">

@@ -59,8 +59,8 @@ public:
    *
    * @param resection name
    */
-  void setResectionName(const char*);
-  const char* getResectionName() const;
+  void setResectionName(QString&);
+  QString getResectionName() const;
 
   /**
    * Set the visibility of the resection (checkbox)
@@ -97,7 +97,7 @@ public:
    *
    * @param value transparency value.
    */
-  void setOpacity(int value);
+  void setResectionOpacity(int value);
 
   /**
    * Get the transparency value from the slider.
@@ -105,7 +105,7 @@ public:
    *
    * @return transparency value
    */
-  int getOpacity() const;
+  int getResectionOpacity() const;
 
   /**
    * Set the visibility of the widget (checkbox)
