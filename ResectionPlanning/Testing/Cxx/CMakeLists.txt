@@ -17,11 +17,24 @@ set(KIT_TEST_SRCS
   vtkMRMLResectionDisplayableManager2DTest2.cxx
   vtkSlicerResectionPlanningLogicTest1.cxx
   qSlicerSurfaceWidgetTest.cxx
+  qSlicerTableItemWidgetTest.cxx
   )
 
 set(${KIT}_INCLUDE_DIRECTORIES
   ${CMAKE_BINARY_DIR}/${MODULE_NAME}
   )
+
+#-----------------------------------------------------------------------------
+set(KIT_TEST_GENERATE_MOC_SRCS
+  qSlicerTableItemWidgetTest.cxx
+  )
+if(CTK_QT_VERSION VERSION_LESS "5")
+  QT4_GENERATE_MOCS(${KIT_TEST_GENERATE_MOC_SRCS})
+else()
+  QT5_GENERATE_MOCS(${KIT_TEST_GENERATE_MOC_SRCS})
+endif()
+
+include_directories( ${CMAKE_CURRENT_BINARY_DIR})
 
 #-----------------------------------------------------------------------------
 slicerMacroConfigureModuleCxxTestDriver(
@@ -80,3 +93,6 @@ simple_test(vtkSlicerResectionPlanningLogicTest1)
 
 # Test associating tumors to a resection
 simple_test(qSlicerSurfaceWidgetTest)
+
+# Test table item widget
+simple_test(qSlicerTableItemWidgetTest)
