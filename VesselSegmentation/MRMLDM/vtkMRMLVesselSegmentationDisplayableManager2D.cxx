@@ -33,6 +33,7 @@
   =========================================================================*/
 
 #include "vtkSlicerVesselSegmentationLogic.h"
+#include "vtkMRMLVesselSegmentationSeedNode.h"
 
 // MRML includes
 #include <vtkMRMLScene.h>
@@ -57,7 +58,7 @@
 #include <vtkProperty2D.h>
 #include <vtkLineSource.h>
 #include <vtkMRMLVesselSegmentationDisplayableManager2D.h>
-#include <vtkRegularPolygonSource.h>
+#include <vtkPointSource.h>
 
 #include <vtkSlicerModelsLogic.h>
 
@@ -76,16 +77,151 @@ vtkMRMLVesselSegmentationDisplayableManager2D()
 
 }
 
+//------------------------------------------------------------------------------
 vtkMRMLVesselSegmentationDisplayableManager2D::
 ~vtkMRMLVesselSegmentationDisplayableManager2D()
 {
 
 }
 
+//------------------------------------------------------------------------------
 void vtkMRMLVesselSegmentationDisplayableManager2D::PrintSelf(ostream &os,
                                                             vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+}
+
+//------------------------------------------------------------------------------
+void vtkMRMLVesselSegmentationDisplayableManager2D::
+SetMRMLSceneInternal(vtkMRMLScene *newScene)
+{
+  this->Superclass::SetMRMLSceneInternal(newScene);
+  this->OnMRMLSceneEndClose();
+
+  if(newScene)
+  {
+    placingSeeds = false;
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkMRMLVesselSegmentationDisplayableManager2D::OnMRMLSceneEndClose()
+{
+  vtkDebugMacro("OnMRMLSceneEndClose");
+
+
+
+}
+
+//------------------------------------------------------------------------------
+void vtkMRMLVesselSegmentationDisplayableManager2D::
+OnMRMLSceneNodeAdded(vtkMRMLNode* addedNode)
+{
+  vtkDebugMacro("OnMRMLSceneNodeAdded");
+
+  if (!addedNode)
+    {
+    vtkErrorMacro("No node passed");
+    return;
+    }
+
+  if (!this->GetMRMLScene())
+    {
+    vtkErrorMacro("No MRML scene has been set");
+    return;
+    }
+
+  if (!this->GetRenderer())
+    {
+    vtkErrorMacro("No renderer.");
+    return;
+    }
+
+  if (!this->GetMRMLSliceNode())
+    {
+    vtkErrorMacro("No slice node present");
+    return;
+    }
+
+  // TODO: observe all seed nodes added to scene
+  // Check this is a seed node.
+  vtkMRMLVesselSegmentationSeedNode *seedNode =
+      vtkMRMLVesselSegmentationSeedNode::SafeDownCast(addedNode);
+
+  if(seedNode)
+    {
+    this->SetSeedsMode(true);
+    // Check whether the node has an associated representation
+    SeedActorIt it = SeedActorMap.find(seedNode);
+    if (it != SeedActorMap.end())
+      {
+      return;
+      }
+
+    if (!this->AddSeed(seedNode))
+      {
+      return;
+      }
+
+    std::cout << "DM - Have seed node: " << seedNode << std::endl;
+    this->SetAndObserveSeedNode(seedNode);
+    this->RequestRender();
+    }
+
+  vtkSmartPointer<vtkMRMLSliceNode> tempSliceNode = this->GetMRMLSliceNode();
+
+  vtkMRMLSliceNode *sliceNode =
+    vtkMRMLSliceNode::SafeDownCast(addedNode);
+  if (sliceNode)
+    {
+    this->SetAndObserveSliceNode(sliceNode);
+    }
+
+  this->RequestRender();
+}
+
+//------------------------------------------------------------------------------
+void vtkMRMLVesselSegmentationDisplayableManager2D::
+OnMRMLNodeModified(vtkMRMLNode *vtkNotUsed(modifiedNode))
+{
+  this->RequestRender();
+}
+
+//------------------------------------------------------------------------------
+void vtkMRMLVesselSegmentationDisplayableManager2D::
+OnMRMLSceneNodeRemoved(vtkMRMLNode *node)
+{
+  if (!node)
+    {
+    vtkErrorMacro("No node passed.");
+    return;
+    }
+
+  if (!this->GetRenderer())
+    {
+    vtkErrorMacro("No renderer.");
+    return;
+    }
+
+  if (!this->GetMRMLScene())
+    {
+    vtkErrorMacro("No MRML scene.");
+    }
+
+  vtkMRMLVesselSegmentationSeedNode *seedNode =
+      vtkMRMLVesselSegmentationSeedNode::SafeDownCast(node);
+  if (seedNode)
+    {
+    // Remove the observations from the node
+    vtkUnObserveMRMLNodeMacro(seedNode);
+    }
+
+  vtkMRMLSliceNode *sliceNode =
+    vtkMRMLSliceNode::SafeDownCast(node);
+  if (sliceNode)
+    {
+    vtkUnObserveMRMLNodeMacro(sliceNode);
+    }
 }
 
 //-------------------------------------------------------------------------------
@@ -94,121 +230,153 @@ ProcessMRMLNodesEvents(vtkObject *caller,
                        unsigned long event,
                        void *callData)
 {
-  Superclass::ProcessMRMLNodesEvents(caller, event, callData);
+  vtkMRMLVesselSegmentationSeedNode *seedNode =
+      vtkMRMLVesselSegmentationSeedNode::SafeDownCast(caller);
+
+  if (seedNode)
+    {
+
+    switch(event)
+      {
+      case vtkMRMLDisplayableNode::DisplayModifiedEvent:
+        this->UpdateVisibility(seedNode);
+        break;
+
+      default:
+        break;
+      }
+    }
+
+  vtkMRMLSliceNode *sliceNode =
+    vtkMRMLSliceNode::SafeDownCast(caller);
+  if (sliceNode == this->GetMRMLSliceNode())
+    {
+    if(this->placingSeeds)
+      {
+      switch(event)
+        {
+        case vtkCommand::ModifiedEvent:
+          std::cout << "DM - slice node modified " << std::endl;
+          break;
+
+        default:
+          break;
+        }
+      }
+    }
+
+  this->Superclass::ProcessMRMLNodesEvents(caller, event, callData);
   this->RequestRender();
 }
 
+
+
+//------------------------------------------------------------------------------
 void vtkMRMLVesselSegmentationDisplayableManager2D::
-SetMRMLSceneInternal(vtkMRMLScene *newScene)
+SetAndObserveSeedNode(vtkMRMLVesselSegmentationSeedNode *node)
 {
-  this->OnMRMLSceneEndClose();
-  Superclass::SetMRMLSceneInternal(newScene);
-  if(newScene)
-  {
-    sliceListenerSet = false;
-    placingSeeds = false;
-  }
+  if (!node)
+    {
+    vtkErrorMacro("No node passed.");
+    return;
+    }
+
+  vtkNew<vtkIntArray> nodeEvents;
+  nodeEvents->InsertNextValue(vtkCommand::ModifiedEvent);
+  nodeEvents->InsertNextValue(vtkMRMLDisplayableNode::DisplayModifiedEvent);
+
+  vtkUnObserveMRMLNodeMacro(node);
+  vtkObserveMRMLNodeEventsMacro(node, nodeEvents.GetPointer());
 }
 
+//------------------------------------------------------------------------------
+bool vtkMRMLVesselSegmentationDisplayableManager2D::
+AddSeed(vtkMRMLVesselSegmentationSeedNode *node)
+{
+  vtkDebugMacro("AddSeed");
+
+  if (!node)
+    {
+    vtkErrorMacro("No seed node passed");
+    return false;
+    }
+
+  if (!this->GetMRMLSliceNode())
+    {
+    vtkErrorMacro("No slice node.");
+    return false;
+    }
+
+  if (!this->GetRenderer())
+    {
+    vtkErrorMacro("No renderer.");
+    return false;
+    }
+
+  double *seed1 = node->GetSeed1();
+  double *seed2 = node->GetSeed2();
+
+  // Set up the point surface
+  vtkSmartPointer<vtkPointSource> pointSource =
+    vtkSmartPointer<vtkPointSource>::New();
+  pointSource->SetCenter(seed1[0], seed1[1], seed1[2]);
+  pointSource->SetNumberOfPoints(1);
+  pointSource->SetRadius(5.0);
+
+  // Register polygon source
+  this->SeedMap[node] = pointSource;
+
+  // Set the mapper, actor and add it to the scene
+  vtkSmartPointer<vtkPolyDataMapper2D> mapper =
+    vtkSmartPointer<vtkPolyDataMapper2D>::New();
+  mapper->SetInputConnection(pointSource->GetOutputPort());
+  mapper->GlobalWarningDisplayOff();
+
+  // Register the mapper
+  this->SeedMapperMap[node] = mapper;
+
+  // Set the actor
+  vtkSmartPointer<vtkActor2D> actor =
+    vtkSmartPointer<vtkActor2D>::New();
+  actor->SetMapper(mapper);
+  actor->GetProperty()->SetLineWidth(3);
+
+  // Register the actor
+  this->SeedActorMap[node] = actor;
+
+  this->GetRenderer()->AddActor2D(actor);
+
+  return true;
+}
+
+//------------------------------------------------------------------------------
 void vtkMRMLVesselSegmentationDisplayableManager2D::
-OnMRMLSceneNodeAdded(vtkMRMLNode* vtkNotUsed(addedNode))
+UpdateVisibility(vtkMRMLVesselSegmentationSeedNode *node)
 {
-  // TODO: observe all seed nodes added to scene
 
-  vtkSmartPointer<vtkMRMLSliceNode> tempSliceNode = this->GetMRMLSliceNode();
-
-  if((this->sliceListenerSet == false) && (tempSliceNode != NULL)) {
-
-    this->RAStoXYmatrix->DeepCopy(tempSliceNode->GetXYToRAS());
-    this->RAStoXYmatrix->Invert();
-
-    //std::cout << "DM - Have RAS to XY matrix: " << this->RAStoXYmatrix << std::endl;
-
-    sliceListenerSet = true;
-
-    // create callback
-    this->UpdateMatrixCommand->SetCallback(this->OnSliceNodeModified);
-    this->UpdateMatrixCommand->SetClientData(this);
-
-    tempSliceNode->AddObserver(vtkCommand::ModifiedEvent, this->UpdateMatrixCommand.GetPointer());
-  }
-
-  /* Observe crosshair node */
-  vtkMRMLNode* tempCrosshairNodeDefault = this->GetMRMLScene()->GetNodeByID("vtkMRMLCrosshairNodedefault");
-  vtkMRMLCrosshairNode* tempCrosshairNode = vtkMRMLCrosshairNode::SafeDownCast(tempCrosshairNodeDefault);
-
-  this->UpdateCursorCommand->SetCallback(this->OnCrosshairPositionModified);
-  this->UpdateCursorCommand->SetClientData(this);
-  tempCrosshairNode->AddObserver(vtkMRMLCrosshairNode::CursorPositionModifiedEvent, this->UpdateCursorCommand.GetPointer());
-  /* ----------------------- */
-
-  this->RequestRender();
+  std::cout << "DM - seed node update visibility" << std::endl;
 }
 
+//------------------------------------------------------------------------------
 void vtkMRMLVesselSegmentationDisplayableManager2D::
-OnMRMLNodeModified(vtkMRMLNode *vtkNotUsed(modifiedNode))
+SetAndObserveSliceNode(vtkMRMLSliceNode *node)
 {
-  this->RequestRender();
+  if (!node)
+    {
+    vtkErrorMacro("No node passed.");
+    return;
+    }
+
+  vtkNew<vtkIntArray> nodeEvents;
+  nodeEvents->InsertNextValue(vtkCommand::ModifiedEvent);
+
+  vtkUnObserveMRMLNodeMacro(node);
+  vtkObserveMRMLNodeEventsMacro(node, nodeEvents.GetPointer());
 }
 
-void vtkMRMLVesselSegmentationDisplayableManager2D::
-OnMRMLSceneNodeRemoved(vtkMRMLNode *vtkNotUsed(node))
-{
-  this->RequestRender();
-}
-
-void vtkMRMLVesselSegmentationDisplayableManager2D::OnMRMLSceneEndClose()
-{
-
-}
-
-void vtkMRMLVesselSegmentationDisplayableManager2D::
-OnCrosshairPositionModified(vtkObject *caller,
-                            long unsigned int vtkNotUsed(eventId),
-                            void *clientData,
-                            void *vtkNotUsed(callData))
-{
-  vtkMRMLVesselSegmentationDisplayableManager2D* DM = reinterpret_cast<vtkMRMLVesselSegmentationDisplayableManager2D*>(clientData);
-
-  vtkMRMLCrosshairNode* tempCrosshairNode = vtkMRMLCrosshairNode::SafeDownCast(caller);
-
-  double *position = new double[3];
-  tempCrosshairNode->GetCursorPositionRAS(position);
-
-  double *pos2 = new double[4];
-  pos2[0] = position[0];
-  pos2[1] = position[1];
-  pos2[2] = position[2];
-  pos2[3] = 1;
-  double *curXY = new double[4];
-  DM->RAStoXYmatrix.GetPointer()->MultiplyPoint(pos2, curXY);
-  DM->lastCursorPosition = curXY;
-
-  //std::cout << "cursorPositionModified: " << curXY[0] << " " << curXY[1] << " " << curXY[2] << std::endl;
-
-}
-
-void vtkMRMLVesselSegmentationDisplayableManager2D::OnSliceNodeModified(vtkObject *vtkNotUsed(caller),
-                                                                      unsigned long int vtkNotUsed(id),
-                                                                      void *clientData,
-                                                                      void *vtkNotUsed(callerData))
-{
-  vtkMRMLVesselSegmentationDisplayableManager2D* DM = reinterpret_cast<vtkMRMLVesselSegmentationDisplayableManager2D*>(clientData);
-
-  vtkSmartPointer<vtkMRMLSliceNode> tempSliceNode = DM->GetMRMLSliceNode();
-
-  if(tempSliceNode != NULL) {
-
-    DM->RAStoXYmatrix->DeepCopy(tempSliceNode->GetXYToRAS());
-    DM->RAStoXYmatrix->Invert();
-
-  // std::cout << "DM - Updated RAS to XY matrix (inside slice node modified)" << std::endl;
-  }
-
-}
-
+//------------------------------------------------------------------------------
 void vtkMRMLVesselSegmentationDisplayableManager2D::SetSeedsMode( bool seedMode )
 {
   placingSeeds = seedMode;
-  //std::cout << "DM - Placing fiducials bool: " << placingFiducials << std::endl;
+  std::cout << "DM - Placing seeds bool: " << placingSeeds << std::endl;
 }

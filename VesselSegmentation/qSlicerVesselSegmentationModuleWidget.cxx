@@ -227,6 +227,16 @@ void qSlicerVesselSegmentationModuleWidget::onPreprocessing(int lowerThreshold, 
  {
    //vtkMRMLInteractionNode *interactionNode = vtkMRMLInteractionNode::SafeDownCast
        //(this->vesselSegmentationLogic()->GetMRMLScene()->GetNodeByID("vtkMRMLInteractionNodeSingleton"));
+   if (!this->vesselSegmentationLogic())
+     {
+     std::cerr << "Error: No module logic." << std::endl;
+     return;
+     }
+
+   // change if in mode for placing seeds or not
+   // right now we just add a seed...
+   this->vesselSegmentationLogic()->AddSeedNode();
+
  }
 
  //------------------------------------------------------------------------------
@@ -249,6 +259,15 @@ void qSlicerVesselSegmentationModuleWidget::onPreprocessing(int lowerThreshold, 
  {
    //vtkMRMLInteractionNode *interactionNode = vtkMRMLInteractionNode::SafeDownCast
        //(this->vesselSegmentationLogic()->GetMRMLScene()->GetNodeByID("vtkMRMLInteractionNodeSingleton"));
+   if (!this->vesselSegmentationLogic())
+     {
+     std::cerr << "Error: No module logic." << std::endl;
+     return;
+     }
+
+   // change if in mode for placing seeds or not
+   // right now we just add a seed...
+   this->vesselSegmentationLogic()->AddSeedNode();
  }
 
  //------------------------------------------------------------------------------

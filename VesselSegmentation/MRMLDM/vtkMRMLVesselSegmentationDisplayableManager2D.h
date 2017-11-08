@@ -46,9 +46,12 @@
 //Slicer includes
 #include "vtkSlicerVesselSegmentationModuleMRMLDisplayableManagerExport.h"
 
+class vtkPointSource;
 class vtkCallbackCommand;
 class vtkMatrix4x4;
 class vtkActor2D;
+class vtkPolyDataMapper2D;
+class vtkMRMLVesselSegmentationSeedNode;
 
 /**
  * \ingroup VesselSegmentation
@@ -89,17 +92,7 @@ vtkMRMLVesselSegmentationDisplayableManager2D
     vtkMRMLVesselSegmentationDisplayableManager2D();
     virtual ~vtkMRMLVesselSegmentationDisplayableManager2D();
     
-    /**
-     * Process MRML nodes events
-     *
-     * @param object object which triggered the event.
-     * @param eventId Id of the event.
-     * @param data additional data.
-     *
-     */
-    virtual void ProcessMRMLNodesEvents(vtkObject *caller,
-                                        unsigned long event,
-                                        void *callData);
+
     /**
      * Sets a new scene.
      *
@@ -107,6 +100,11 @@ vtkMRMLVesselSegmentationDisplayableManager2D
      */
     virtual void SetMRMLSceneInternal(vtkMRMLScene *newScene);
     
+    /**
+     * Controls what happens when the MRML scene is closed
+     */
+    virtual void OnMRMLSceneEndClose();
+
     /**
      * Callback controlling actions on new node added.
      *
@@ -129,27 +127,71 @@ vtkMRMLVesselSegmentationDisplayableManager2D
     virtual void OnMRMLSceneNodeRemoved(vtkMRMLNode *node);
 
     /**
-     * Controls what happens when the MRML scene is closed
+     * Process MRML nodes events
+     *
+     * @param object object which triggered the event.
+     * @param eventId Id of the event.
+     * @param data additional data.
+     *
      */
-    virtual void OnMRMLSceneEndClose();
+    virtual void ProcessMRMLNodesEvents(vtkObject *caller,
+                                        unsigned long event,
+                                        void *callData);
     
-    static void OnCrosshairPositionModified(vtkObject *caller, unsigned long int id, void *clientData, void *callerData);
-  
-    static void OnSliceNodeModified(vtkObject *caller, unsigned long int id, void *clientData, void *callerData);
+    /**
+     * Observe the interesting events for the given node.
+     *
+     * @param node pointer to a seed node to be observed.
+     */
+    void SetAndObserveSeedNode(vtkMRMLVesselSegmentationSeedNode *node);
 
-    vtkNew<vtkMatrix4x4> RAStoXYmatrix;
+    /**
+     * Creates the projection of the seed onto the slice
+     *
+     * @param node seed node holding the position of the seed
+     *
+     * @return true if the seed was successfully created, false otherwise.
+     */
+    bool AddSeed(vtkMRMLVesselSegmentationSeedNode *node);
+
+    /**
+     * Update the visibility of the projection of the seed node.
+     *
+     * @param node pointer to seed node to be used for the update.
+     */
+    void UpdateVisibility(vtkMRMLVesselSegmentationSeedNode *node);
+
+    /**
+     * Observe the slice node for modifications.
+     *
+     * @param pointer to a slice node.
+     */
+    void SetAndObserveSliceNode(vtkMRMLSliceNode *node);
     
+    // Map SeedNode -- PolygonSurfaceSource
+    std::map<vtkMRMLVesselSegmentationSeedNode*,
+      vtkSmartPointer<vtkPointSource> > SeedMap;
+    typedef std::map<vtkMRMLVesselSegmentationSeedNode*,
+      vtkSmartPointer<vtkPointSource> >::iterator SeedIt;
+
+    //Map SeedNode -- Mapper
+    std::map<vtkMRMLVesselSegmentationSeedNode*,
+      vtkSmartPointer<vtkPolyDataMapper2D> > SeedMapperMap;
+    typedef std::map<vtkMRMLVesselSegmentationSeedNode*,
+      vtkSmartPointer<vtkPolyDataMapper2D> >::iterator SeedMapperIt;
+
+    // Map seedNode -- Actor
+    std::map<vtkMRMLVesselSegmentationSeedNode*,
+      vtkSmartPointer<vtkActor2D> > SeedActorMap;
+    typedef std::map<vtkMRMLVesselSegmentationSeedNode*,
+      vtkSmartPointer<vtkActor2D> >::iterator SeedActorIt;
+
   private:
     vtkMRMLVesselSegmentationDisplayableManager2D(
       const vtkMRMLVesselSegmentationDisplayableManager2D&);
     void operator=(const vtkMRMLVesselSegmentationDisplayableManager2D&);
 
-    vtkNew<vtkCallbackCommand> UpdateMatrixCommand;
-    vtkNew<vtkCallbackCommand> UpdateCursorCommand;
-
-    bool sliceListenerSet;
     static bool placingSeeds;
-    double *lastCursorPosition;
 };
 
 #endif /* defined(__VesselSeg__vtkMRMLVesselSegmentationDisplayableManager_h) */
