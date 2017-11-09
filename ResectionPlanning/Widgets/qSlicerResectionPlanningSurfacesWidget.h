@@ -104,6 +104,15 @@ class Q_SLICER_MODULE_RESECTIONPLANNING_WIDGETS_EXPORT qSlicerResectionPlanningS
    */
   int getNumberOfResections() const;
 
+   /**
+    * Returns a TableItemWidget object
+    *
+    * @param index index to TableItemWidget
+    *
+    * @return corresponding tableItemWidget
+    */
+  qSlicerTableItemWidget *getTableItemWidget(unsigned int index);
+
   /**
    * Get a pointer to the resection node registered in the i-th entry of the widget.
    *

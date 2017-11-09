@@ -49,6 +49,7 @@
 
 //This module includes
 #include "qSlicerResectionPlanningSurfacesWidget.h"
+#include "qSlicerTableItemWidget.h"
 #include "vtkMRMLResectionSurfaceNode.h"
 #include "vtkMRMLResectionSurfaceDisplayNode.h"
 
@@ -81,6 +82,15 @@ class qSlicerResectionPlanningSurfacesWidgetTester: public QObject
   void testRemoveResection1();
   void testRemoveResection2();
 
+  void testGetTableItemWidget();
+
+  void testChangeResectionVisibility();
+
+  void testChangeWidgetVisibility();
+
+  void testChangeResectionMargin();
+
+  void testChangeResectionOpacity();
 };
 
 //------------------------------------------------------------------------------
@@ -390,15 +400,192 @@ void qSlicerResectionPlanningSurfacesWidgetTester::testRemoveResection2()
   QVERIFY(qvariant_cast<vtkMRMLResectionSurfaceNode*>(spy.at(0).at(0)) == surfaceNode2.GetPointer());
 
   // Try remove the resection
-  surfacesWidget->removeResection(surfaceNode1.GetPointer());
+  surfacesWidget->removeResection(surfaceNode2.GetPointer());
 
-  // Veriry 2 surfaces
+  // Veriry there is only 1 surface
   QVERIFY(surfacesWidget->getNumberOfResections() == 1);
 
   // Get the first node and test its value
-  std::cout << surfacesWidget->getResectionNode(0) << std::endl;
-  std::cout << surfaceNode1.GetPointer() << std::endl;
-  QVERIFY(surfacesWidget->getResectionNode(0) == surfaceNode1.GetPointer());
+   QVERIFY(surfacesWidget->getResectionNode(0) == surfaceNode1.GetPointer());
+
+}
+
+//------------------------------------------------------------------------------
+void qSlicerResectionPlanningSurfacesWidgetTester::testGetTableItemWidget()
+{
+vtkNew<vtkMRMLScene> scene;
+
+  vtkNew<vtkMRMLResectionSurfaceDisplayNode> displayNode;
+  scene->AddNode(displayNode.GetPointer());
+
+  // Add a node with associated display node
+  vtkNew<vtkMRMLResectionSurfaceDisplayNode> displayNode1;
+  scene->AddNode(displayNode1.GetPointer());
+  vtkNew<vtkMRMLResectionSurfaceNode> surfaceNode1;
+  surfaceNode1->SetAndObserveDisplayNodeID(displayNode1->GetID());
+  surfaceNode1->SetName("Resection1");
+  scene->AddNode(surfaceNode1.GetPointer());
+
+  // Add a node to the table
+  qSlicerResectionPlanningSurfacesWidget *surfacesWidget =
+    new qSlicerResectionPlanningSurfacesWidget(new QWidget());
+  surfacesWidget->addResection(surfaceNode1.GetPointer());
+
+  qRegisterMetaType<vtkMRMLResectionSurfaceNode*>("vtkMRMLResectionSurfaceNode");
+  QSignalSpy spy(surfacesWidget, SIGNAL(removeSurface(vtkMRMLResectionSurfaceNode*)));
+
+  // Add a node with associated display node
+  vtkNew<vtkMRMLResectionSurfaceDisplayNode> displayNode2;
+  scene->AddNode(displayNode2.GetPointer());
+  vtkNew<vtkMRMLResectionSurfaceNode> surfaceNode2;
+  surfaceNode2->SetAndObserveDisplayNodeID(displayNode2->GetID());
+  surfaceNode2->SetName("Resection2");
+  scene->AddNode(surfaceNode2.GetPointer());
+
+  // Add a node to the table
+  surfacesWidget->addResection(surfaceNode2.GetPointer());
+
+  // Veriry 2 surfaces
+  QVERIFY(surfacesWidget->getNumberOfResections() == 2);
+
+  qSlicerTableItemWidget *item = surfacesWidget->getTableItemWidget(0);
+  QVERIFY(item->getResectionName().simplified().compare(surfaceNode1->GetName())==0);
+
+  qSlicerTableItemWidget *item2 = surfacesWidget->getTableItemWidget(1);
+  QVERIFY(item2->getResectionName().simplified().compare(surfaceNode2->GetName())==0);
+}
+
+
+//------------------------------------------------------------------------------
+void qSlicerResectionPlanningSurfacesWidgetTester::testChangeResectionVisibility()
+{
+  vtkNew<vtkMRMLScene> scene;
+
+  // Add a node with associated display node
+  vtkNew<vtkMRMLResectionSurfaceDisplayNode> displayNode1;
+  scene->AddNode(displayNode1.GetPointer());
+  vtkNew<vtkMRMLResectionSurfaceNode> surfaceNode1;
+  surfaceNode1->SetAndObserveDisplayNodeID(displayNode1->GetID());
+  scene->AddNode(surfaceNode1.GetPointer());
+
+  // Add a node to the table
+  qSlicerResectionPlanningSurfacesWidget *surfacesWidget =
+    new qSlicerResectionPlanningSurfacesWidget(new QWidget());
+  surfacesWidget->addResection(surfaceNode1.GetPointer());
+
+  qSlicerTableItemWidget *item = surfacesWidget->getTableItemWidget(0);
+
+  // Check that visibility flag is the same
+  QVERIFY(item->getResectionVisibility() == displayNode1->GetVisibility());
+
+  // Change visibility
+  item->setResectionVisibility(0);
+  item->onVisibilityCheckBoxChanged(Qt::Unchecked);
+
+  // Check that visibility flag is the same
+  QVERIFY(item->getResectionVisibility() == displayNode1->GetVisibility());
+
+  // Change visibility
+  item->setResectionVisibility(1);
+  item->onVisibilityCheckBoxChanged(Qt::Checked);
+
+  // Check that visibility flag is the same
+  QVERIFY(item->getResectionVisibility() == displayNode1->GetVisibility());
+}
+
+//------------------------------------------------------------------------------
+void qSlicerResectionPlanningSurfacesWidgetTester::testChangeWidgetVisibility()
+{
+  vtkNew<vtkMRMLScene> scene;
+
+  // Add a node with associated display node
+  vtkNew<vtkMRMLResectionSurfaceDisplayNode> displayNode1;
+  scene->AddNode(displayNode1.GetPointer());
+  vtkNew<vtkMRMLResectionSurfaceNode> surfaceNode1;
+  surfaceNode1->SetAndObserveDisplayNodeID(displayNode1->GetID());
+  scene->AddNode(surfaceNode1.GetPointer());
+
+  // Add a node to the table
+  qSlicerResectionPlanningSurfacesWidget *surfacesWidget =
+    new qSlicerResectionPlanningSurfacesWidget(new QWidget());
+  surfacesWidget->addResection(surfaceNode1.GetPointer());
+
+  qSlicerTableItemWidget *item = surfacesWidget->getTableItemWidget(0);
+
+  // Check that visibility flag is the same
+  QVERIFY(item->getWidgetVisibility() == displayNode1->GetWidgetVisibility());
+
+  // Change visibility
+  item->setWidgetVisibility(0);
+  item->onWidgetVisibilityCheckboxChanged(Qt::Unchecked);
+
+  // Check that visibility flag is the same
+  QVERIFY(item->getWidgetVisibility() == displayNode1->GetWidgetVisibility());
+
+  // Change visibility
+  item->setWidgetVisibility(1);
+  item->onWidgetVisibilityCheckboxChanged(Qt::Checked);
+
+  // Check that visibility flag is the same
+  QVERIFY(item->getWidgetVisibility() == displayNode1->GetWidgetVisibility());
+}
+
+//------------------------------------------------------------------------------
+void qSlicerResectionPlanningSurfacesWidgetTester::testChangeResectionMargin()
+{
+  vtkNew<vtkMRMLScene> scene;
+
+  // Add a node with associated display node
+  vtkNew<vtkMRMLResectionSurfaceDisplayNode> displayNode1;
+  scene->AddNode(displayNode1.GetPointer());
+  vtkNew<vtkMRMLResectionSurfaceNode> surfaceNode1;
+  surfaceNode1->SetAndObserveDisplayNodeID(displayNode1->GetID());
+  scene->AddNode(surfaceNode1.GetPointer());
+
+  // Add a node to the table
+  qSlicerResectionPlanningSurfacesWidget *surfacesWidget =
+    new qSlicerResectionPlanningSurfacesWidget(new QWidget());
+  surfacesWidget->addResection(surfaceNode1.GetPointer());
+
+  qSlicerTableItemWidget *item = surfacesWidget->getTableItemWidget(0);
+
+  // Check that visibility flag is the same
+  QVERIFY(item->getResectionMargin() == surfaceNode1->GetResectionMargin());
+
+  item->setResectionMargin(50.0);
+  QVERIFY(item->getResectionMargin() == 50.0 && surfaceNode1->GetResectionMargin() == 50.0);
+
+  item->setResectionMargin(10.0);
+  QVERIFY(item->getResectionMargin() == 10.0 && surfaceNode1->GetResectionMargin() == 10.0);
+
+}
+
+//------------------------------------------------------------------------------
+void qSlicerResectionPlanningSurfacesWidgetTester::testChangeResectionOpacity()
+{
+  vtkNew<vtkMRMLScene> scene;
+
+  // Add a node with associated display node
+  vtkNew<vtkMRMLResectionSurfaceDisplayNode> displayNode1;
+  scene->AddNode(displayNode1.GetPointer());
+  vtkNew<vtkMRMLResectionSurfaceNode> surfaceNode1;
+  surfaceNode1->SetAndObserveDisplayNodeID(displayNode1->GetID());
+  scene->AddNode(surfaceNode1.GetPointer());
+
+  // Add a node to the table
+  qSlicerResectionPlanningSurfacesWidget *surfacesWidget =
+    new qSlicerResectionPlanningSurfacesWidget(new QWidget());
+  surfacesWidget->addResection(surfaceNode1.GetPointer());
+
+  qSlicerTableItemWidget *item = surfacesWidget->getTableItemWidget(0);
+
+  QVERIFY(item->getResectionOpacity() == displayNode1->GetOpacity()*100.0);
+
+  item->setResectionOpacity(50.0);
+  QVERIFY(item->getResectionOpacity() == 50.0 && displayNode1->GetOpacity()*100.0 == 50.0);
+
+  item->setResectionOpacity(10.0);
+  QVERIFY(item->getResectionOpacity() == 10.0 && displayNode1->GetOpacity()*100.0 == 10.0);
 
 }
 

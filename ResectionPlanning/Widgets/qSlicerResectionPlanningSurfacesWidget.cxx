@@ -257,8 +257,7 @@ changeResectionVisibility(int state)
 
   if (!item)
     {
-    std::cerr << "Error: the widget triggering resection visibility "
-              << "change is not of type qSlicerTableItemWidget" << std::endl;
+    qWarning("Item is not of type qSlicerTableItemWidget.");
     return;
     }
 
@@ -267,8 +266,7 @@ changeResectionVisibility(int state)
 
   if (!resectionNode)
     {
-    std::cerr << "Error: no resection node associated to the table item"
-              << std::endl;
+    qWarning("No resection node associated to the table item.");
     return;
     }
 
@@ -278,8 +276,7 @@ changeResectionVisibility(int state)
 
   if (!displayNode)
     {
-    std::cerr << "Error: no display node associated to the resection node"
-              << std::endl;
+    qWarning("No display node associated to the resection node");
     return;
     }
 
@@ -295,8 +292,7 @@ changeResectionWidgetVisibility(int state)
 
   if (!item)
     {
-    std::cerr << "Error: the widget triggering resection visibility "
-              << "change is not of type qSlicerTableItemWidget" << std::endl;
+    qWarning("Sender is not of type qSlicerTableItemWidget");
     return;
     }
 
@@ -305,8 +301,7 @@ changeResectionWidgetVisibility(int state)
 
   if (!resectionNode)
     {
-    std::cerr << "Error: no resection node associated to the table item"
-              << std::endl;
+    qWarning("No resection node associated to the table item");
     return;
     }
 
@@ -316,8 +311,7 @@ changeResectionWidgetVisibility(int state)
 
   if (!displayNode)
     {
-    std::cerr << "Error: no display node associated to the resection node"
-              << std::endl;
+    qWarning("No display node associated to the resection node");
     return;
     }
 
@@ -333,8 +327,7 @@ changeResectionMargin(double value)
 
   if (!item)
     {
-    std::cerr << "Error: the widget triggering resection margin change "
-              << "is not of type qSlicerTableItemWidget" << std::endl;
+    qWarning("Sender is not of type qSlicerTableItemWidget");
     return;
     }
 
@@ -343,8 +336,7 @@ changeResectionMargin(double value)
 
   if (!resectionNode)
     {
-    std::cerr << "Error: no resection node associated ot the table item"
-              << std::endl;
+    qWarning("No resection node associated ot the table item");
     return;
     }
 
@@ -361,8 +353,7 @@ changeResectionOpacity(double value)
 
   if (!item)
     {
-    std::cerr << "Error: the widget triggering resection margin change "
-              << "is not of type qSlicerTableItemWidget" << std::endl;
+    qWarning("Sender is  not of type qSlicerTableItemWidget");
     return;
     }
 
@@ -371,8 +362,7 @@ changeResectionOpacity(double value)
 
   if (!resectionNode)
     {
-    std::cerr << "Error: no resection node associated ot the table item"
-              << std::endl;
+    qWarning("No resection node associated ot the table item");
     return;
     }
 
@@ -382,8 +372,7 @@ changeResectionOpacity(double value)
 
   if (!resectionDisplayNode)
     {
-    std::cerr << "Error: no display node associated with the resection node"
-              << std::endl;
+    qWarning("No display node associated with the resection node");
     return;
     }
 
@@ -409,13 +398,32 @@ qSlicerResectionPlanningSurfacesWidget::getResectionNode(unsigned int index)
     {
     if (count == index)
       {
-      count++;
       break;
       }
     count++;
     }
 
   return iterator==ResectionWidgetMap.end()? NULL: iterator.key();
+}
+
+//------------------------------------------------------------------------------
+qSlicerTableItemWidget *
+qSlicerResectionPlanningSurfacesWidget::getTableItemWidget(unsigned int index)
+{
+  ResectionWidgetIt iterator;
+  unsigned int count=0;
+
+  for(iterator = this->ResectionWidgetMap.begin();
+      iterator!=ResectionWidgetMap.end(); iterator++)
+    {
+    if (count == index)
+      {
+      break;
+      }
+    count++;
+    }
+
+  return iterator==ResectionWidgetMap.end()? NULL: iterator.value();
 }
 
 //------------------------------------------------------------------------------

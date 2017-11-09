@@ -128,7 +128,7 @@ signals:
   void resectionMarginChanged(double);
   void resectionOpacityChanged(double);
 
-protected slots:
+public slots:
   /**
    * Called when the visibility checkbox state is changed
    *
