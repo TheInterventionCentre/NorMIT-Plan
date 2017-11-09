@@ -45,16 +45,19 @@
 // QT includes
 #include <QTableWidget>
 #include <QTableWidgetItem>
+#include <QAbstractItemView>
 #include <QHeaderView>
 #include <QLabel>
 #include <QString>
 #include <QSharedPointer>
 #include <QWidget>
 #include <QLabel>
+#include <QDebug>
 
 // STD includes
 #include <iostream>
 #include <string>
+#include <cstdio>
 
 //-----------------------------------------------------------------------------
 /// \ingroup Slicer_QtModules_ResectionPlanning
@@ -84,7 +87,6 @@ void qSlicerResectionPlanningSurfacesWidgetPrivate
 ::setupUi(qSlicerResectionPlanningSurfacesWidget* widget)
 {
   this->Ui_qSlicerResectionPlanningSurfacesWidget::setupUi(widget);
-
 }
 
 // --------------------------------------------------------------------------
@@ -125,7 +127,7 @@ void qSlicerResectionPlanningSurfacesWidget
 
   if (!resectionNode)
     {
-    std::cerr << "Error: No resection node passed." << std::endl;
+    qWarning("No resection node passed.");
     return;
     }
 
@@ -133,8 +135,7 @@ void qSlicerResectionPlanningSurfacesWidget
   if (this->ResectionWidgetMap.find(resectionNode) !=
       this->ResectionWidgetMap.end())
     {
-    std::cerr << "Warning: node " << resectionNode->GetID()
-              << "already exists" << std::endl;
+    qWarning("Resection node already exists.");
     return;
     }
 
@@ -144,13 +145,12 @@ void qSlicerResectionPlanningSurfacesWidget
 
   if (!resectionDisplayNode)
     {
-    std::cerr << "Error: no display node." << std::endl;
+    qWarning("No resection display node associated to resection node.");
     return;
     }
 
   QString resectionName =
     QString("%1").arg(resectionNode->GetName(), 20);
-
 
   //Create the table item widget
   qSlicerTableItemWidget *item = new qSlicerTableItemWidget();
@@ -195,7 +195,7 @@ void qSlicerResectionPlanningSurfacesWidget
 
   if (!widget)
     {
-    std::cerr << "Warning: no row selected" << std::endl;
+    qWarning("No resection table row selected.");
     return;
     }
 
@@ -203,7 +203,7 @@ void qSlicerResectionPlanningSurfacesWidget
     this->ResectionWidgetMap.key(widget);
   if (!resectionNode)
     {
-    std::cerr << "Warning: no nodeId found for the given widget" << std::endl;
+    qWarning("No node id found for the given widget.");
     return;
     }
 
@@ -218,17 +218,14 @@ removeResection(vtkMRMLResectionSurfaceNode *resectionNode)
 
   if (!resectionNode)
     {
-    std::cerr << "Error: no node passed" << std::endl;
+    qWarning("No resection node  passed.");
     return;
     }
-
 
   ResectionWidgetIt it = this->ResectionWidgetMap.find(resectionNode);
   if (it == this->ResectionWidgetMap.end())
     {
-    std::cerr << "Warning: node " << resectionNode->GetID()
-              << "does not exist in the list of resection surfaces"
-              << std::endl;
+    qWarning("Node does not exist in the list of resection surfaces.");
     return;
     }
 
@@ -260,8 +257,7 @@ changeResectionVisibility(int state)
 
   if (!item)
     {
-    std::cerr << "Error: the widget triggering resection visibility "
-              << "change is not of type qSlicerTableItemWidget" << std::endl;
+    qWarning("Item is not of type qSlicerTableItemWidget.");
     return;
     }
 
@@ -270,8 +266,7 @@ changeResectionVisibility(int state)
 
   if (!resectionNode)
     {
-    std::cerr << "Error: no resection node associated to the table item"
-              << std::endl;
+    qWarning("No resection node associated to the table item.");
     return;
     }
 
@@ -281,8 +276,7 @@ changeResectionVisibility(int state)
 
   if (!displayNode)
     {
-    std::cerr << "Error: no display node associated to the resection node"
-              << std::endl;
+    qWarning("No display node associated to the resection node");
     return;
     }
 
@@ -298,8 +292,7 @@ changeResectionWidgetVisibility(int state)
 
   if (!item)
     {
-    std::cerr << "Error: the widget triggering resection visibility "
-              << "change is not of type qSlicerTableItemWidget" << std::endl;
+    qWarning("Sender is not of type qSlicerTableItemWidget");
     return;
     }
 
@@ -308,8 +301,7 @@ changeResectionWidgetVisibility(int state)
 
   if (!resectionNode)
     {
-    std::cerr << "Error: no resection node associated to the table item"
-              << std::endl;
+    qWarning("No resection node associated to the table item");
     return;
     }
 
@@ -319,8 +311,7 @@ changeResectionWidgetVisibility(int state)
 
   if (!displayNode)
     {
-    std::cerr << "Error: no display node associated to the resection node"
-              << std::endl;
+    qWarning("No display node associated to the resection node");
     return;
     }
 
@@ -336,8 +327,7 @@ changeResectionMargin(double value)
 
   if (!item)
     {
-    std::cerr << "Error: the widget triggering resection margin change "
-              << "is not of type qSlicerTableItemWidget" << std::endl;
+    qWarning("Sender is not of type qSlicerTableItemWidget");
     return;
     }
 
@@ -346,8 +336,7 @@ changeResectionMargin(double value)
 
   if (!resectionNode)
     {
-    std::cerr << "Error: no resection node associated ot the table item"
-              << std::endl;
+    qWarning("No resection node associated ot the table item");
     return;
     }
 
@@ -364,8 +353,7 @@ changeResectionOpacity(double value)
 
   if (!item)
     {
-    std::cerr << "Error: the widget triggering resection margin change "
-              << "is not of type qSlicerTableItemWidget" << std::endl;
+    qWarning("Sender is  not of type qSlicerTableItemWidget");
     return;
     }
 
@@ -374,8 +362,7 @@ changeResectionOpacity(double value)
 
   if (!resectionNode)
     {
-    std::cerr << "Error: no resection node associated ot the table item"
-              << std::endl;
+    qWarning("No resection node associated ot the table item");
     return;
     }
 
@@ -385,10 +372,72 @@ changeResectionOpacity(double value)
 
   if (!resectionDisplayNode)
     {
-    std::cerr << "Error: no display node associated with the resection node"
-              << std::endl;
+    qWarning("No display node associated with the resection node");
     return;
     }
 
   resectionDisplayNode->SetOpacity(value/100.0);
+}
+
+//------------------------------------------------------------------------------
+int qSlicerResectionPlanningSurfacesWidget::getNumberOfResections() const
+{
+  return this->ResectionWidgetMap.count();
+}
+
+//------------------------------------------------------------------------------
+vtkMRMLResectionSurfaceNode*
+qSlicerResectionPlanningSurfacesWidget::getResectionNode(unsigned int index)
+{
+
+  ResectionWidgetIt iterator;
+  unsigned int count=0;
+
+  for(iterator = this->ResectionWidgetMap.begin();
+      iterator!=ResectionWidgetMap.end(); iterator++)
+    {
+    if (count == index)
+      {
+      break;
+      }
+    count++;
+    }
+
+  return iterator==ResectionWidgetMap.end()? NULL: iterator.key();
+}
+
+//------------------------------------------------------------------------------
+qSlicerTableItemWidget *
+qSlicerResectionPlanningSurfacesWidget::getTableItemWidget(unsigned int index)
+{
+  ResectionWidgetIt iterator;
+  unsigned int count=0;
+
+  for(iterator = this->ResectionWidgetMap.begin();
+      iterator!=ResectionWidgetMap.end(); iterator++)
+    {
+    if (count == index)
+      {
+      break;
+      }
+    count++;
+    }
+
+  return iterator==ResectionWidgetMap.end()? NULL: iterator.value();
+}
+
+//------------------------------------------------------------------------------
+void qSlicerResectionPlanningSurfacesWidget::selectTableRow(int index)
+{
+  Q_D(qSlicerResectionPlanningSurfacesWidget);
+
+  if (index < 0 || index >= d->TableResectionSurfaces->rowCount())
+    {
+    qWarning("Wrong index for row selection in table.");
+    return;
+    }
+
+  d->TableResectionSurfaces->setSelectionBehavior(QAbstractItemView::SelectRows);
+  d->TableResectionSurfaces->setSelectionMode(QAbstractItemView::SingleSelection);
+  d->TableResectionSurfaces->selectRow(index);
 }

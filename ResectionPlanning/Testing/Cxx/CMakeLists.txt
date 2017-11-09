@@ -18,6 +18,7 @@ set(KIT_TEST_SRCS
   vtkSlicerResectionPlanningLogicTest1.cxx
   qSlicerSurfaceWidgetTest.cxx
   qSlicerTableItemWidgetTest.cxx
+  qSlicerResectionPlanningSurfacesWidgetTest.cxx
   )
 
 set(${KIT}_INCLUDE_DIRECTORIES
@@ -27,6 +28,7 @@ set(${KIT}_INCLUDE_DIRECTORIES
 #-----------------------------------------------------------------------------
 set(KIT_TEST_GENERATE_MOC_SRCS
   qSlicerTableItemWidgetTest.cxx
+  qSlicerResectionPlanningSurfacesWidgetTest.cxx
   )
 if(CTK_QT_VERSION VERSION_LESS "5")
   QT4_GENERATE_MOCS(${KIT_TEST_GENERATE_MOC_SRCS})
@@ -96,3 +98,6 @@ simple_test(qSlicerSurfaceWidgetTest)
 
 # Test table item widget
 simple_test(qSlicerTableItemWidgetTest)
+
+# Test resection planning surfaces widget
+simple_test(qSlicerResectionPlanningsurfacesWidgetTest)

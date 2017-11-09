@@ -86,8 +86,46 @@ class Q_SLICER_MODULE_RESECTIONPLANNING_WIDGETS_EXPORT qSlicerResectionPlanningS
    */
   void removeResection(vtkMRMLResectionSurfaceNode *node);
 
-
   public slots:
+
+  /**
+   * Select the row of the table specified by index
+   *
+   * @param index index to table row
+   *
+   */
+  void selectTableRow(int index);
+
+  /**
+   * Returns the number of resections registered in the widget.
+   *
+   *
+   * @return number of resections.
+   */
+  int getNumberOfResections() const;
+
+   /**
+    * Returns a TableItemWidget object
+    *
+    * @param index index to TableItemWidget
+    *
+    * @return corresponding tableItemWidget
+    */
+  qSlicerTableItemWidget *getTableItemWidget(unsigned int index);
+
+  /**
+   * Get a pointer to the resection node registered in the i-th entry of the widget.
+   *
+   * @param i index to entry in the widget.
+   *
+   * @return pointer to a vtkMRMLResectionSurfaceNode.
+   */
+  vtkMRMLResectionSurfaceNode* getResectionNode(unsigned int i);
+
+  /**
+   * Triggered when the button for removing a resection surface is clicked
+   */
+  void onRemoveSurfaceButtonClicked();
 
  signals:
   /**
@@ -109,10 +147,6 @@ class Q_SLICER_MODULE_RESECTIONPLANNING_WIDGETS_EXPORT qSlicerResectionPlanningS
    */
   void onAddSurfaceButtonClicked();
 
-  /**
-   * Triggered when the button for removing a resection surface is clicked
-   */
-  void onRemoveSurfaceButtonClicked();
 
   /**
    * Changes the visibility state of a resection node.
