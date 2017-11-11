@@ -15,6 +15,7 @@ set(KIT_TEST_SRCS
   vtkMRMLResectionDisplayableManager3DTest1.cxx
   vtkMRMLResectionDisplayableManager2DTest1.cxx
   vtkMRMLResectionDisplayableManager2DTest2.cxx
+  vtkMRMLResectionSurfaceStorageNodeTest1.cxx
   vtkSlicerResectionPlanningLogicTest1.cxx
   qSlicerSurfaceWidgetTest.cxx
   qSlicerTableItemWidgetTest.cxx
@@ -89,6 +90,9 @@ simple_test(vtkMRMLResectionDisplayableManager2DTest1)
 
 # Test the resection surface displayable manager 2D
 simple_test(vtkMRMLResectionDisplayableManager2DTest2)
+
+# Unit testing for the surface storage node
+simple_test(vtkMRMLResectionSurfaceStorageNodeTest1)
 
 # Test resection planning logic
 simple_test(vtkSlicerResectionPlanningLogicTest1)
