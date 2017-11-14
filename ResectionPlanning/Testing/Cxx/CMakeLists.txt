@@ -1,7 +1,62 @@
 set(KIT qSlicer${MODULE_NAME}Module)
 
 #-----------------------------------------------------------------------------
-set(TESTING_DATA "${CMAKE_CURRENT_SOURCE_DIR}/../Data")
+# Here we basically create the testing data directory and populate it with
+# the testing data downloaded.
+
+set(TESTING_DATA "${CMAKE_BINARY_DIR}/${MODULE_NAME}/Testing/Cxx/Data")
+file(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/${MODULE_NAME}/Testing/Cxx/Data")
+
+if(NOT EXISTS "${TESTING_DATA}/BezierSurfaceWidgetInteractionInput.log")
+  file(DOWNLOAD https://data.kitware.com/api/v1/item/5a0ad0558d777f31ac64eebd/download
+    ${TESTING_DATA}/BezierSurfaceWidgetInteractionInput.log)
+endif()
+
+if(NOT EXISTS "${TESTING_DATA}/BezierSurfaceWidgetReferenceOutput.png")
+  file(DOWNLOAD https://data.kitware.com/api/v1/item/5a0ad0538d777f31ac64eeb7/download
+    ${TESTING_DATA}/BezierSurfaceWidgetReferenceOutput.png)
+endif()
+
+if(NOT EXISTS "${TESTING_DATA}/LineWidget3InteractionInput.log")
+  file(DOWNLOAD https://data.kitware.com/api/v1/item/5a0ad0558d777f31ac64eec0/download
+    ${TESTING_DATA}/LineWidget3InteractionInput.log)
+endif()
+
+if(NOT EXISTS "${TESTING_DATA}/LineWidget3ReferenceOutput.png")
+  file(DOWNLOAD https://data.kitware.com/api/v1/item/5a0ad0568d777f31ac64eec3/download
+    ${TESTING_DATA}/LineWidget3ReferenceOutput.png)
+endif()
+
+if(NOT EXISTS "${TESTING_DATA}/LineWidget3ReferenceOutput2.png")
+  file(DOWNLOAD https://data.kitware.com/api/v1/item/5a0ad0548d777f31ac64eeba/download
+    ${TESTING_DATA}/LineWidget3ReferenceOutput2.png)
+endif()
+
+if(NOT EXISTS "${TESTING_DATA}/SampleModel.vtk")
+  file(DOWNLOAD https://data.kitware.com/api/v1/item/5a0ad5f58d777f31ac64eec6/download
+    ${TESTING_DATA}/SampleModel.vtk)
+endif()
+
+if(NOT EXISTS "${TESTING_DATA}/ResectionSurface.vtk")
+  file(DOWNLOAD https://data.kitware.com/api/v1/item/5a0ada528d777f31ac64eec9/download
+    ${TESTING_DATA}/ResectionSurface.vtk)
+endif()
+
+#-----------------------------------------------------------------------------
+
+set(TEMP_DIR "${CMAKE_BINARY_DIR}/${MODULE_NAME}/Testing/Cxx/TempData")
+file(MAKE_DIRECTORY ${TEMP_DIR})
+
+#-----------------------------------------------------------------------------
+# Create configuration files for some tests
+
+set(SAMPLE_MODEL_FILE "${TESTING_DATA}/SampleModel.vtk")
+set(RESECTION_SURFACE_FILE "${TESTING_DATA}/ResectionSurface.vtk")
+
+configure_file(
+  vtkMRMLResectionSurfaceStorageNodeTest1Config.h.in
+  ${CMAKE_CURRENT_BINARY_DIR}/vtkMRMLResectionSurfaceStorageNodeTest1Config.h
+  )
 
 #-----------------------------------------------------------------------------
 set(KIT_TEST_SRCS
@@ -15,6 +70,7 @@ set(KIT_TEST_SRCS
   vtkMRMLResectionDisplayableManager3DTest1.cxx
   vtkMRMLResectionDisplayableManager2DTest1.cxx
   vtkMRMLResectionDisplayableManager2DTest2.cxx
+  vtkMRMLResectionSurfaceStorageNodeTest1.cxx
   vtkSlicerResectionPlanningLogicTest1.cxx
   qSlicerSurfaceWidgetTest.cxx
   qSlicerTableItemWidgetTest.cxx
@@ -74,6 +130,11 @@ simple_test(vtkMRMLResectionSurfaceNodeTest1)
 
 # Test resection surface display node
 simple_test(vtkMRMLResectionSurfaceDisplayNodeTest1)
+
+# Unit testing for the surface storage node
+simple_test(vtkMRMLResectionSurfaceStorageNodeTest1
+  ${TESTING_DATA}/SampleModel.vtk
+  ${TESTING_DATA}/ResectionSurface.vtk)
 
 # Test resection initialization
 simple_test(vtkMRMLResectionInitializationNodeTest1)

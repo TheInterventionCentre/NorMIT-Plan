@@ -1,0 +1,8 @@
+#ifndef __vtkMRMLResectionsurfaceStorageNodeTest1Config_h
+#define __vtkMRMLResectionsurfaceStorageNodeTest1Config_h
+
+#cmakedefine SAMPLE_MODEL_FILE "@SAMPLE_MODEL_FILE@"
+#cmakedefine RESECTION_SURFACE_FILE "@RESECTION_SURFACE_FILE@"
+#cmakedefine TEMP_DIR "@TEMP_DIR@"
+
+#endif

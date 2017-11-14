@@ -80,7 +80,7 @@ int vtkMRMLResectionSurfaceStorageNode::ReadDataInternal(vtkMRMLNode *refNode)
 {
   if (!refNode)
     {
-    vtkErrorMacro("No node passed");
+    vtkErrorMacro("No reference node.");
     return 0;
     }
 
@@ -89,9 +89,9 @@ int vtkMRMLResectionSurfaceStorageNode::ReadDataInternal(vtkMRMLNode *refNode)
   vtkMRMLResectionSurfaceNode *resectionSurfaceNode =
     vtkMRMLResectionSurfaceNode::SafeDownCast(refNode);
 
-  if (!refNode)
+  if (!resectionSurfaceNode)
     {
-    vtkErrorMacro("Node passed is not a resection node");
+    vtkErrorMacro("Reference node is not of type vtkMRMLResectionSurfaceNode.");
     return 0;
     }
 
@@ -116,15 +116,12 @@ int vtkMRMLResectionSurfaceStorageNode::ReadDataInternal(vtkMRMLNode *refNode)
     return 0;
     }
 
-
   vtkPolyData* tempPolyData = tempSurfaceNode->GetPolyData();
   if (!tempSurfaceNode.GetPointer())
     {
     vtkErrorMacro("No polydata present in the loaded node.");
     return 0;
     }
-
-  std::cout << tempPolyData->GetNumberOfPoints() << std::endl;
 
   vtkDataArray *dataArray =
     tempPolyData->GetFieldData()->GetArray("ControlPoints");
@@ -138,15 +135,27 @@ int vtkMRMLResectionSurfaceStorageNode::ReadDataInternal(vtkMRMLNode *refNode)
 
   resectionSurfaceNode->SetControlPoints(controlPoints);
 
-return result;
+  return result;
 }
 
 //----------------------------------------------------------------------------
 int vtkMRMLResectionSurfaceStorageNode::WriteDataInternal(vtkMRMLNode *refNode)
 {
-  // downcast the input node
+  if (!refNode)
+    {
+    vtkErrorMacro("No reference node");
+    return 0;
+    }
+
+// downcast the input node
   vtkMRMLResectionSurfaceNode *resectionSurfaceNode =
     vtkMRMLResectionSurfaceNode::SafeDownCast(refNode);
+
+  if (!resectionSurfaceNode)
+    {
+    vtkErrorMacro("Reference node is not of type vtkMRMLResectionSurfaceNode");
+    return 0;
+    }
 
   vtkPoints *controlPoints = resectionSurfaceNode->GetControlPoints();
   if (!controlPoints)
@@ -166,8 +175,6 @@ int vtkMRMLResectionSurfaceStorageNode::WriteDataInternal(vtkMRMLNode *refNode)
   resectionPolyData->GetFieldData()->AddArray(controlPoints->GetData());
 
   int result = this->Superclass::WriteDataInternal(refNode);
-
-  std::cout << "RP -StorageNode - WriteDataInternal: " << result << std::endl;
 
   return result;
 }
