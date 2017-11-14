@@ -165,10 +165,8 @@ vtkMRMLVesselSegmentationDisplayableManager2D
      */
     void SetAndObserveSliceNode(vtkMRMLSliceNode *node);
     
-    
-    // Respond to interactor style events
-    virtual void OnInteractorStyleEvent(int eventid) VTK_OVERRIDE;
-
+    /// respond to the interactor event
+    virtual void OnInteractorEvent(int eventid) VTK_OVERRIDE;
 
     // Map SeedNode -- PolygonSurfaceSource
     std::map<vtkMRMLVesselSegmentationSeedNode*,
@@ -190,11 +188,7 @@ vtkMRMLVesselSegmentationDisplayableManager2D
 
   private:
     bool observingSliceNode;
-    bool observingSliceView;
     vtkWeakPointer<vtkMRMLVesselSegmentationSeedNode> currentSeedNode;
-    vtkNew<vtkCallbackCommand> MouseClickCommand;
-    
-    static void OnMouseClick(vtkObject *caller, unsigned long int id, void *clientData, void *callerData);
 
     vtkMRMLVesselSegmentationDisplayableManager2D(
       const vtkMRMLVesselSegmentationDisplayableManager2D&);

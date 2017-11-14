@@ -66,6 +66,9 @@
 #include <qMRMLSliceWidget.h>
 #include <qMRMLSliceView.h>
 
+#include <vtkSliceViewInteractorStyle.h>
+#include <vtkInteractorStyle.h>
+
 #include <iostream>
 #include <cstdlib>
 #include <vector>
@@ -77,14 +80,9 @@ vtkStandardNewMacro(vtkMRMLVesselSegmentationDisplayableManager2D);
 vtkMRMLVesselSegmentationDisplayableManager2D::
 vtkMRMLVesselSegmentationDisplayableManager2D()
 {
-  observingSliceNode = false;
-  observingSliceView = false;
+  this->observingSliceNode = false;
 
-  this->RemoveInteractorStyleObservableEvent(vtkCommand::LeftButtonReleaseEvent);
-  this->RemoveInteractorStyleObservableEvent(vtkCommand::LeftButtonPressEvent);
-    
-  this->AddInteractorStyleObservableEvent(vtkCommand::LeftButtonReleaseEvent);
-  this->AddInteractorStyleObservableEvent(vtkCommand::LeftButtonPressEvent);
+  this->AddInteractorObservableEvent(vtkCommand::LeftButtonReleaseEvent);
 }
 
 //------------------------------------------------------------------------------
@@ -119,9 +117,8 @@ void vtkMRMLVesselSegmentationDisplayableManager2D::OnMRMLSceneEndClose()
 {
   vtkDebugMacro("OnMRMLSceneEndClose");
 
-
-
 }
+
 //------------------------------------------------------------------------------
 void vtkMRMLVesselSegmentationDisplayableManager2D::
 OnMRMLSceneNodeAdded(vtkMRMLNode* addedNode)
@@ -155,52 +152,11 @@ OnMRMLSceneNodeAdded(vtkMRMLNode* addedNode)
   else if (this->observingSliceNode == false)
     {
     vtkMRMLSliceNode *sliceNode = this->GetMRMLSliceNode();
-    std::cout << "DM - oberving slice node " << std::endl;
+    std::cout << "DM - observing slice node " << std::endl;
     this->SetAndObserveSliceNode(sliceNode);
     this->observingSliceNode = true;
     }
 
-  /*
-  if(this->observingSliceView == false)
-    {
-    // Set up interactor observations
-    qSlicerLayoutManager* layoutManager = qSlicerApplication::application()->layoutManager();
-    if (!layoutManager)
-      {
-      vtkErrorMacro("No layoutManager present");
-      return;
-      }
-
-    // Slice views
-    foreach (QString sliceViewName, layoutManager->sliceViewNames())
-      {  
-      // Create command for slice view
-      qMRMLSliceWidget* sliceWidget = layoutManager->sliceWidget(sliceViewName);
-      if (!sliceWidget)
-        {
-        vtkErrorMacro("No slice widget present");
-        return;
-        }
-      qMRMLSliceView* sliceView = sliceWidget->sliceView();
-      if (!sliceView)
-        {
-        vtkErrorMacro("No slice view present");
-        return;
-        }
-          
-      vtkRenderWindowInteractor* interactor = sliceView->interactorStyle()->GetInteractor();
-      if (!interactor)
-        {
-        vtkErrorMacro("No interactor present");
-        return;
-        }
-      this->MouseClickCommand->SetCallback(this->OnMouseClick);
-      this->MouseClickCommand->SetClientData(this);
-      interactor->AddObserver(vtkCommand::LeftButtonReleaseEvent, this->MouseClickCommand.GetPointer(), 1.0);   
-      }
-      this->observingSliceView = true;
-    }
-  */
   // TODO: observe all seed nodes added to scene
   // Check this is a seed node.
   vtkMRMLVesselSegmentationSeedNode *seedNode =
@@ -308,12 +264,11 @@ ProcessMRMLNodesEvents(vtkObject *caller,
           switch(event)
           {                 
             case vtkCommand::ModifiedEvent:
-            std::cout << "DM - slice node modified " << std::endl;
-            break;
-                  
+              std::cout << "DM - slice node modified " << std::endl;
+              break;
             default:
-            std::cout << "DM - slice node other event? " << std::endl;
-            break;
+              std::cout << "DM - slice node other event? " << std::endl;
+              break;
           }      
         }
       }
@@ -324,22 +279,21 @@ ProcessMRMLNodesEvents(vtkObject *caller,
 }
 
 //---------------------------------------------------------------------------
-void vtkMRMLVesselSegmentationDisplayableManager2D::OnInteractorStyleEvent(int eventid)
+/// observe key press events
+void vtkMRMLVesselSegmentationDisplayableManager2D::OnInteractorEvent(int eventid)
 {
-  std::cout << "DM - OnInteractorStyleEvent " << std::endl;
+  std::cout << "DM - ON INTERACTOR EVENT " << std::endl;
 
   switch(eventid)
     {
     case vtkCommand::LeftButtonReleaseEvent:
       std::cout << "DM - LeftButtonReleaseEvent " << std::endl;
       break;
-    case vtkCommand::LeftButtonPressEvent:
-      std::cout << "DM - LeftButtonPressEvent " << std::endl;
-      break;
     default:
+      std::cout << "DM - Default event " << std::endl;
       break;
     }
-  this->Superclass::OnInteractorStyleEvent(eventid);
+  this->Superclass::OnInteractorEvent(eventid);
 }
 
 //------------------------------------------------------------------------------
@@ -443,27 +397,4 @@ SetAndObserveSliceNode(vtkMRMLSliceNode *node)
 
   vtkUnObserveMRMLNodeMacro(node);
   vtkObserveMRMLNodeEventsMacro(node, nodeEvents.GetPointer());
-}
-
-//------------------------------------------------------------------------------
-void vtkMRMLVesselSegmentationDisplayableManager2D::OnMouseClick
-(vtkObject *caller, unsigned long int vtkNotUsed(id), void *clientData, void *callerData)
-{
-  vtkMRMLVesselSegmentationDisplayableManager2D* DM = 
-      reinterpret_cast<vtkMRMLVesselSegmentationDisplayableManager2D*>(clientData);
-    
-  std::cout << "DM - mouse click callback " << std::endl;
-    
-  vtkMRMLNode* tempCrosshairNodeDefault = DM->GetMRMLScene()->GetNodeByID("vtkMRMLCrosshairNodedefault");
-  vtkMRMLCrosshairNode* tempCrosshairNode = vtkMRMLCrosshairNode::SafeDownCast(tempCrosshairNodeDefault);
-    
-  if(tempCrosshairNode != NULL)
-    {
-    double *pos = new double[3];
-    if(tempCrosshairNode->GetCursorPositionRAS(pos))
-    {
-      std::cout << "DM - crosshairposition: " << pos[0] << " " << pos[1] << " " <<
-          pos[2] << std::endl;
-    } 
-  }
 }
