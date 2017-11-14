@@ -80,19 +80,16 @@ vtkMRMLVesselSegmentationDisplayableManager2D
      * @param indent indent value.
      */
     void PrintSelf(ostream& os, vtkIndent indent);
-
-    /*
-     * Set if are in mode to place seeds
-     *
-     * @param bool where true is placing seeds
-     */
-    static void SetSeedsMode(bool seedMode);
+    
+    vtkGetMacro(PlacingSeeds, bool);
+    vtkSetMacro(PlacingSeeds, bool);
     
   protected:
     vtkMRMLVesselSegmentationDisplayableManager2D();
     virtual ~vtkMRMLVesselSegmentationDisplayableManager2D();
     
-
+    bool PlacingSeeds;
+    
     /**
      * Sets a new scene.
      *
@@ -168,6 +165,11 @@ vtkMRMLVesselSegmentationDisplayableManager2D
      */
     void SetAndObserveSliceNode(vtkMRMLSliceNode *node);
     
+    
+    // Respond to interactor style events
+    virtual void OnInteractorStyleEvent(int eventid) VTK_OVERRIDE;
+
+
     // Map SeedNode -- PolygonSurfaceSource
     std::map<vtkMRMLVesselSegmentationSeedNode*,
       vtkSmartPointer<vtkPointSource> > SeedMap;
@@ -187,11 +189,16 @@ vtkMRMLVesselSegmentationDisplayableManager2D
       vtkSmartPointer<vtkActor2D> >::iterator SeedActorIt;
 
   private:
+    bool observingSliceNode;
+    bool observingSliceView;
+    vtkWeakPointer<vtkMRMLVesselSegmentationSeedNode> currentSeedNode;
+    vtkNew<vtkCallbackCommand> MouseClickCommand;
+    
+    static void OnMouseClick(vtkObject *caller, unsigned long int id, void *clientData, void *callerData);
+
     vtkMRMLVesselSegmentationDisplayableManager2D(
       const vtkMRMLVesselSegmentationDisplayableManager2D&);
     void operator=(const vtkMRMLVesselSegmentationDisplayableManager2D&);
-
-    static bool placingSeeds;
 };
 
 #endif /* defined(__VesselSeg__vtkMRMLVesselSegmentationDisplayableManager_h) */

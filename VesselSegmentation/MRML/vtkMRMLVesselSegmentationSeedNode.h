@@ -125,6 +125,11 @@ public:
    * @return value of seed2 double* x,y,z.
    */
   vtkGetVector3Macro(Seed2, double);
+  
+  
+  vtkSetClampMacro(CurrentSeedState, int, 0, 2);
+  //vtkSetMacro(CurrentSeedState, int);
+  vtkGetMacro(CurrentSeedState, int);
 
 protected:
   vtkMRMLVesselSegmentationSeedNode();
@@ -135,6 +140,7 @@ protected:
 
   double Seed1 [3];
   double Seed2 [3];
+  int CurrentSeedState; // 0 no seeds, 1 seed, 2 seeds
 };
 
 

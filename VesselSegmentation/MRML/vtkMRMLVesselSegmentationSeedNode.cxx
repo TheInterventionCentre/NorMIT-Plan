@@ -61,6 +61,7 @@ vtkMRMLVesselSegmentationSeedNode::vtkMRMLVesselSegmentationSeedNode()
   this->Seed2[1] = 0.0;
   this->Seed2[2] = 0.0;
 
+  this->CurrentSeedState = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -78,6 +79,7 @@ void vtkMRMLVesselSegmentationSeedNode::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Seed1: " << this->Seed1 << "\n";
   os << indent << "Seed2: " << this->Seed2 << "\n";
+  os << indent << "current seed state: " << this->CurrentSeedState << "\n";
 }
 
 
