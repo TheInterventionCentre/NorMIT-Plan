@@ -152,12 +152,19 @@ public:
       vtkSmartPointer<vtkRenderWindowInteractor>::New();
     renderWindowInteractor->SetRenderWindow(renderWindow);
 
+    vtkSmartPointer<vtkMRMLVesselSegmentationSeedNode> node =
+      vtkSmartPointer<vtkMRMLVesselSegmentationSeedNode>::New();
+    double *pos = new double[3];
+    pos[0] = 1;
+    pos[1] = 1;
+    pos[2] = 1;
+    node->SetCurrentSeedState(1);
+    node->SetSeed1(pos);
+    scene->AddNode(node);
+
     this->Superclass::SetRenderer(renderer);
     this->Superclass::SetMRMLSceneInternal(scene);
     this->Superclass::SetAndObserveMRMLDisplayableNode(sliceNode);
-
-    vtkSmartPointer<vtkMRMLVesselSegmentationSeedNode> node =
-      vtkSmartPointer<vtkMRMLVesselSegmentationSeedNode>::New();
 
     TESTING_OUTPUT_RESET();
     this->Superclass::AddRepresentation(node);
@@ -586,7 +593,8 @@ public:
     this->Superclass::ProcessMRMLNodesEvents(seedNode,
                                              vtkCommand::ModifiedEvent,
                                              NULL);
-    TESTING_OUTPUT_ASSERT_ERRORS(0);
+    // expect error: Seed node is not currently handled by the displayable manager
+    TESTING_OUTPUT_ASSERT_ERRORS(1);
     TESTING_OUTPUT_RESET();
   }
 
@@ -622,16 +630,19 @@ public:
 
     vtkSmartPointer<vtkMRMLVesselSegmentationSeedNode> seedNode =
       vtkSmartPointer<vtkMRMLVesselSegmentationSeedNode>::New();
+    double *pos = new double[3];
+    pos[0] = 1;
+    pos[1] = 1;
+    pos[2] = 1;
+    seedNode->SetCurrentSeedState(1);
+    seedNode->SetSeed1(pos);
     scene->AddNode(seedNode);
+
+    this->Superclass::AddRepresentation(seedNode);
 
     TESTING_OUTPUT_RESET();
     this->Superclass::ProcessMRMLNodesEvents(seedNode,
                                              vtkCommand::ModifiedEvent,
-                                             NULL);
-
-    this->Superclass::ProcessMRMLNodesEvents(seedNode,
-                                             vtkMRMLDisplayableNode::
-                                             DisplayModifiedEvent,
                                              NULL);
     TESTING_OUTPUT_ASSERT_ERRORS(0);
     TESTING_OUTPUT_RESET();

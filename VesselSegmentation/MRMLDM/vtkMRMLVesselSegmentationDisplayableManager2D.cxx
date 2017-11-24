@@ -377,13 +377,13 @@ void vtkMRMLVesselSegmentationDisplayableManager2D::UpdateFromMRML()
 
   for(int n=0; n<nNodes; n++)
     {
-
     vtkMRMLVesselSegmentationSeedNode *seedNode =
         vtkMRMLVesselSegmentationSeedNode::SafeDownCast(dNodes[n]);
 
-    SeedActorIt it1 = Seed1ActorMap.find(this->currentSeedNode);
-    SeedActorIt it2 = Seed2ActorMap.find(this->currentSeedNode);
-    if (it1 != Seed1ActorMap.end() && it2 != Seed2ActorMap.end())
+    SeedActorIt it1 = this->Seed1ActorMap.find(seedNode);
+    SeedActorIt it2 = this->Seed2ActorMap.find(seedNode);
+    // find a representation for seed1 or seed2 (or both)
+    if (it1 != this->Seed1ActorMap.end() || it2 != this->Seed2ActorMap.end())
       {
       //this->UpdateGeometry(seedNode);
       }
@@ -409,6 +409,7 @@ ProcessMRMLNodesEvents(vtkObject *caller,
     // Check whether the manager is handling the node
     SeedActorIt it1 = this->Seed1ActorMap.find(seedNode);
     SeedActorIt it2 = this->Seed2ActorMap.find(seedNode);
+    // look for an existing representation (for seed1 or seed2)
     if (it1 == this->Seed1ActorMap.end() && it2 == this->Seed2ActorMap.end())
       {
       vtkErrorMacro("Seed node is not currently "
@@ -503,7 +504,7 @@ void vtkMRMLVesselSegmentationDisplayableManager2D::OnInteractorEvent(int eventi
        return;
        }
      SeedActorIt it2 = Seed2ActorMap.find(this->currentSeedNode);
-     if (it1 != Seed2ActorMap.end() && state == 2)
+     if (it2 != Seed2ActorMap.end() && state == 2)
        {
        return;
        }
@@ -664,6 +665,7 @@ AddRepresentation(vtkMRMLVesselSegmentationSeedNode *node)
     vtkSmartPointer<vtkPolyDataMapper2D> mapper =
       vtkSmartPointer<vtkPolyDataMapper2D>::New();
     mapper->SetInputConnection(polygonSource->GetOutputPort());
+    mapper->GlobalWarningDisplayOff();
 
     // Set the actor
     vtkSmartPointer<vtkActor2D> actor =
@@ -671,6 +673,8 @@ AddRepresentation(vtkMRMLVesselSegmentationSeedNode *node)
     actor->SetMapper(mapper);
     actor->GetProperty()->SetLineWidth(2);
     actor->GetProperty()->SetColor(1,0,0); // colour
+
+    std::cout << "AddRepresentation - set up stuff " << std::endl;
 
     if(node->GetCurrentSeedState() == 1)
       {
@@ -681,7 +685,7 @@ AddRepresentation(vtkMRMLVesselSegmentationSeedNode *node)
       // Register the actor
       this->Seed1ActorMap[node] = actor;
       }
-    if(node->GetCurrentSeedState() == 2)
+    else if(node->GetCurrentSeedState() == 2)
       {
       // Register seed point source
       this->Seed2Map[node] = polygonSource;
@@ -691,10 +695,13 @@ AddRepresentation(vtkMRMLVesselSegmentationSeedNode *node)
       this->Seed2ActorMap[node] = actor;
       }
 
-    this->GetRenderer()->AddActor2D(actor.GetPointer());
+    std::cout << "AddRepresentation - after setting up stuff " << std::endl;
+    this->GetRenderer()->AddActor2D(actor);
+    std::cout << "AddRepresentation - after actor " << std::endl;
 
     //this->UpdateGeometry(node);
     this->RequestRender();
+    std::cout << "AddRepresentation - after request render " << std::endl;
 
     return true;
     }
