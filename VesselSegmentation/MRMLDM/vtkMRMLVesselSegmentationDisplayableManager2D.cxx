@@ -341,10 +341,7 @@ OnMRMLSceneNodeRemoved(vtkMRMLNode *node)
 void vtkMRMLVesselSegmentationDisplayableManager2D::UpdateFromMRMLScene()
 {
   vtkDebugMacro("UpdateFromMRMLScene");
-  if(this->GetMRMLSliceNode())
-    {
-    this->UpdateFromMRML();
-    }
+  this->RequestRender();
 }
 
 //------------------------------------------------------------------------------
