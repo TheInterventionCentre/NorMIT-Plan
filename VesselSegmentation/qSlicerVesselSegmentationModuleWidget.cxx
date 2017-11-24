@@ -66,7 +66,7 @@
 #include <qSlicerCoreApplication.h>
 #include <qSlicerApplication.h>
 #include <qSlicerIO.h>
-#include <vtkMRMLVesselSegmentationDisplayableManager2D.h>
+#include "vtkMRMLVesselSegmentationDisplayableManager2D.h"
 
 # include "qSlicerCorePythonManager.h"
 
@@ -238,7 +238,7 @@ void qSlicerVesselSegmentationModuleWidget::onPreprocessing(int lowerThreshold, 
      return;
      }
 
-   std::cout << "Widget - changing interaction mode to 10 " << std::endl;
+   std::cout << "Widget - change state of DM to placing seeds " << std::endl;
    // change if in mode for placing seeds or not (this just gets changed back to 2 by slicer in a short time...)
    interactionNode->SetCurrentInteractionMode(10);
    // right now we just add a seed...

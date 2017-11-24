@@ -46,7 +46,7 @@
 //Slicer includes
 #include "vtkSlicerVesselSegmentationModuleMRMLDisplayableManagerExport.h"
 
-class vtkPointSource;
+class vtkRegularPolygonSource;
 class vtkCallbackCommand;
 class vtkMatrix4x4;
 class vtkActor2D;
@@ -81,14 +81,9 @@ vtkMRMLVesselSegmentationDisplayableManager2D
      */
     void PrintSelf(ostream& os, vtkIndent indent);
     
-    vtkGetMacro(PlacingSeeds, bool);
-    vtkSetMacro(PlacingSeeds, bool);
-    
   protected:
     vtkMRMLVesselSegmentationDisplayableManager2D();
     virtual ~vtkMRMLVesselSegmentationDisplayableManager2D();
-    
-    bool PlacingSeeds;
     
     /**
      * Sets a new scene.
@@ -110,18 +105,23 @@ vtkMRMLVesselSegmentationDisplayableManager2D
     virtual void OnMRMLSceneNodeAdded(vtkMRMLNode *node);
 
     /**
-     * Callback controlling actions on node modified.
-     *
-     * @param node pointer to the modified node.
-     */
-    virtual void OnMRMLNodeModified(vtkMRMLNode *node);
-
-    /**
      * Callback controlling actions on node removed from scene.
      *
      * @param node pointer to the node removed from the scene.
      */
     virtual void OnMRMLSceneNodeRemoved(vtkMRMLNode *node);
+
+    /**
+     * Render the scene due to changes in MRML scene.
+     *
+     */
+    void UpdateFromMRMLScene();
+
+    /**
+     * Update all the seed projections based on the seed nodes
+     *
+     */
+    void UpdateFromMRML();
 
     /**
      * Process MRML nodes events
@@ -145,18 +145,11 @@ vtkMRMLVesselSegmentationDisplayableManager2D
     /**
      * Creates the projection of the seed onto the slice
      *
-     * @param node seed node holding the position of the seed
+     * @param node seed node holding the geometry of the seed
      *
-     * @return true if the seed was successfully created, false otherwise.
+     * @return true if the representation was successfully created, false otherwise.
      */
-    bool AddSeed(vtkMRMLVesselSegmentationSeedNode *node);
-
-    /**
-     * Update the visibility of the projection of the seed node.
-     *
-     * @param node pointer to seed node to be used for the update.
-     */
-    void UpdateVisibility(vtkMRMLVesselSegmentationSeedNode *node);
+    bool AddRepresentation(vtkMRMLVesselSegmentationSeedNode *node);
 
     /**
      * Observe the slice node for modifications.
@@ -165,30 +158,43 @@ vtkMRMLVesselSegmentationDisplayableManager2D
      */
     void SetAndObserveSliceNode(vtkMRMLSliceNode *node);
     
-    /// respond to the interactor event
+    /**
+     * Respond to interactor events, particularly we are interested in
+     * when the user clicks on one of the slice views.
+     *
+     * @param event id.
+     */
     virtual void OnInteractorEvent(int eventid) VTK_OVERRIDE;
 
     // Map SeedNode -- PolygonSurfaceSource
     std::map<vtkMRMLVesselSegmentationSeedNode*,
-      vtkSmartPointer<vtkPointSource> > SeedMap;
+      vtkSmartPointer<vtkRegularPolygonSource> > Seed1Map;
+    std::map<vtkMRMLVesselSegmentationSeedNode*,
+      vtkSmartPointer<vtkRegularPolygonSource> > Seed2Map;
     typedef std::map<vtkMRMLVesselSegmentationSeedNode*,
-      vtkSmartPointer<vtkPointSource> >::iterator SeedIt;
+      vtkSmartPointer<vtkRegularPolygonSource> >::iterator SeedIt;
 
     //Map SeedNode -- Mapper
     std::map<vtkMRMLVesselSegmentationSeedNode*,
-      vtkSmartPointer<vtkPolyDataMapper2D> > SeedMapperMap;
+      vtkSmartPointer<vtkPolyDataMapper2D> > Seed1MapperMap;
+    std::map<vtkMRMLVesselSegmentationSeedNode*,
+      vtkSmartPointer<vtkPolyDataMapper2D> > Seed2MapperMap;
     typedef std::map<vtkMRMLVesselSegmentationSeedNode*,
       vtkSmartPointer<vtkPolyDataMapper2D> >::iterator SeedMapperIt;
 
     // Map seedNode -- Actor
     std::map<vtkMRMLVesselSegmentationSeedNode*,
-      vtkSmartPointer<vtkActor2D> > SeedActorMap;
+      vtkSmartPointer<vtkActor2D> > Seed1ActorMap;
+    std::map<vtkMRMLVesselSegmentationSeedNode*,
+      vtkSmartPointer<vtkActor2D> > Seed2ActorMap;
     typedef std::map<vtkMRMLVesselSegmentationSeedNode*,
       vtkSmartPointer<vtkActor2D> >::iterator SeedActorIt;
 
   private:
     bool observingSliceNode;
     vtkWeakPointer<vtkMRMLVesselSegmentationSeedNode> currentSeedNode;
+
+    double* GetCrosshairPosition();
 
     vtkMRMLVesselSegmentationDisplayableManager2D(
       const vtkMRMLVesselSegmentationDisplayableManager2D&);
