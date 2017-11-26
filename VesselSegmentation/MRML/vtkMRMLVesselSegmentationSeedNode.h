@@ -101,7 +101,7 @@ public:
    * @param value of seed1 double y.
    * @param value of seed1 double z.
    */
-  vtkSetVector3Macro(Seed1, double);
+  void SetSeed1(double x, double y, double z);
 
   /**
    * Set seed2
@@ -110,26 +110,35 @@ public:
    * @param value of seed2 double y.
    * @param value of seed2 double z.
    */
-  vtkGetVector3Macro(Seed1, double);
+  void SetSeed2(double x, double y, double z);
 
   /**
    * Get seed1
    *
    * @return value of seed1 double* x,y,z.
    */
-  vtkSetVector3Macro(Seed2, double);
+  double* GetSeed1();
 
   /**
    * Get seed2
    *
    * @return value of seed2 double* x,y,z.
    */
-  vtkGetVector3Macro(Seed2, double);
+  double* GetSeed2();
   
+  /**
+   * Get seed2 state (set or not set)
+   *
+   * @return value of seed1Set.
+   */
+  bool GetIsSeed1Set();
   
-  vtkSetClampMacro(CurrentSeedState, int, 0, 2);
-  //vtkSetMacro(CurrentSeedState, int);
-  vtkGetMacro(CurrentSeedState, int);
+  /**
+   * Get seed2 state (set or not set)
+   *
+   * @return value of seed2Set.
+   */
+  bool GetIsSeed2Set();
 
 protected:
   vtkMRMLVesselSegmentationSeedNode();
@@ -139,8 +148,9 @@ protected:
   void operator=(const vtkMRMLVesselSegmentationSeedNode&);
 
   double Seed1 [3];
+  bool Seed1Set;
   double Seed2 [3];
-  int CurrentSeedState; // 0 no seeds, 1 seed, 2 seeds
+  bool Seed2Set;
 };
 
 

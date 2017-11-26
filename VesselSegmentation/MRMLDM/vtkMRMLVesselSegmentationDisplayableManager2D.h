@@ -143,15 +143,6 @@ vtkMRMLVesselSegmentationDisplayableManager2D
     void SetAndObserveSeedNode(vtkMRMLVesselSegmentationSeedNode *node);
 
     /**
-     * Creates the projection of the seed onto the slice
-     *
-     * @param node seed node holding the geometry of the seed
-     *
-     * @return true if the representation was successfully created, false otherwise.
-     */
-    bool AddRepresentation(vtkMRMLVesselSegmentationSeedNode *node);
-
-    /**
      * Observe the slice node for modifications.
      *
      * @param pointer to a slice node.
@@ -166,28 +157,37 @@ vtkMRMLVesselSegmentationDisplayableManager2D
      */
     virtual void OnInteractorEvent(int eventid) VTK_OVERRIDE;
 
+    /**
+     * Creates the projection of the seed onto the slice
+     *
+     * @param node seed node holding the geometry of the seed
+     *
+     * @return true if the representation was successfully created, false otherwise.
+     */
+    bool AddRepresentation(vtkMRMLVesselSegmentationSeedNode *node);
+
     // Map SeedNode -- PolygonSurfaceSource
-    std::map<vtkMRMLVesselSegmentationSeedNode*,
+    std::map<vtkMRMLVesselSegmentationSeedNode *,
       vtkSmartPointer<vtkRegularPolygonSource> > Seed1Map;
-    std::map<vtkMRMLVesselSegmentationSeedNode*,
+    std::map<vtkMRMLVesselSegmentationSeedNode *,
       vtkSmartPointer<vtkRegularPolygonSource> > Seed2Map;
-    typedef std::map<vtkMRMLVesselSegmentationSeedNode*,
+    typedef std::map<vtkMRMLVesselSegmentationSeedNode *,
       vtkSmartPointer<vtkRegularPolygonSource> >::iterator SeedIt;
 
     //Map SeedNode -- Mapper
-    std::map<vtkMRMLVesselSegmentationSeedNode*,
+    std::map<vtkMRMLVesselSegmentationSeedNode *,
       vtkSmartPointer<vtkPolyDataMapper2D> > Seed1MapperMap;
-    std::map<vtkMRMLVesselSegmentationSeedNode*,
+    std::map<vtkMRMLVesselSegmentationSeedNode *,
       vtkSmartPointer<vtkPolyDataMapper2D> > Seed2MapperMap;
-    typedef std::map<vtkMRMLVesselSegmentationSeedNode*,
+    typedef std::map<vtkMRMLVesselSegmentationSeedNode *,
       vtkSmartPointer<vtkPolyDataMapper2D> >::iterator SeedMapperIt;
 
     // Map seedNode -- Actor
-    std::map<vtkMRMLVesselSegmentationSeedNode*,
+    std::map<vtkMRMLVesselSegmentationSeedNode *,
       vtkSmartPointer<vtkActor2D> > Seed1ActorMap;
-    std::map<vtkMRMLVesselSegmentationSeedNode*,
+    std::map<vtkMRMLVesselSegmentationSeedNode *,
       vtkSmartPointer<vtkActor2D> > Seed2ActorMap;
-    typedef std::map<vtkMRMLVesselSegmentationSeedNode*,
+    typedef std::map<vtkMRMLVesselSegmentationSeedNode *,
       vtkSmartPointer<vtkActor2D> >::iterator SeedActorIt;
 
   private:
