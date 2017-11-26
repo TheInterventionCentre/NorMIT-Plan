@@ -235,7 +235,7 @@ void vtkSlicerVesselSegmentationLogic::AddSeedNode()
   // Add a seed node
   vtkSmartPointer<vtkMRMLVesselSegmentationSeedNode> seedNode =
     vtkSmartPointer<vtkMRMLVesselSegmentationSeedNode>::New();
-  this->GetMRMLScene()->AddNode(seedNode);
+  this->GetMRMLScene()->AddNode(seedNode.GetPointer());
 }
 
 //---------------------------------------------------------------------------
