@@ -396,15 +396,19 @@ ProcessMRMLNodesEvents(vtkObject *caller,
                        unsigned long event,
                        void *callData)
 {
-
+  /*
   if (!this->GetMRMLScene())
     {
     vtkErrorMacro("No MRML scene.");
     return;
     }
+    */
 
   vtkMRMLVesselSegmentationSeedNode *seedNode =
       vtkMRMLVesselSegmentationSeedNode::SafeDownCast(caller);
+
+  vtkMRMLSliceNode *sliceNode =
+    vtkMRMLSliceNode::SafeDownCast(caller);
 
   if (seedNode)
     {
@@ -433,11 +437,7 @@ ProcessMRMLNodesEvents(vtkObject *caller,
         break;
       }
     }
-
-  vtkMRMLSliceNode *sliceNode =
-    vtkMRMLSliceNode::SafeDownCast(caller);
-
-  if (sliceNode)
+  else if (sliceNode)
     {
     std::cout << "DM - slice node event " << std::endl;
 
