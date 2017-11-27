@@ -235,11 +235,6 @@ OnMRMLSceneNodeAdded(vtkMRMLNode* addedNode)
       {
       this->SetAndObserveSliceNode(sliceNode);
       }
-    /*
-    vtkMRMLSliceNode *sliceNode = this->GetMRMLSliceNode();
-    std::cout << "DM - observing slice node " << std::endl;
-    this->SetAndObserveSliceNode(sliceNode);
-    */
     this->observingSliceNode = true;
     }
 
@@ -429,7 +424,7 @@ ProcessMRMLNodesEvents(vtkObject *caller,
       {
       case vtkCommand::ModifiedEvent:
         std::cout << "DM - seed node event: ModifiedEvent " << std::endl;
-        //this->UpdateGeometry(seedNode);
+        //this->UpdateVisibilityOnSlice(seedNode);
         break;
       case vtkMRMLDisplayableNode::DisplayModifiedEvent:
         break;
@@ -439,22 +434,17 @@ ProcessMRMLNodesEvents(vtkObject *caller,
     }
   else if (sliceNode)
     {
-    std::cout << "DM - slice node event " << std::endl;
-
-    // Update all seed projections
-    SeedActorIt it1;
-    for (it1=this->Seed1ActorMap.begin();
-         it1!=this->Seed1ActorMap.end();
-         it1++)
+    switch(event)
       {
-      //this->UpdateGeometry(it->first);
-      }
-    SeedActorIt it2;
-    for (it2=this->Seed2ActorMap.begin();
-         it2!=this->Seed2ActorMap.end();
-         it2++)
-      {
-      //this->UpdateGeometry(it->first);
+      case vtkCommand::ModifiedEvent:
+        std::cout << "DM - slice node event: ModifiedEvent " << std::endl;
+        if(this->currentSeedNode != NULL)
+          {
+          this->UpdateVisibilityOnSlice(this->currentSeedNode);
+          }
+        break;
+      default:
+        break;
       }
     }
   else
@@ -502,6 +492,7 @@ void vtkMRMLVesselSegmentationDisplayableManager2D::OnInteractorEvent(int eventi
             {
             // both seeds already set
             std::cout << "DM - both seeds already set" << std::endl;
+            return;
             }
           }
         break;
@@ -714,12 +705,95 @@ AddRepresentation(vtkMRMLVesselSegmentationSeedNode *node)
 
     this->GetRenderer()->AddActor2D(actor);
 
-    //this->UpdateGeometry(node);
     this->RequestRender();
-    std::cout << "AddRepresentation - pointer to actor: " << actor << std::endl;
 
     return true;
     }
 
   return false;
+}
+
+//------------------------------------------------------------------------------
+void vtkMRMLVesselSegmentationDisplayableManager2D::
+UpdateVisibilityOnSlice(vtkMRMLVesselSegmentationSeedNode *node)
+{
+  std::cout << "DM - UpdateVisibilityOnSlice " << std::endl;
+
+  if (!node)
+    {
+    vtkErrorMacro("No seed node passed");
+    return;
+    }
+
+  // Check for slice node
+  if (!this->GetMRMLSliceNode())
+    {
+    vtkErrorMacro("No slice node.");
+    return;
+    }
+
+  // Check whether the manager is handling the node
+  SeedActorIt it1 = this->Seed1ActorMap.find(node);
+  SeedActorIt it2 = this->Seed2ActorMap.find(node);
+  // look for an existing representation (for seed1 or seed2)
+  if (it1 == this->Seed1ActorMap.end() && it2 == this->Seed2ActorMap.end())
+    {
+    vtkErrorMacro("Seed node is not currently "
+                  << "handled by the displayable manager");
+    return;
+    }
+  // else at least one is being handled by the manager
+
+  // Compute the slice normal
+  vtkMatrix4x4 *sliceToRASMatrix = this->GetMRMLSliceNode()->GetSliceToRAS();
+
+  double slicePlaneNormal[3];
+  slicePlaneNormal[0] = sliceToRASMatrix->GetElement(0,2);
+  slicePlaneNormal[1] = sliceToRASMatrix->GetElement(1,2);
+  slicePlaneNormal[2] = sliceToRASMatrix->GetElement(2,2);
+  double slicePlaneOrigin[3];
+  slicePlaneOrigin[0] = sliceToRASMatrix->GetElement(0,3);
+  slicePlaneOrigin[1] = sliceToRASMatrix->GetElement(1,3);
+  slicePlaneOrigin[2] = sliceToRASMatrix->GetElement(2,3);
+
+  if(it1 != this->Seed1ActorMap.end())
+    {
+    double *pos1 = node->GetSeed1();
+    int distanceToSeed = slicePlaneNormal[0]*(pos1[0]-slicePlaneOrigin[0]) +
+        slicePlaneNormal[1]*(pos1[1]-slicePlaneOrigin[1]) +
+        slicePlaneNormal[2]*(pos1[2]-slicePlaneOrigin[2]);
+
+    std::cout << "distance to seed1: " << distanceToSeed << std::endl;
+    if(distanceToSeed == 0)
+      {
+      vtkActor2D *actor = it1->second;
+      actor->SetVisibility(true);
+      }
+    else
+      {
+      vtkActor2D *actor = it1->second;
+      actor->SetVisibility(false);
+      }
+    }
+  else if(it2 != this->Seed2ActorMap.end())
+    {
+    double *pos2 = node->GetSeed2();
+    int distanceToSeed = slicePlaneNormal[0]*(pos2[0]-slicePlaneOrigin[0]) +
+        slicePlaneNormal[1]*(pos2[1]-slicePlaneOrigin[1]) +
+        slicePlaneNormal[2]*(pos2[2]-slicePlaneOrigin[2]);
+
+    std::cout << "distance to seed2: " << distanceToSeed << std::endl;
+    if(distanceToSeed == 0)
+      {
+      vtkActor2D *actor = it2->second;
+      actor->SetVisibility(true);
+      }
+    else
+      {
+      vtkActor2D *actor = it2->second;
+      actor->SetVisibility(false);
+      }
+    }
+  this->RequestRender();
+
 }

@@ -158,7 +158,7 @@ public:
     vtkSmartPointer<vtkMRMLVesselSegmentationSeedNode> node =
       vtkSmartPointer<vtkMRMLVesselSegmentationSeedNode>::New();
     node->SetSeed1(1,1,1);
-    scene->AddNode(node.GetPointer());
+    //scene->AddNode(node.GetPointer());
 
     this->Superclass::SetRenderer(renderer.GetPointer());
     this->Superclass::SetMRMLSceneInternal(scene.GetPointer());
@@ -170,6 +170,115 @@ public:
     TESTING_OUTPUT_ASSERT_ERRORS(0);
     TESTING_OUTPUT_RESET();
     std::cout << "AddRepresentationTest4, expect: no errors" << std::endl;
+  }
+
+  void UpdateVisibilityOnSliceTest1()
+  {
+    this->Superclass::SetRenderer(NULL);
+    this->Superclass::SetMRMLScene(NULL);
+    this->Superclass::SetAndObserveMRMLDisplayableNode(NULL);
+
+    TESTING_OUTPUT_RESET();
+    this->Superclass::UpdateVisibilityOnSlice(NULL);
+    // expect error: no seed node passed
+    TESTING_OUTPUT_ASSERT_ERRORS(1);
+    TESTING_OUTPUT_RESET();
+    std::cout << "UpdateVisibilityOnSliceTest1, expect: no seed node passed" << std::endl;
+  }
+
+  void UpdateVisibilityOnSliceTest2()
+  {
+    vtkSmartPointer<vtkMRMLVesselSegmentationSeedNode> node =
+      vtkSmartPointer<vtkMRMLVesselSegmentationSeedNode>::New();
+
+    this->Superclass::SetRenderer(NULL);
+    this->Superclass::SetMRMLScene(NULL);
+    this->Superclass::SetAndObserveMRMLDisplayableNode(NULL);
+
+    TESTING_OUTPUT_RESET();
+    this->Superclass::UpdateVisibilityOnSlice(node.GetPointer());
+    // expect error: no slice node
+    TESTING_OUTPUT_ASSERT_ERRORS(1);
+    TESTING_OUTPUT_RESET();
+    std::cout << "UpdateVisibilityOnSliceTest2, expect: no slice node" << std::endl;
+  }
+
+  void UpdateVisibilityOnSliceTest3()
+  {
+    vtkSmartPointer<vtkMRMLScene> scene =
+      vtkSmartPointer<vtkMRMLScene>::New();
+
+    vtkSmartPointer<vtkMRMLSliceNode> sliceNode =
+      vtkSmartPointer<vtkMRMLSliceNode>::New();
+
+    vtkSmartPointer<vtkMRMLSelectionNode> selectionNode =
+        vtkSmartPointer<vtkMRMLSelectionNode>::New();
+
+    vtkSmartPointer<vtkMRMLInteractionNode> interactionNode =
+        vtkSmartPointer<vtkMRMLInteractionNode>::New();
+
+    scene->AddNode(sliceNode.GetPointer());
+    scene->AddNode(selectionNode.GetPointer());
+    scene->AddNode(interactionNode.GetPointer());
+
+    this->Superclass::SetRenderer(NULL);
+    this->Superclass::SetMRMLSceneInternal(scene.GetPointer());
+    this->Superclass::SetAndObserveMRMLDisplayableNode(sliceNode.GetPointer());
+
+    vtkSmartPointer<vtkMRMLVesselSegmentationSeedNode> node =
+      vtkSmartPointer<vtkMRMLVesselSegmentationSeedNode>::New();
+
+    TESTING_OUTPUT_RESET();
+    this->Superclass::UpdateVisibilityOnSlice(node.GetPointer());
+    // expect error: Seed node is not currently handled by the displayable manager
+    TESTING_OUTPUT_ASSERT_ERRORS(1);
+    TESTING_OUTPUT_RESET();
+    std::cout << "AddRepresentationTest3, expect: Seed node is not currently... " << std::endl;
+  }
+
+  void UpdateVisibilityOnSliceTest4()
+  {
+    vtkSmartPointer<vtkMRMLScene> scene =
+      vtkSmartPointer<vtkMRMLScene>::New();
+
+    vtkSmartPointer<vtkMRMLSliceNode> sliceNode =
+      vtkSmartPointer<vtkMRMLSliceNode>::New();
+
+    vtkSmartPointer<vtkMRMLSelectionNode> selectionNode =
+        vtkSmartPointer<vtkMRMLSelectionNode>::New();
+
+    vtkSmartPointer<vtkMRMLInteractionNode> interactionNode =
+        vtkSmartPointer<vtkMRMLInteractionNode>::New();
+
+    scene->AddNode(sliceNode.GetPointer());
+    scene->AddNode(selectionNode.GetPointer());
+    scene->AddNode(interactionNode.GetPointer());
+
+    vtkSmartPointer<vtkRenderer> renderer =
+      vtkSmartPointer<vtkRenderer>::New();
+    vtkSmartPointer<vtkRenderWindow> renderWindow =
+      vtkSmartPointer<vtkRenderWindow>::New();
+    renderWindow->AddRenderer(renderer.GetPointer());
+    vtkSmartPointer<vtkRenderWindowInteractor> renderWindowInteractor =
+      vtkSmartPointer<vtkRenderWindowInteractor>::New();
+    renderWindowInteractor->SetRenderWindow(renderWindow.GetPointer());
+
+    vtkSmartPointer<vtkMRMLVesselSegmentationSeedNode> node =
+      vtkSmartPointer<vtkMRMLVesselSegmentationSeedNode>::New();
+    node->SetSeed1(1,1,1);
+    //scene->AddNode(node.GetPointer());
+
+    this->Superclass::SetRenderer(renderer.GetPointer());
+    this->Superclass::SetMRMLSceneInternal(scene.GetPointer());
+    this->Superclass::SetAndObserveMRMLDisplayableNode(sliceNode.GetPointer());
+
+    this->Superclass::AddRepresentation(node.GetPointer());
+
+    TESTING_OUTPUT_RESET();
+    this->Superclass::UpdateVisibilityOnSlice(node.GetPointer());
+    TESTING_OUTPUT_ASSERT_ERRORS(0);
+    TESTING_OUTPUT_RESET();
+    std::cout << "UpdateVisibilityOnSliceTest4, expect: no errors" << std::endl;
   }
 
   void OnMRMLSceneNodeAddedTest1()
@@ -634,7 +743,7 @@ public:
     vtkSmartPointer<vtkMRMLVesselSegmentationSeedNode> seedNode =
       vtkSmartPointer<vtkMRMLVesselSegmentationSeedNode>::New();
     seedNode->SetSeed1(1,1,1);
-    scene->AddNode(seedNode.GetPointer());
+    //scene->AddNode(seedNode.GetPointer());
 
     this->Superclass::AddRepresentation(seedNode.GetPointer());
 
@@ -692,6 +801,24 @@ int vtkMRMLVesselSegmentationDisplayableManager2DTest1(int, char *[])
   displayableManagerTest =
     vtkSmartPointer<vtkMRMLVesselSegmentationDisplayableManager2DTest>::New();
   displayableManagerTest->AddRepresentationTest4();
+  */
+
+  displayableManagerTest =
+    vtkSmartPointer<vtkMRMLVesselSegmentationDisplayableManager2DTest>::New();
+  displayableManagerTest->UpdateVisibilityOnSliceTest1();
+
+  displayableManagerTest =
+    vtkSmartPointer<vtkMRMLVesselSegmentationDisplayableManager2DTest>::New();
+  displayableManagerTest->UpdateVisibilityOnSliceTest2();
+
+  displayableManagerTest =
+    vtkSmartPointer<vtkMRMLVesselSegmentationDisplayableManager2DTest>::New();
+  displayableManagerTest->UpdateVisibilityOnSliceTest3();
+
+  /*
+  displayableManagerTest =
+    vtkSmartPointer<vtkMRMLVesselSegmentationDisplayableManager2DTest>::New();
+  displayableManagerTest->UpdateVisibilityOnSliceTest4();
   */
 
   displayableManagerTest =

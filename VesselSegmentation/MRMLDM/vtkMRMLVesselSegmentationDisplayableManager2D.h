@@ -166,6 +166,8 @@ vtkMRMLVesselSegmentationDisplayableManager2D
      */
     bool AddRepresentation(vtkMRMLVesselSegmentationSeedNode *node);
 
+    void UpdateVisibilityOnSlice(vtkMRMLVesselSegmentationSeedNode *node);
+
     // Map SeedNode -- PolygonSurfaceSource
     std::map<vtkMRMLVesselSegmentationSeedNode *,
       vtkSmartPointer<vtkRegularPolygonSource> > Seed1Map;
