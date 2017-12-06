@@ -158,7 +158,7 @@ public:
     vtkSmartPointer<vtkMRMLVesselSegmentationSeedNode> node =
       vtkSmartPointer<vtkMRMLVesselSegmentationSeedNode>::New();
     node->SetSeed1(1,1,1);
-    //scene->AddNode(node.GetPointer());
+    scene->AddNode(node.GetPointer());
 
     this->Superclass::SetRenderer(renderer.GetPointer());
     this->Superclass::SetMRMLSceneInternal(scene.GetPointer());
@@ -233,7 +233,7 @@ public:
     // expect error: Seed node is not currently handled by the displayable manager
     TESTING_OUTPUT_ASSERT_ERRORS(1);
     TESTING_OUTPUT_RESET();
-    std::cout << "AddRepresentationTest3, expect: Seed node is not currently... " << std::endl;
+    std::cout << "UpdateVisibilityOnSliceTest3, expect: Seed node is not currently... " << std::endl;
   }
 
   void UpdateVisibilityOnSliceTest4()
@@ -266,7 +266,7 @@ public:
     vtkSmartPointer<vtkMRMLVesselSegmentationSeedNode> node =
       vtkSmartPointer<vtkMRMLVesselSegmentationSeedNode>::New();
     node->SetSeed1(1,1,1);
-    //scene->AddNode(node.GetPointer());
+    scene->AddNode(node.GetPointer());
 
     this->Superclass::SetRenderer(renderer.GetPointer());
     this->Superclass::SetMRMLSceneInternal(scene.GetPointer());
@@ -283,7 +283,6 @@ public:
 
   void OnMRMLSceneNodeAddedTest1()
   {
-    std::cout << "OnMRMLSceneNodeAddedTest1 " << std::endl;
     this->Superclass::SetRenderer(NULL);
     this->Superclass::SetMRMLScene(NULL);
     this->Superclass::SetAndObserveMRMLDisplayableNode(NULL);
@@ -294,6 +293,7 @@ public:
     this->Superclass::OnMRMLSceneNodeAdded(NULL);
     TESTING_OUTPUT_ASSERT_ERRORS(1);
     TESTING_OUTPUT_RESET();
+    std::cout << "OnMRMLSceneNodeAddedTest1, expect: no node passed" << std::endl;
   }
 
   void OnMRMLSceneNodeAddedTest2()
@@ -311,6 +311,7 @@ public:
     this->Superclass::OnMRMLSceneNodeAdded(node.GetPointer());
     TESTING_OUTPUT_ASSERT_ERRORS(1);
     TESTING_OUTPUT_RESET();
+    std::cout << "OnMRMLSceneNodeAddedTest2, expect: no MRML scene has been set" << std::endl;
   }
 
   void OnMRMLSceneNodeAddedTest3()
@@ -340,6 +341,7 @@ public:
     this->Superclass::OnMRMLSceneNodeAdded(node.GetPointer());
     TESTING_OUTPUT_ASSERT_ERRORS(1);
     TESTING_OUTPUT_RESET();
+    std::cout << "OnMRMLSceneNodeAddedTest3, expect: no renderer" << std::endl;
   }
 
   void OnMRMLSceneNodeAddedTest4()
@@ -378,6 +380,7 @@ public:
     this->Superclass::OnMRMLSceneNodeAdded(node.GetPointer());
     TESTING_OUTPUT_ASSERT_ERRORS(1);
     TESTING_OUTPUT_RESET();
+    std::cout << "OnMRMLSceneNodeAddedTest4, expect: no slice node present" << std::endl;
   }
 
   void OnMRMLSceneNodeAddedTest5()
@@ -412,12 +415,14 @@ public:
 
     vtkSmartPointer<vtkMRMLVesselSegmentationSeedNode> node =
       vtkSmartPointer<vtkMRMLVesselSegmentationSeedNode>::New();
+    scene->AddNode(node.GetPointer());
 
     this->Superclass::GlobalWarningDisplayOn();
     TESTING_OUTPUT_RESET();
     this->Superclass::OnMRMLSceneNodeAdded(node.GetPointer());
     TESTING_OUTPUT_ASSERT_ERRORS(0);
     TESTING_OUTPUT_RESET();
+    std::cout << "OnMRMLSceneNodeAddedTest5 " << std::endl;
   }
 
   void SetAndObserveResectionNodeTest1()
@@ -426,6 +431,7 @@ public:
     this->Superclass::SetAndObserveSeedNode(NULL);
     TESTING_OUTPUT_ASSERT_ERRORS(1);
     TESTING_OUTPUT_RESET();
+    std::cout << "SetAndObserveResectionNodeTest1 " << std::endl;
   }
 
   void SetAndObserveResectionNodeTest2()
@@ -436,6 +442,7 @@ public:
     this->Superclass::SetAndObserveSeedNode(node.GetPointer());
     TESTING_OUTPUT_ASSERT_ERRORS(0);
     TESTING_OUTPUT_RESET();
+    std::cout << "SetAndObserveResectionNodeTest2 " << std::endl;
   }
 
   void SetAndObserveSliceNodeTest1()
@@ -444,6 +451,7 @@ public:
     this->Superclass::SetAndObserveSliceNode(NULL);
     TESTING_OUTPUT_ASSERT_ERRORS(1);
     TESTING_OUTPUT_RESET();
+    std::cout << "SetAndObserveSliceNodeTest1 " << std::endl;
   }
 
   void SetAndObserveSliceNodeTest2()
@@ -454,6 +462,7 @@ public:
     this->Superclass::SetAndObserveSliceNode(node.GetPointer());
     TESTING_OUTPUT_ASSERT_ERRORS(0);
     TESTING_OUTPUT_RESET();
+    std::cout << "SetAndObserveSliceNodeTest2 " << std::endl;
   }
 
   void OnMRMLSceneNodeRemovedTest1()
@@ -462,6 +471,7 @@ public:
     this->Superclass::OnMRMLSceneNodeRemoved(NULL);
     TESTING_OUTPUT_ASSERT_ERRORS(1);
     TESTING_OUTPUT_RESET();
+    std::cout << "OnMRMLSceneNodeRemovedTest1 " << std::endl;
   }
 
   void OnMRMLSceneNodeRemovedTest2()
@@ -473,6 +483,7 @@ public:
     this->Superclass::OnMRMLSceneNodeRemoved(node.GetPointer());
     TESTING_OUTPUT_ASSERT_ERRORS(1);
     TESTING_OUTPUT_RESET();
+    std::cout << "OnMRMLSceneNodeRemovedTest2 " << std::endl;
   }
 
   void OnMRMLSceneNodeRemovedTest3()
@@ -495,6 +506,7 @@ public:
     this->Superclass::OnMRMLSceneNodeRemoved(node.GetPointer());
     TESTING_OUTPUT_ASSERT_ERRORS(1);
     TESTING_OUTPUT_RESET();
+    std::cout << "OnMRMLSceneNodeRemovedTest3 " << std::endl;
   }
 
   void OnMRMLSceneNodeRemovedTest4()
@@ -521,6 +533,7 @@ public:
     this->Superclass::OnMRMLSceneNodeRemoved(node.GetPointer());
     TESTING_OUTPUT_ASSERT_ERRORS(0);
     TESTING_OUTPUT_RESET();
+    std::cout << "OnMRMLSceneNodeRemovedTest4 " << std::endl;
   }
 
   void UpdateFromMRMLTest1()
@@ -710,8 +723,6 @@ public:
 
   void ProcessMRMLNodesEventsTest3()
   {
-    std::cout << "ProcessMRMLNodesEventsTest3" << std::endl;
-
     vtkSmartPointer<vtkRenderer> renderer =
       vtkSmartPointer<vtkRenderer>::New();
     vtkSmartPointer<vtkRenderWindow> renderWindow =
@@ -743,7 +754,7 @@ public:
     vtkSmartPointer<vtkMRMLVesselSegmentationSeedNode> seedNode =
       vtkSmartPointer<vtkMRMLVesselSegmentationSeedNode>::New();
     seedNode->SetSeed1(1,1,1);
-    //scene->AddNode(seedNode.GetPointer());
+    scene->AddNode(seedNode.GetPointer());
 
     this->Superclass::AddRepresentation(seedNode.GetPointer());
 
@@ -753,6 +764,7 @@ public:
                                              NULL);
     TESTING_OUTPUT_ASSERT_ERRORS(0);
     TESTING_OUTPUT_RESET();
+    std::cout << "ProcessMRMLNodesEventsTest3" << std::endl;
   }
 
   void PrintSelfTest1()
