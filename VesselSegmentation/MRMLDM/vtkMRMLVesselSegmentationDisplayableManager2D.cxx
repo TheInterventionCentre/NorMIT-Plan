@@ -34,6 +34,7 @@
 
 #include "vtkSlicerVesselSegmentationLogic.h"
 #include "vtkMRMLVesselSegmentationSeedNode.h"
+#include "qSlicerVesselSegmentationModuleWidget.h"
 #include "vtkMRMLVesselSegmentationDisplayableManager2D.h"
 
 // MRML includes
@@ -215,8 +216,7 @@ OnMRMLSceneNodeAdded(vtkMRMLNode* addedNode)
     return;
     }
 
-  // TODO: observe all seed nodes added to scene
-  // Check this is a seed node.
+  // Check if this is a seed node.
   vtkMRMLVesselSegmentationSeedNode *seedNode =
       vtkMRMLVesselSegmentationSeedNode::SafeDownCast(addedNode);
 
@@ -224,11 +224,14 @@ OnMRMLSceneNodeAdded(vtkMRMLNode* addedNode)
     {
     this->SetAndObserveSeedNode(seedNode);
     this->currentSeedNode = seedNode;
-    std::cout << "DM - Set current seed node: " << currentSeedNode.GetPointer() << std::endl;
+    std::cout << "DM - Set current seed node: " <<
+        currentSeedNode.GetPointer()->GetID() <<
+        " "<< currentSeedNode.GetPointer() << std::endl;
     }
 
   else if (this->observingSliceNode == false)
     {
+    // Check if this is a slice node.
     vtkMRMLSliceNode *sliceNode =
       vtkMRMLSliceNode::SafeDownCast(addedNode);
     if (sliceNode)
@@ -272,7 +275,6 @@ OnMRMLSceneNodeRemoved(vtkMRMLNode *node)
     {
     return;
     }
-
   else if (seedNode)
     {
     // Check if the node is in our association map (actors)
@@ -319,7 +321,6 @@ OnMRMLSceneNodeRemoved(vtkMRMLNode *node)
       {
       this->Seed2Map.erase(seedIt2);
       }
-
     // Remove the observations from the node
     vtkUnObserveMRMLNodeMacro(seedNode);
     }
@@ -358,6 +359,9 @@ void vtkMRMLVesselSegmentationDisplayableManager2D::UpdateFromMRML()
     vtkDebugMacro("skipping update during render");
     return;
     }
+
+  // not needed? also node is a singleton
+  /*
   std::vector<vtkMRMLNode*> dNodes;
   int nNodes =
     scene ? scene->GetNodesByClass("vtkMRMLSeedNode", dNodes):0;
@@ -383,6 +387,7 @@ void vtkMRMLVesselSegmentationDisplayableManager2D::UpdateFromMRML()
       //this->UpdateGeometry(seedNode);
       }
     }
+    */
 }
 
 //-------------------------------------------------------------------------------
@@ -407,8 +412,6 @@ ProcessMRMLNodesEvents(vtkObject *caller,
 
   if (seedNode)
     {
-    std::cout << "DM - seed node event " << std::endl;
-
     // Check whether the manager is handling the node
     SeedActorIt it1 = this->Seed1ActorMap.find(seedNode);
     SeedActorIt it2 = this->Seed2ActorMap.find(seedNode);
@@ -422,11 +425,11 @@ ProcessMRMLNodesEvents(vtkObject *caller,
 
     switch(event)
       {
+      //std::cout << "DM - seed node event: ModifiedEvent " << std::endl;
       case vtkCommand::ModifiedEvent:
-        std::cout << "DM - seed node event: ModifiedEvent " << std::endl;
-        //this->UpdateVisibilityOnSlice(seedNode);
         break;
       case vtkMRMLDisplayableNode::DisplayModifiedEvent:
+        this->UpdateVisibilityOnSlice(seedNode);
         break;
       default:
         break;
@@ -437,9 +440,10 @@ ProcessMRMLNodesEvents(vtkObject *caller,
     switch(event)
       {
       case vtkCommand::ModifiedEvent:
-        std::cout << "DM - slice node event: ModifiedEvent " << std::endl;
+        //std::cout << "DM - slice node event: ModifiedEvent " << std::endl;
         if(this->currentSeedNode != NULL)
           {
+          // use currentSeedNode, because this is a modification of the slice node
           this->UpdateVisibilityOnSlice(this->currentSeedNode);
           }
         break;
@@ -457,9 +461,8 @@ ProcessMRMLNodesEvents(vtkObject *caller,
 /// observe key press events
 void vtkMRMLVesselSegmentationDisplayableManager2D::OnInteractorEvent(int eventid)
 {
-  std::cout << "DM - OnInteractorEvent " << std::endl;
+  vtkDebugMacro("OnInteractorEvent");
 
-  // TODO: Check if in placing seed mode
   // & don't bother doing anything unless have a seed node
   if(this->currentSeedNode != NULL)
     {
@@ -469,60 +472,54 @@ void vtkMRMLVesselSegmentationDisplayableManager2D::OnInteractorEvent(int eventi
     std::cout << "DM - currentSeedNode, seed1set: " << seed1Set <<
         " seed2set: " << seed2Set << std::endl;
 
-    switch(eventid)
+    // TODO: Check if in placing seed mode
+    if(this->currentSeedNode->GetCurrentSeedMode() == vtkMRMLVesselSegmentationSeedNode::PlaceSeedSeg
+        || this->currentSeedNode->GetCurrentSeedMode() == vtkMRMLVesselSegmentationSeedNode::PlaceSeedSplit)
       {
-      case vtkCommand::LeftButtonReleaseEvent:
-        std::cout << "DM - LeftButtonReleaseEvent" << std::endl;
-        pos = this->GetCrosshairPosition();
-        if(pos != NULL)
-          {
-          std::cout << "DM - Crosshair position: " << pos[0] << " " << pos[1] <<
-              " " << pos[2] << std::endl;
-          if(!seed1Set && !seed2Set)
+      switch(eventid)
+        {
+        case vtkCommand::LeftButtonReleaseEvent:
+          std::cout << "DM - LeftButtonReleaseEvent" << std::endl;
+          pos = this->GetCrosshairPosition();
+          if(pos != NULL)
             {
-            // set seed 1
-            this->currentSeedNode->SetSeed1(pos[0],pos[1],pos[2]);
+            std::cout << "DM - Crosshair position: " << pos[0] << " " << pos[1] <<
+                " " << pos[2] << std::endl;
+            if(!seed1Set && !seed2Set)
+              {
+              // Check whether the node has an associated representation
+              SeedActorIt it1 = Seed1ActorMap.find(this->currentSeedNode);
+              if (it1 != Seed1ActorMap.end())
+                {
+                return;
+                }
+              // set seed 1
+              this->currentSeedNode->SetSeed1(pos[0],pos[1],pos[2]);
+              this->AddRepresentation(this->currentSeedNode);
+              }
+            else if(seed1Set && !seed2Set)
+              {
+              // Check whether the node has an associated representation
+              SeedActorIt it2 = Seed2ActorMap.find(this->currentSeedNode);
+              if (it2 != Seed2ActorMap.end())
+                {
+                return;
+                }
+              // set seed2
+              this->currentSeedNode->SetSeed2(pos[0],pos[1],pos[2]);
+              this->AddRepresentation(this->currentSeedNode);
+              }
+            else
+              {
+              return;
+              }
             }
-          else if(seed1Set && !seed2Set)
-            {
-            // set seed2
-            this->currentSeedNode->SetSeed2(pos[0],pos[1],pos[2]);
-            }
-          else
-            {
-            // both seeds already set
-            std::cout << "DM - both seeds already set" << std::endl;
-            return;
-            }
-          }
-        break;
-      default:
-        std::cout << "DM - Default event " << std::endl;
-        break;
+          break;
+        default:
+          std::cout << "DM - Default event " << std::endl;
+          break;
+        }
       }
-
-     // check for change in state & that the position makes sense
-    seed1Set = this->currentSeedNode->GetIsSeed1Set();
-    seed2Set = this->currentSeedNode->GetIsSeed2Set();
-    std::cout << "DM - currentSeedNode, seed1set: " << seed1Set <<
-        " seed2set: " << seed2Set << std::endl;
-
-     // Check whether the node has an associated representation
-     SeedActorIt it1 = Seed1ActorMap.find(this->currentSeedNode);
-     if (it1 != Seed1ActorMap.end() && seed1Set)
-       {
-       return;
-       }
-     SeedActorIt it2 = Seed2ActorMap.find(this->currentSeedNode);
-     if (it2 != Seed2ActorMap.end() && seed2Set)
-       {
-       return;
-       }
-     // if it hasn't returned above then we add a representation
-     if (!this->AddRepresentation(this->currentSeedNode))
-       {
-       return;
-       }
     }
 
   this->Superclass::OnInteractorEvent(eventid);
@@ -684,7 +681,7 @@ AddRepresentation(vtkMRMLVesselSegmentationSeedNode *node)
 
     if(seed1Set && !seed2Set)
       {
-      std::cout << "AddRepresentation set seed1" << std::endl;
+      //std::cout << "AddRepresentation set seed1" << std::endl;
       // Register seed point source
       this->Seed1Map[node] = polygonSource;
       // Register the mapper
@@ -694,7 +691,7 @@ AddRepresentation(vtkMRMLVesselSegmentationSeedNode *node)
       }
     else if(seed1Set && seed2Set)
       {
-      std::cout << "AddRepresentation set seed2" << std::endl;
+      //std::cout << "AddRepresentation set seed2" << std::endl;
       // Register seed point source
       this->Seed2Map[node] = polygonSource;
       // Register the mapper
@@ -717,7 +714,7 @@ AddRepresentation(vtkMRMLVesselSegmentationSeedNode *node)
 void vtkMRMLVesselSegmentationDisplayableManager2D::
 UpdateVisibilityOnSlice(vtkMRMLVesselSegmentationSeedNode *node)
 {
-  std::cout << "DM - UpdateVisibilityOnSlice " << std::endl;
+  vtkDebugMacro("UpdateVisibilityOnSlice");
 
   if (!node)
     {
@@ -775,7 +772,7 @@ UpdateVisibilityOnSlice(vtkMRMLVesselSegmentationSeedNode *node)
       actor->SetVisibility(false);
       }
     }
-  else if(it2 != this->Seed2ActorMap.end())
+  if(it2 != this->Seed2ActorMap.end())
     {
     double *pos2 = node->GetSeed2();
     int distanceToSeed = slicePlaneNormal[0]*(pos2[0]-slicePlaneOrigin[0]) +
@@ -797,3 +794,4 @@ UpdateVisibilityOnSlice(vtkMRMLVesselSegmentationSeedNode *node)
   this->RequestRender();
 
 }
+

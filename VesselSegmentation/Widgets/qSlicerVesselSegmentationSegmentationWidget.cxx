@@ -101,27 +101,35 @@ qSlicerVesselSegmentationSegmentationWidget
 //-----------------------------------------------------------------------------
 void qSlicerVesselSegmentationSegmentationWidget::PlaceSeedsSeg()
 {
-  std::cout << "Widget - Place Seeds (Segment)" << std::endl;
+  //std::cout << "segWidget - Place Seeds (Segment)" << std::endl;
 
   emit PlaceSeedsSegClicked();
 }
 
 void qSlicerVesselSegmentationSegmentationWidget::RunSegment()
 {
-  std::cout << "Widget - Run Segment" << std::endl;
+  //std::cout << "segWidget - Run Segment" << std::endl;
 
   emit RunSegmentClicked(this->isHepatic);
 }
+
+void qSlicerVesselSegmentationSegmentationWidget::onTogglePlaceSeedsSeg()
+{
+  //std::cout << "segWidget - raise place seeds" << std::endl;
+
+  emit ToggleButtonSeedsSeg();
+}
+
 void qSlicerVesselSegmentationSegmentationWidget::OnHepaticSeg()
 {
-  std::cout << "Widget - On Hepatic (Segment)" << std::endl;
+  //std::cout << "segWidget - On Hepatic (Segment)" << std::endl;
 
   this->isHepatic = true;
 }
 
 void qSlicerVesselSegmentationSegmentationWidget::OnPortalSeg()
 {
-  std::cout << "Widget - On Portal (segment)" << std::endl;
+  //std::cout << "segWidget - On Portal (segment)" << std::endl;
 
   this->isHepatic = false;
 }

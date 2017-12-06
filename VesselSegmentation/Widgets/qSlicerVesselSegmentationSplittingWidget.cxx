@@ -103,35 +103,42 @@ qSlicerVesselSegmentationSplittingWidget
 //------------------------------------------------------------------------------
 void qSlicerVesselSegmentationSplittingWidget::MergeLabelMaps()
 {
-  std::cout << "Widget - Merge label maps" << std::endl;
+  //std::cout << "splitWidget - Merge label maps" << std::endl;
 
   emit MergeLabelMapsClicked();
 }
 
-void qSlicerVesselSegmentationSplittingWidget::PlaceSeedsMerge()
+void qSlicerVesselSegmentationSplittingWidget::PlaceSeedsSplit()
 {
-  std::cout << "Widget - Place seeds (Merge)" << std::endl;
+  //std::cout << "splitWidget - Place seeds (split)" << std::endl;
 
-  emit PlaceSeedsMergeClicked();
+  emit PlaceSeedsSplitClicked();
 }
 
 void qSlicerVesselSegmentationSplittingWidget::RunSeedAssignment()
 {
-  std::cout << "Widget - Run seed assignment" << std::endl;
+  //std::cout << "splitWidget - Run seed assignment" << std::endl;
 
   emit RunSeedAssignmentClicked(this->isHepatic);
 }
 
-void qSlicerVesselSegmentationSplittingWidget::OnHepaticMerge()
+void qSlicerVesselSegmentationSplittingWidget::onTogglePlaceSeedSplit()
 {
-    std::cout << "Widget - On Hepatic (Merge)" << std::endl;
+  //std::cout << "splitWidget - raise place seeds" << std::endl;
 
-    this->isHepatic = true;
+  emit ToggleButtonSeedSplit();
 }
 
-void qSlicerVesselSegmentationSplittingWidget::OnPortalMerge()
+void qSlicerVesselSegmentationSplittingWidget::OnHepaticSplit()
 {
-   std::cout << "Widget - On Portal (Merge)" << std::endl;
+   //std::cout << "splitWidget - On Hepatic (split)" << std::endl;
+
+   this->isHepatic = true;
+}
+
+void qSlicerVesselSegmentationSplittingWidget::OnPortalSplit()
+{
+   //std::cout << "Widget - On Portal (split)" << std::endl;
 
    this->isHepatic = true;
 }

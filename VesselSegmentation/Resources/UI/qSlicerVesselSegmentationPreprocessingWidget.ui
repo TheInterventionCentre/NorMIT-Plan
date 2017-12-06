@@ -255,22 +255,6 @@
    </hints>
   </connection>
   <connection>
-   <sender>AlphaSpinBox</sender>
-   <signal>valueChanged(unsigned int)</signal>
-   <receiver>qSlicerVesselSegmentationPreprocessingWidget</receiver>
-   <slot>OnAlphaSpin(unsigned int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>176</x>
-     <y>154</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>228</x>
-     <y>438</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>BetaSpinBox</sender>
    <signal>valueChanged(int)</signal>
    <receiver>qSlicerVesselSegmentationPreprocessingWidget</receiver>
@@ -287,34 +271,50 @@
    </hints>
   </connection>
   <connection>
-   <sender>ConductanceSpinBox</sender>
-   <signal>valueChanged(unsigned int)</signal>
+   <sender>AlphaSpinBox</sender>
+   <signal>valueChanged(int)</signal>
    <receiver>qSlicerVesselSegmentationPreprocessingWidget</receiver>
-   <slot>OnConductanceSpin(unsigned int)</slot>
+   <slot>OnAlphaSpin(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>162</x>
-     <y>190</y>
+     <x>188</x>
+     <y>123</y>
     </hint>
     <hint type="destinationlabel">
-     <x>228</x>
-     <y>438</y>
+     <x>240</x>
+     <y>127</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ConductanceSpinBox</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>qSlicerVesselSegmentationPreprocessingWidget</receiver>
+   <slot>OnConductanceSpin(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>175</x>
+     <y>159</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>240</x>
+     <y>127</y>
     </hint>
    </hints>
   </connection>
   <connection>
    <sender>IterationsSpinBox</sender>
-   <signal>valueChanged(unsigned int)</signal>
+   <signal>valueChanged(int)</signal>
    <receiver>qSlicerVesselSegmentationPreprocessingWidget</receiver>
-   <slot>OnIterationsSpin(unsigned int)</slot>
+   <slot>OnIterationsSpin(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>386</x>
-     <y>190</y>
+     <x>399</x>
+     <y>159</y>
     </hint>
     <hint type="destinationlabel">
-     <x>228</x>
-     <y>438</y>
+     <x>240</x>
+     <y>127</y>
     </hint>
    </hints>
   </connection>

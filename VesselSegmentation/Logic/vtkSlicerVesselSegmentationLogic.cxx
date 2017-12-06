@@ -223,21 +223,6 @@ void vtkSlicerVesselSegmentationLogic::OnMRMLNodeModified(vtkMRMLNode* vtkNotUse
 
 }
 
-//-------------------------------------------------------------------------------
-void vtkSlicerVesselSegmentationLogic::AddSeedNode()
-{
-  if (!this->GetMRMLScene())
-    {
-    vtkErrorMacro("No MRML scene.");
-    return;
-    }
-
-  // Add a seed node
-  vtkSmartPointer<vtkMRMLVesselSegmentationSeedNode> seedNode =
-    vtkSmartPointer<vtkMRMLVesselSegmentationSeedNode>::New();
-  this->GetMRMLScene()->AddNode(seedNode.GetPointer());
-}
-
 //---------------------------------------------------------------------------
 /**
 * Preprocess image for better vesselness (pipeline of ITK filters)
@@ -335,7 +320,6 @@ void vtkSlicerVesselSegmentationLogic::PreprocessImage( int lowerThreshold,
   this->GetMRMLScene()->AddNode(preprocessedNode);
 }
 
-
 //---------------------------------------------------------------------------
 /**
 * Triggered when button to segment vessels is clicked
@@ -349,16 +333,18 @@ void vtkSlicerVesselSegmentationLogic::SegmentVesselsFromWidget(bool isHepatic)
     }
   vtkMRMLScene *scene = this->GetMRMLScene();
 
-  // currently creating and adding an empty seed node
-  vtkSmartPointer<vtkMRMLVesselSegmentationSeedNode> node1 =
-      vtkSmartPointer<vtkMRMLVesselSegmentationSeedNode>::New();
-  scene->AddNode(node1);
+  vtkMRMLVesselSegmentationSeedNode *seedNode =
+      vtkMRMLVesselSegmentationSeedNode::SafeDownCast
+      (scene->GetNodeByID("vtkMRMLVesselSegmentationSeedNodeSingleton"));
 
-  // in future will get the seed node from the scene
-  //vtkMRMLVesselSegmentationSeedNode *testNode = vtkMRMLVesselSegmentationSeedNode::
-                //SafeDownCast(scene->GetNodeByID("VesselSegmentationSeed"));
+  // TODO: check if this seed node satisfies the requirements for segmentation
 
-  this->SplitVessels(node1.GetPointer(), isHepatic);
+  if(seedNode != NULL)
+    {
+    this->SegmentVessels(seedNode, isHepatic);
+    // then remove from scene
+    scene->RemoveNode(seedNode);
+    }
 }
 
 //---------------------------------------------------------------------------
@@ -643,16 +629,18 @@ void vtkSlicerVesselSegmentationLogic::SplitVesselsFromWidget(bool isHepatic)
     }
   vtkMRMLScene *scene = this->GetMRMLScene();
 
-  // currently creating and adding an empty seed node
-  vtkSmartPointer<vtkMRMLVesselSegmentationSeedNode> node1 =
-      vtkSmartPointer<vtkMRMLVesselSegmentationSeedNode>::New();
-  scene->AddNode(node1);
+  vtkMRMLVesselSegmentationSeedNode *seedNode =
+      vtkMRMLVesselSegmentationSeedNode::SafeDownCast
+      (scene->GetNodeByID("vtkMRMLVesselSegmentationSeedNodeSingleton"));
 
-  // in future will get the seed node from the scene
-  //vtkMRMLVesselSegmentationSeedNode *testNode = vtkMRMLVesselSegmentationSeedNode::
-                //SafeDownCast(scene->GetNodeByID("VesselSegmentationSeed"));
+  // TODO: check if this seed node satisfies the requirements for splitting
 
-  this->SplitVessels(node1.GetPointer(), isHepatic);
+  if(seedNode != NULL)
+    {
+    this->SplitVessels(seedNode, isHepatic);
+    // then remove from scene
+    scene->RemoveNode(seedNode);
+    }
 }
 
 //---------------------------------------------------------------------------

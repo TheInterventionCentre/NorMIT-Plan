@@ -78,14 +78,14 @@ public:
    *
    * @return a pointer to the new created vtkMRMLNode.
    */
-  virtual vtkMRMLNode* CreateNodeInstance();
+  virtual vtkMRMLNode* CreateNodeInstance() VTK_OVERRIDE;
 
   /**
    * Get the tag name of the node.
    *
    * @return string with the tag name of the node.
    */
-  virtual const char* GetNodeTagName() {return "VesselSegmentationSeed";};
+  virtual const char* GetNodeTagName() VTK_OVERRIDE {return "VesselSegmentationSeed";};
 
   /**
    * Get the icon associated to the node.
@@ -93,6 +93,17 @@ public:
    * @return string pointing to the resource where the icon is located.
    */
   virtual const char* GetIcon() {return "";}
+
+  /// Get/Set Current seed mode.
+  vtkGetMacro(CurrentSeedMode, int);
+  void SetCurrentSeedMode(int mode);
+
+  enum
+    {
+      BaseMode = 0x1,
+      PlaceSeedSeg = 0x2,
+      PlaceSeedSplit = 0x3,
+    };
 
   /**
    * Set seed1
@@ -151,6 +162,9 @@ protected:
   bool Seed1Set;
   double Seed2 [3];
   bool Seed2Set;
+
+  int CurrentSeedMode;
+
 };
 
 

@@ -182,5 +182,21 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>qSlicerVesselSegmentationSegmentationWidget</sender>
+   <signal>ToggleButtonSeedsSeg()</signal>
+   <receiver>buttonSeedsSeg</receiver>
+   <slot>toggle()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>241</x>
+     <y>83</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>89</x>
+     <y>82</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
 </ui>

@@ -94,11 +94,6 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   /**
-   * Add an empty seed node to the MRML scene
-   */
-  void AddSeedNode();
-
-  /**
    * Calls preprocessing to enhance the vesselness of the image
    * (prerequisite: an input image).
    *

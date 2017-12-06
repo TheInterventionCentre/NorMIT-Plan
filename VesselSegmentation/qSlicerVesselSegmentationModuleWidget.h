@@ -68,6 +68,9 @@ public:
   virtual void enter();
   virtual void exit();
 
+  void togglePlaceSeedSeg();
+  void togglePlaceSeedSplit();
+
 public slots:
 
   /**
@@ -100,10 +103,10 @@ public slots:
 
   /**
    * Called when the place seeds is clicked
-   * connected to signal from splitting widget: PlaceSeedsMergeClicked()
+   * connected to signal from splitting widget: PlaceSeedsSplitClicked()
    * This function sends the parameter information up to the Logic
    */
-  void onPlaceSeedsMerge();
+  void onPlaceSeedsSplit();
 
   /**
    * Called when the run seed assignment button is clicked
@@ -111,6 +114,21 @@ public slots:
    * This function sends the parameter information up to the Logic
    */
   void onRunSeedAssignment(bool isHepatic);
+
+  /**
+   * Actions to perform when a node is added to the scene
+   */
+  void onNodeAddedEvent(vtkObject*, vtkObject *node);
+
+  /**
+   * Actions to perform when a node is removed from the scene.
+   */
+  void onNodeRemovedEvent(vtkObject*, vtkObject *node);
+
+  /**
+   * Actions to perform when a seed node is modified
+   */
+  void onSeedNodeModifiedEvent();
 
 
 protected:

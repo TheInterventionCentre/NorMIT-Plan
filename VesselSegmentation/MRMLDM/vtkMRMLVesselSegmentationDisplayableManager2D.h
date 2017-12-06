@@ -158,7 +158,7 @@ vtkMRMLVesselSegmentationDisplayableManager2D
     virtual void OnInteractorEvent(int eventid) VTK_OVERRIDE;
 
     /**
-     * Creates the projection of the seed onto the slice
+     * Creates the seed representation
      *
      * @param node seed node holding the geometry of the seed
      *
@@ -166,6 +166,11 @@ vtkMRMLVesselSegmentationDisplayableManager2D
      */
     bool AddRepresentation(vtkMRMLVesselSegmentationSeedNode *node);
 
+    /**
+     * Updates if the seed representation is visible on the current slice
+     *
+     * @param node seed node holding the geometry of the seed
+     */
     void UpdateVisibilityOnSlice(vtkMRMLVesselSegmentationSeedNode *node);
 
     // Map SeedNode -- PolygonSurfaceSource

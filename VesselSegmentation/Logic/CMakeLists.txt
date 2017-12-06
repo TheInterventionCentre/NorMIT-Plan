@@ -7,8 +7,6 @@ set(${KIT}_EXPORT_DIRECTIVE "VTK_SLICER_${MODULE_NAME_UPPER}_MODULE_LOGIC_EXPORT
 
 set(${KIT}_INCLUDE_DIRECTORIES
   ${CMAKE_BINARY_DIR}/${MODULE_NAME}
-  #${CMAKE_SOURCE_DIR}/${MODULE_NAME}/ITKFilters
-  #${CMAKE_SOURCE_DIR}/${MODULE_NAME}/Logic/ITKFilters
   )
 include_directories(${${KIT}_INCLUDE_DIRECTORIES})
 message(STATUS "IncludeDirs_Logic: " ${${KIT}_INCLUDE_DIRECTORIES})
@@ -23,9 +21,6 @@ set(${KIT}_SRCS
 set(${KIT}_TARGET_LIBRARIES
   ${ITK_LIBRARIES}
   vtkSlicerVesselSegmentationModuleMRML
-  vtkSlicerMarkupsModuleMRML
-  vtkSlicerMarkupsModuleMRMLDisplayableManager
-  vtkSlicerMarkupsModuleLogic
   )
 
 #-----------------------------------------------------------------------------
