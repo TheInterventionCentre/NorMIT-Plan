@@ -337,13 +337,17 @@ void vtkSlicerVesselSegmentationLogic::SegmentVesselsFromWidget(bool isHepatic)
       vtkMRMLVesselSegmentationSeedNode::SafeDownCast
       (scene->GetNodeByID("vtkMRMLVesselSegmentationSeedNodeSingleton"));
 
-  // TODO: check if this seed node satisfies the requirements for segmentation
-
-  if(seedNode != NULL)
+  // check if this seed node satisfies the requirements for segmentation
+  if(seedNode != NULL && seedNode->GetIsSeed1Set() && seedNode->GetIsSeed2Set())
     {
     this->SegmentVessels(seedNode, isHepatic);
     // then remove from scene
     scene->RemoveNode(seedNode);
+    }
+  else
+    {
+    vtkErrorMacro("Do not have seed pre-requisites for segmentation.");
+    return;
     }
 }
 
@@ -633,13 +637,17 @@ void vtkSlicerVesselSegmentationLogic::SplitVesselsFromWidget(bool isHepatic)
       vtkMRMLVesselSegmentationSeedNode::SafeDownCast
       (scene->GetNodeByID("vtkMRMLVesselSegmentationSeedNodeSingleton"));
 
-  // TODO: check if this seed node satisfies the requirements for splitting
-
-  if(seedNode != NULL)
+  //check if this seed node satisfies the requirements for splitting
+  if(seedNode != NULL && seedNode->GetIsSeed1Set())
     {
     this->SplitVessels(seedNode, isHepatic);
     // then remove from scene
     scene->RemoveNode(seedNode);
+    }
+  else
+    {
+    vtkErrorMacro("Do not have seed pre-requisites for splitting.");
+    return;
     }
 }
 

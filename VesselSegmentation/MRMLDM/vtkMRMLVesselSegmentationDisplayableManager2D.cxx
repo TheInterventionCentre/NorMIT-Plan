@@ -472,7 +472,7 @@ void vtkMRMLVesselSegmentationDisplayableManager2D::OnInteractorEvent(int eventi
     std::cout << "DM - currentSeedNode, seed1set: " << seed1Set <<
         " seed2set: " << seed2Set << std::endl;
 
-    // TODO: Check if in placing seed mode
+    // Check if in placing seed mode
     if(this->currentSeedNode->GetCurrentSeedMode() == vtkMRMLVesselSegmentationSeedNode::PlaceSeedSeg
         || this->currentSeedNode->GetCurrentSeedMode() == vtkMRMLVesselSegmentationSeedNode::PlaceSeedSplit)
       {
