@@ -402,7 +402,7 @@ void vtkMRMLVesselSegmentationDisplayableManager2D::OnInteractorEvent(int eventi
             if(!seed1Set && !seed2Set)
               {
               // Check whether the node has an associated representation
-              if (this->Seed1Actor != nullptr)
+              if (this->Seed1Actor != NULL)
                 {
                 return;
                 }
@@ -413,7 +413,7 @@ void vtkMRMLVesselSegmentationDisplayableManager2D::OnInteractorEvent(int eventi
             else if(seed1Set && !seed2Set)
               {
               // Check whether the node has an associated representation
-              if (this->Seed2Actor != nullptr)
+              if (this->Seed2Actor != NULL)
                 {
                 return;
                 }
@@ -664,7 +664,7 @@ UpdateVisibilityOnSlice(vtkMRMLVesselSegmentationSeedNode *node)
   slicePlaneOrigin[1] = sliceToRASMatrix->GetElement(1,3);
   slicePlaneOrigin[2] = sliceToRASMatrix->GetElement(2,3);
 
-  if(this->Seed1Actor != nullptr)
+  if(this->Seed1Actor != NULL)
     {
     double *pos1 = node->GetSeed1();
     int distanceToSeed = slicePlaneNormal[0]*(pos1[0]-slicePlaneOrigin[0]) +
@@ -683,7 +683,7 @@ UpdateVisibilityOnSlice(vtkMRMLVesselSegmentationSeedNode *node)
       actor->SetVisibility(false);
       }
     }
-  if(this->Seed2Actor != nullptr)
+  if(this->Seed2Actor != NULL)
     {
     double *pos2 = node->GetSeed2();
     int distanceToSeed = slicePlaneNormal[0]*(pos2[0]-slicePlaneOrigin[0]) +
