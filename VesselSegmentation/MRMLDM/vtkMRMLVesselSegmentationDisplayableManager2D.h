@@ -173,33 +173,19 @@ vtkMRMLVesselSegmentationDisplayableManager2D
      */
     void UpdateVisibilityOnSlice(vtkMRMLVesselSegmentationSeedNode *node);
 
-    // Map SeedNode -- PolygonSurfaceSource
-    std::map<vtkMRMLVesselSegmentationSeedNode *,
-      vtkSmartPointer<vtkRegularPolygonSource> > Seed1Map;
-    std::map<vtkMRMLVesselSegmentationSeedNode *,
-      vtkSmartPointer<vtkRegularPolygonSource> > Seed2Map;
-    typedef std::map<vtkMRMLVesselSegmentationSeedNode *,
-      vtkSmartPointer<vtkRegularPolygonSource> >::iterator SeedIt;
-
-    //Map SeedNode -- Mapper
-    std::map<vtkMRMLVesselSegmentationSeedNode *,
-      vtkSmartPointer<vtkPolyDataMapper2D> > Seed1MapperMap;
-    std::map<vtkMRMLVesselSegmentationSeedNode *,
-      vtkSmartPointer<vtkPolyDataMapper2D> > Seed2MapperMap;
-    typedef std::map<vtkMRMLVesselSegmentationSeedNode *,
-      vtkSmartPointer<vtkPolyDataMapper2D> >::iterator SeedMapperIt;
-
-    // Map seedNode -- Actor
-    std::map<vtkMRMLVesselSegmentationSeedNode *,
-      vtkSmartPointer<vtkActor2D> > Seed1ActorMap;
-    std::map<vtkMRMLVesselSegmentationSeedNode *,
-      vtkSmartPointer<vtkActor2D> > Seed2ActorMap;
-    typedef std::map<vtkMRMLVesselSegmentationSeedNode *,
-      vtkSmartPointer<vtkActor2D> >::iterator SeedActorIt;
-
   private:
     bool observingSliceNode;
     vtkWeakPointer<vtkMRMLVesselSegmentationSeedNode> currentSeedNode;
+
+    // PolygonSurfaceSource
+    vtkSmartPointer<vtkRegularPolygonSource> Seed1Source;
+    vtkSmartPointer<vtkRegularPolygonSource> Seed2Source;
+    // Mapper
+    vtkSmartPointer<vtkPolyDataMapper2D> Seed1Mapper;
+    vtkSmartPointer<vtkPolyDataMapper2D> Seed2Mapper;
+    //  Actor
+    vtkSmartPointer<vtkActor2D> Seed1Actor;
+    vtkSmartPointer<vtkActor2D> Seed2Actor;
 
     double* GetCrosshairPosition();
 

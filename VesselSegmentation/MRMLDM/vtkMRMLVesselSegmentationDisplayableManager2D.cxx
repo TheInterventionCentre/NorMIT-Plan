@@ -126,52 +126,13 @@ void vtkMRMLVesselSegmentationDisplayableManager2D::OnMRMLSceneEndClose()
     }
     */
 
-  // Removing actors and node observations
-  SeedActorIt actorIt1;
-  for(actorIt1=this->Seed1ActorMap.begin();
-      actorIt1!=this->Seed1ActorMap.end(); actorIt1++)
+  if(this->Seed1Actor != NULL)
     {
-    this->GetRenderer()->RemoveActor(actorIt1->second);
-    vtkUnObserveMRMLNodeMacro(actorIt1->first);
-    this->Seed1ActorMap.erase(actorIt1);
+    this->GetRenderer()->RemoveActor(this->Seed1Actor);
     }
-  SeedActorIt actorIt2;
-  for(actorIt2=this->Seed2ActorMap.begin();
-      actorIt2!=this->Seed2ActorMap.end(); actorIt2++)
+  if(this->Seed2Actor != NULL)
     {
-    this->GetRenderer()->RemoveActor(actorIt2->second);
-    vtkUnObserveMRMLNodeMacro(actorIt2->first);
-    this->Seed2ActorMap.erase(actorIt2);
-    }
-
-  // Removing mappers
-  SeedMapperIt mapIt1;
-  for(mapIt1=this->Seed1MapperMap.begin();
-      mapIt1!=this->Seed1MapperMap.end(); mapIt1++)
-    {
-    this->Seed1MapperMap.erase(mapIt1);
-    }
-  SeedMapperIt mapIt2;
-  for(mapIt2=this->Seed2MapperMap.begin();
-      mapIt2!=this->Seed2MapperMap.end(); mapIt2++)
-    {
-    this->Seed2MapperMap.erase(mapIt2);
-    }
-
-  // Removing Seeds
-  SeedIt seedIt1;
-  for(seedIt1=Seed1Map.begin();
-      seedIt1!=Seed1Map.end();
-      seedIt1++)
-    {
-    this->Seed1Map.erase(seedIt1);
-    }
-  SeedIt seedIt2;
-  for(seedIt2=Seed2Map.begin();
-      seedIt2!=Seed2Map.end();
-      seedIt2++)
-    {
-    this->Seed2Map.erase(seedIt2);
+    this->GetRenderer()->RemoveActor(this->Seed2Actor);
     }
 
   this->SetUpdateFromMRMLRequested(1);
@@ -277,49 +238,33 @@ OnMRMLSceneNodeRemoved(vtkMRMLNode *node)
     }
   else if (seedNode)
     {
-    // Check if the node is in our association map (actors)
-    SeedActorIt actorIt1 = this->Seed1ActorMap.find(seedNode);
-    if (actorIt1 != this->Seed1ActorMap.end())
+    if(this->Seed1Actor != NULL)
       {
-      // Remove the corresponding actor from the scene
-      vtkActor2D *actor = actorIt1->second;
-      this->GetRenderer()->RemoveActor(actor);
-
-      // Remove the association
-      this->Seed1ActorMap.erase(actorIt1);
+      this->GetRenderer()->RemoveActor(this->Seed1Actor);
+      this->Seed1Actor = NULL;
       }
-    SeedActorIt actorIt2 = this->Seed2ActorMap.find(seedNode);
-    if (actorIt2 != this->Seed2ActorMap.end())
+    if(this->Seed2Actor != NULL)
       {
-      // Remove the corresponding actor from the scene
-      vtkActor2D *actor = actorIt2->second;
-      this->GetRenderer()->RemoveActor(actor);
-
-      // Remove the association
-      this->Seed2ActorMap.erase(actorIt2);
+      this->GetRenderer()->RemoveActor(this->Seed2Actor);
+      this->Seed2Actor = NULL;
       }
 
-    // Check if the node is in our association map (mapper)
-    SeedMapperIt mapIt1 = this->Seed1MapperMap.find(seedNode);
-    if (mapIt1 != this->Seed1MapperMap.end())
+    if(this->Seed1Mapper != NULL)
       {
-      this->Seed1MapperMap.erase(mapIt1);
+      this->Seed1Mapper = NULL;
       }
-    SeedMapperIt mapIt2 = this->Seed2MapperMap.find(seedNode);
-    if (mapIt2 != this->Seed2MapperMap.end())
+    if(this->Seed2Mapper != NULL)
       {
-      this->Seed2MapperMap.erase(mapIt2);
+      this->Seed2Mapper = NULL;
       }
 
-    SeedIt seedIt1 = this->Seed1Map.find(seedNode);
-    if (seedIt1 != this->Seed1Map.end())
+    if(this->Seed1Source != NULL)
       {
-      this->Seed1Map.erase(seedIt1);
+      this->Seed1Source = NULL;
       }
-    SeedIt seedIt2 = this->Seed2Map.find(seedNode);
-    if (seedIt2 != this->Seed2Map.end())
+    if(this->Seed2Source != NULL)
       {
-      this->Seed2Map.erase(seedIt2);
+      this->Seed2Source = NULL;
       }
     // Remove the observations from the node
     vtkUnObserveMRMLNodeMacro(seedNode);
@@ -359,35 +304,6 @@ void vtkMRMLVesselSegmentationDisplayableManager2D::UpdateFromMRML()
     vtkDebugMacro("skipping update during render");
     return;
     }
-
-  // not needed? also node is a singleton
-  /*
-  std::vector<vtkMRMLNode*> dNodes;
-  int nNodes =
-    scene ? scene->GetNodesByClass("vtkMRMLSeedNode", dNodes):0;
-
-  // don't have any seed nodes
-  if(nNodes < 1)
-    {
-    return;
-    }
-
-  this->SetUpdateFromMRMLRequested(0);
-
-  for(int n=0; n<nNodes; n++)
-    {
-    vtkMRMLVesselSegmentationSeedNode *seedNode =
-        vtkMRMLVesselSegmentationSeedNode::SafeDownCast(dNodes[n]);
-
-    SeedActorIt it1 = this->Seed1ActorMap.find(seedNode);
-    SeedActorIt it2 = this->Seed2ActorMap.find(seedNode);
-    // find a representation for seed1 or seed2 (or both)
-    if (it1 != this->Seed1ActorMap.end() || it2 != this->Seed2ActorMap.end())
-      {
-      //this->UpdateGeometry(seedNode);
-      }
-    }
-    */
 }
 
 //-------------------------------------------------------------------------------
@@ -412,11 +328,9 @@ ProcessMRMLNodesEvents(vtkObject *caller,
 
   if (seedNode)
     {
-    // Check whether the manager is handling the node
-    SeedActorIt it1 = this->Seed1ActorMap.find(seedNode);
-    SeedActorIt it2 = this->Seed2ActorMap.find(seedNode);
     // look for an existing representation (for seed1 or seed2)
-    if (it1 == this->Seed1ActorMap.end() && it2 == this->Seed2ActorMap.end())
+    if (this->Seed1Actor == NULL
+        && this->Seed2Actor == NULL)
       {
       vtkErrorMacro("Seed node is not currently "
                     << "handled by the displayable manager");
@@ -488,8 +402,7 @@ void vtkMRMLVesselSegmentationDisplayableManager2D::OnInteractorEvent(int eventi
             if(!seed1Set && !seed2Set)
               {
               // Check whether the node has an associated representation
-              SeedActorIt it1 = Seed1ActorMap.find(this->currentSeedNode);
-              if (it1 != Seed1ActorMap.end())
+              if (this->Seed1Actor != nullptr)
                 {
                 return;
                 }
@@ -500,8 +413,7 @@ void vtkMRMLVesselSegmentationDisplayableManager2D::OnInteractorEvent(int eventi
             else if(seed1Set && !seed2Set)
               {
               // Check whether the node has an associated representation
-              SeedActorIt it2 = Seed2ActorMap.find(this->currentSeedNode);
-              if (it2 != Seed2ActorMap.end())
+              if (this->Seed2Actor != nullptr)
                 {
                 return;
                 }
@@ -532,14 +444,16 @@ double* vtkMRMLVesselSegmentationDisplayableManager2D::GetCrosshairPosition()
     {
     vtkErrorMacro("No MRML scene.");
     }
-  vtkMRMLNode* tempCrosshairNodeDefault = this->GetMRMLScene()->GetNodeByID("vtkMRMLCrosshairNodedefault");
+  vtkMRMLNode* tempCrosshairNodeDefault =
+      this->GetMRMLScene()->GetNodeByID("vtkMRMLCrosshairNodedefault");
 
   if (tempCrosshairNodeDefault == NULL)
     {
     vtkErrorMacro("No default crosshair node.");
     }
 
-  vtkMRMLCrosshairNode* tempCrosshairNode = vtkMRMLCrosshairNode::SafeDownCast(tempCrosshairNodeDefault);
+  vtkMRMLCrosshairNode* tempCrosshairNode =
+      vtkMRMLCrosshairNode::SafeDownCast(tempCrosshairNodeDefault);
 
   if (tempCrosshairNode == NULL)
     {
@@ -683,21 +597,21 @@ AddRepresentation(vtkMRMLVesselSegmentationSeedNode *node)
       {
       //std::cout << "AddRepresentation set seed1" << std::endl;
       // Register seed point source
-      this->Seed1Map[node] = polygonSource;
+      this->Seed1Source = polygonSource;
       // Register the mapper
-      this->Seed1MapperMap[node] = mapper;
+      this->Seed1Mapper = mapper;
       // Register the actor
-      this->Seed1ActorMap[node] = actor;
+      this->Seed1Actor = actor;
       }
     else if(seed1Set && seed2Set)
       {
       //std::cout << "AddRepresentation set seed2" << std::endl;
       // Register seed point source
-      this->Seed2Map[node] = polygonSource;
+      this->Seed2Source = polygonSource;
       // Register the mapper
-      this->Seed2MapperMap[node] = mapper;
+      this->Seed2Mapper = mapper;
       // Register the actor
-      this->Seed2ActorMap[node] = actor;
+      this->Seed2Actor = actor;
       }
 
     this->GetRenderer()->AddActor2D(actor);
@@ -729,11 +643,8 @@ UpdateVisibilityOnSlice(vtkMRMLVesselSegmentationSeedNode *node)
     return;
     }
 
-  // Check whether the manager is handling the node
-  SeedActorIt it1 = this->Seed1ActorMap.find(node);
-  SeedActorIt it2 = this->Seed2ActorMap.find(node);
   // look for an existing representation (for seed1 or seed2)
-  if (it1 == this->Seed1ActorMap.end() && it2 == this->Seed2ActorMap.end())
+  if (this->Seed1Actor == NULL  && this->Seed2Actor == NULL)
     {
     vtkErrorMacro("Seed node is not currently "
                   << "handled by the displayable manager");
@@ -753,7 +664,7 @@ UpdateVisibilityOnSlice(vtkMRMLVesselSegmentationSeedNode *node)
   slicePlaneOrigin[1] = sliceToRASMatrix->GetElement(1,3);
   slicePlaneOrigin[2] = sliceToRASMatrix->GetElement(2,3);
 
-  if(it1 != this->Seed1ActorMap.end())
+  if(this->Seed1Actor != nullptr)
     {
     double *pos1 = node->GetSeed1();
     int distanceToSeed = slicePlaneNormal[0]*(pos1[0]-slicePlaneOrigin[0]) +
@@ -763,16 +674,16 @@ UpdateVisibilityOnSlice(vtkMRMLVesselSegmentationSeedNode *node)
     std::cout << "distance to seed1: " << distanceToSeed << std::endl;
     if(distanceToSeed == 0)
       {
-      vtkActor2D *actor = it1->second;
+      vtkActor2D *actor = this->Seed1Actor;
       actor->SetVisibility(true);
       }
     else
       {
-      vtkActor2D *actor = it1->second;
+      vtkActor2D *actor = this->Seed1Actor;
       actor->SetVisibility(false);
       }
     }
-  if(it2 != this->Seed2ActorMap.end())
+  if(this->Seed2Actor != nullptr)
     {
     double *pos2 = node->GetSeed2();
     int distanceToSeed = slicePlaneNormal[0]*(pos2[0]-slicePlaneOrigin[0]) +
@@ -782,12 +693,12 @@ UpdateVisibilityOnSlice(vtkMRMLVesselSegmentationSeedNode *node)
     std::cout << "distance to seed2: " << distanceToSeed << std::endl;
     if(distanceToSeed == 0)
       {
-      vtkActor2D *actor = it2->second;
+      vtkActor2D *actor = this->Seed2Actor;
       actor->SetVisibility(true);
       }
     else
       {
-      vtkActor2D *actor = it2->second;
+      vtkActor2D *actor = this->Seed2Actor;
       actor->SetVisibility(false);
       }
     }
