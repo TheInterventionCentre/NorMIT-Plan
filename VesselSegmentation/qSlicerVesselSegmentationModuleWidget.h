@@ -68,7 +68,14 @@ public:
   virtual void enter();
   virtual void exit();
 
+  /**
+   * function to toggle the place seeds for segmentation button
+   */
   void togglePlaceSeedSeg();
+
+  /**
+   * function to toggle the place seed for splitting button
+   */
   void togglePlaceSeedSplit();
 
 public slots:

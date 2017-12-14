@@ -167,6 +167,13 @@ vtkMRMLVesselSegmentationDisplayableManager2D
     bool AddRepresentation(vtkMRMLVesselSegmentationSeedNode *node);
 
     /**
+     * Update the position of the seed when image is scaled.
+     *
+     * @param node pointer to seed node to be used for the update.
+     */
+    void UpdatePositionOnSlice(vtkMRMLVesselSegmentationSeedNode *node);
+
+    /**
      * Updates if the seed representation is visible on the current slice
      *
      * @param node seed node holding the geometry of the seed
@@ -174,7 +181,6 @@ vtkMRMLVesselSegmentationDisplayableManager2D
     void UpdateVisibilityOnSlice(vtkMRMLVesselSegmentationSeedNode *node);
 
   private:
-    bool observingSliceNode;
     vtkWeakPointer<vtkMRMLVesselSegmentationSeedNode> currentSeedNode;
 
     // PolygonSurfaceSource

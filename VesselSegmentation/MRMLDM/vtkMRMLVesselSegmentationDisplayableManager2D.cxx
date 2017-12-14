@@ -84,8 +84,6 @@ vtkStandardNewMacro(vtkMRMLVesselSegmentationDisplayableManager2D);
 vtkMRMLVesselSegmentationDisplayableManager2D::
 vtkMRMLVesselSegmentationDisplayableManager2D()
 {
-  this->observingSliceNode = false;
-
   this->AddInteractorObservableEvent(vtkCommand::LeftButtonReleaseEvent);
 }
 
@@ -177,29 +175,25 @@ OnMRMLSceneNodeAdded(vtkMRMLNode* addedNode)
     return;
     }
 
-  // Check if this is a seed node.
   vtkMRMLVesselSegmentationSeedNode *seedNode =
       vtkMRMLVesselSegmentationSeedNode::SafeDownCast(addedNode);
+  vtkMRMLSliceNode *sliceNode =
+    vtkMRMLSliceNode::SafeDownCast(addedNode);
 
+  // Check if this is a seed node.
   if(seedNode)
     {
     this->SetAndObserveSeedNode(seedNode);
+    // store the current seed node pointer
     this->currentSeedNode = seedNode;
-    std::cout << "DM - Set current seed node: " <<
-        currentSeedNode.GetPointer()->GetID() <<
-        " "<< currentSeedNode.GetPointer() << std::endl;
+    std::cout << "DM - Current seed node: " << seedNode << std::endl;
     }
-
-  else if (this->observingSliceNode == false)
+  // Check if this is a slice node.
+  else if (sliceNode)
     {
-    // Check if this is a slice node.
-    vtkMRMLSliceNode *sliceNode =
-      vtkMRMLSliceNode::SafeDownCast(addedNode);
-    if (sliceNode)
-      {
-      this->SetAndObserveSliceNode(sliceNode);
-      }
-    this->observingSliceNode = true;
+    this->SetAndObserveSliceNode(sliceNode);
+    char *name = sliceNode->GetID();
+    std::cout << "DM - Slice node: " << name << std::endl;
     }
 
   this->RequestRender();
@@ -238,6 +232,9 @@ OnMRMLSceneNodeRemoved(vtkMRMLNode *node)
     }
   else if (seedNode)
     {
+    // delete the current seed node pointer
+    this->currentSeedNode = NULL;
+
     if(this->Seed1Actor != NULL)
       {
       this->GetRenderer()->RemoveActor(this->Seed1Actor);
@@ -328,28 +325,27 @@ ProcessMRMLNodesEvents(vtkObject *caller,
 
   if (seedNode)
     {
-    // look for an existing representation (for seed1 or seed2)
-    if (this->Seed1Actor == NULL
-        && this->Seed2Actor == NULL)
-      {
-      vtkErrorMacro("Seed node is not currently "
-                    << "handled by the displayable manager");
-      return;
-      }
-
+    bool seed1Set = seedNode->GetIsSeed1Set();
+    bool seed2Set = seedNode->GetIsSeed2Set();
     switch(event)
       {
-      //std::cout << "DM - seed node event: ModifiedEvent " << std::endl;
+      std::cout << "DM - seed node event: ModifiedEvent " << std::endl;
       case vtkCommand::ModifiedEvent:
-        break;
-      case vtkMRMLDisplayableNode::DisplayModifiedEvent:
-        this->UpdateVisibilityOnSlice(seedNode);
+        if(seed1Set && !seed2Set && this->Seed1Actor == NULL)
+          {
+          this->AddRepresentation(seedNode);
+          }
+        else if(seed1Set && seed2Set && this->Seed2Actor == NULL)
+          {
+          this->AddRepresentation(seedNode);
+          }
+        this->UpdateVisibilityOnSlice(this->currentSeedNode);
         break;
       default:
         break;
       }
     }
-  else if (sliceNode)
+  if (sliceNode)
     {
     switch(event)
       {
@@ -358,6 +354,7 @@ ProcessMRMLNodesEvents(vtkObject *caller,
         if(this->currentSeedNode != NULL)
           {
           // use currentSeedNode, because this is a modification of the slice node
+          this->UpdatePositionOnSlice(this->currentSeedNode);
           this->UpdateVisibilityOnSlice(this->currentSeedNode);
           }
         break;
@@ -380,16 +377,18 @@ void vtkMRMLVesselSegmentationDisplayableManager2D::OnInteractorEvent(int eventi
   // & don't bother doing anything unless have a seed node
   if(this->currentSeedNode != NULL)
     {
-    double *pos = NULL;
-    bool seed1Set = this->currentSeedNode->GetIsSeed1Set();
-    bool seed2Set = this->currentSeedNode->GetIsSeed2Set();
-    std::cout << "DM - currentSeedNode, seed1set: " << seed1Set <<
-        " seed2set: " << seed2Set << std::endl;
-
     // Check if in placing seed mode
-    if(this->currentSeedNode->GetCurrentSeedMode() == vtkMRMLVesselSegmentationSeedNode::PlaceSeedSeg
-        || this->currentSeedNode->GetCurrentSeedMode() == vtkMRMLVesselSegmentationSeedNode::PlaceSeedSplit)
+    if(this->currentSeedNode->GetCurrentSeedMode() ==
+        vtkMRMLVesselSegmentationSeedNode::PlaceSeedSeg
+        || this->currentSeedNode->GetCurrentSeedMode() ==
+            vtkMRMLVesselSegmentationSeedNode::PlaceSeedSplit)
       {
+      double *pos = NULL;
+      bool seed1Set = this->currentSeedNode->GetIsSeed1Set();
+      bool seed2Set = this->currentSeedNode->GetIsSeed2Set();
+
+      //std::cout << "DM - currentSeedNode, seed1set: " << seed1Set <<
+          //" seed2set: " << seed2Set << std::endl;
       switch(eventid)
         {
         case vtkCommand::LeftButtonReleaseEvent:
@@ -397,29 +396,19 @@ void vtkMRMLVesselSegmentationDisplayableManager2D::OnInteractorEvent(int eventi
           pos = this->GetCrosshairPosition();
           if(pos != NULL)
             {
-            std::cout << "DM - Crosshair position: " << pos[0] << " " << pos[1] <<
-                " " << pos[2] << std::endl;
             if(!seed1Set && !seed2Set)
               {
-              // Check whether the node has an associated representation
-              if (this->Seed1Actor != NULL)
-                {
-                return;
-                }
-              // set seed 1
+              std::cout << "DM - Crosshair position, set seed1: " <<
+                  pos[0] << " " << pos[1] << " " << pos[2] << std::endl;
+              // set the seed position (causes a modified event)
               this->currentSeedNode->SetSeed1(pos[0],pos[1],pos[2]);
-              this->AddRepresentation(this->currentSeedNode);
               }
             else if(seed1Set && !seed2Set)
               {
-              // Check whether the node has an associated representation
-              if (this->Seed2Actor != NULL)
-                {
-                return;
-                }
-              // set seed2
+              std::cout << "DM - Crosshair position, set seed2: " <<
+                  pos[0] << " " << pos[1] << " " << pos[2] << std::endl;
+              // set the seed position (causes a modified event)
               this->currentSeedNode->SetSeed2(pos[0],pos[1],pos[2]);
-              this->AddRepresentation(this->currentSeedNode);
               }
             else
               {
@@ -483,7 +472,6 @@ SetAndObserveSeedNode(vtkMRMLVesselSegmentationSeedNode *node)
 
   vtkNew<vtkIntArray> nodeEvents;
   nodeEvents->InsertNextValue(vtkCommand::ModifiedEvent);
-  nodeEvents->InsertNextValue(vtkMRMLDisplayableNode::DisplayModifiedEvent);
 
   vtkUnObserveMRMLNodeMacro(node);
   vtkObserveMRMLNodeEventsMacro(node, nodeEvents.GetPointer());
@@ -554,8 +542,21 @@ AddRepresentation(vtkMRMLVesselSegmentationSeedNode *node)
     return false;
     }
 
+  vtkMRMLSliceNode* sliceNode = this->GetMRMLSliceNode();
+  vtkNew<vtkMatrix4x4> rasToXY;
+  vtkMatrix4x4::Invert(sliceNode->GetXYToRAS(), rasToXY.GetPointer());
+
+  double scalingFactorPixelPerMm = sqrt(
+    rasToXY->GetElement(0,0)*rasToXY->GetElement(0,0) +
+    rasToXY->GetElement(0,1)*rasToXY->GetElement(0,1) +
+    rasToXY->GetElement(0,2)*rasToXY->GetElement(0,2));
+
+  std::cout << "AddRepresentation - scalingFactorPixelPerMm: "
+      << scalingFactorPixelPerMm << std::endl;
+
+  // convert the ras pos to XYZ
   vtkSmartPointer<vtkMatrix4x4> RAStoXYmatrix = vtkSmartPointer<vtkMatrix4x4>::New();
-  RAStoXYmatrix->DeepCopy(this->GetMRMLSliceNode()->GetXYToRAS());
+  RAStoXYmatrix->DeepCopy(sliceNode->GetXYToRAS());
   RAStoXYmatrix->Invert();
   double *XYZ = new double[4];
   double *pos2 = new double[4];
@@ -574,11 +575,11 @@ AddRepresentation(vtkMRMLVesselSegmentationSeedNode *node)
     vtkSmartPointer<vtkRegularPolygonSource> polygonSource =
         vtkSmartPointer<vtkRegularPolygonSource>::New();
     polygonSource->SetNumberOfSides(5);
-    polygonSource->SetRadius(10.0);
+    polygonSource->SetRadius(3.0*scalingFactorPixelPerMm);
     polygonSource->SetCenter(XYZ[0], XYZ[1], XYZ[2]);
 
-    std::cout << "AddRepresentation - position set to: " << XYZ[0] << " " << XYZ[1] <<
-        " " << XYZ[2] << std::endl;
+    std::cout << "AddRepresentation - position set to: " << XYZ[0] << " "
+        << XYZ[1] << " " << XYZ[2] << std::endl;
 
     // Set the mapper, actor and add it to the scene
     vtkSmartPointer<vtkPolyDataMapper2D> mapper =
@@ -590,7 +591,7 @@ AddRepresentation(vtkMRMLVesselSegmentationSeedNode *node)
     vtkSmartPointer<vtkActor2D> actor =
       vtkSmartPointer<vtkActor2D>::New();
     actor->SetMapper(mapper);
-    actor->GetProperty()->SetLineWidth(2);
+    actor->GetProperty()->SetLineWidth(1);
     actor->GetProperty()->SetColor(1,0,0); // colour
 
     if(seed1Set && !seed2Set)
@@ -671,7 +672,7 @@ UpdateVisibilityOnSlice(vtkMRMLVesselSegmentationSeedNode *node)
         slicePlaneNormal[1]*(pos1[1]-slicePlaneOrigin[1]) +
         slicePlaneNormal[2]*(pos1[2]-slicePlaneOrigin[2]);
 
-    std::cout << "distance to seed1: " << distanceToSeed << std::endl;
+    //std::cout << "distance to seed1: " << distanceToSeed << std::endl;
     if(distanceToSeed == 0)
       {
       vtkActor2D *actor = this->Seed1Actor;
@@ -690,7 +691,7 @@ UpdateVisibilityOnSlice(vtkMRMLVesselSegmentationSeedNode *node)
         slicePlaneNormal[1]*(pos2[1]-slicePlaneOrigin[1]) +
         slicePlaneNormal[2]*(pos2[2]-slicePlaneOrigin[2]);
 
-    std::cout << "distance to seed2: " << distanceToSeed << std::endl;
+    //std::cout << "distance to seed2: " << distanceToSeed << std::endl;
     if(distanceToSeed == 0)
       {
       vtkActor2D *actor = this->Seed2Actor;
@@ -703,6 +704,95 @@ UpdateVisibilityOnSlice(vtkMRMLVesselSegmentationSeedNode *node)
       }
     }
   this->RequestRender();
+}
 
+//------------------------------------------------------------------------------
+void vtkMRMLVesselSegmentationDisplayableManager2D::
+UpdatePositionOnSlice(vtkMRMLVesselSegmentationSeedNode *node)
+{
+  vtkDebugMacro("UpdatePositionOnSlice");
+
+  if (!node)
+    {
+    vtkErrorMacro("No seed node passed");
+    return;
+    }
+
+  // Check for slice node
+  if (!this->GetMRMLSliceNode())
+    {
+    vtkErrorMacro("No slice node.");
+    return;
+    }
+
+  // look for an existing representation (for seed1 or seed2)
+  if (this->Seed1Actor == NULL && this->Seed2Actor == NULL)
+    {
+    vtkErrorMacro("Seed node is not currently "
+                  << "handled by the displayable manager");
+    return;
+    }
+  // else at least one is being handled by the manager
+
+  vtkSmartPointer<vtkMRMLSliceNode> sliceNode = this->GetMRMLSliceNode();
+  vtkSmartPointer<vtkMatrix4x4> RAStoXYmatrix = vtkSmartPointer<vtkMatrix4x4>::New();
+  RAStoXYmatrix.GetPointer()->DeepCopy(sliceNode.GetPointer()->GetXYToRAS());
+  RAStoXYmatrix.GetPointer()->Invert();
+
+  /*
+  double scalingFactorPixelPerMm = sqrt(
+      RAStoXYmatrix.GetPointer()->GetElement(0,0)*RAStoXYmatrix.GetPointer()->GetElement(0,0) +
+      RAStoXYmatrix.GetPointer()->GetElement(0,1)*RAStoXYmatrix.GetPointer()->GetElement(0,1) +
+      RAStoXYmatrix.GetPointer()->GetElement(0,2)*RAStoXYmatrix.GetPointer()->GetElement(0,2));
+  */
+
+  bool seed1Set = this->currentSeedNode->GetIsSeed1Set();
+  bool seed2Set = this->currentSeedNode->GetIsSeed2Set();
+ // std::cout << "DM - UpdatePositionOnSlice, seed1set: " << seed1Set <<
+     // " seed2set: " << seed2Set << std::endl;
+
+  if(this->Seed1Source && seed1Set)
+    {
+    double *ras1 = this->currentSeedNode->GetSeed1();
+    //std::cout << "UpdatePositionOnSlice - RAS seed1: "
+        //<< ras1[0] << " " << ras1[1] << " " << ras1[2] << std::endl;
+    // convert the ras pos to XYZ
+    double *XYZ = new double[4];
+    double pos[4];
+    pos[0] = ras1[0];
+    pos[1] = ras1[1];
+    pos[2] = ras1[2];
+    pos[3] = 1;
+    RAStoXYmatrix.GetPointer()->MultiplyPoint(pos, XYZ);
+    // Change the seed point
+    this->Seed1Source->SetRadius(3.0);//*scalingFactorPixelPerMm);
+    this->Seed1Source->SetCenter(XYZ[0], XYZ[1], XYZ[2]);
+    //std::cout << "UpdatePositionOnSlice - XYZ seed1 set to: "
+        //<< XYZ[0] << " " << XYZ[1] << " " << XYZ[2] << std::endl;
+    this->Seed1Source->Update();
+    this->Seed1Mapper->Update();
+    }
+  if(this->Seed2Source && seed2Set)
+    {
+    double *ras2 = this->currentSeedNode->GetSeed2();
+    //std::cout << "UpdatePositionOnSlice - RAS seed2: "
+        //<< ras2[0] << " " << ras2[1] << " " << ras2[2] << std::endl;
+    // convert the ras pos to XYZ
+    double *XYZ = new double[4];
+    double pos[4];
+    pos[0] = ras2[0];
+    pos[1] = ras2[1];
+    pos[2] = ras2[2];
+    pos[3] = 1;
+    RAStoXYmatrix.GetPointer()->MultiplyPoint(pos, XYZ);
+    // Change the seed point
+    this->Seed2Source->SetRadius(3.0);//*scalingFactorPixelPerMm);
+    this->Seed2Source->SetCenter(XYZ[0], XYZ[1], XYZ[2]);
+    //std::cout << "UpdatePositionOnSlice - XYZ seed2 set to: "
+        //<< XYZ[0] << " " << XYZ[1]<< " " << XYZ[2] << std::endl;
+    this->Seed2Source->Update();
+    this->Seed2Mapper->Update();
+    }
+  this->RequestRender();
 }
 

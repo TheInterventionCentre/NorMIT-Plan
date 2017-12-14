@@ -418,8 +418,8 @@ void qSlicerVesselSegmentationModuleWidget::onPreprocessing(int lowerThreshold, 
 
    if(seedNode != NULL)
      {
-     std::cout << "Widget: checking state of seed node " <<
-         seedNode->GetIsSeed1Set() << " " << seedNode->GetIsSeed2Set() <<  std::endl;
+     //std::cout << "Widget: checking state of seed node " <<
+         //seedNode->GetIsSeed1Set() << " " << seedNode->GetIsSeed2Set() <<  std::endl;
 
      if(seedNode->GetIsSeed2Set() &&
          seedNode->GetCurrentSeedMode() == vtkMRMLVesselSegmentationSeedNode::PlaceSeedSeg)
