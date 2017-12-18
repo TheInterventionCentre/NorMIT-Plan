@@ -7,14 +7,37 @@ if(NOT EXISTS "${TESTING_DATA}/testImage3_large.nrrd")
   # download image file from girder
   file(DOWNLOAD https://data.kitware.com/api/v1/file/59ee0c9d8d777f31ac64783f/download ${TESTING_DATA}/testImage3_large.nrrd)
 endif()
-if(NOT EXISTS "${TESTING_DATA}/testImage3_similaritySlicer.nrrd")
+if(NOT EXISTS "${TESTING_DATA}/testImage3_similarity.nrrd")
   # download similarity file from girder
-  file(DOWNLOAD https://data.kitware.com/api/v1/file/59f34a818d777f31ac647e92/download ${TESTING_DATA}/testImage3_similaritySlicer.nrrd)
+  file(DOWNLOAD https://data.kitware.com/api/v1/item/5a37e2218d777f5e872f5f64/download ${TESTING_DATA}/testImage3_similarity.nrrd)
+endif()
+
+if(NOT EXISTS "${TESTING_DATA}/preprocessedImage_split.nrrd")
+  # download split image file from girder
+  file(DOWNLOAD https://data.kitware.com/api/v1/item/5a33fa8e8d777f5e872f5df4/download ${TESTING_DATA}/preprocessedImage_split.nrrd)
+endif()
+if(NOT EXISTS "${TESTING_DATA}/hepaticLabel.nrrd")
+  # download split image file from girder
+  file(DOWNLOAD https://data.kitware.com/api/v1/item/5a33fa9e8d777f5e872f5dfa/download ${TESTING_DATA}/hepaticLabel.nrrd)
+endif()
+if(NOT EXISTS "${TESTING_DATA}/portalLabel.nrrd")
+  # download split image file from girder
+  file(DOWNLOAD https://data.kitware.com/api/v1/item/5a33fa978d777f5e872f5df7/download ${TESTING_DATA}/portalLabel.nrrd)
+endif()
+if(NOT EXISTS "${TESTING_DATA}/testSplitFinal.nrrd")
+  # download split image file from girder
+  file(DOWNLOAD https://data.kitware.com/api/v1/item/5a379e748d777f5e872f5f46/download ${TESTING_DATA}/testSplitFinal.nrrd)
 endif()
 
 set(TEST_FILE "${TESTING_DATA}/testImage3_large.nrrd")
-set(TEST_FILE_SIMILARITY "${TESTING_DATA}/testImage3_similaritySlicer.nrrd")
-set(TEST_OUTPUT "${TESTING_DATA}/testOutput.nrrd")
+set(TEST_FILE_SIMILARITY "${TESTING_DATA}/testImage3_similarity.nrrd")
+set(TEST_SEGMENTATION_OUTPUT "${TESTING_DATA}/testSegmentationOutput.nrrd")
+
+set(TEST_FILE_SPLIT "${TESTING_DATA}/preprocessedImage_split.nrrd")
+set(TEST_LABEL_HEPATIC "${TESTING_DATA}/hepaticLabel.nrrd")
+set(TEST_LABEL_PORTAL "${TESTING_DATA}/portalLabel.nrrd")
+set(TEST_FILE_SPLIT "${TESTING_DATA}/testSplitFinal.nrrd")
+set(TEST_SPLIT_OUTPUT "${TESTING_DATA}/testSplitOutput.nrrd")
 
 #-----------------------------------------------------------------------------
 # ITK 
@@ -38,6 +61,7 @@ set(KIT_TEST_SRCS
   vtkMRMLVesselSegmentationDisplayableManager2DTest1.cxx
   vtkMRMLVesselSegmentationLogicTest1.cxx
   vtkMRMLSegmentationAndSimilarityTest.cxx
+  vtkMRMLMergeLabelsAndSplitTest.cxx
   vtkVesselSegmentationHelperTest1.cxx
   EXTRA_INCLUDE vtkTestingOutputWindow.h
 )
@@ -68,5 +92,6 @@ slicerMacroConfigureModuleCxxTestDriver(
 simple_test(vtkMRMLVesselSegmentationSeedNodeTest1)
 simple_test(vtkMRMLVesselSegmentationDisplayableManager2DTest1)
 simple_test(vtkMRMLVesselSegmentationLogicTest1)
-simple_test(vtkMRMLSegmentationAndSimilarityTest ${TEST_FILE} ${TEST_FILE_SIMILARITY} ${TEST_OUTPUT})
+simple_test(vtkMRMLSegmentationAndSimilarityTest ${TEST_FILE} ${TEST_FILE_SIMILARITY} ${TEST_SEGMENTATION_OUTPUT})
+simple_test(vtkMRMLMergeLabelsAndSplitTest ${TEST_FILE_SPLIT} ${TEST_LABEL_HEPATIC} ${TEST_LABEL_PORTAL} ${TEST_FILE_SPLIT} ${TEST_SPLIT_OUTPUT})
 simple_test(vtkVesselSegmentationHelperTest1 ${TEST_FILE})

@@ -392,8 +392,8 @@ void vtkSlicerVesselSegmentationLogic::SegmentVessels(
   double *seed1 = seedNode->GetSeed1();
   double *seed2 = seedNode->GetSeed2();
 
-  const double seed1_0[4] = {seed1[0], seed1[1], seed1[2], 0}; // IJK
-  const double seed2_0[4] = {seed2[0], seed2[1], seed2[2], 0}; // IJK
+  const double seed1_0[4] = {seed1[0], seed1[1], seed1[2], 1}; // RAS
+  const double seed2_0[4] = {seed1[0], seed2[1], seed2[2], 1}; // RAS
 
   double *seedIJK1 = new double[4]; // the actual first seed
   double *seedIJK2 = new double[4]; // the direction seed
@@ -413,6 +413,9 @@ void vtkSlicerVesselSegmentationLogic::SegmentVessels(
   coord2[0] = seedIJK2[0];
   coord2[1] = seedIJK2[1];
   coord2[2] = seedIJK2[2];
+
+  //std::cout << "Seed IJK1 (155, 118, 41): " << coord1[0] << " " << coord1[1] << " " << coord1[2] << std::endl;
+  //std::cout << "Seed IJK2 (145, 116, 55): " << coord2[0] << " " << coord2[1] << " " << coord2[2] << std::endl;
 
   // create filter
   typedef itk::SeedVesselSegmentationImageFilter<vtkVesselSegmentationHelper::SeedImageType,
@@ -457,11 +460,11 @@ void vtkSlicerVesselSegmentationLogic::SegmentVessels(
     if(this->hepaticLabelMap == NULL)
       {
       // first time to create a hepatic label map
-      hepaticLabelMap = vtkSmartPointer<vtkMRMLLabelMapVolumeNode>::New();
-      hepaticLabelMap->CopyOrientation(activeVol);
-      hepaticLabelMap->SetAndObserveImageData(outVTKImage.GetPointer());
-      hepaticLabelMap->SetName("hepaticLabel");
-      this->GetMRMLScene()->AddNode(hepaticLabelMap);
+      this->hepaticLabelMap = vtkSmartPointer<vtkMRMLLabelMapVolumeNode>::New();
+      this->hepaticLabelMap->CopyOrientation(activeVol);
+      this->hepaticLabelMap->SetAndObserveImageData(outVTKImage.GetPointer());
+      this->hepaticLabelMap->SetName("hepaticLabel");
+      this->GetMRMLScene()->AddNode(this->hepaticLabelMap);
 
       // make this label map the selected one
       this->SetAndPropagateActiveLabel(this->hepaticLabelMap);
@@ -472,7 +475,7 @@ void vtkSlicerVesselSegmentationLogic::SegmentVessels(
       }
     else // already had an hepaticLabelMap
       {
-      hepaticLabelMap->SetAndObserveImageData(outVTKImage.GetPointer());
+      this->hepaticLabelMap->SetAndObserveImageData(outVTKImage.GetPointer());
 
       // have updated hepatic, but now merged is not up to date
       this->hepaticUpdated = true;
@@ -520,11 +523,11 @@ void vtkSlicerVesselSegmentationLogic::SegmentVessels(
       if(this->portalLabelMap == NULL)
         {
         // first time to create a portal label map
-        portalLabelMap = vtkSmartPointer<vtkMRMLLabelMapVolumeNode>::New();
-        portalLabelMap->CopyOrientation(activeVol);
-        portalLabelMap->SetAndObserveImageData(outVTKImage.GetPointer());
-        portalLabelMap->SetName("portalLabel");
-        this->GetMRMLScene()->AddNode(portalLabelMap);
+        this->portalLabelMap = vtkSmartPointer<vtkMRMLLabelMapVolumeNode>::New();
+        this->portalLabelMap->CopyOrientation(activeVol);
+        this->portalLabelMap->SetAndObserveImageData(outVTKImage.GetPointer());
+        this->portalLabelMap->SetName("portalLabel");
+        this->GetMRMLScene()->AddNode(this->portalLabelMap);
 
         // make this label map the selected one
         this->SetAndPropagateActiveLabel(this->portalLabelMap);
@@ -535,7 +538,7 @@ void vtkSlicerVesselSegmentationLogic::SegmentVessels(
         }
       else // already had an portalLabelMap
         {
-        portalLabelMap->SetAndObserveImageData(outVTKImage.GetPointer());
+        this->portalLabelMap->SetAndObserveImageData(outVTKImage.GetPointer());
 
         // have updated portal, but now merged is not up to date
         this->portalUpdated = true;
@@ -560,12 +563,19 @@ void vtkSlicerVesselSegmentationLogic::MergeLabelMaps()
     vtkErrorMacro("MergeLabelMaps: could not get active volume.")
     return;
     }
+  // check if we have the ITK versions of data, and try to convert it if not
+  if( this->hepaticITKdata.IsNull() )
+    {
+    this->hepaticITKdata =
+        vtkVesselSegmentationHelper::ConvertVolumeNodeToItkImage(this->hepaticLabelMap);
+    }
+  if( this->portalITKdata.IsNull() )
+    {
+    this->portalITKdata =
+        vtkVesselSegmentationHelper::ConvertVolumeNodeToItkImage(this->portalLabelMap);
+    }
 
-  /*
-   * Merge the 2 label maps (hepatic and portal)
-   * check the data for both exists
-   * loop through them, and in places they both segmented - make it purple
-   */
+  // check we have the data needed (if the conversions worked)
   if( this->hepaticITKdata.IsNull() && this->portalITKdata.IsNull() )
     {
     vtkErrorMacro("CallMergeLabelMaps: Do not have 2 label maps.")
@@ -576,7 +586,7 @@ void vtkSlicerVesselSegmentationLogic::MergeLabelMaps()
     vtkErrorMacro("CallMergeLabelMaps: Do not have hepatic label map.")
     return;
     }
-  else if( this->hepaticITKdata.IsNull() )
+  else if( this->portalITKdata.IsNull() )
     {
     vtkErrorMacro("CallMergeLabelMaps: Do not have portal label map.")
     return;
@@ -674,7 +684,7 @@ void vtkSlicerVesselSegmentationLogic::SplitVessels(
 
   double *seed1 = seedNode->GetSeed1();
 
-  const double seed1_0[4] = {seed1[0], seed1[1], seed1[2], 0}; // IJK
+  const double seed1_0[4] = {seed1[0], seed1[1], seed1[2], 1}; // IJK
   // have a seed
   double *seedIJK = new double[4];
   // use the ijk matrix to convert the points
@@ -840,8 +850,8 @@ void vtkSlicerVesselSegmentationLogic::SplitVessels(
   this->portalUpdated = true;
   this->UpdateModels();
 
-  //this->CallMergeLabelMaps();
   this->mergedUpdated = false;
+  this->SetAndPropagateActiveLabel(this->mergedLabelMap);
 }
 
 //---------------------------------------------------------------------------
@@ -1168,15 +1178,39 @@ void vtkSlicerVesselSegmentationLogic::SetAndPropagateActiveLabel(
   mrmlAppLogic->PropagateVolumeSelection();
 }
 
+// some functions used in testing
 //---------------------------------------------------------------------------
-vtkVesselSegmentationHelper::SeedImageType::Pointer vtkSlicerVesselSegmentationLogic::GetHepaticITKData()
+vtkVesselSegmentationHelper::SeedImageType::Pointer
+vtkSlicerVesselSegmentationLogic::GetHepaticITKData()
 {
   return this->hepaticITKdata;
 }
 
 //---------------------------------------------------------------------------
-vtkVesselSegmentationHelper::SeedImageType::Pointer vtkSlicerVesselSegmentationLogic::GetPortalITKData()
+vtkVesselSegmentationHelper::SeedImageType::Pointer
+vtkSlicerVesselSegmentationLogic::GetPortalITKData()
 {
   return this->portalITKdata;
+}
+
+//---------------------------------------------------------------------------
+vtkVesselSegmentationHelper::SeedImageType::Pointer
+vtkSlicerVesselSegmentationLogic::GetMergedITKData()
+{
+  return this->mergedITKdata;
+}
+
+//---------------------------------------------------------------------------
+void vtkSlicerVesselSegmentationLogic::SetHepaticLabelMap(
+    vtkMRMLLabelMapVolumeNode* labelMap)
+{
+  this->hepaticLabelMap = labelMap;
+}
+
+//---------------------------------------------------------------------------
+void vtkSlicerVesselSegmentationLogic::SetPortalLabelMap(
+    vtkMRMLLabelMapVolumeNode* labelMap)
+{
+  this->portalLabelMap = labelMap;
 }
 
