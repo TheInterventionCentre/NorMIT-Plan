@@ -1181,6 +1181,13 @@ void vtkSlicerVesselSegmentationLogic::SetAndPropagateActiveLabel(
 // some functions used in testing
 //---------------------------------------------------------------------------
 vtkVesselSegmentationHelper::SeedImageType::Pointer
+vtkSlicerVesselSegmentationLogic::GetPreprocessedITKData()
+{
+  return this->preprocessedImg;
+}
+
+//---------------------------------------------------------------------------
+vtkVesselSegmentationHelper::SeedImageType::Pointer
 vtkSlicerVesselSegmentationLogic::GetHepaticITKData()
 {
   return this->hepaticITKdata;

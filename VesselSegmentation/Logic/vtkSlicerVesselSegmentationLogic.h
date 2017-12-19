@@ -176,6 +176,13 @@ public:
   void SetAndPropagateActiveLabel(vtkMRMLLabelMapVolumeNode*);
 
   /**
+   * Method to get the merged ITK data.
+   *
+   * @return pointer to merged ITK data.
+   */
+  vtkVesselSegmentationHelper::SeedImageType::Pointer GetPreprocessedITKData();
+
+  /**
    * Method to get the hepatic ITK data.
    *
    * @return pointer to hepatic ITK data.

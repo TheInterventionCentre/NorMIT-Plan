@@ -3,6 +3,17 @@ set(KIT qSlicer${MODULE_NAME}Module)
 file(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/${MODULE_NAME}/Testing/Cxx/Data")
 set(TESTING_DATA "${CMAKE_BINARY_DIR}/${MODULE_NAME}/Testing/Cxx/Data")
 
+# preprocessing test
+if(NOT EXISTS "${TESTING_DATA}/original_cropped.nrrd")
+  # download image file from girder
+  file(DOWNLOAD https://data.kitware.com/api/v1/item/5a38d0dc8d777f5e872f5f9d/download ${TESTING_DATA}/original_cropped.nrrd)
+endif()
+if(NOT EXISTS "${TESTING_DATA}/preprocessedImage.nrrd")
+  # download similarity file from girder
+  file(DOWNLOAD https://data.kitware.com/api/v1/item/5a38d0d38d777f5e872f5f9a/download ${TESTING_DATA}/preprocessedImage.nrrd)
+endif()
+
+# segmentation test
 if(NOT EXISTS "${TESTING_DATA}/testImage3_large.nrrd")
   # download image file from girder
   file(DOWNLOAD https://data.kitware.com/api/v1/file/59ee0c9d8d777f31ac64783f/download ${TESTING_DATA}/testImage3_large.nrrd)
@@ -12,6 +23,7 @@ if(NOT EXISTS "${TESTING_DATA}/testImage3_similarity.nrrd")
   file(DOWNLOAD https://data.kitware.com/api/v1/item/5a37e2218d777f5e872f5f64/download ${TESTING_DATA}/testImage3_similarity.nrrd)
 endif()
 
+# splitting test
 if(NOT EXISTS "${TESTING_DATA}/preprocessedImage_split.nrrd")
   # download split image file from girder
   file(DOWNLOAD https://data.kitware.com/api/v1/item/5a33fa8e8d777f5e872f5df4/download ${TESTING_DATA}/preprocessedImage_split.nrrd)
@@ -30,13 +42,19 @@ if(NOT EXISTS "${TESTING_DATA}/testSplitFinal.nrrd")
 endif()
 
 set(TEST_FILE "${TESTING_DATA}/testImage3_large.nrrd")
-set(TEST_FILE_SIMILARITY "${TESTING_DATA}/testImage3_similarity.nrrd")
+
+set(TEST_FILE_PREPROCESS "${TESTING_DATA}/original_cropped.nrrd")
+set(TEST_FILE_PREPROCESS_SIMILARITY "${TESTING_DATA}/preprocessedImage.nrrd")
+set(TEST_PREPROCESS_OUTPUT "${TESTING_DATA}/testPreprocessedOutput.nrrd")
+
+set(TEST_FILE_SEGMENTATION "${TESTING_DATA}/testImage3_large.nrrd")
+set(TEST_FILE_SEGMENTATION_SIMILARITY "${TESTING_DATA}/testImage3_similarity.nrrd")
 set(TEST_SEGMENTATION_OUTPUT "${TESTING_DATA}/testSegmentationOutput.nrrd")
 
 set(TEST_FILE_SPLIT "${TESTING_DATA}/preprocessedImage_split.nrrd")
 set(TEST_LABEL_HEPATIC "${TESTING_DATA}/hepaticLabel.nrrd")
 set(TEST_LABEL_PORTAL "${TESTING_DATA}/portalLabel.nrrd")
-set(TEST_FILE_SPLIT "${TESTING_DATA}/testSplitFinal.nrrd")
+set(TEST_FILE_SPLIT_SIMILARITY "${TESTING_DATA}/testSplitFinal.nrrd")
 set(TEST_SPLIT_OUTPUT "${TESTING_DATA}/testSplitOutput.nrrd")
 
 #-----------------------------------------------------------------------------
@@ -60,9 +78,10 @@ set(KIT_TEST_SRCS
   vtkMRMLVesselSegmentationSeedNodeTest1.cxx
   vtkMRMLVesselSegmentationDisplayableManager2DTest1.cxx
   vtkMRMLVesselSegmentationLogicTest1.cxx
+  vtkVesselSegmentationHelperTest1.cxx
+  vtkMRMLPreprocessingImageTest.cxx 
   vtkMRMLSegmentationAndSimilarityTest.cxx
   vtkMRMLMergeLabelsAndSplitTest.cxx
-  vtkVesselSegmentationHelperTest1.cxx
   EXTRA_INCLUDE vtkTestingOutputWindow.h
 )
 
@@ -92,6 +111,7 @@ slicerMacroConfigureModuleCxxTestDriver(
 simple_test(vtkMRMLVesselSegmentationSeedNodeTest1)
 simple_test(vtkMRMLVesselSegmentationDisplayableManager2DTest1)
 simple_test(vtkMRMLVesselSegmentationLogicTest1)
-simple_test(vtkMRMLSegmentationAndSimilarityTest ${TEST_FILE} ${TEST_FILE_SIMILARITY} ${TEST_SEGMENTATION_OUTPUT})
-simple_test(vtkMRMLMergeLabelsAndSplitTest ${TEST_FILE_SPLIT} ${TEST_LABEL_HEPATIC} ${TEST_LABEL_PORTAL} ${TEST_FILE_SPLIT} ${TEST_SPLIT_OUTPUT})
 simple_test(vtkVesselSegmentationHelperTest1 ${TEST_FILE})
+simple_test(vtkMRMLPreprocessingImageTest ${TEST_FILE_PREPROCESS} ${TEST_FILE_PREPROCESS_SIMILARITY} ${TEST_PREPROCESS_OUTPUT})
+simple_test(vtkMRMLSegmentationAndSimilarityTest ${TEST_FILE_SEGMENTATION} ${TEST_FILE_SEGMENTATION_SIMILARITY} ${TEST_SEGMENTATION_OUTPUT})
+simple_test(vtkMRMLMergeLabelsAndSplitTest ${TEST_FILE_SPLIT} ${TEST_LABEL_HEPATIC} ${TEST_LABEL_PORTAL} ${TEST_FILE_SPLIT_SIMILARITY} ${TEST_SPLIT_OUTPUT})
