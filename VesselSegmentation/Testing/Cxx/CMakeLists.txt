@@ -20,7 +20,7 @@ if(NOT EXISTS "${TESTING_DATA}/testImage3_large.nrrd")
 endif()
 if(NOT EXISTS "${TESTING_DATA}/testImage3_similarity.nrrd")
   # download similarity file from girder
-  file(DOWNLOAD https://data.kitware.com/api/v1/item/5a37e2218d777f5e872f5f64/download ${TESTING_DATA}/testImage3_similarity.nrrd)
+  file(DOWNLOAD https://data.kitware.com/api/v1/item/5a3a83b68d777f5e872f609a/download ${TESTING_DATA}/testImage3_similarity.nrrd)
 endif()
 
 # splitting test
