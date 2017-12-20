@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program: NorMIT-Plan
-  Module: vtkMRMLSegmentationAndSimilarityTest.cxx
+  Module: vtkMRMLMergeLabelsAndSplitTest.cxx
 
   Copyright (c) 2017, The Intervention Centre, Oslo University Hospital
 
@@ -37,8 +37,9 @@
 #include <vtkMRMLCoreTestingMacros.h>
 #include <vtkMRMLScene.h>
 #include <vtkMRMLNode.h>
-#include <vtkMRMLMarkupsFiducialNode.h>
 #include <vtkMRMLScalarVolumeNode.h>
+#include <vtkMRMLLabelMapVolumeNode.h>
+#include <vtkMRMLStorageNode.h>
 #include <vtkMRMLVolumeArchetypeStorageNode.h>
 #include <vtkMatrix4x4.h>
 #include <vtkMRMLSelectionNode.h>
@@ -69,9 +70,11 @@
 #include "vtkMRMLVesselSegmentationSeedNode.h"
 #include "vtkVesselSegmentationHelper.h"
 
-bool testLoadFileAndSegment(const char* volumeName1, const char* volumeName2, const char* volumeName3, vtkSlicerVesselSegmentationLogic* logic);
+bool testLoadFileAndLabels(const char* volumeName1, const char* volumeName2,
+    const char* volumeName3, const char* volumeName4, const char* volumeName5,
+    vtkSlicerVesselSegmentationLogic* logic);
 
-int vtkMRMLSegmentationAndSimilarityTest(int argc, char * argv[]  )
+int vtkMRMLMergeLabelsAndSplitTest(int argc, char * argv[]  )
 {
   itk::itkFactoryRegistration();
 
@@ -82,35 +85,52 @@ int vtkMRMLSegmentationAndSimilarityTest(int argc, char * argv[]  )
 
   std::cout << "Created scene and logic" << std::endl;
 
-  const char* fileName1 = "../Data/testImage3_large.nrrd";
+  const char* fileName1 = "../Data/splitTestImage.nrrd";
   if (argc > 1)
     {
     fileName1 = argv[1];
     }
-  std::cout << "Using file name segment " << fileName1 << std::endl;
+  std::cout << "Using file name background " << fileName1 << std::endl;
 
-  const char* fileName2 = "../Data/testImage3_similaritySlicer.nrrd";
+  const char* fileName2 = "../Data/hepaticLabel.nrrd";
   if (argc > 2)
     {
     fileName2 = argv[2];
     }
-  std::cout << "Using file name similarity " << fileName2 << std::endl;
+  std::cout << "Using file name hepatic " << fileName2 << std::endl;
 
-  const char* fileName3 = "../Data/testSegmentationOutput.nrrd";
+  const char* fileName3 = "../Data/portalLabel.nrrd";
   if (argc > 3)
     {
     fileName3 = argv[3];
     }
-  std::cout << "Using file output name " << fileName3 << std::endl;
+  std::cout << "Using file name portal " << fileName3 << std::endl;
 
-  bool res = testLoadFileAndSegment(fileName1, fileName2, fileName3, logic.GetPointer());
+  const char* fileName4 = "../Data/testSplitFinal.nrrd";
+  if (argc > 4)
+    {
+    fileName4 = argv[4];
+    }
+  std::cout << "Using file output name " << fileName4 << std::endl;
+
+
+  const char* fileName5 = "../Data/testSplitOutput.nrrd";
+  if (argc > 5)
+    {
+    fileName5 = argv[5];
+    }
+  std::cout << "Using file output name " << fileName5 << std::endl;
+
+
+  bool res = testLoadFileAndLabels(fileName1, fileName2, fileName3, fileName4, fileName5, logic.GetPointer());
 
   return res ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
-bool testLoadFileAndSegment( const char* volumeName1, const char* volumeName2, const char* volumeName3, vtkSlicerVesselSegmentationLogic* logic )
+bool testLoadFileAndLabels( const char* volumeName1, const char* volumeName2, const char* volumeName3,
+    const char* volumeName4, const char* volumeName5, vtkSlicerVesselSegmentationLogic* logic )
 {
-  std::cout << "inside: testLoadFileAndSegment" << std::endl;
+  std::cout << "inside: testLoadFileAndLabels" << std::endl;
 
   //Retrieve a pointer to the mrml scene
   vtkMRMLScene *scene = logic->GetMRMLScene();
@@ -147,12 +167,12 @@ bool testLoadFileAndSegment( const char* volumeName1, const char* volumeName2, c
   // check have valid image data
   if (!activeVol)
     {
-    std::cout << "testLoadFileAndSegment: no active volume." << std::endl;
+    std::cout << "testLoadFileAndLabels: no active volume." << std::endl;
     return false;
     }
   if (!activeVol->GetImageData())
     {
-    std::cout << "testLoadFileAndSegment: active volume does not have data." << std::endl;
+    std::cout << "testLoadFileAndLabels: active volume does not have data." << std::endl;
     return false;
     }
 
@@ -163,67 +183,75 @@ bool testLoadFileAndSegment( const char* volumeName1, const char* volumeName2, c
   // Declare the types of the images
   typedef itk::Image<PixelType,Dim> ImageType;
 
-  //typedef itk::SeedVesselSegmentationImageFilter<ImageType, ImageType> SeedVesselFilterType;
+  vtkSmartPointer<vtkMRMLVolumeArchetypeStorageNode> storageNode2 =
+      vtkSmartPointer<vtkMRMLVolumeArchetypeStorageNode>::New();
+  vtkSmartPointer<vtkMRMLLabelMapVolumeNode> hepaticNode =
+      vtkSmartPointer<vtkMRMLLabelMapVolumeNode>::New();
 
-  /*
-  //create conversion matrices
-  vtkNew<vtkMatrix4x4> IJKtoRASmatrix;
-  vtkNew<vtkMatrix4x4> RAStoIJKmatrix;
+  storageNode2->SetFileName(volumeName2);
+  std::cout << "Try to load the file" << std::endl;
+  storageNode2->ReadData(hepaticNode.GetPointer());
+  std::cout << "Past read data" << std::endl;
 
-  vtkSmartPointer<vtkMatrix4x4> mat = vtkSmartPointer<vtkMatrix4x4>::New();
-  logic->GetActiveVolume()->GetIJKToRASMatrix(mat);
-  IJKtoRASmatrix->DeepCopy(mat);
-  RAStoIJKmatrix->DeepCopy(mat);
-  RAStoIJKmatrix->Invert();
-  */
+  scene->AddNode(hepaticNode);
+  logic->SetHepaticLabelMap(hepaticNode);
+
+  vtkSmartPointer<vtkMRMLVolumeArchetypeStorageNode> storageNode3 =
+      vtkSmartPointer<vtkMRMLVolumeArchetypeStorageNode>::New();
+  vtkSmartPointer<vtkMRMLLabelMapVolumeNode> portalNode =
+      vtkSmartPointer<vtkMRMLLabelMapVolumeNode>::New();
+
+  storageNode3->SetFileName(volumeName3);
+  std::cout << "Try to load the file" << std::endl;
+  storageNode3->ReadData(portalNode.GetPointer());
+  std::cout << "Past read data" << std::endl;
+
+  scene->AddNode(portalNode);
+  logic->SetPortalLabelMap(portalNode);
+
+  // merge the label maps
+  TESTING_OUTPUT_ASSERT_ERRORS_BEGIN();
+  logic->MergeLabelMaps();
+  TESTING_OUTPUT_ASSERT_ERRORS(0); // check have no errors
+  TESTING_OUTPUT_RESET(); // reset to clear errors + warnings
+
+  // check we have the merged label map
+  if(logic->GetPortalITKData().IsNull() || logic->GetHepaticITKData().IsNull())
+    {
+    std::cout << "testLoadFileAndLabels: label maps not merged." << std::endl;
+    return false;
+    }
 
   //--------------------------
-  // add the seed node, set the seeds
+  // add the seed node, set the seed, run split vessels
   //--------------------------
   vtkNew<vtkMRMLVesselSegmentationSeedNode> seedNode;
   scene->AddNode(seedNode.GetPointer());
   std::cout << "added seed node to scene" << std::endl;
 
-  // Seed IJK: 155, 118, 41
-  // Direction seed IJK: 145, 116, 55
-
-  // Seed RAS: 34.15 35.375 158.375
-  // Direction seed RAS: 40.4 36.625 167.125
-
-  /*
-  // conversion from known IJK to RAS (for this test image)
-  const double seed1[4] = {93, 193, 34, 1}; // IJK
-  const double seed2[4] = {91, 208, 37, 1}; // IJK
-
-  double *seedRAS1 = new double[4]; // the first seed
-  double *seedRAS2 = new double[4]; // the direction seed
-
-  // use the ijk matrix to convert the points
-  IJKtoRASmatrix.GetPointer()->MultiplyPoint(seed1, seedRAS1);
-  IJKtoRASmatrix.GetPointer()->MultiplyPoint(seed2, seedRAS2);
-
-  std::cout << "Seed ras1 (155, 118, 41): " << seedRAS1[0] << " " << seedRAS1[1] << " " << seedRAS1[2] << " " << seedRAS1[3] << std::endl;
-  std::cout << "Seed ras2 (145, 116, 55): " << seedRAS2[0] << " " << seedRAS2[1] << " " << seedRAS2[2] << " " << seedRAS2[3] << std::endl;
-  */
-
-  // add 1st seed
-  double inPos[3] = {34.15, 35.375, 158.375}; // RAS
+  // only need 1st seed
+  double inPos[3] = {76.172, -8.670, 218.476}; // RAS
   seedNode->SetSeed1(inPos[0], inPos[1], inPos[2]);
-  // add 2nd (direction) seed
-  double inPos2[3] = {40.4, 36.625, 167.125}; // RAS
-  seedNode->SetSeed2(inPos2[0], inPos2[1], inPos2[2]);
 
-  // call the segmentation
+  // call the split
   TESTING_OUTPUT_ASSERT_ERRORS_BEGIN();
-  logic->SegmentVessels(seedNode.GetPointer(), false);
+  logic->SplitVessels(seedNode.GetPointer(), true);
   TESTING_OUTPUT_ASSERT_ERRORS_END();
 
-  ImageType::Pointer output = logic->GetPortalITKData();
+  std::cout << "Getting merged ITK data to write out" << std::endl;
+  ImageType::Pointer output = logic->GetMergedITKData();
+
+  // check we have the merged label map
+  if(output.IsNull())
+    {
+    std::cout << "testLoadFileAndLabels: label maps not merged." << std::endl;
+    return false;
+    }
 
   typedef itk::ImageFileWriter<ImageType> FileWriterType;
 
   FileWriterType::Pointer writer = FileWriterType::New();
-  writer->SetFileName(volumeName3);
+  writer->SetFileName(volumeName5);
   writer->SetInput(output);
 
   try
@@ -235,41 +263,42 @@ bool testLoadFileAndSegment( const char* volumeName1, const char* volumeName2, c
       std::cerr << e << std::endl;
       return EXIT_FAILURE;
   }
+  std::cout << "Wrote out merged data" << std::endl;
 
   //--------------------------
   //Similarity Check
   //--------------------------
 
-  vtkSmartPointer<vtkMRMLVolumeArchetypeStorageNode> storageNode2 =
+  vtkSmartPointer<vtkMRMLVolumeArchetypeStorageNode> storageNode4 =
       vtkSmartPointer<vtkMRMLVolumeArchetypeStorageNode>::New();
-  vtkSmartPointer<vtkMRMLScalarVolumeNode> scalarNode2 =
+  vtkSmartPointer<vtkMRMLScalarVolumeNode> scalarNode4 =
       vtkSmartPointer<vtkMRMLScalarVolumeNode>::New();
 
-  storageNode2->SetFileName(volumeName2);
+  storageNode4->SetFileName(volumeName4);
   std::cout << "Try to load the file" << std::endl;
-  storageNode2->ReadData(scalarNode2.GetPointer());
+  storageNode4->ReadData(scalarNode4.GetPointer());
   std::cout << "Past read data" << std::endl;
 
-  scene->AddNode(scalarNode2);
-  char* id2 = scalarNode2->GetID();
+  scene->AddNode(scalarNode4);
+  char* id2 = scalarNode4->GetID();
   selectionNode->SetActiveVolumeID(id2);
 
-  vtkSmartPointer<vtkMRMLScalarVolumeNode> activeVol2 = logic->GetActiveVolume();
+  vtkSmartPointer<vtkMRMLScalarVolumeNode> activeVol4 = logic->GetActiveVolume();
 
   // check have valid image data
-  if (!activeVol2)
+  if (!activeVol4)
     {
-    std::cout << "testLoadFileAndSegment: no active volume." << std::endl;
+    std::cout << "testLoadFileAndLabels: no active volume." << std::endl;
     return false;
     }
-  if (!activeVol2->GetImageData())
+  if (!activeVol4->GetImageData())
     {
-    std::cout << "testLoadFileAndSegment: active volume does not have data." << std::endl;
+    std::cout << "testLoadFileAndLabels: active volume does not have data." << std::endl;
     return false;
     }
 
   // get similarity image
-  ImageType::Pointer similarityImg = vtkVesselSegmentationHelper::ConvertVolumeNodeToItkImage(activeVol2);
+  ImageType::Pointer similarityImg = vtkVesselSegmentationHelper::ConvertVolumeNodeToItkImage(activeVol4);
 
   typedef itk::MinimumMaximumImageCalculator <ImageType> ImageCalculatorFilterType;
 

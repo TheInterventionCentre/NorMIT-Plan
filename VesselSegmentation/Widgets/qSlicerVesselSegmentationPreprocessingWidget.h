@@ -109,7 +109,7 @@ class Q_SLICER_MODULE_VESSELSEGMENTATION_WIDGETS_EXPORT qSlicerVesselSegmentatio
    *
    * @param value of spin box.
    */
-  void OnAlphaSpin(unsigned int value);
+  void OnAlphaSpin(int value);
 
   /**
    * Triggered when beta spin box is changed
@@ -123,14 +123,14 @@ class Q_SLICER_MODULE_VESSELSEGMENTATION_WIDGETS_EXPORT qSlicerVesselSegmentatio
    *
    * @param value of spin box.
    */
-  void OnConductanceSpin(unsigned int value);
+  void OnConductanceSpin(int value);
 
   /**
    * Triggered when iteration spin box is changed
    *
    * @param value of spin box.
    */
-  void OnIterationsSpin(unsigned int value);
+  void OnIterationsSpin(int value);
 
  protected:
   QScopedPointer<qSlicerVesselSegmentationPreprocessingWidgetPrivate> d_ptr;

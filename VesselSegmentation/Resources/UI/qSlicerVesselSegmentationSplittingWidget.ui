@@ -47,7 +47,7 @@
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout_7">
         <item>
-         <widget class="QRadioButton" name="radioHepaticMerge">
+         <widget class="QRadioButton" name="radioHepaticSplit">
           <property name="text">
            <string>Hepatic</string>
           </property>
@@ -57,7 +57,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QRadioButton" name="radioPortalMerge">
+         <widget class="QRadioButton" name="radioPortalSplit">
           <property name="text">
            <string>Portal</string>
           </property>
@@ -81,9 +81,12 @@
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout_8">
         <item>
-         <widget class="QPushButton" name="buttonSeedsMerge">
+         <widget class="QPushButton" name="buttonSeedsSplit">
           <property name="text">
            <string>Place Seed</string>
+          </property>
+          <property name="checkable">
+           <bool>true</bool>
           </property>
          </widget>
         </item>
@@ -133,9 +136,9 @@
  </widget>
  <tabstops>
   <tabstop>buttonMergeSeg</tabstop>
-  <tabstop>radioHepaticMerge</tabstop>
-  <tabstop>radioPortalMerge</tabstop>
-  <tabstop>buttonSeedsMerge</tabstop>
+  <tabstop>radioHepaticSplit</tabstop>
+  <tabstop>radioPortalSplit</tabstop>
+  <tabstop>buttonSeedsSplit</tabstop>
   <tabstop>buttonSeedsAssign</tabstop>
  </tabstops>
  <resources/>
@@ -157,10 +160,10 @@
    </hints>
   </connection>
   <connection>
-   <sender>buttonSeedsMerge</sender>
+   <sender>buttonSeedsSplit</sender>
    <signal>clicked()</signal>
    <receiver>qSlicerVesselSegmentationSplittingWidget</receiver>
-   <slot>PlaceSeedsMerge()</slot>
+   <slot>PlaceSeedsSplit()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>135</x>
@@ -189,10 +192,10 @@
    </hints>
   </connection>
   <connection>
-   <sender>radioHepaticMerge</sender>
+   <sender>radioHepaticSplit</sender>
    <signal>clicked()</signal>
    <receiver>qSlicerVesselSegmentationSplittingWidget</receiver>
-   <slot>OnHepaticMerge()</slot>
+   <slot>OnHepaticSplit()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>96</x>
@@ -205,10 +208,10 @@
    </hints>
   </connection>
   <connection>
-   <sender>radioPortalMerge</sender>
+   <sender>radioPortalSplit</sender>
    <signal>clicked()</signal>
    <receiver>qSlicerVesselSegmentationSplittingWidget</receiver>
-   <slot>OnPortalMerge()</slot>
+   <slot>OnPortalSplit()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>165</x>
@@ -217,6 +220,22 @@
     <hint type="destinationlabel">
      <x>262</x>
      <y>461</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>qSlicerVesselSegmentationSplittingWidget</sender>
+   <signal>ToggleButtonSeedSplit()</signal>
+   <receiver>buttonSeedsSplit</receiver>
+   <slot>toggle()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>234</x>
+     <y>104</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>81</x>
+     <y>124</y>
     </hint>
    </hints>
   </connection>

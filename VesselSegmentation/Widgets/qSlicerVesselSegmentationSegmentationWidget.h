@@ -69,6 +69,11 @@ class Q_SLICER_MODULE_VESSELSEGMENTATION_WIDGETS_EXPORT qSlicerVesselSegmentatio
 
  public slots:
 
+ /**
+  * Function to toggle the place seeds button
+  */
+  void onTogglePlaceSeedsSeg();
+
  signals:
  /**
   * Signal emitted when the placing seeds button is clicked
@@ -79,6 +84,11 @@ class Q_SLICER_MODULE_VESSELSEGMENTATION_WIDGETS_EXPORT qSlicerVesselSegmentatio
   * Signal emitted when the run segment button is clicked
   */
  void RunSegmentClicked(bool isHepatic);
+
+ /**
+  * Signal emitted to toggle the place seeds button
+  */
+ void ToggleButtonSeedsSeg();
 
  protected slots:
 
