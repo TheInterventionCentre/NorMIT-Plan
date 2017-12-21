@@ -546,6 +546,7 @@ AddRepresentation(vtkMRMLVesselSegmentationSeedNode *node)
   vtkNew<vtkMatrix4x4> rasToXY;
   vtkMatrix4x4::Invert(sliceNode->GetXYToRAS(), rasToXY.GetPointer());
 
+  /*
   double scalingFactorPixelPerMm = sqrt(
     rasToXY->GetElement(0,0)*rasToXY->GetElement(0,0) +
     rasToXY->GetElement(0,1)*rasToXY->GetElement(0,1) +
@@ -553,6 +554,7 @@ AddRepresentation(vtkMRMLVesselSegmentationSeedNode *node)
 
   std::cout << "AddRepresentation - scalingFactorPixelPerMm: "
       << scalingFactorPixelPerMm << std::endl;
+          */
 
   // convert the ras pos to XYZ
   vtkSmartPointer<vtkMatrix4x4> RAStoXYmatrix = vtkSmartPointer<vtkMatrix4x4>::New();
@@ -575,7 +577,7 @@ AddRepresentation(vtkMRMLVesselSegmentationSeedNode *node)
     vtkSmartPointer<vtkRegularPolygonSource> polygonSource =
         vtkSmartPointer<vtkRegularPolygonSource>::New();
     polygonSource->SetNumberOfSides(5);
-    polygonSource->SetRadius(3.0*scalingFactorPixelPerMm);
+    polygonSource->SetRadius(3.0);//*scalingFactorPixelPerMm);
     polygonSource->SetCenter(XYZ[0], XYZ[1], XYZ[2]);
 
     std::cout << "AddRepresentation - position set to: " << XYZ[0] << " "
