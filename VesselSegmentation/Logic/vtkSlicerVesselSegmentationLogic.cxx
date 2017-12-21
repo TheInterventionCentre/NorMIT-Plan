@@ -663,6 +663,12 @@ void vtkSlicerVesselSegmentationLogic::SplitVessels(
     vtkErrorMacro("SplitVessels: could not get active volume.")
     return;
     }
+  // check have a merged label map
+  if( this->mergedITKdata.IsNull() )
+    {
+    vtkErrorMacro("SplitVessels: Do not have merged label map.")
+    return;
+    }
 
   vtkSmartPointer<vtkMatrix4x4> mat = vtkSmartPointer<vtkMatrix4x4>::New();
   activeVol->GetIJKToRASMatrix(mat);
