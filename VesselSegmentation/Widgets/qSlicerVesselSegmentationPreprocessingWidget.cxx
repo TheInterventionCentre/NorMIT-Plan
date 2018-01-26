@@ -107,51 +107,51 @@ qSlicerVesselSegmentationPreprocessingWidget
  */
 void qSlicerVesselSegmentationPreprocessingWidget::PreProcessing()
 {
-  std::cout << "Widget - On PreProcessing" << std::endl;
+  //std::cout << "preWidget - On PreProcessing" << std::endl;
 
   emit PreprocessingClicked(this->lowerThreshold, this->upperThreshold, this->alpha, this->beta, this->conductance, this->iterations);
 }
 
 void qSlicerVesselSegmentationPreprocessingWidget::OnLTSpin(int value)
 {
-  std::cout << "Widget - On LT spin " << value << std::endl;
+  //std::cout << "preWidget - On LT spin " << value << std::endl;
 
   this->lowerThreshold = value;
 }
 
 void qSlicerVesselSegmentationPreprocessingWidget::OnUTSpin(int value)
 {
-  std::cout << "Widget - On UT spin " << value << std::endl;
+  //std::cout << "preWidget - On UT spin " << value << std::endl;
 
   this->upperThreshold = value;
 }
 
-void qSlicerVesselSegmentationPreprocessingWidget::OnAlphaSpin(unsigned int value)
+void qSlicerVesselSegmentationPreprocessingWidget::OnAlphaSpin(int value)
 {
-  std::cout << "Widget - On Alpha spin " << value << std::endl;
+  //std::cout << "preWidget - On Alpha spin " << value << std::endl;
 
-  this->alpha = value;
+  this->alpha = (unsigned int) value;
 }
 
 void qSlicerVesselSegmentationPreprocessingWidget::OnBetaSpin(int value)
 {
-  std::cout << "Widget - On Beta spin " << value << std::endl;
+  //std::cout << "preWidget - On Beta spin " << value << std::endl;
 
   this->beta = value;
 }
 
-void qSlicerVesselSegmentationPreprocessingWidget::OnConductanceSpin(unsigned int value)
+void qSlicerVesselSegmentationPreprocessingWidget::OnConductanceSpin(int value)
 {
-  std::cout << "Widget - On Conductance spin " << value << std::endl;
+  //std::cout << "preWidget - On Conductance spin " << value << std::endl;
 
-  this->conductance = value;
+  this->conductance = (unsigned int) value;
 }
 
-void qSlicerVesselSegmentationPreprocessingWidget::OnIterationsSpin(unsigned int value)
+void qSlicerVesselSegmentationPreprocessingWidget::OnIterationsSpin(int value)
 {
-  std::cout << "Widget - On Iterations spin " << value << std::endl;
+  //std::cout << "preWidget - On Iterations spin " << value << std::endl;
 
-  this->iterations = value;
+  this->iterations = (unsigned int) value;
 }
 
 
