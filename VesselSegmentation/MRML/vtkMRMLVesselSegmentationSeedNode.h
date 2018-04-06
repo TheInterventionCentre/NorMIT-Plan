@@ -78,14 +78,14 @@ public:
    *
    * @return a pointer to the new created vtkMRMLNode.
    */
-  virtual vtkMRMLNode* CreateNodeInstance();
+  virtual vtkMRMLNode* CreateNodeInstance() VTK_OVERRIDE;
 
   /**
    * Get the tag name of the node.
    *
    * @return string with the tag name of the node.
    */
-  virtual const char* GetNodeTagName() {return "VesselSegmentationSeed";};
+  virtual const char* GetNodeTagName() VTK_OVERRIDE {return "VesselSegmentationSeed";};
 
   /**
    * Get the icon associated to the node.
@@ -94,6 +94,17 @@ public:
    */
   virtual const char* GetIcon() {return "";}
 
+  /// Get/Set Current seed mode.
+  vtkGetMacro(CurrentSeedMode, int);
+  void SetCurrentSeedMode(int mode);
+
+  enum
+    {
+      BaseMode = 0x1,
+      PlaceSeedSeg = 0x2,
+      PlaceSeedSplit = 0x3,
+    };
+
   /**
    * Set seed1
    *
@@ -101,7 +112,7 @@ public:
    * @param value of seed1 double y.
    * @param value of seed1 double z.
    */
-  vtkSetVector3Macro(Seed1, double);
+  void SetSeed1(double x, double y, double z);
 
   /**
    * Set seed2
@@ -110,21 +121,35 @@ public:
    * @param value of seed2 double y.
    * @param value of seed2 double z.
    */
-  vtkGetVector3Macro(Seed1, double);
+  void SetSeed2(double x, double y, double z);
 
   /**
    * Get seed1
    *
    * @return value of seed1 double* x,y,z.
    */
-  vtkSetVector3Macro(Seed2, double);
+  double* GetSeed1();
 
   /**
    * Get seed2
    *
    * @return value of seed2 double* x,y,z.
    */
-  vtkGetVector3Macro(Seed2, double);
+  double* GetSeed2();
+  
+  /**
+   * Get seed2 state (set or not set)
+   *
+   * @return value of seed1Set.
+   */
+  bool GetIsSeed1Set();
+  
+  /**
+   * Get seed2 state (set or not set)
+   *
+   * @return value of seed2Set.
+   */
+  bool GetIsSeed2Set();
 
 protected:
   vtkMRMLVesselSegmentationSeedNode();
@@ -134,7 +159,12 @@ protected:
   void operator=(const vtkMRMLVesselSegmentationSeedNode&);
 
   double Seed1 [3];
+  bool Seed1Set;
   double Seed2 [3];
+  bool Seed2Set;
+
+  int CurrentSeedMode;
+
 };
 
 

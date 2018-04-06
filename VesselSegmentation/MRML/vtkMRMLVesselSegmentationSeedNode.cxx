@@ -61,6 +61,13 @@ vtkMRMLVesselSegmentationSeedNode::vtkMRMLVesselSegmentationSeedNode()
   this->Seed2[1] = 0.0;
   this->Seed2[2] = 0.0;
 
+  this->Seed1Set = false;
+  this->Seed2Set = false;
+
+  this->CurrentSeedMode = vtkMRMLVesselSegmentationSeedNode::BaseMode;
+
+  // make the seed a singleton
+  this->SetSingletonTag("Singleton");
 }
 
 //----------------------------------------------------------------------------
@@ -68,6 +75,62 @@ vtkMRMLVesselSegmentationSeedNode::~vtkMRMLVesselSegmentationSeedNode()
 {
 
 }
+
+//----------------------------------------------------------------------------
+void vtkMRMLVesselSegmentationSeedNode::SetCurrentSeedMode(int mode)
+{
+ this->CurrentSeedMode = mode;
+}
+
+//----------------------------------------------------------------------------
+void vtkMRMLVesselSegmentationSeedNode::SetSeed1(double x, double y, double z)
+{
+  Seed1[0] = x;
+  Seed1[1] = y;
+  Seed1[2] = z;
+
+  Seed1Set = true;
+
+  this->Modified();
+}
+
+//----------------------------------------------------------------------------
+void vtkMRMLVesselSegmentationSeedNode::SetSeed2(double x, double y, double z)
+{
+  Seed2[0] = x;
+  Seed2[1] = y;
+  Seed2[2] = z;
+
+  Seed2Set = true;
+
+  this->Modified();
+}
+
+//----------------------------------------------------------------------------
+double* vtkMRMLVesselSegmentationSeedNode::GetSeed1()
+{
+  return Seed1;
+}
+
+//----------------------------------------------------------------------------
+double* vtkMRMLVesselSegmentationSeedNode::GetSeed2()
+{
+  return Seed2;
+}
+
+//----------------------------------------------------------------------------
+bool vtkMRMLVesselSegmentationSeedNode::GetIsSeed1Set()
+{
+  return Seed1Set;
+}
+
+//----------------------------------------------------------------------------
+bool vtkMRMLVesselSegmentationSeedNode::GetIsSeed2Set()
+{
+  return Seed2Set;
+}
+
+
 
 //------------------------------------------------------------------------------
 void vtkMRMLVesselSegmentationSeedNode::PrintSelf(ostream& os, vtkIndent indent)
@@ -78,6 +141,9 @@ void vtkMRMLVesselSegmentationSeedNode::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Seed1: " << this->Seed1 << "\n";
   os << indent << "Seed2: " << this->Seed2 << "\n";
-}
+  os << indent << "Seed1Set: " << this->Seed1Set << "\n";
+  os << indent << "Seed2Set: " << this->Seed2Set << "\n";
 
+  os << indent << "CurrentSeedMode: " << this->CurrentSeedMode << "\n";
+}
 

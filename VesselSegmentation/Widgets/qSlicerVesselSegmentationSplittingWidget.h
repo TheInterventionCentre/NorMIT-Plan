@@ -69,6 +69,11 @@ class Q_SLICER_MODULE_VESSELSEGMENTATION_WIDGETS_EXPORT qSlicerVesselSegmentatio
 
  public slots:
 
+ /**
+  * Function to toggle the place seed button
+  */
+  void onTogglePlaceSeedSplit();
+
  signals:
 
  /**
@@ -79,12 +84,18 @@ class Q_SLICER_MODULE_VESSELSEGMENTATION_WIDGETS_EXPORT qSlicerVesselSegmentatio
  /**
   * Signal emitted when the place seeds button is clicked
   */
- void PlaceSeedsMergeClicked();
+ void PlaceSeedsSplitClicked();
 
  /**
   * Signal emitted when the run seed assignment button is clicked
   */
  void RunSeedAssignmentClicked(bool isHepatic);
+
+ /**
+  * Signal emitted to toggle the place seed button
+  */
+ void ToggleButtonSeedSplit();
+
 
  protected slots:
 
@@ -96,7 +107,7 @@ class Q_SLICER_MODULE_VESSELSEGMENTATION_WIDGETS_EXPORT qSlicerVesselSegmentatio
  /**
   * Triggered when place seeds button pressed
   */
- void PlaceSeedsMerge();
+ void PlaceSeedsSplit();
 
  /**
   * Triggered when run seeds assignment button pressed
@@ -106,12 +117,12 @@ class Q_SLICER_MODULE_VESSELSEGMENTATION_WIDGETS_EXPORT qSlicerVesselSegmentatio
  /**
   * Triggered when hepatic radio button selected
   */
- void OnHepaticMerge();
+ void OnHepaticSplit();
 
  /**
   * Triggered when portal radio button selected
   */
- void OnPortalMerge();
+ void OnPortalSplit();
 
  protected:
   QScopedPointer<qSlicerVesselSegmentationSplittingWidgetPrivate> d_ptr;

@@ -126,11 +126,9 @@ void qSlicerVesselSegmentationModule::setup()
 {
   this->Superclass::setup();
 
-  vtkMRMLSliceViewDisplayableManagerFactory *factory =
-  vtkMRMLSliceViewDisplayableManagerFactory::GetInstance();
-
-  //Register displayable managers
-  factory->RegisterDisplayableManager("vtkMRMLVesselSegmentationDisplayableManager");
+  // Register displayable managers 2D
+  vtkMRMLSliceViewDisplayableManagerFactory::GetInstance()->
+    RegisterDisplayableManager("vtkMRMLVesselSegmentationDisplayableManager2D");
 
 }
 

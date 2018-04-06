@@ -284,6 +284,28 @@ public:
   }
 
   //------------------------------------------------------------------------------
+  void SegmentVesselsFromWidgetTest2(bool isHepatic)
+  {
+    vtkDebugMacro("BEGIN: SegmentVesselsFromWidgetTest2"
+                  << "------------------------------");
+    // trigger error: Do not have seed pre-requisites for segmentation.
+
+    vtkSmartPointer<vtkMRMLScene> scene =
+      vtkSmartPointer<vtkMRMLScene>::New();
+    this->Superclass::SetMRMLScene(scene);
+
+    vtkSmartPointer<vtkMRMLVesselSegmentationSeedNode> seedNode =
+        vtkSmartPointer<vtkMRMLVesselSegmentationSeedNode>::New();
+    scene->AddNode(seedNode);
+
+    TESTING_OUTPUT_ASSERT_ERRORS_BEGIN();
+    SegmentVesselsFromWidget(isHepatic);
+    TESTING_OUTPUT_ASSERT_ERRORS_END();
+    vtkDebugMacro("END: SegmentVesselsFromWidgetTest2"
+                  << "------------------------------");
+  }
+
+  //------------------------------------------------------------------------------
   void SegmentVesselsTest1(bool isHepatic)
     {
     vtkDebugMacro("BEGIN: SegmentVesselsTest1"
@@ -355,6 +377,28 @@ public:
     SplitVesselsFromWidget(isHepatic);
     TESTING_OUTPUT_ASSERT_ERRORS_END();
     vtkDebugMacro("END: SplitVesselsFromWidgetTest1"
+                  << "------------------------------");
+  }
+
+  //------------------------------------------------------------------------------
+  void SplitVesselsFromWidgetTest2(bool isHepatic)
+  {
+    vtkDebugMacro("BEGIN: SplitVesselsFromWidgetTest2"
+                  << "------------------------------");
+    // trigger error: Do not have seed pre-requisites for splitting.
+
+    vtkSmartPointer<vtkMRMLScene> scene =
+      vtkSmartPointer<vtkMRMLScene>::New();
+    this->Superclass::SetMRMLScene(scene);
+
+    vtkSmartPointer<vtkMRMLVesselSegmentationSeedNode> seedNode =
+        vtkSmartPointer<vtkMRMLVesselSegmentationSeedNode>::New();
+    scene->AddNode(seedNode);
+
+    TESTING_OUTPUT_ASSERT_ERRORS_BEGIN();
+    SplitVesselsFromWidget(isHepatic);
+    TESTING_OUTPUT_ASSERT_ERRORS_END();
+    vtkDebugMacro("END: SplitVesselsFromWidgetTest2"
                   << "------------------------------");
   }
 
@@ -538,6 +582,10 @@ int vtkMRMLVesselSegmentationLogicTest1(int , char * [] )
 
   logicTest = vtkSmartPointer<vtkSlicerVesselSegmentationLogicTest>::New();
   logicTest->DebugOn();
+  logicTest->SegmentVesselsFromWidgetTest2(isHepatic);
+
+  logicTest = vtkSmartPointer<vtkSlicerVesselSegmentationLogicTest>::New();
+  logicTest->DebugOn();
   logicTest->SegmentVesselsTest1(isHepatic);
 
   logicTest = vtkSmartPointer<vtkSlicerVesselSegmentationLogicTest>::New();
@@ -547,6 +595,10 @@ int vtkMRMLVesselSegmentationLogicTest1(int , char * [] )
   logicTest = vtkSmartPointer<vtkSlicerVesselSegmentationLogicTest>::New();
   logicTest->DebugOn();
   logicTest->SplitVesselsFromWidgetTest1(isHepatic);
+
+  logicTest = vtkSmartPointer<vtkSlicerVesselSegmentationLogicTest>::New();
+  logicTest->DebugOn();
+  logicTest->SplitVesselsFromWidgetTest2(isHepatic);
 
   logicTest = vtkSmartPointer<vtkSlicerVesselSegmentationLogicTest>::New();
   logicTest->DebugOn();

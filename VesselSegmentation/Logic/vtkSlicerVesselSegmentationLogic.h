@@ -94,11 +94,6 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   /**
-   * Add an empty seed node to the MRML scene
-   */
-  void AddSeedNode();
-
-  /**
    * Calls preprocessing to enhance the vesselness of the image
    * (prerequisite: an input image).
    *
@@ -181,6 +176,13 @@ public:
   void SetAndPropagateActiveLabel(vtkMRMLLabelMapVolumeNode*);
 
   /**
+   * Method to get the merged ITK data.
+   *
+   * @return pointer to merged ITK data.
+   */
+  vtkVesselSegmentationHelper::SeedImageType::Pointer GetPreprocessedITKData();
+
+  /**
    * Method to get the hepatic ITK data.
    *
    * @return pointer to hepatic ITK data.
@@ -193,6 +195,27 @@ public:
    * @return pointer to portal ITK data.
    */
   vtkVesselSegmentationHelper::SeedImageType::Pointer GetPortalITKData();
+
+  /**
+   * Method to get the merged ITK data.
+   *
+   * @return pointer to merged ITK data.
+   */
+  vtkVesselSegmentationHelper::SeedImageType::Pointer GetMergedITKData();
+
+  /**
+   * Method to set the hepatic label map.
+   *
+   * @param label volume node pointer.
+   */
+  void SetHepaticLabelMap(vtkMRMLLabelMapVolumeNode*);
+
+  /**
+   * Method to set the portal label map.
+   *
+   * @param label volume node pointer.
+   */
+  void SetPortalLabelMap(vtkMRMLLabelMapVolumeNode*);
 
 protected:
   vtkSlicerVesselSegmentationLogic();
