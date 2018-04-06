@@ -29,12 +29,6 @@ set(${KIT}_UI_SRCS
   ../Resources/UI/qSlicer${MODULE_NAME}SplittingWidget.ui
   )
 
-set(${KIT}_RESOURCES
-  ../Resources/UI/qSlicer${MODULE_NAME}PreprocessingWidget.ui
-  ../Resources/UI/qSlicer${MODULE_NAME}SegmentationWidget.ui
-  ../Resources/UI/qSlicer${MODULE_NAME}SplittingWidget.ui
-  )
-
 set(${KIT}_TARGET_LIBRARIES
   vtkSlicer${MODULE_NAME}ModuleLogic
   )

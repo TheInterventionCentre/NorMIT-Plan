@@ -29,12 +29,6 @@ set(${KIT}_UI_SRCS
   ../Resources/UI/qSlicerTableItemWidget.ui
   )
 
-set(${KIT}_RESOURCES
-  ../Resources/UI/qSlicer${MODULE_NAME}SurfacesWidget.ui
-  ../Resources/UI/qSlicer${MODULE_NAME}VolumesWidget.ui
-  ../Resources/UI/qSlicerTableItemWidget.ui
-  )
-
 set(${KIT}_TARGET_LIBRARIES
   vtkSlicer${MODULE_NAME}ModuleLogic
   )
