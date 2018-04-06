@@ -1,5 +1,7 @@
 set(KIT qSlicer${MODULE_NAME}Module)
 
+find_package(Qt5Test REQUIRED)
+
 #-----------------------------------------------------------------------------
 # Here we basically create the testing data directory and populate it with
 # the testing data downloaded.
@@ -79,6 +81,7 @@ set(KIT_TEST_SRCS
 
 set(${KIT}_INCLUDE_DIRECTORIES
   ${CMAKE_BINARY_DIR}/${MODULE_NAME}
+  ${Qt5Test_INCLUDE_DIRS}
   )
 
 #-----------------------------------------------------------------------------
@@ -105,6 +108,7 @@ slicerMacroConfigureModuleCxxTestDriver(
   vtkSlicerResectionPlanningModuleLogic
   vtkSlicerResectionPlanningModuleVTKWidgets
   qSlicerResectionPlanningModuleWidgets
+  Qt5::Test
   WITH_VTK_DEBUG_LEAKS_CHECK
   WITH_VTK_DEBUG_ERROR_CHECK
   )
