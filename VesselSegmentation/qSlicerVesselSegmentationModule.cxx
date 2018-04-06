@@ -47,7 +47,10 @@
 #include "qSlicerVesselSegmentationModuleWidget.h"
 
 //-----------------------------------------------------------------------------
+#if (QT_VERSION < QT_VERSION_CHECK(5, 0, 0))
+#include <QtPlugin>
 Q_EXPORT_PLUGIN2(qSlicerVesselSegmentationModule, qSlicerVesselSegmentationModule);
+#endif
 
 //-----------------------------------------------------------------------------
 /// \ingroup VesselSegmentation
@@ -126,6 +129,7 @@ void qSlicerVesselSegmentationModule::setup()
   // Register displayable managers 2D
   vtkMRMLSliceViewDisplayableManagerFactory::GetInstance()->
     RegisterDisplayableManager("vtkMRMLVesselSegmentationDisplayableManager2D");
+
 }
 
 //-----------------------------------------------------------------------------
