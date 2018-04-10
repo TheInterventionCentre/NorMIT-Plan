@@ -16,6 +16,7 @@ set(${KIT}_SRCS
   vtkMRMLResectionInitializationDisplayNode.cxx
   vtkMRMLResectionSurfaceStorageNode.cxx
   vtkMRMLResectionLRPModelNode.cxx
+  vtkMRMLResectionLRPModelDisplayNode.cxx
   )
 
 set(${KIT}_TARGET_LIBRARIES
