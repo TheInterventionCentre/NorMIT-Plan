@@ -78,6 +78,7 @@ set(KIT_TEST_SRCS
   vtkMRMLResectionDisplayableManager2DTest2.cxx
   vtkMRMLResectionSurfaceStorageNodeTest1.cxx
   vtkMRMLResectionLRPModelNodeTest1.cxx
+  vtkMRMLResectionLRPModelDisplayNodeTest1.cxx
   vtkSlicerResectionPlanningLogicTest1.cxx
   qSlicerSurfaceWidgetTest.cxx
   qSlicerTableItemWidgetTest.cxx
@@ -178,3 +179,6 @@ simple_test(qSlicerResectionPlanningsurfacesWidgetTest)
 
 # Test LRP model node
 simple_test(vtkMRMLResectionLRPModelNodeTest1)
+
+# Test LRP model node
+simple_test(vtkMRMLResectionLRPModelDisplayNodeTest1)
