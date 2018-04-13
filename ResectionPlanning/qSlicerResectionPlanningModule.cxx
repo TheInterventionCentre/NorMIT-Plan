@@ -50,7 +50,10 @@
 #include <qSlicerApplication.h>
 #include <qSlicerCoreIOManager.h>
 #include <qSlicerNodeWriter.h>
+
+// Readers
 #include "qSlicerResectionPlanningReader.h"
+#include "qSlicerResectionPlanningLRPModelReader.h"
 
 //-----------------------------------------------------------------------------
 #if (QT_VERSION < QT_VERSION_CHECK(5, 0, 0))
@@ -148,9 +151,18 @@ void qSlicerResectionPlanningModule::setup()
   {
     qSlicerCoreIOManager* ioManager =
     qSlicerCoreApplication::application()->coreIOManager();
+
+    // Register resection reader
     ioManager->registerIO(new qSlicerResectionPlanningReader(resectionPlanningLogic,this));
+
+    // Register resection writer
     ioManager->registerIO(new qSlicerNodeWriter("Resection", QString("ResectionFile"),
-                                                QStringList() << "vtkMRMLResectionSurfaceNode", true, this));
+                                                QStringList() << "vtkMRMLResectionSurfaceNode",
+                                                true, this));
+
+    // Register LRP models reader
+    ioManager->registerIO(new qSlicerResectionPlanningLRPModelReader(resectionPlanningLogic,this));
+
   }
 }
 
@@ -172,5 +184,7 @@ QStringList qSlicerResectionPlanningModule::associatedNodeTypes() const
 {
   return QStringList()
     << "vtkMRMLResectionSurfaceNode"
-    << "vtkMRMLResectionSurfaceDisplayNode";
+    << "vtkMRMLResectionSurfaceDisplayNode"
+    << "vtkMRMLLRPModelNode"
+    << "vtkMRMLLRPModelDisplayNode";
 }

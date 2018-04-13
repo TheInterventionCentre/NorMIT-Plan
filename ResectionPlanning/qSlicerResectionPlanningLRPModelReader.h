@@ -33,8 +33,8 @@
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   =========================================================================*/
 
-#ifndef __qSlicerResectionPlanningReader_h
-#define __qSlicerResectionPlanningReader_h
+#ifndef __qSlicerResectionPlanningLRPModelReader_h
+#define __qSlicerResectionPlanningLRPModelReader_h
 
 // SlicerQt includes
 #include "qSlicerFileReader.h"

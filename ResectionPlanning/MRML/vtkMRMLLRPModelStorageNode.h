@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program: NorMIT-Plan
-  Module: vtkMRMLResectionSurfaceStorageNode.h
+  Module: vtkMRMLLRPModelStorageNode.h
 
   Copyright (c) 2017, The Intervention Centre, Oslo University Hospital
 
@@ -33,8 +33,8 @@
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   =========================================================================*/
 
-#ifndef __vtkMRMLResectionSurfaceStorageNode_h
-#define __vtkMRMLResectionSurfaceStorageNode_h
+#ifndef __vtkMRMLLRPModelStorageNode_h
+#define __vtkMRMLLRPModelStorageNode_h
 
 // MRML includes
 #include <vtkMRMLModelStorageNode.h>
@@ -48,63 +48,105 @@ class vtkMRMLNode;
 /**
  * \ingroup ResectionPlanning
  *
- * \brief This class represents the MRML node for handling resection storage.
+ * \brief This class represents the MRML node for handling LRP models storage.
+ *
  */
 class VTK_SLICER_RESECTIONPLANNING_MODULE_MRML_EXPORT
-vtkMRMLResectionSurfaceStorageNode:
+vtkMRMLLRPModelStorageNode:
 public vtkMRMLModelStorageNode
 {
-  public:
+ public:
 
   /**
-   * Standard vtk object instantiation method.
+   * Standard method for creation of the node
    *
-   * @return a pointer to a newly created vtkMRMLResectionSurfaceStorageNode.
+   *
+   * @return a pointer to the instance of a newly created node
    */
-  static vtkMRMLResectionSurfaceStorageNode *New();
+  static vtkMRMLLRPModelStorageNode *New();
 
-  vtkTypeMacro(vtkMRMLResectionSurfaceStorageNode,vtkMRMLModelStorageNode);
+  vtkTypeMacro(vtkMRMLLRPModelStorageNode, vtkMRMLModelStorageNode);
 
   /**
-   * Standard print object information method.
+   * Standard vtk function to print the information related to the clas
    *
-   * @param os output stream to print the information to.
-   * @param indent indent value.
+   * @param os output stream to print the information into
+   * @param indent indenting factor
    */
   void PrintSelf(ostream& os, vtkIndent indent);
 
+
   /**
-   * Standard MRML method to create the node instance.
+   * Generic method to create a node instance
    *
-   * @return a pointer to the new created vtkMRMLNode.
+   *
+   * @return instance of a storage node
    */
   vtkMRMLNode* CreateNodeInstance();
 
   /**
-   * Get the tag name of the node.
+   * Get the tag name of the node
    *
-   * @return string with the tag name of the node.
+   *
+   * @return tag name of the node (as char array)
    */
-  const char* GetNodeTagName()  {return "ResectionSurfaceStorage";};
+  const char* GetNodeTagName() {return "LRPModelStorage";};
 
+  /**
+   * Check whether the node can be referenced
+   *
+   * @param refNode pointer to reference node
+   *
+   * @return true if the node can be refernce, false otherwise
+   */
   bool CanReadInReferenceNode(vtkMRMLNode *refNode);
 
-protected:
-  vtkMRMLResectionSurfaceStorageNode();
-  ~vtkMRMLResectionSurfaceStorageNode();
-  vtkMRMLResectionSurfaceStorageNode(const vtkMRMLResectionSurfaceStorageNode&);
-  void operator=(const vtkMRMLResectionSurfaceStorageNode&);
+ protected:
+  vtkMRMLLRPModelStorageNode();
+  ~vtkMRMLLRPModelStorageNode();
 
-  /// Initialize all the supported read file types
+  /**
+   * Copy constructor
+   *
+   *
+   * @return
+   */
+  vtkMRMLLRPModelStorageNode(const vtkMRMLLRPModelStorageNode&);
+
+  /**
+   * Copy operator
+   *
+   */
+  void operator=(const vtkMRMLLRPModelStorageNode&);
+
+  /**
+   * Initialize all the supported read file types
+   *
+   */
   void InitializeSupportedReadFileTypes();
 
-  /// Initialize all the supported write file types
+  /**
+   * Initialize all the supported write file types
+   *
+   */
   void InitializeSupportedWriteFileTypes();
 
-  /// Read data and set it in the referenced node
+  /**
+   * Read the data and set in the referenced node
+   *
+   * @param refNode pointer to a reference node
+   *
+   * @return true if success, false otherwise
+   */
   int ReadDataInternal(vtkMRMLNode *refNode);
 
-  /// Write data from a  referenced node
+  /**
+   * Write the data from a referenced node
+   *
+   * @param refNode pointer to a referenced node
+   *
+   * @return true if success, false otherwise
+   */
   int WriteDataInternal(vtkMRMLNode *refNode);
 
 };

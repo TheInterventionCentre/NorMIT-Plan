@@ -41,6 +41,7 @@
 #include "vtkMRMLResectionInitializationDisplayNode.h"
 #include "vtkMRMLLRPModelNode.h"
 #include "vtkMRMLLRPModelDisplayNode.h"
+#include "vtkMRMLLRPModelStorageNode.h"
 
 // MRML includes
 #include <vtkMRMLScene.h>
@@ -489,10 +490,88 @@ void vtkSlicerResectionPlanningLogic::AddResectionSurface()
 
 //------------------------------------------------------------------------------
 vtkMRMLLRPModelNode* vtkSlicerResectionPlanningLogic::
-AddLRPModel(const char* filename)
+AddLRPModel(const char* fileName)
 {
+  vtkDebugMacro("Add LRP Model from file");
 
-  return 0;
+  vtkMRMLScene *scene = this->GetMRMLScene();
+
+  if(!scene)
+    {
+    vtkErrorMacro("No MRML scene.");
+    return NULL;
+    }
+
+  if(!fileName)
+    {
+    vtkErrorMacro("No filename passed");
+    return NULL;
+    }
+
+  vtkSmartPointer<vtkMRMLLRPModelNode> lrpModelNode =
+    vtkSmartPointer<vtkMRMLLRPModelNode>::New();
+  vtkSmartPointer<vtkMRMLLRPModelDisplayNode> lrpModelDisplayNode =
+    vtkSmartPointer<vtkMRMLLRPModelDisplayNode>::New();
+  vtkSmartPointer<vtkMRMLLRPModelStorageNode> lrpModelStorageNode =
+    vtkSmartPointer<vtkMRMLLRPModelStorageNode>::New();
+
+  // check for local or remote files
+  int useURI = 0;
+  if (scene->GetCacheManager())
+    {
+    useURI = scene->GetCacheManager()->IsRemoteReference(fileName);
+    vtkDebugMacro("AddLRPModel: file name is remote: " << fileName);
+    }
+
+  const char *localFile=0;
+  if(useURI)
+    {
+    lrpModelStorageNode->SetFileName(fileName);
+    localFile = fileName;
+    }
+
+  const std::string fname(localFile?localFile:"");
+  std::string name = itksys::SystemTools::GetFilenameName(fname);
+
+  vtkDebugMacro("AddLRPModel: got resection name = " << name.c_str());
+
+  // Check the type of node which could read this file type
+  if (lrpModelStorageNode->SupportedFileType(name.c_str()))
+    {
+    lrpModelStorageNode = lrpModelStorageNode.GetPointer();
+    }
+
+  if (lrpModelStorageNode)
+    {
+    std::string baseName = itksys::SystemTools::GetFilenameWithoutExtension(fname);
+    std::string uname( scene->GetUniqueNameByString(baseName.c_str()));
+    lrpModelNode->SetName(uname.c_str());
+
+    scene->AddNode(lrpModelNode);
+    scene->AddNode(lrpModelDisplayNode);
+
+    lrpModelNode->SetScene(scene);
+    lrpModelNode->SetAndObserveStorageNodeID(lrpModelStorageNode->GetID());
+    lrpModelNode->SetAndObserveDisplayNodeID(lrpModelDisplayNode->GetID());
+
+    scene->AddNode(lrpModelNode.GetPointer());
+
+    vtkDebugMacro("AddLRPModel: calling read on the storage node.");
+    int retval = lrpModelStorageNode->ReadData(lrpModelNode.GetPointer());
+    if (retval != 1)
+      {
+      vtkErrorMacro("AddLRPModel: error reading " << fileName);
+      scene->RemoveNode(lrpModelNode.GetPointer());
+      return 0;
+      }
+    }
+  else
+    {
+    vtkErrorMacro("Couldn't read the file: " << fileName);
+    return 0;
+    }
+
+  return lrpModelNode.GetPointer();
 }
 
 //----------------------------------------------------------------------------
@@ -766,7 +845,18 @@ UpdateBezierWidgetOnInitialization(vtkMRMLResectionInitializationNode *initNode)
 
   vtkNew<vtkDoubleArray> eigenvalues;
   pcaStatistics->GetEigenvalues(eigenvalues.GetPointer());
-  vtkNew<vtkDoubleArray> eigenvector1;
+  vtkNew<vtkDoubleArray> eAn OpenGL Core Profile was requested, but it is not supported on the current platform. Falling back to a non-Core profile. Note that this might cause rendering issues.
+  Error(s):
+    Failed to extract plugin meta data from '/home/rafael/build/NorMIT-Plan/lib/Slicer-4.8/qt-loadable-modules/libqSlicerVesselSegmentationModule.so'
+Number of registered modules: 102
+libpng warning: iCCP: known incorrect sRGB profile
+Number of instantiated modules: 102
+Number of loaded modules: 102
+Switch to module:  "Welcome"
+Switch to module:  ""
+Switch to module:  ""
+vtkDebugLeaks has found no leaks.
+igenvector1;
   pcaStatistics->GetEigenvector(0, eigenvector1.GetPointer());
   vtkNew<vtkDoubleArray> eigenvector2;
   pcaStatistics->GetEigenvector(1, eigenvector2.GetPointer());

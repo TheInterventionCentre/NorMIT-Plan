@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program: NorMIT-Plan
-  Module: qSlicerResectionPlanningLRPModelReader.cxx
+  Module: vtkMRMLLRPModelStorageNode.cxx
 
   Copyright (c) 2017, The Intervention Centre, Oslo University Hospital
 
@@ -33,94 +33,82 @@
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   =========================================================================*/
 
-// Qt includes
-#include <QFileInfo>
-
-// SlicerQt includes
-#include "qSlicerResectionPlanningLRPModelReader.h"
-
-// Logic includes
-#include "vtkSlicerResectionPlanningLogic.h"
-
-// MRML includes
+// This module includes
 #include "vtkMRMLLRPModelNode.h"
-#include <vtkMRMLScene.h>
+#include "vtkMRMLLRPModelStorageNode.h"
+
+// VTK includes
+#include <vtkObjectFactory.h>
+#include <vtkSmartPointer.h>
 
 //------------------------------------------------------------------------------
-class qSlicerResectionPlanningLRPModelReaderPrivate
-{
-public:
-  vtkSmartPointer<vtkSlicerResectionPlanningLogic> ResectionPlanningLogic;
-};
+vtkMRMLNodeNewMacro(vtkMRMLLRPModelStorageNode);
 
 //------------------------------------------------------------------------------
-qSlicerResectionPlanningLRPModelReader::
-qSlicerResectionPlanningLRPModelReader(vtkSlicerResectionPlanningLogic* _resectionPlanningLogic,
-                               QObject* _parent)
-  : Superclass(_parent),
-    d_ptr(new qSlicerResectionPlanningLRPModelReaderPrivate)
+vtkMRMLLRPModelStorageNode::vtkMRMLLRPModelStorageNode()
 {
-  this->setResectionPlanningLogic(_resectionPlanningLogic);
+  this->DefaultWriteFileExtension = "vtk";
 }
 
 //------------------------------------------------------------------------------
-qSlicerResectionPlanningLRPModelReader::~qSlicerResectionPlanningLRPModelReader()
+vtkMRMLLRPModelStorageNode::~vtkMRMLLRPModelStorageNode()
 {
 
 }
 
 //------------------------------------------------------------------------------
-void qSlicerResectionPlanningLRPModelReader::
-setResectionPlanningLogic(vtkSlicerResectionPlanningLogic* newResectionPlanningLogic)
+void vtkMRMLLRPModelStorageNode::PrintSelf(ostream &os, vtkIndent indent)
 {
-  Q_D(qSlicerResectionPlanningLRPModelReader);
-  d->ResectionPlanningLogic = newResectionPlanningLogic;
+  this->Superclass::PrintSelf(os, indent);
 }
 
 //------------------------------------------------------------------------------
-QString qSlicerResectionPlanningLRPModelReader::description() const
+bool vtkMRMLLRPModelStorageNode::CanReadInReferenceNode(vtkMRMLNode *refNode)
 {
-  return "LRP Model";
+  return refNode->IsA("vtkMRMLLRPModelNode");
 }
 
 //------------------------------------------------------------------------------
-qSlicerIO::IOFileType qSlicerResectionPlanningLRPModelReader::fileType() const
+int vtkMRMLLRPModelStorageNode::ReadDataInternal(vtkMRMLNode *refNode)
 {
-  return QString("LRPModelFile");
-}
+  if (!refNode)
+    {
+    vtkErrorMacro("No reference node.");
+    return 0;
+    }
 
-//_______________________________________________________________________________
-QStringList qSlicerResectionPlanningLRPModelReader::extensions() const
-{
-  return QStringList() << "LRPModel (*.vtk *.vtp *.stl *.ply *.obj)";
+  vtkMRMLLRPModelNode *lrpModelNode =
+    vtkMRMLLRPModelNode::SafeDownCast(refNode);
+
+  if (!lrpModelNode)
+    {
+    vtkErrorMacro("Reference node is not of type vtkMRMLLRPNode.");
+    return 0;
+    }
+
+  return this->Superclass::ReadDataInternal(refNode);
 }
 
 //------------------------------------------------------------------------------
-bool qSlicerResectionPlanningLRPModelReader::load(const IOProperties& properties)
+int vtkMRMLLRPModelStorageNode::WriteDataInternal(vtkMRMLNode *refNode)
 {
-  Q_D(qSlicerResectionPlanningLRPModelReader);
-  Q_ASSERT(properties.contains("fileName"));
+  if (!refNode)
+    {
+    vtkErrorMacro("No reference node.");
+    return 0;
+    }
 
-  QString fileName = properties["fileName"].toString();
+  return 1;
+}
 
-  this->setLoadedNodes(QStringList());
-  if (d->ResectionPlanningLogic.GetPointer() == 0)
-  {
-    return false;
-  }
-  vtkMRMLLRPModelNode* node =
-    d->ResectionPlanningLogic->AddLRPModel(fileName.toLatin1());
+//------------------------------------------------------------------------------
+void vtkMRMLLRPModelStorageNode::InitializeSupportedReadFileTypes()
+{
+  this->Superclass::InitializeSupportedReadFileTypes();
+}
 
-  if (!node)
-  {
-    return false;
-  }
-  this->setLoadedNodes( QStringList(QString(node->GetID())) );
-  if (properties.contains("name"))
-  {
-    std::string uname = this->mrmlScene()->GetUniqueNameByString(
-      properties["name"].toString().toLatin1());
-    node->SetName(uname.c_str());
-  }
-  return true;
+//------------------------------------------------------------------------------
+void vtkMRMLLRPModelStorageNode::InitializeSupportedWriteFileTypes()
+{
+  this->Superclass::InitializeSupportedWriteFileTypes();
 }
