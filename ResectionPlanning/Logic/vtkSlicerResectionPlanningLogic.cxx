@@ -39,6 +39,8 @@
 #include "vtkMRMLResectionSurfaceStorageNode.h"
 #include "vtkMRMLResectionInitializationNode.h"
 #include "vtkMRMLResectionInitializationDisplayNode.h"
+#include "vtkMRMLLRPModelNode.h"
+#include "vtkMRMLLRPModelDisplayNode.h"
 
 // MRML includes
 #include <vtkMRMLScene.h>
@@ -483,6 +485,14 @@ void vtkSlicerResectionPlanningLogic::AddResectionSurface()
 
   // Update the bezier surface
   this->UpdateBezierWidgetOnInitialization(resectionInitializationNode);
+}
+
+//------------------------------------------------------------------------------
+vtkMRMLLRPModelNode* vtkSlicerResectionPlanningLogic::
+AddLRPModel(const char* filename)
+{
+
+  return 0;
 }
 
 //----------------------------------------------------------------------------

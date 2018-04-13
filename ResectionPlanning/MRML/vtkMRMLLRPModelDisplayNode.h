@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program: NorMIT-Plan
-  Module: vtkMRMLResectionLRPModelDisplayNode.cxx
+  Module: vtkMRMLLRPModelDisplayNode.h
 
   Copyright (c) 2017, The Intervention Centre, Oslo University Hospital
 
@@ -33,29 +33,74 @@
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   =========================================================================*/
 
+#ifndef __vtkMRMLLRPModelDisplayNode_h
+#define __vtkMRMLLRPModelDisplayNode_h
+
 // This module includes
-#include "vtkMRMLResectionLRPModelDisplayNode.h"
+#include "vtkSlicerResectionPlanningModuleMRMLExport.h"
 
-// VTK includes
-#include <vtkObjectFactory.h>
-
-//------------------------------------------------------------------------------
-vtkMRMLNodeNewMacro(vtkMRMLResectionLRPModelDisplayNode);
+//MRML
+#include <vtkMRMLModelDisplayNode.h>
 
 //------------------------------------------------------------------------------
-vtkMRMLResectionLRPModelDisplayNode::vtkMRMLResectionLRPModelDisplayNode()
+/**
+ * \ingroup ResectionPlanning
+ *
+ * This is a support class to distinguish between regular 3D Slicer models
+ * and 3D models corresponding to organs in the resection planning systems.
+ */
+class VTK_SLICER_RESECTIONPLANNING_MODULE_MRML_EXPORT
+vtkMRMLLRPModelDisplayNode: public vtkMRMLModelDisplayNode
 {
+ public:
 
-}
+  /**
+   * Standard VTK object instantiation methods
+   *
+   * @return a pointer to a newly created vtkMRMLLRPModelDisplayNode.
+   */
+  static vtkMRMLLRPModelDisplayNode* New();
 
-//------------------------------------------------------------------------------
-vtkMRMLResectionLRPModelDisplayNode::~vtkMRMLResectionLRPModelDisplayNode()
-{
+  vtkTypeMacro(vtkMRMLLRPModelDisplayNode, vtkMRMLModelDisplayNode);
 
-}
+  /**
+   * Standard print object information method.
+   *
+   * @param os output stream to print the information to.
+   * @param indent intdent value.
+   */
+  void PrintSelf(ostream &os, vtkIndent indent);
 
-//------------------------------------------------------------------------------
-void vtkMRMLResectionLRPModelDisplayNode::PrintSelf(ostream &os, vtkIndent indent)
-{
-  this->Superclass::PrintSelf(os, indent);
-}
+  /**
+   * Standard MRML method to create the node instance.
+   *
+   *
+   * @return a pointer to the newly created vtkMRMLNode.
+   */
+
+  virtual vtkMRMLNode* CreateNodeInstance();
+
+  /**
+   * Get the tag name of the node.
+   *
+   *
+   * @return string with the tag name of the node.
+   */
+  virtual const char* GetNodeTagName() {return "LRPModelDisplayNode";}
+
+
+  /**
+   * Get the icon associated to the node.
+   *
+   *
+   * @return string pointing to the resource where the icon is located.
+   */
+  virtual const char* GetIcon() {return "";}
+
+ protected:
+  vtkMRMLLRPModelDisplayNode();
+  ~vtkMRMLLRPModelDisplayNode();
+
+};
+
+#endif

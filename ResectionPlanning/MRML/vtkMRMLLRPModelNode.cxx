@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program: NorMIT-Plan
-  Module: vtkMRMLResectionLRPModelNode.cxx
+  Module: vtkMRMLLRPModelNode.cxx
 
   Copyright (c) 2017, The Intervention Centre, Oslo University Hospital
 
@@ -34,28 +34,28 @@
   =========================================================================*/
 
 // This module includes
-#include "vtkMRMLResectionLRPModelNode.h"
+#include "vtkMRMLLRPModelNode.h"
 
 // VTK includes
 #include <vtkObjectFactory.h>
 
 //------------------------------------------------------------------------------
-vtkMRMLNodeNewMacro(vtkMRMLResectionLRPModelNode);
+vtkMRMLNodeNewMacro(vtkMRMLLRPModelNode);
 
 //------------------------------------------------------------------------------
-vtkMRMLResectionLRPModelNode::vtkMRMLResectionLRPModelNode()
+vtkMRMLLRPModelNode::vtkMRMLLRPModelNode()
 {
 
 }
 
 //------------------------------------------------------------------------------
-vtkMRMLResectionLRPModelNode::~vtkMRMLResectionLRPModelNode()
+vtkMRMLLRPModelNode::~vtkMRMLLRPModelNode()
 {
 
 }
 
 //------------------------------------------------------------------------------
-void vtkMRMLResectionLRPModelNode::PrintSelf(ostream &os, vtkIndent indent)
+void vtkMRMLLRPModelNode::PrintSelf(ostream &os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }

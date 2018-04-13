@@ -35,7 +35,7 @@
 
 // MRML includes
 #include "vtkMRMLCoreTestingMacros.h"
-#include "vtkMRMLResectionLRPModelDisplayNode.h"
+#include "vtkMRMLLRPModelDisplayNode.h"
 
 // VTK includes
 #include <vtkNew.h>
@@ -43,7 +43,7 @@
 //------------------------------------------------------------------------------
 int vtkMRMLResectionLRPModelDisplayNodeTest1(int, char *[])
 {
-  vtkNew<vtkMRMLResectionLRPModelDisplayNode> node1;
+  vtkNew<vtkMRMLLRPModelDisplayNode> node1;
 
   EXERCISE_ALL_BASIC_MRML_METHODS(node1.GetPointer());
 

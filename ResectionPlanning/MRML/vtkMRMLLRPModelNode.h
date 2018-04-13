@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program: NorMIT-Plan
-  Module: vtkMRMLResectionLRPModelNode.h
+  Module: vtkMRMLLRPModelNode.h
 
   Copyright (c) 2017, The Intervention Centre, Oslo University Hospital
 
@@ -33,8 +33,8 @@
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   =========================================================================*/
 
-#ifndef __vtkMRMLResectionLRPModelNode_h
-#define __vtkMRMLResectionLRPModelNode_h
+#ifndef __vtkMRMLLRPModelNode_h
+#define __vtkMRMLLRPModelNode_h
 
 // This module includes
 #include "vtkSlicerResectionPlanningModuleMRMLExport.h"
@@ -50,18 +50,18 @@
  * and 3D models corresponding to organs in the resection planning systems.
  */
 class VTK_SLICER_RESECTIONPLANNING_MODULE_MRML_EXPORT
-vtkMRMLResectionLRPModelNode: public vtkMRMLModelNode
+vtkMRMLLRPModelNode: public vtkMRMLModelNode
 {
  public:
 
   /**
    * Standard VTK object instantiation methods
    *
-   * @return a pointer to a newly created vtkMRMLResectionLRPModelNode.
+   * @return a pointer to a newly created vtkMRMLLRPModelNode.
    */
-  static vtkMRMLResectionLRPModelNode* New();
+  static vtkMRMLLRPModelNode* New();
 
-  vtkTypeMacro(vtkMRMLResectionLRPModelNode, vtkMRMLModelNode);
+  vtkTypeMacro(vtkMRMLLRPModelNode, vtkMRMLModelNode);
 
   /**
    * Standard print object information method.
@@ -86,7 +86,7 @@ vtkMRMLResectionLRPModelNode: public vtkMRMLModelNode
    *
    * @return string with the tag name of the node.
    */
-  virtual const char* GetNodeTagName() {return "ResectionLRPModelNode";}
+  virtual const char* GetNodeTagName() {return "LRPModelNode";}
 
 
   /**
@@ -98,8 +98,8 @@ vtkMRMLResectionLRPModelNode: public vtkMRMLModelNode
   virtual const char* GetIcon() {return "";}
 
  protected:
-  vtkMRMLResectionLRPModelNode();
-  ~vtkMRMLResectionLRPModelNode();
+  vtkMRMLLRPModelNode();
+  ~vtkMRMLLRPModelNode();
 
 };
 
