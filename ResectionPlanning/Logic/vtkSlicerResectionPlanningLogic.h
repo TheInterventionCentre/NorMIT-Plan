@@ -56,6 +56,7 @@ class vtkAppendPolyData;
 class vtkMRMLModelNode;
 class vtkMRMLResectionSurfaceNode;
 class vtkMRMLResectionInitializationNode;
+class vtkMRMLLRPModelNode;
 
 //------------------------------------------------------------------------------
 
@@ -126,6 +127,15 @@ public vtkSlicerModuleLogic
    * @return the resection node that has been added to the scene
    */
   vtkMRMLResectionSurfaceNode* AddResectionSurface(const char* filename);
+
+  /**
+   * Adds a new organ model node (called from the reader)
+   *
+   * @param filename the file name of the model being added.
+   *
+   * @return the model node that has been added to the scene.
+   */
+  vtkMRMLLRPModelNode* AddLRPModel(const char* filename);
 
   /**
    * Remove the resection specified by  nodeId.
