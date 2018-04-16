@@ -845,18 +845,7 @@ UpdateBezierWidgetOnInitialization(vtkMRMLResectionInitializationNode *initNode)
 
   vtkNew<vtkDoubleArray> eigenvalues;
   pcaStatistics->GetEigenvalues(eigenvalues.GetPointer());
-  vtkNew<vtkDoubleArray> eAn OpenGL Core Profile was requested, but it is not supported on the current platform. Falling back to a non-Core profile. Note that this might cause rendering issues.
-  Error(s):
-    Failed to extract plugin meta data from '/home/rafael/build/NorMIT-Plan/lib/Slicer-4.8/qt-loadable-modules/libqSlicerVesselSegmentationModule.so'
-Number of registered modules: 102
-libpng warning: iCCP: known incorrect sRGB profile
-Number of instantiated modules: 102
-Number of loaded modules: 102
-Switch to module:  "Welcome"
-Switch to module:  ""
-Switch to module:  ""
-vtkDebugLeaks has found no leaks.
-igenvector1;
+  vtkNew<vtkDoubleArray> eigenvector1;
   pcaStatistics->GetEigenvector(0, eigenvector1.GetPointer());
   vtkNew<vtkDoubleArray> eigenvector2;
   pcaStatistics->GetEigenvector(1, eigenvector2.GetPointer());
