@@ -494,6 +494,8 @@ AddLRPModel(const char* fileName)
 {
   vtkDebugMacro("Add LRP Model from file");
 
+  std::cout << "Entra" << std::endl;
+
   vtkMRMLScene *scene = this->GetMRMLScene();
 
   if(!scene)
@@ -525,6 +527,11 @@ AddLRPModel(const char* fileName)
 
   const char *localFile=0;
   if(useURI)
+    {
+    lrpModelStorageNode->SetFileName(fileName);
+    localFile = ((scene)->GetCacheManager())->GetFilenameFromURI(fileName);
+    }
+  else
     {
     lrpModelStorageNode->SetFileName(fileName);
     localFile = fileName;
