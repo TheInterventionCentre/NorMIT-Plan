@@ -62,6 +62,8 @@
 #include <vtkPCAStatistics.h>
 #include <vtkAlgorithmOutput.h>
 #include <vtkCacheManager.h>
+#include <vtkFieldData.h>
+#include <vtkStringArray.h>
 
 //ITK includes
 #include <itksys/SystemTools.hxx>
@@ -509,8 +511,6 @@ AddLRPModel(const char* fileName)
 {
   vtkDebugMacro("Add LRP Model from file");
 
-  std::cout << "Entra" << std::endl;
-
   vtkMRMLScene *scene = this->GetMRMLScene();
 
   if(!scene)
@@ -592,6 +592,28 @@ AddLRPModel(const char* fileName)
     {
     vtkErrorMacro("Couldn't read the file: " << fileName);
     return 0;
+    }
+
+  //Setting the visual properties of the organ
+  vtkPolyData* modelPolyData = lrpModelNode->GetPolyData();
+  if (!modelPolyData)
+    {
+    vtkErrorMacro("Loaded model does not contain any polydata.");
+    return lrpModelNode.GetPointer();
+    }
+
+  std::string anatomicalName;
+
+  int index;
+  vtkStringArray* anatomicalType =
+    vtkStringArray::SafeDownCast(modelPolyData->GetFieldData()->GetAbstractArray("Name",index));
+  if (!anatomicalType)
+    {
+    anatomicalName = "Unknown";
+    }
+  else
+    {
+    anatomicalName = anatomicalType->GetValue(0);
     }
 
   return lrpModelNode.GetPointer();
