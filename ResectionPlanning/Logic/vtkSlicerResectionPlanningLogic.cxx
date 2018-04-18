@@ -555,6 +555,7 @@ AddLRPModel(const char* fileName)
     lrpModelNode->SetName(uname.c_str());
 
     scene->AddNode(lrpModelNode);
+    scene->AddNode(lrpModelStorageNode);
     scene->AddNode(lrpModelDisplayNode);
 
     lrpModelNode->SetScene(scene);
