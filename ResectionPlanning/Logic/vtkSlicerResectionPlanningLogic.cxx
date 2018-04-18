@@ -700,6 +700,80 @@ RemoveResection(vtkMRMLResectionSurfaceNode *node)
 }
 
 //------------------------------------------------------------------------------
+vtkMRMLLRPModelNode* vtkSlicerResectionPlanningLogic::
+ConvertModelNodeToLRPModelNode(vtkMRMLModelNode* model, const char* structure)
+{
+  vtkMRMLScene *scene = this->GetMRMLScene();
+
+  if (!scene)
+    {
+    vtkErrorMacro("No MRML scene.");
+    return NULL;
+    }
+
+  if (!model)
+    {
+    vtkErrorMacro("No vtkMRMLModelNode passed");
+    return NULL;
+    }
+
+  if (!structure)
+    {
+    vtkErrorMacro("No anatomical structure type passed");
+    return NULL;
+    }
+
+  if (!model->GetPolyData())
+    {
+    vtkErrorMacro("Model node does not contain any polydata");
+    return NULL;
+    }
+
+  vtkSmartPointer<vtkPolyData> modelPoly = vtkSmartPointer<vtkPolyData>::New();
+  modelPoly->DeepCopy(model->GetPolyData());
+
+  vtkSmartPointer<vtkMRMLLRPModelNode> lrpModelNode =
+    vtkSmartPointer<vtkMRMLLRPModelNode>::New();
+
+  if (std::string(structure) == "parenchyma" || std::string(structure) == "Parenchyma")
+    {
+    lrpModelNode->SetTypeOfAnatomicalStructure(1);
+    }
+  else if (std::string(structure) == "portal" || std::string(structure) == "Portal")
+    {
+    lrpModelNode->SetTypeOfAnatomicalStructure(2);
+    }
+  else if (std::string(structure) == "hepatic" || std::string(structure) == "Hepatic")
+    {
+    lrpModelNode->SetTypeOfAnatomicalStructure(3);
+    }
+  else if (std::string(structure) == "tumor" || std::string(structure) == "Tumor")
+    {
+    lrpModelNode->SetTypeOfAnatomicalStructure(4);
+    }
+  else
+    {
+    vtkErrorMacro("Invalid type of anatomical structure");
+    return NULL;
+    }
+
+  vtkSmartPointer<vtkMRMLLRPModelDisplayNode> lrpModelDisplayNode =
+    vtkSmartPointer<vtkMRMLLRPModelDisplayNode>::New();
+  scene->AddNode(lrpModelDisplayNode);
+  vtkSmartPointer<vtkMRMLLRPModelStorageNode> lrpModelStorageNode =
+    vtkSmartPointer<vtkMRMLLRPModelStorageNode>::New();
+  scene->AddNode(lrpModelStorageNode);
+
+  lrpModelNode->SetAndObservePolyData(modelPoly);
+  lrpModelNode->SetAndObserveDisplayNodeID(lrpModelDisplayNode->GetID());
+  lrpModelNode->SetAndObserveStorageNodeID(lrpModelStorageNode->GetID());
+
+ scene->AddNode(lrpModelNode);
+
+ return lrpModelNode;
+
+}
+//------------------------------------------------------------------------------
 void vtkSlicerResectionPlanningLogic::
 ProcessMRMLNodesEvents(vtkObject *object,
                        unsigned long int eventId,

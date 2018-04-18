@@ -54,6 +54,7 @@
 //------------------------------------------------------------------------------
 class vtkAppendPolyData;
 class vtkMRMLModelNode;
+class vtkMRMLLRPModelNode;
 class vtkMRMLResectionSurfaceNode;
 class vtkMRMLResectionInitializationNode;
 class vtkMRMLLRPModelNode;
@@ -143,6 +144,16 @@ public vtkSlicerModuleLogic
    * @param node pointer to node to remove.
    */
   void RemoveResection(vtkMRMLResectionSurfaceNode *node);
+
+  /**
+   * Auxiliary function to convert models to LRP models
+   *
+   * @param node vtkMRMLModelNode containing the model
+   * @param structure type of structure to convert to: "parenchyma", "tumor", "hepatic", "portal".
+   *
+   * @return pointer to a newly created LRP node.
+   */
+  vtkMRMLLRPModelNode* ConvertModelNodeToLRPModelNode(vtkMRMLModelNode *node, const char* structure);
 
  protected:
   vtkSlicerResectionPlanningLogic();
