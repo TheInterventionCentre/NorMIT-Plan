@@ -54,6 +54,14 @@ vtkMRMLLRPModelNode: public vtkMRMLModelNode
 {
  public:
 
+  enum AnatomicalStructure
+  {
+    Parenchyma = 1,
+    PortalSystem = 2,
+    HepaticSystem = 3,
+    Tumor = 4,
+  };
+
   /**
    * Standard VTK object instantiation methods
    *
@@ -97,9 +105,15 @@ vtkMRMLLRPModelNode: public vtkMRMLModelNode
    */
   virtual const char* GetIcon() {return "";}
 
+  vtkSetClampMacro(TypeOfAnatomicalStructure, int, 1, 4);
+  vtkGetMacro(TypeOfAnatomicalStructure, int);
+
  protected:
   vtkMRMLLRPModelNode();
   ~vtkMRMLLRPModelNode();
+
+ private:
+  int TypeOfAnatomicalStructure;
 
 };
 
