@@ -97,8 +97,6 @@ int vtkMRMLLRPModelStorageNode::ReadDataInternal(vtkMRMLNode *refNode)
 //------------------------------------------------------------------------------
 int vtkMRMLLRPModelStorageNode::WriteDataInternal(vtkMRMLNode *refNode)
 {
-  std::cout << "Entra writer" << std::endl;
-
   if (!refNode)
     {
     vtkErrorMacro("No reference node.");
