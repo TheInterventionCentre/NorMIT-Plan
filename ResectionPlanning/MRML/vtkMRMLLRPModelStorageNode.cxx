@@ -40,6 +40,11 @@
 // VTK includes
 #include <vtkObjectFactory.h>
 #include <vtkSmartPointer.h>
+#include <vtkFieldData.h>
+#include <vtkStringArray.h>
+#include <vtkUnsignedCharArray.h>
+#include <vtkPolyData.h>
+#include <vtkCellData.h>
 
 //------------------------------------------------------------------------------
 vtkMRMLNodeNewMacro(vtkMRMLLRPModelStorageNode);
@@ -92,13 +97,88 @@ int vtkMRMLLRPModelStorageNode::ReadDataInternal(vtkMRMLNode *refNode)
 //------------------------------------------------------------------------------
 int vtkMRMLLRPModelStorageNode::WriteDataInternal(vtkMRMLNode *refNode)
 {
+  std::cout << "Entra writer" << std::endl;
+
   if (!refNode)
     {
     vtkErrorMacro("No reference node.");
     return 0;
     }
 
-  return 1;
+  vtkMRMLLRPModelNode *lrpModel =
+    vtkMRMLLRPModelNode::SafeDownCast(refNode);
+
+  if (!lrpModel)
+    {
+    vtkErrorMacro("Reference node is not of type vtkMRMLLRPModelNode.");
+    return 0;
+    }
+
+  // Get the polyData
+  vtkPolyData *polyData = lrpModel->GetPolyData();
+  if (!polyData)
+    {
+    vtkErrorMacro("The node does not contain any polydata.");
+    return 0;
+    }
+
+  float rgba[4];
+  std::string anatomicalName;
+  if (lrpModel->GetTypeOfAnatomicalStructure() == 1)
+    {
+    rgba[0]=238; rgba[1]=192; rgba[2]=178; rgba[3]=76;
+    anatomicalName="Parenchyma";
+    }
+  else if (lrpModel->GetTypeOfAnatomicalStructure() == 2)
+    {
+    rgba[0]=206; rgba[1]=000; rgba[2]=003; rgba[3]=255;
+    anatomicalName="Portal";
+    }
+  else if (lrpModel->GetTypeOfAnatomicalStructure() == 3)
+    {
+    rgba[0]=000; rgba[1]=151; rgba[2]=206; rgba[3]=255;
+    anatomicalName="Hepatic";
+    }
+  else if (lrpModel->GetTypeOfAnatomicalStructure() == 4)
+    {
+    rgba[0]=255; rgba[1]=255; rgba[2]=102; rgba[3]=255;
+    anatomicalName="Tumor";
+    }
+  else
+    {
+    rgba[0]=128; rgba[1]=128; rgba[2]=128; rgba[3]=128;
+    anatomicalName="Unknown";
+    }
+
+  // Generate and insert the colors
+  vtkSmartPointer<vtkUnsignedCharArray> cellData =
+    vtkSmartPointer<vtkUnsignedCharArray>::New();
+  cellData->SetNumberOfComponents(4);
+  cellData->SetNumberOfTuples(polyData->GetNumberOfCells());
+  for(int i=0; i<polyData->GetNumberOfCells(); ++i)
+    {
+    cellData->InsertNextTuple(rgba);
+    }
+
+  polyData->GetCellData()->SetScalars(cellData);
+
+  // Generate and insert the name of the anatomical structure
+  vtkSmartPointer<vtkStringArray> name =
+    vtkSmartPointer<vtkStringArray>::New();
+  name->SetName("Name");
+  name->SetNumberOfComponents(1);
+  name->SetNumberOfTuples(1);
+  name->InsertNextValue(anatomicalName.c_str());
+
+  polyData->GetFieldData()->AddArray(name);
+
+  int retval = this->Superclass::WriteDataInternal(lrpModel);
+
+  polyData->GetFieldData()->RemoveArray("Name");
+  polyData->GetCellData()->RemoveArray(polyData->GetCellData()->GetNumberOfArrays()-1);
+
+  return retval;
+
 }
 
 //------------------------------------------------------------------------------
