@@ -45,6 +45,7 @@
 #include <vtkUnsignedCharArray.h>
 #include <vtkPolyData.h>
 #include <vtkCellData.h>
+#include <vtkPointData.h>
 
 //------------------------------------------------------------------------------
 vtkMRMLNodeNewMacro(vtkMRMLLRPModelStorageNode);
@@ -91,7 +92,67 @@ int vtkMRMLLRPModelStorageNode::ReadDataInternal(vtkMRMLNode *refNode)
     return 0;
     }
 
-  return this->Superclass::ReadDataInternal(refNode);
+  int retval = this->Superclass::ReadDataInternal(refNode);
+
+
+  vtkPolyData* lrpPolyData = lrpModelNode->GetPolyData();
+
+  // Check the type of model
+  std::string anatomicalName;
+  vtkStringArray* anatomicalType =
+    vtkStringArray::SafeDownCast(lrpPolyData->GetFieldData()->GetAbstractArray("Name"));
+  if (!anatomicalType)
+    {
+    anatomicalName = "Unknown";
+    }
+  else
+    {
+    anatomicalName = anatomicalType->GetValue(1);
+    }
+
+  if (anatomicalName == "Parenchyma" || anatomicalName == "parenchyma")
+    {
+    lrpModelNode->SetTypeOfAnatomicalStructure(1);
+    }
+  else if (anatomicalName == "Portal" || anatomicalName == "portal")
+    {
+    lrpModelNode->SetTypeOfAnatomicalStructure(1);
+    }
+  else if (anatomicalName == "Hepatic" || anatomicalName == "hepatic")
+    {
+    lrpModelNode->SetTypeOfAnatomicalStructure(1);
+    }
+  else if (anatomicalName == "Tumor" || anatomicalName == "tumor")
+    {
+    lrpModelNode->SetTypeOfAnatomicalStructure(1);
+    }
+  else
+    {
+    lrpModelNode->SetTypeOfAnatomicalStructure(0);
+    }
+
+  // Remove field data
+  vtkFieldData* lrpFieldData = lrpPolyData->GetFieldData();
+  for(int i=0; i<lrpFieldData->GetNumberOfArrays(); ++i)
+    {
+    lrpFieldData->RemoveArray(0);
+    }
+
+  // Remove cell data
+  vtkCellData* lrpCellData = lrpPolyData->GetCellData();
+  for(int i=0; i<lrpCellData->GetNumberOfArrays(); ++i)
+    {
+    lrpCellData->RemoveArray(0);
+    }
+
+  // Remove point data
+  vtkPointData* lrpPointData = lrpPolyData->GetPointData();
+  for(int i=0; i<lrpPointData->GetNumberOfArrays(); ++i)
+    {
+    lrpPointData->RemoveArray(0);
+    }
+
+  return retval;
 }
 
 //------------------------------------------------------------------------------

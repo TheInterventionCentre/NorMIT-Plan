@@ -594,26 +594,34 @@ AddLRPModel(const char* fileName)
     return 0;
     }
 
-  //Setting the visual properties of the organ
-  vtkPolyData* modelPolyData = lrpModelNode->GetPolyData();
-  if (!modelPolyData)
+  if (lrpModelNode->GetTypeOfAnatomicalStructure() == 1)
     {
-    vtkErrorMacro("Loaded model does not contain any polydata.");
-    return lrpModelNode.GetPointer();
+    lrpModelDisplayNode->SetColor(238.0/255.0,
+                                  192.0/255.0,
+                                  178.0/255.0);
+    lrpModelDisplayNode->SetOpacity(76.0/255.0);
+    this->ParenchymaModelNode = lrpModelNode;
     }
-
-  std::string anatomicalName;
-
-  int index;
-  vtkStringArray* anatomicalType =
-    vtkStringArray::SafeDownCast(modelPolyData->GetFieldData()->GetAbstractArray("Name",index));
-  if (!anatomicalType)
+  else if (lrpModelNode->GetTypeOfAnatomicalStructure() == 2)
     {
-    anatomicalName = "Unknown";
+    lrpModelDisplayNode->SetColor(0.0,
+                                  151.0/255.0,
+                                  206.0/255.0);
+    lrpModelDisplayNode->SetOpacity(1.0);
     }
-  else
+  else if (lrpModelNode->GetTypeOfAnatomicalStructure() == 3)
     {
-    anatomicalName = anatomicalType->GetValue(0);
+    lrpModelDisplayNode->SetColor(206/255.0,
+                                  0.0,
+                                  0.0);
+    lrpModelDisplayNode->SetOpacity(1.0);
+    }
+  else if (lrpModelNode->GetTypeOfAnatomicalStructure() == 4)
+    {
+    lrpModelDisplayNode->SetColor(1.0,
+                                  1.0,
+                                  102.0/255.0);
+    lrpModelDisplayNode->SetOpacity(1.0);
     }
 
   return lrpModelNode.GetPointer();

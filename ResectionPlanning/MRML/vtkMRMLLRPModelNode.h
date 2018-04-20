@@ -56,6 +56,7 @@ vtkMRMLLRPModelNode: public vtkMRMLModelNode
 
   enum AnatomicalStructure
   {
+    Unknown = 0,
     Parenchyma = 1,
     PortalSystem = 2,
     HepaticSystem = 3,
@@ -105,7 +106,7 @@ vtkMRMLLRPModelNode: public vtkMRMLModelNode
    */
   virtual const char* GetIcon() {return "";}
 
-  vtkSetClampMacro(TypeOfAnatomicalStructure, int, 1, 4);
+  vtkSetClampMacro(TypeOfAnatomicalStructure, int, 0, 4);
   vtkGetMacro(TypeOfAnatomicalStructure, int);
 
  protected:
