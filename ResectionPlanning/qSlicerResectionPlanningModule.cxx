@@ -55,6 +55,10 @@
 #include "qSlicerResectionPlanningReader.h"
 #include "qSlicerResectionPlanningLRPModelReader.h"
 
+// DisplayableManager initialization
+#include <vtkAutoInit.h>
+VTK_MODULE_INIT(vtkSlicerResectionPlanningModuleMRMLDisplayableManager)
+
 //-----------------------------------------------------------------------------
 #if (QT_VERSION < QT_VERSION_CHECK(5, 0, 0))
 #include <QtPlugin>
@@ -66,16 +70,8 @@ Q_EXPORT_PLUGIN2(qSlicerResectionPlanningModule, qSlicerResectionPlanningModule)
 class qSlicerResectionPlanningModulePrivate
 {
 public:
-  qSlicerResectionPlanningModulePrivate();
+
 };
-
-//-----------------------------------------------------------------------------
-// qSlicerResectionPlanningModulePrivate methods
-
-//-----------------------------------------------------------------------------
-qSlicerResectionPlanningModulePrivate::qSlicerResectionPlanningModulePrivate()
-{
-}
 
 //-----------------------------------------------------------------------------
 // qSlicerResectionPlanningModule methods
@@ -135,6 +131,9 @@ void qSlicerResectionPlanningModule::setup()
 {
   this->Superclass::setup();
 
+  vtkMRMLThreeDViewDisplayableManagerFactory::GetInstance()->GlobalWarningDisplayOn();
+
+
   // Register displayable managers 3D
   vtkMRMLThreeDViewDisplayableManagerFactory::GetInstance()->
     RegisterDisplayableManager("vtkMRMLResectionDisplayableManager3D");
@@ -185,6 +184,8 @@ QStringList qSlicerResectionPlanningModule::associatedNodeTypes() const
   return QStringList()
     << "vtkMRMLResectionSurfaceNode"
     << "vtkMRMLResectionSurfaceDisplayNode"
+    << "vtkMRMLResectionInitializationNode"
+    << "vtkMRMLResectionInitializationDisplayNode"
     << "vtkMRMLLRPModelNode"
     << "vtkMRMLLRPModelDisplayNode";
 }
