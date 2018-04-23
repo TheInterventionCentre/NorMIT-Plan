@@ -185,6 +185,27 @@ void vtkSlicerResectionPlanningLogic::UpdateFromMRMLScene()
 void vtkSlicerResectionPlanningLogic
 ::OnMRMLSceneNodeAdded(vtkMRMLNode* addedNode)
 {
+  std::cout << "Node " << addedNode->GetName() << std::endl;
+
+  // Check whether the added model was a LRP model (Tumor)
+  vtkMRMLLRPModelNode *lrpModelNode =
+    vtkMRMLLRPModelNode::SafeDownCast(addedNode);
+
+  std::cout << lrpModelNode << std::endl;
+
+  if (lrpModelNode)
+    {
+
+    std::cout << lrpModelNode->GetTypeOfAnatomicalStructure() << std::endl;
+
+    if (lrpModelNode->GetTypeOfAnatomicalStructure() == 4)
+      {
+      this->AppendTumors->AddInputConnection(0, lrpModelNode->GetPolyDataConnection());
+      this->AppendTumors->Update();
+      std::cout << "tumor added" << std::endl;
+      }
+    }
+
 
 // // Check whether the added node was a model
 //   vtkMRMLModelNode *modelNode = vtkMRMLModelNode::SafeDownCast(addedNode);
@@ -569,16 +590,6 @@ AddLRPModel(const char* fileName)
     std::string uname( scene->GetUniqueNameByString(baseName.c_str()));
     lrpModelNode->SetName(uname.c_str());
 
-    scene->AddNode(lrpModelNode);
-    scene->AddNode(lrpModelStorageNode);
-    scene->AddNode(lrpModelDisplayNode);
-
-    lrpModelNode->SetScene(scene);
-    lrpModelNode->SetAndObserveStorageNodeID(lrpModelStorageNode->GetID());
-    lrpModelNode->SetAndObserveDisplayNodeID(lrpModelDisplayNode->GetID());
-
-    scene->AddNode(lrpModelNode.GetPointer());
-
     vtkDebugMacro("AddLRPModel: calling read on the storage node.");
     int retval = lrpModelStorageNode->ReadData(lrpModelNode.GetPointer());
     if (retval != 1)
@@ -593,6 +604,15 @@ AddLRPModel(const char* fileName)
     vtkErrorMacro("Couldn't read the file: " << fileName);
     return 0;
     }
+
+  scene->AddNode(lrpModelNode);
+  scene->AddNode(lrpModelStorageNode);
+  scene->AddNode(lrpModelDisplayNode);
+
+  lrpModelNode->SetScene(scene);
+  lrpModelNode->SetAndObserveStorageNodeID(lrpModelStorageNode->GetID());
+  lrpModelNode->SetAndObserveDisplayNodeID(lrpModelDisplayNode->GetID());
+
 
   if (lrpModelNode->GetTypeOfAnatomicalStructure() == 1)
     {
