@@ -185,24 +185,17 @@ void vtkSlicerResectionPlanningLogic::UpdateFromMRMLScene()
 void vtkSlicerResectionPlanningLogic
 ::OnMRMLSceneNodeAdded(vtkMRMLNode* addedNode)
 {
-  std::cout << "Node " << addedNode->GetName() << std::endl;
-
-  // Check whether the added model was a LRP model (Tumor)
+  // Check whether the added model was a LRP model (Tumor) and, if so, add it to
+  // the joint model
   vtkMRMLLRPModelNode *lrpModelNode =
     vtkMRMLLRPModelNode::SafeDownCast(addedNode);
 
-  std::cout << lrpModelNode << std::endl;
-
   if (lrpModelNode)
     {
-
-    std::cout << lrpModelNode->GetTypeOfAnatomicalStructure() << std::endl;
-
     if (lrpModelNode->GetTypeOfAnatomicalStructure() == 4)
       {
       this->AppendTumors->AddInputConnection(0, lrpModelNode->GetPolyDataConnection());
       this->AppendTumors->Update();
-      std::cout << "tumor added" << std::endl;
       }
     }
 
