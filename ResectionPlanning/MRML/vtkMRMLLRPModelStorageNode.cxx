@@ -116,15 +116,15 @@ int vtkMRMLLRPModelStorageNode::ReadDataInternal(vtkMRMLNode *refNode)
     }
   else if (anatomicalName == "Portal" || anatomicalName == "portal")
     {
-    lrpModelNode->SetTypeOfAnatomicalStructure(1);
+    lrpModelNode->SetTypeOfAnatomicalStructure(2);
     }
   else if (anatomicalName == "Hepatic" || anatomicalName == "hepatic")
     {
-    lrpModelNode->SetTypeOfAnatomicalStructure(1);
+    lrpModelNode->SetTypeOfAnatomicalStructure(3);
     }
   else if (anatomicalName == "Tumor" || anatomicalName == "tumor")
     {
-    lrpModelNode->SetTypeOfAnatomicalStructure(1);
+    lrpModelNode->SetTypeOfAnatomicalStructure(4);
     }
   else
     {
