@@ -50,7 +50,14 @@
 #include <qSlicerApplication.h>
 #include <qSlicerCoreIOManager.h>
 #include <qSlicerNodeWriter.h>
+
+// Readers
 #include "qSlicerResectionPlanningReader.h"
+#include "qSlicerResectionPlanningLRPModelReader.h"
+
+// DisplayableManager initialization
+#include <vtkAutoInit.h>
+VTK_MODULE_INIT(vtkSlicerResectionPlanningModuleMRMLDisplayableManager)
 
 //-----------------------------------------------------------------------------
 #if (QT_VERSION < QT_VERSION_CHECK(5, 0, 0))
@@ -63,16 +70,8 @@ Q_EXPORT_PLUGIN2(qSlicerResectionPlanningModule, qSlicerResectionPlanningModule)
 class qSlicerResectionPlanningModulePrivate
 {
 public:
-  qSlicerResectionPlanningModulePrivate();
+
 };
-
-//-----------------------------------------------------------------------------
-// qSlicerResectionPlanningModulePrivate methods
-
-//-----------------------------------------------------------------------------
-qSlicerResectionPlanningModulePrivate::qSlicerResectionPlanningModulePrivate()
-{
-}
 
 //-----------------------------------------------------------------------------
 // qSlicerResectionPlanningModule methods
@@ -132,6 +131,9 @@ void qSlicerResectionPlanningModule::setup()
 {
   this->Superclass::setup();
 
+  vtkMRMLThreeDViewDisplayableManagerFactory::GetInstance()->GlobalWarningDisplayOn();
+
+
   // Register displayable managers 3D
   vtkMRMLThreeDViewDisplayableManagerFactory::GetInstance()->
     RegisterDisplayableManager("vtkMRMLResectionDisplayableManager3D");
@@ -148,9 +150,18 @@ void qSlicerResectionPlanningModule::setup()
   {
     qSlicerCoreIOManager* ioManager =
     qSlicerCoreApplication::application()->coreIOManager();
+
+    // Register resection reader
     ioManager->registerIO(new qSlicerResectionPlanningReader(resectionPlanningLogic,this));
+
+    // Register resection writer
     ioManager->registerIO(new qSlicerNodeWriter("Resection", QString("ResectionFile"),
-                                                QStringList() << "vtkMRMLResectionSurfaceNode", true, this));
+                                                QStringList() << "vtkMRMLResectionSurfaceNode",
+                                                true, this));
+
+    // Register LRP models reader
+    ioManager->registerIO(new qSlicerResectionPlanningLRPModelReader(resectionPlanningLogic,this));
+
   }
 }
 
@@ -172,5 +183,9 @@ QStringList qSlicerResectionPlanningModule::associatedNodeTypes() const
 {
   return QStringList()
     << "vtkMRMLResectionSurfaceNode"
-    << "vtkMRMLResectionSurfaceDisplayNode";
+    << "vtkMRMLResectionSurfaceDisplayNode"
+    << "vtkMRMLResectionInitializationNode"
+    << "vtkMRMLResectionInitializationDisplayNode"
+    << "vtkMRMLLRPModelNode"
+    << "vtkMRMLLRPModelDisplayNode";
 }

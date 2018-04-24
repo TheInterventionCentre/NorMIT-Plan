@@ -33,9 +33,9 @@
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   =========================================================================*/
 
+// This module includes
 #include "vtkMRMLResectionSurfaceNode.h"
 #include "vtkMRMLResectionSurfaceStorageNode.h"
-#include <vtkMRMLNode.h>
 
 // VTK includes
 #include <vtkObjectFactory.h>
@@ -43,7 +43,6 @@
 #include <vtkPoints.h>
 #include <vtkNew.h>
 #include <vtkPolyData.h>
-#include <vtkSmartPointer.h>
 #include <vtkFieldData.h>
 #include <vtksys/SystemTools.hxx>
 

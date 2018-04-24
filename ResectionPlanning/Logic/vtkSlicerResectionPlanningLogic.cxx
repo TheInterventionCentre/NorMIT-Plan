@@ -41,6 +41,7 @@
 #include "vtkMRMLResectionInitializationDisplayNode.h"
 #include "vtkMRMLLRPModelNode.h"
 #include "vtkMRMLLRPModelDisplayNode.h"
+#include "vtkMRMLLRPModelStorageNode.h"
 
 // MRML includes
 #include <vtkMRMLScene.h>
@@ -61,6 +62,8 @@
 #include <vtkPCAStatistics.h>
 #include <vtkAlgorithmOutput.h>
 #include <vtkCacheManager.h>
+#include <vtkFieldData.h>
+#include <vtkStringArray.h>
 
 //ITK includes
 #include <itksys/SystemTools.hxx>
@@ -155,6 +158,21 @@ void vtkSlicerResectionPlanningLogic::RegisterNodes()
   vtkSmartPointer<vtkMRMLResectionSurfaceStorageNode> resectionStorageNode =
     vtkSmartPointer<vtkMRMLResectionSurfaceStorageNode>::New();
   scene->RegisterNodeClass(resectionStorageNode);
+
+  vtkSmartPointer<vtkMRMLLRPModelNode> lrpModelNode =
+    vtkSmartPointer<vtkMRMLLRPModelNode>::New();
+  scene->RegisterNodeClass(lrpModelNode);
+
+    vtkSmartPointer<vtkMRMLLRPModelDisplayNode> lrpModelDisplayNode =
+    vtkSmartPointer<vtkMRMLLRPModelDisplayNode>::New();
+  scene->RegisterNodeClass(lrpModelDisplayNode);
+
+    vtkSmartPointer<vtkMRMLLRPModelStorageNode> lrpModelStorageNode =
+    vtkSmartPointer<vtkMRMLLRPModelStorageNode>::New();
+  scene->RegisterNodeClass(lrpModelStorageNode);
+
+
+
 }
 
 //---------------------------------------------------------------------------
@@ -167,120 +185,134 @@ void vtkSlicerResectionPlanningLogic::UpdateFromMRMLScene()
 void vtkSlicerResectionPlanningLogic
 ::OnMRMLSceneNodeAdded(vtkMRMLNode* addedNode)
 {
+  // Check whether the added model was a LRP model (Tumor) and, if so, add it to
+  // the joint model
+  vtkMRMLLRPModelNode *lrpModelNode =
+    vtkMRMLLRPModelNode::SafeDownCast(addedNode);
 
-// Check whether the added node was a model
-  vtkMRMLModelNode *modelNode = vtkMRMLModelNode::SafeDownCast(addedNode);
-  if (!modelNode)
+  if (lrpModelNode)
     {
-    return;
-    }
-
-  vtksys::RegularExpression tumorModelEx("^LRPTumor[0-9]+Model$");
-  vtksys::RegularExpression parenchymaModelEx("^LRPParenchymaModel$");
-  vtksys::RegularExpression portalModelEx("^LRPPortalModel$");
-  vtksys::RegularExpression hepaticModelEx("^LRPHepaticModel$");
-
-  std::pair<std::string, std::string> id_name;
-  id_name.first = std::string(modelNode->GetID());
-  id_name.second = std::string(modelNode->GetName());
-
-  // If the model node is a tumor
-  if (tumorModelEx.find(modelNode->GetName()))
-    {
-    vtkDebugMacro("Resection planning logic: Tumor model node added "
-                  << modelNode->GetName());
-
-    vtkObserveMRMLNodeMacro(modelNode)
-
-    // Set scalar visibility of tumor
-    vtkMRMLModelDisplayNode *tumorModelDisplayNode =
-      vtkMRMLModelDisplayNode::SafeDownCast(modelNode->GetDisplayNode());
-    if (tumorModelDisplayNode)
+    if (lrpModelNode->GetTypeOfAnatomicalStructure() == 4)
       {
-      tumorModelDisplayNode->ScalarVisibilityOn();
+      this->AppendTumors->AddInputConnection(0, lrpModelNode->GetPolyDataConnection());
+      this->AppendTumors->Update();
       }
-
-    //Inform about the tumor model added.
-    this->InvokeEvent(vtkSlicerResectionPlanningLogic::TumorModelAdded,
-                      &id_name);
-    return;
     }
 
-  //Check whether the added model was a parenchyma node.
-  if (parenchymaModelEx.find(modelNode->GetName()))
-    {
-    vtkDebugMacro("Resection planning logic: Parenchyma model node added "
-                  << modelNode->GetName());
 
-    // Set scalar visibility of parenchyma.
-    vtkMRMLModelDisplayNode *parenchymaModelDisplayNode =
-      vtkMRMLModelDisplayNode::SafeDownCast(modelNode->GetDisplayNode());
-    if (parenchymaModelDisplayNode)
-      {
-      parenchymaModelDisplayNode->ScalarVisibilityOn();
-      }
+// // Check whether the added node was a model
+//   vtkMRMLModelNode *modelNode = vtkMRMLModelNode::SafeDownCast(addedNode);
+//   if (!modelNode)
+//     {
+//     return;
+//     }
 
-    this->ParenchymaModelNode = modelNode;
+//   vtksys::RegularExpression tumorModelEx("^LRPTumor[0-9]+Model$");
+//   vtksys::RegularExpression parenchymaModelEx("^LRPParenchymaModel$");
+//   vtksys::RegularExpression portalModelEx("^LRPPortalModel$");
+//   vtksys::RegularExpression hepaticModelEx("^LRPHepaticModel$");
 
-    // Inform that a hepatic node was added
-    this->InvokeEvent(vtkSlicerResectionPlanningLogic::ParenchymaModelAdded,
-                      static_cast<void*>(&id_name));
-    return;
-    }
+//   std::pair<std::string, std::string> id_name;
+//   id_name.first = std::string(modelNode->GetID());
+//   id_name.second = std::string(modelNode->GetName());
 
-  // Check whether the added model was a hepatic node.
-  if (hepaticModelEx.find(modelNode->GetName()))
-    {
-    vtkDebugMacro("Resection planning logic: Hepatic model node added "
-                  << modelNode->GetName());
+//   // If the model node is a tumor
+//   if (tumorModelEx.find(modelNode->GetName()))
+//     {
+//     vtkDebugMacro("Resection planning logic: Tumor model node added "
+//                   << modelNode->GetName());
 
-    //Set scalar visibility of hepatic model.
-    vtkMRMLModelDisplayNode *hepaticModelDisplayNode =
-      vtkMRMLModelDisplayNode::SafeDownCast(modelNode->GetDisplayNode());
-    if (hepaticModelDisplayNode)
-      {
-      hepaticModelDisplayNode->ScalarVisibilityOn();
-      }
+//     vtkObserveMRMLNodeMacro(modelNode)
 
-    // Inform that a hepatic node was added
-    this->InvokeEvent(vtkSlicerResectionPlanningLogic::HepaticModelAdded,
-                      static_cast<void*>(&id_name));
-    return;
-    }
+//     // Set scalar visibility of tumor
+//     vtkMRMLModelDisplayNode *tumorModelDisplayNode =
+//       vtkMRMLModelDisplayNode::SafeDownCast(modelNode->GetDisplayNode());
+//     if (tumorModelDisplayNode)
+//       {
+//       tumorModelDisplayNode->ScalarVisibilityOn();
+//       }
 
-  //Check wether the added model was a portal node
-  if (portalModelEx.find(modelNode->GetName()))
-    {
-    vtkDebugMacro("Resection planning logic: Portal model added "
-                  << modelNode->GetName());
+//     //Inform about the tumor model added.
+//     this->InvokeEvent(vtkSlicerResectionPlanningLogic::TumorModelAdded,
+//                       &id_name);
+//     return;
+//     }
 
-    //Set scalar visibility of the portal model.
-    vtkMRMLModelDisplayNode *portalModelDisplayNode =
-      vtkMRMLModelDisplayNode::SafeDownCast(modelNode->GetDisplayNode());
-    if (portalModelDisplayNode)
-      {
-      portalModelDisplayNode->ScalarVisibilityOn();
-      }
+//   //Check whether the added model was a parenchyma node.
+//   if (parenchymaModelEx.find(modelNode->GetName()))
+//     {
+//     vtkDebugMacro("Resection planning logic: Parenchyma model node added "
+//                   << modelNode->GetName());
 
-    // Inform that a hepatic node was added
-    this->InvokeEvent(vtkSlicerResectionPlanningLogic::PortalModelAdded,
-                      static_cast<void*>(&id_name));
-    return;
-    }
+//     // Set scalar visibility of parenchyma.
+//     vtkMRMLModelDisplayNode *parenchymaModelDisplayNode =
+//       vtkMRMLModelDisplayNode::SafeDownCast(modelNode->GetDisplayNode());
+//     if (parenchymaModelDisplayNode)
+//       {
+//       parenchymaModelDisplayNode->ScalarVisibilityOn();
+//       }
 
-  // Check whether the added node was a resection node
-  vtkMRMLResectionSurfaceNode *resectionNode =
-    vtkMRMLResectionSurfaceNode::SafeDownCast(addedNode);
+//     this->ParenchymaModelNode = modelNode;
 
-  if (resectionNode)
-    {
-    vtkDebugMacro("Resection planning logic: Resection node added "
-                  << resectionNode->GetName());
-    // Inform that a resedtion node was added
-    this->InvokeEvent(vtkSlicerResectionPlanningLogic::ResectionNodeAdded,
-                      reinterpret_cast<void*>(resectionNode));
-    return;
-    }
+//     // Inform that a hepatic node was added
+//     this->InvokeEvent(vtkSlicerResectionPlanningLogic::ParenchymaModelAdded,
+//                       static_cast<void*>(&id_name));
+//     return;
+//     }
+
+//   // Check whether the added model was a hepatic node.
+//   if (hepaticModelEx.find(modelNode->GetName()))
+//     {
+//     vtkDebugMacro("Resection planning logic: Hepatic model node added "
+//                   << modelNode->GetName());
+
+//     //Set scalar visibility of hepatic model.
+//     vtkMRMLModelDisplayNode *hepaticModelDisplayNode =
+//       vtkMRMLModelDisplayNode::SafeDownCast(modelNode->GetDisplayNode());
+//     if (hepaticModelDisplayNode)
+//       {
+//       hepaticModelDisplayNode->ScalarVisibilityOn();
+//       }
+
+//     // Inform that a hepatic node was added
+//     this->InvokeEvent(vtkSlicerResectionPlanningLogic::HepaticModelAdded,
+//                       static_cast<void*>(&id_name));
+//     return;
+//     }
+
+//   //Check wether the added model was a portal node
+//   if (portalModelEx.find(modelNode->GetName()))
+//     {
+//     vtkDebugMacro("Resection planning logic: Portal model added "
+//                   << modelNode->GetName());
+
+//     //Set scalar visibility of the portal model.
+//     vtkMRMLModelDisplayNode *portalModelDisplayNode =
+//       vtkMRMLModelDisplayNode::SafeDownCast(modelNode->GetDisplayNode());
+//     if (portalModelDisplayNode)
+//       {
+//       portalModelDisplayNode->ScalarVisibilityOn();
+//       }
+
+//     // Inform that a hepatic node was added
+//     this->InvokeEvent(vtkSlicerResectionPlanningLogic::PortalModelAdded,
+//                       static_cast<void*>(&id_name));
+//     return;
+//     }
+
+//   // Check whether the added node was a resection node
+//   vtkMRMLResectionSurfaceNode *resectionNode =
+//     vtkMRMLResectionSurfaceNode::SafeDownCast(addedNode);
+
+//   if (resectionNode)
+//     {
+//     vtkDebugMacro("Resection planning logic: Resection node added "
+//                   << resectionNode->GetName());
+//     // Inform that a resedtion node was added
+//     this->InvokeEvent(vtkSlicerResectionPlanningLogic::ResectionNodeAdded,
+//                       reinterpret_cast<void*>(resectionNode));
+//     return;
+//     }
 }
 
 //---------------------------------------------------------------------------
@@ -489,10 +521,123 @@ void vtkSlicerResectionPlanningLogic::AddResectionSurface()
 
 //------------------------------------------------------------------------------
 vtkMRMLLRPModelNode* vtkSlicerResectionPlanningLogic::
-AddLRPModel(const char* filename)
+AddLRPModel(const char* fileName)
 {
+  vtkDebugMacro("Add LRP Model from file");
 
-  return 0;
+  vtkMRMLScene *scene = this->GetMRMLScene();
+
+  if(!scene)
+    {
+    vtkErrorMacro("No MRML scene.");
+    return NULL;
+    }
+
+  if(!fileName)
+    {
+    vtkErrorMacro("No filename passed");
+    return NULL;
+    }
+
+  vtkSmartPointer<vtkMRMLLRPModelNode> lrpModelNode =
+    vtkSmartPointer<vtkMRMLLRPModelNode>::New();
+  vtkSmartPointer<vtkMRMLLRPModelDisplayNode> lrpModelDisplayNode =
+    vtkSmartPointer<vtkMRMLLRPModelDisplayNode>::New();
+  vtkSmartPointer<vtkMRMLLRPModelStorageNode> lrpModelStorageNode =
+    vtkSmartPointer<vtkMRMLLRPModelStorageNode>::New();
+
+  // check for local or remote files
+  int useURI = 0;
+  if (scene->GetCacheManager())
+    {
+    useURI = scene->GetCacheManager()->IsRemoteReference(fileName);
+    vtkDebugMacro("AddLRPModel: file name is remote: " << fileName);
+    }
+
+  const char *localFile=0;
+  if(useURI)
+    {
+    lrpModelStorageNode->SetFileName(fileName);
+    localFile = ((scene)->GetCacheManager())->GetFilenameFromURI(fileName);
+    }
+  else
+    {
+    lrpModelStorageNode->SetFileName(fileName);
+    localFile = fileName;
+    }
+
+  const std::string fname(localFile?localFile:"");
+  std::string name = itksys::SystemTools::GetFilenameName(fname);
+
+  vtkDebugMacro("AddLRPModel: got resection name = " << name.c_str());
+
+  // Check the type of node which could read this file type
+  if (lrpModelStorageNode->SupportedFileType(name.c_str()))
+    {
+    lrpModelStorageNode = lrpModelStorageNode.GetPointer();
+    }
+
+  if (lrpModelStorageNode)
+    {
+    std::string baseName = itksys::SystemTools::GetFilenameWithoutExtension(fname);
+    std::string uname( scene->GetUniqueNameByString(baseName.c_str()));
+    lrpModelNode->SetName(uname.c_str());
+
+    vtkDebugMacro("AddLRPModel: calling read on the storage node.");
+    int retval = lrpModelStorageNode->ReadData(lrpModelNode.GetPointer());
+    if (retval != 1)
+      {
+      vtkErrorMacro("AddLRPModel: error reading " << fileName);
+      scene->RemoveNode(lrpModelNode.GetPointer());
+      return 0;
+      }
+    }
+  else
+    {
+    vtkErrorMacro("Couldn't read the file: " << fileName);
+    return 0;
+    }
+
+  scene->AddNode(lrpModelNode);
+  scene->AddNode(lrpModelStorageNode);
+  scene->AddNode(lrpModelDisplayNode);
+
+  lrpModelNode->SetScene(scene);
+  lrpModelNode->SetAndObserveStorageNodeID(lrpModelStorageNode->GetID());
+  lrpModelNode->SetAndObserveDisplayNodeID(lrpModelDisplayNode->GetID());
+
+
+  if (lrpModelNode->GetTypeOfAnatomicalStructure() == 1)
+    {
+    lrpModelDisplayNode->SetColor(238.0/255.0,
+                                  192.0/255.0,
+                                  178.0/255.0);
+    lrpModelDisplayNode->SetOpacity(76.0/255.0);
+    this->ParenchymaModelNode = lrpModelNode;
+    }
+  else if (lrpModelNode->GetTypeOfAnatomicalStructure() == 2)
+    {
+    lrpModelDisplayNode->SetColor(0.0,
+                                  151.0/255.0,
+                                  206.0/255.0);
+    lrpModelDisplayNode->SetOpacity(1.0);
+    }
+  else if (lrpModelNode->GetTypeOfAnatomicalStructure() == 3)
+    {
+    lrpModelDisplayNode->SetColor(206/255.0,
+                                  0.0,
+                                  0.0);
+    lrpModelDisplayNode->SetOpacity(1.0);
+    }
+  else if (lrpModelNode->GetTypeOfAnatomicalStructure() == 4)
+    {
+    lrpModelDisplayNode->SetColor(1.0,
+                                  1.0,
+                                  102.0/255.0);
+    lrpModelDisplayNode->SetOpacity(1.0);
+    }
+
+  return lrpModelNode.GetPointer();
 }
 
 //----------------------------------------------------------------------------
@@ -612,6 +757,80 @@ RemoveResection(vtkMRMLResectionSurfaceNode *node)
   this->GetMRMLScene()->RemoveNode(node);
 }
 
+//------------------------------------------------------------------------------
+vtkMRMLLRPModelNode* vtkSlicerResectionPlanningLogic::
+ConvertModelNodeToLRPModelNode(vtkMRMLModelNode* model, const char* structure)
+{
+  vtkMRMLScene *scene = this->GetMRMLScene();
+
+  if (!scene)
+    {
+    vtkErrorMacro("No MRML scene.");
+    return NULL;
+    }
+
+  if (!model)
+    {
+    vtkErrorMacro("No vtkMRMLModelNode passed");
+    return NULL;
+    }
+
+  if (!structure)
+    {
+    vtkErrorMacro("No anatomical structure type passed");
+    return NULL;
+    }
+
+  if (!model->GetPolyData())
+    {
+    vtkErrorMacro("Model node does not contain any polydata");
+    return NULL;
+    }
+
+  vtkSmartPointer<vtkPolyData> modelPoly = vtkSmartPointer<vtkPolyData>::New();
+  modelPoly->DeepCopy(model->GetPolyData());
+
+  vtkSmartPointer<vtkMRMLLRPModelNode> lrpModelNode =
+    vtkSmartPointer<vtkMRMLLRPModelNode>::New();
+
+  if (std::string(structure) == "parenchyma" || std::string(structure) == "Parenchyma")
+    {
+    lrpModelNode->SetTypeOfAnatomicalStructure(1);
+    }
+  else if (std::string(structure) == "portal" || std::string(structure) == "Portal")
+    {
+    lrpModelNode->SetTypeOfAnatomicalStructure(2);
+    }
+  else if (std::string(structure) == "hepatic" || std::string(structure) == "Hepatic")
+    {
+    lrpModelNode->SetTypeOfAnatomicalStructure(3);
+    }
+  else if (std::string(structure) == "tumor" || std::string(structure) == "Tumor")
+    {
+    lrpModelNode->SetTypeOfAnatomicalStructure(4);
+    }
+  else
+    {
+    vtkErrorMacro("Invalid type of anatomical structure");
+    return NULL;
+    }
+
+  vtkSmartPointer<vtkMRMLLRPModelDisplayNode> lrpModelDisplayNode =
+    vtkSmartPointer<vtkMRMLLRPModelDisplayNode>::New();
+  scene->AddNode(lrpModelDisplayNode);
+  vtkSmartPointer<vtkMRMLLRPModelStorageNode> lrpModelStorageNode =
+    vtkSmartPointer<vtkMRMLLRPModelStorageNode>::New();
+  scene->AddNode(lrpModelStorageNode);
+
+  lrpModelNode->SetAndObservePolyData(modelPoly);
+  lrpModelNode->SetAndObserveDisplayNodeID(lrpModelDisplayNode->GetID());
+  lrpModelNode->SetAndObserveStorageNodeID(lrpModelStorageNode->GetID());
+
+ scene->AddNode(lrpModelNode);
+
+ return lrpModelNode;
+
+}
 //------------------------------------------------------------------------------
 void vtkSlicerResectionPlanningLogic::
 ProcessMRMLNodesEvents(vtkObject *object,

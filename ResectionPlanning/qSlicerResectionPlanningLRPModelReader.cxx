@@ -80,26 +80,26 @@ setResectionPlanningLogic(vtkSlicerResectionPlanningLogic* newResectionPlanningL
 //------------------------------------------------------------------------------
 QString qSlicerResectionPlanningLRPModelReader::description() const
 {
-  return "ResectionPlanningLRP Organ Model";
+  return "LRP Model";
 }
 
 //------------------------------------------------------------------------------
 qSlicerIO::IOFileType qSlicerResectionPlanningLRPModelReader::fileType() const
 {
-  return QString("ModelFile");
+  return QString("LRPModelFile");
 }
 
 //_______________________________________________________________________________
 QStringList qSlicerResectionPlanningLRPModelReader::extensions() const
 {
-  return QStringList() << "Resection (*.vtk *.vtp *.stl *.ply *.obj)";
+  return QStringList() << "LRPModel (*.vtk *.vtp *.stl *.ply *.obj)";
 }
 
 //------------------------------------------------------------------------------
 bool qSlicerResectionPlanningLRPModelReader::load(const IOProperties& properties)
 {
   Q_D(qSlicerResectionPlanningLRPModelReader);
-  Q_ASSERT(properties.contains("filename"));
+  Q_ASSERT(properties.contains("fileName"));
 
   QString fileName = properties["fileName"].toString();
 
