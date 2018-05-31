@@ -74,29 +74,6 @@ public vtkSlicerModuleLogic
 {
  public:
 
-  enum LogicEventType
-  {
-    ResectionNodeAdded = 16534, //!< Resection node added to MRML scene and processed by logic.
-    ResectionNodeRemoved = 16535, //!< Resection node removed form MRML Scene and
-                                //!   not needed by logic anymore.
-    TumorModelAdded = 16536,    //!< Tumor node added and processed by the logic.
-    TumorModelRemoved = 16537,  //!< Tumor node removed from MRML scene and not
-                                //!   needed by the logic anymore.
-    ParenchymaModelAdded,       //!< Parenchma node added and processed by the
-                                //!   logic.
-    ParenchymaModelRemoved,     //!< Parenchyma node removed from MRML scene and
-                                //!  not needed by the logic anymore.
-    HepaticModelAdded,          //!< Parenchma node added and processed by the
-                                //!   logic.
-    HepaticModelRemoved,        //!< Hepatic node removed from MRML scene and
-                                //!  not needed by the logic anymore.
-    PortalModelAdded,           //!< Parenchma node added and processed by the
-                                //!   logic.
-    PortalModelRemoved,         //!< Portal node removed from MRML scene and
-                                //!  not needed by the logic anymore.
-
-  };
-
   /**
    * Standard vtk object instantiation method.
    *
@@ -229,7 +206,7 @@ public vtkSlicerModuleLogic
 
   // Pointer to the parenchyma node. The reader should note that there is only
   // one valid parenchyma.
-  vtkWeakPointer<vtkMRMLModelNode> ParenchymaModelNode;
+  vtkWeakPointer<vtkMRMLLRPModelNode> ParenchymaModelNode;
 
   // Resection initialization and resection node map
   std::map<vtkMRMLResectionInitializationNode*, vtkMRMLResectionSurfaceNode*>

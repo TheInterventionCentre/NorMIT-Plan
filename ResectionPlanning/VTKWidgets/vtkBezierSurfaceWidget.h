@@ -369,6 +369,14 @@ class vtkBezierSurfaceWidget: public vtk3DWidget
   vtkPolyData* GetBezierSurfacePolyData() const;
 
   /**
+   * Get the bezier surface updates through port
+   *
+   *
+   * @return output port
+   */
+  vtkAlgorithmOutput* GetBezierSurfaceOutputPort() const;
+
+  /**
    * Enable handles.
    */
   void HandlesOn();

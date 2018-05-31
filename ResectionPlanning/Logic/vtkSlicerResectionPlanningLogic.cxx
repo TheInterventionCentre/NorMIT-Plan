@@ -171,8 +171,6 @@ void vtkSlicerResectionPlanningLogic::RegisterNodes()
     vtkSmartPointer<vtkMRMLLRPModelStorageNode>::New();
   scene->RegisterNodeClass(lrpModelStorageNode);
 
-
-
 }
 
 //---------------------------------------------------------------------------
@@ -197,260 +195,44 @@ void vtkSlicerResectionPlanningLogic
       this->AppendTumors->AddInputConnection(0, lrpModelNode->GetPolyDataConnection());
       this->AppendTumors->Update();
       }
+
+    if (lrpModelNode->GetTypeOfAnatomicalStructure() == 1)
+      {
+      this->ParenchymaModelNode = lrpModelNode;
+      }
     }
 
-
-// // Check whether the added node was a model
-//   vtkMRMLModelNode *modelNode = vtkMRMLModelNode::SafeDownCast(addedNode);
-//   if (!modelNode)
-//     {
-//     return;
-//     }
-
-//   vtksys::RegularExpression tumorModelEx("^LRPTumor[0-9]+Model$");
-//   vtksys::RegularExpression parenchymaModelEx("^LRPParenchymaModel$");
-//   vtksys::RegularExpression portalModelEx("^LRPPortalModel$");
-//   vtksys::RegularExpression hepaticModelEx("^LRPHepaticModel$");
-
-//   std::pair<std::string, std::string> id_name;
-//   id_name.first = std::string(modelNode->GetID());
-//   id_name.second = std::string(modelNode->GetName());
-
-//   // If the model node is a tumor
-//   if (tumorModelEx.find(modelNode->GetName()))
-//     {
-//     vtkDebugMacro("Resection planning logic: Tumor model node added "
-//                   << modelNode->GetName());
-
-//     vtkObserveMRMLNodeMacro(modelNode)
-
-//     // Set scalar visibility of tumor
-//     vtkMRMLModelDisplayNode *tumorModelDisplayNode =
-//       vtkMRMLModelDisplayNode::SafeDownCast(modelNode->GetDisplayNode());
-//     if (tumorModelDisplayNode)
-//       {
-//       tumorModelDisplayNode->ScalarVisibilityOn();
-//       }
-
-//     //Inform about the tumor model added.
-//     this->InvokeEvent(vtkSlicerResectionPlanningLogic::TumorModelAdded,
-//                       &id_name);
-//     return;
-//     }
-
-//   //Check whether the added model was a parenchyma node.
-//   if (parenchymaModelEx.find(modelNode->GetName()))
-//     {
-//     vtkDebugMacro("Resection planning logic: Parenchyma model node added "
-//                   << modelNode->GetName());
-
-//     // Set scalar visibility of parenchyma.
-//     vtkMRMLModelDisplayNode *parenchymaModelDisplayNode =
-//       vtkMRMLModelDisplayNode::SafeDownCast(modelNode->GetDisplayNode());
-//     if (parenchymaModelDisplayNode)
-//       {
-//       parenchymaModelDisplayNode->ScalarVisibilityOn();
-//       }
-
-//     this->ParenchymaModelNode = modelNode;
-
-//     // Inform that a hepatic node was added
-//     this->InvokeEvent(vtkSlicerResectionPlanningLogic::ParenchymaModelAdded,
-//                       static_cast<void*>(&id_name));
-//     return;
-//     }
-
-//   // Check whether the added model was a hepatic node.
-//   if (hepaticModelEx.find(modelNode->GetName()))
-//     {
-//     vtkDebugMacro("Resection planning logic: Hepatic model node added "
-//                   << modelNode->GetName());
-
-//     //Set scalar visibility of hepatic model.
-//     vtkMRMLModelDisplayNode *hepaticModelDisplayNode =
-//       vtkMRMLModelDisplayNode::SafeDownCast(modelNode->GetDisplayNode());
-//     if (hepaticModelDisplayNode)
-//       {
-//       hepaticModelDisplayNode->ScalarVisibilityOn();
-//       }
-
-//     // Inform that a hepatic node was added
-//     this->InvokeEvent(vtkSlicerResectionPlanningLogic::HepaticModelAdded,
-//                       static_cast<void*>(&id_name));
-//     return;
-//     }
-
-//   //Check wether the added model was a portal node
-//   if (portalModelEx.find(modelNode->GetName()))
-//     {
-//     vtkDebugMacro("Resection planning logic: Portal model added "
-//                   << modelNode->GetName());
-
-//     //Set scalar visibility of the portal model.
-//     vtkMRMLModelDisplayNode *portalModelDisplayNode =
-//       vtkMRMLModelDisplayNode::SafeDownCast(modelNode->GetDisplayNode());
-//     if (portalModelDisplayNode)
-//       {
-//       portalModelDisplayNode->ScalarVisibilityOn();
-//       }
-
-//     // Inform that a hepatic node was added
-//     this->InvokeEvent(vtkSlicerResectionPlanningLogic::PortalModelAdded,
-//                       static_cast<void*>(&id_name));
-//     return;
-//     }
-
-//   // Check whether the added node was a resection node
-//   vtkMRMLResectionSurfaceNode *resectionNode =
-//     vtkMRMLResectionSurfaceNode::SafeDownCast(addedNode);
-
-//   if (resectionNode)
-//     {
-//     vtkDebugMacro("Resection planning logic: Resection node added "
-//                   << resectionNode->GetName());
-//     // Inform that a resedtion node was added
-//     this->InvokeEvent(vtkSlicerResectionPlanningLogic::ResectionNodeAdded,
-//                       reinterpret_cast<void*>(resectionNode));
-//     return;
-//     }
 }
 
 //---------------------------------------------------------------------------
 void vtkSlicerResectionPlanningLogic
 ::OnMRMLSceneNodeRemoved(vtkMRMLNode *removedNode)
 {
-  // Check whether the added node was a model
-  vtkMRMLModelNode *modelNode = vtkMRMLModelNode::SafeDownCast(removedNode);
-  if (!modelNode)
-    {
-    return;
-    }
-
   if (!this->GetMRMLScene())
     {
     vtkErrorMacro("No MRML scene.");
     return;
     }
 
-  vtksys::RegularExpression tumorModelEx("^LRPTumor[0-9]+Model$");
-  vtksys::RegularExpression parenchymaModelEx("^LRPParenchymaModel$");
-  vtksys::RegularExpression portalModelEx("^LRPPortalModel$");
-  vtksys::RegularExpression hepaticModelEx("^LRPHepaticModel$");
+  // Check whether the added model was a LRP model (Tumor) and, if so, remove it from
+  // the joint model
+  vtkMRMLLRPModelNode *lrpModelNode =
+    vtkMRMLLRPModelNode::SafeDownCast(removedNode);
 
-  std::pair<std::string, std::string> id_name;
-  id_name.first = std::string(modelNode->GetID());
-  id_name.second = std::string(modelNode->GetName());
-
-  // If the model node is a tumor
-  if (tumorModelEx.find(modelNode->GetName()))
+  if (lrpModelNode)
     {
-    vtkDebugMacro("Resection planning logic: Tumor model node removed "
-                  << modelNode->GetName());
-
-    // Remove the tumor from the append filter.
-    this->AppendTumors->RemoveInputConnection(0,modelNode->GetPolyDataConnection());
-    this->AppendTumors->Update();
-
-    // Set scalar visibility of tumor
-    vtkMRMLModelDisplayNode *tumorModelDisplayNode =
-      vtkMRMLModelDisplayNode::SafeDownCast(modelNode->GetDisplayNode());
-    if (tumorModelDisplayNode)
+    if (lrpModelNode->GetTypeOfAnatomicalStructure() == 4)
       {
-      tumorModelDisplayNode->ScalarVisibilityOn();
-      }
+      vtkDebugMacro("Resection planning logic: Tumor model node removed "
+                    << lrpModelNode->GetName());
 
-    //Inform about the tumor model removed.
-    this->InvokeEvent(vtkSlicerResectionPlanningLogic::TumorModelRemoved,
-                      &id_name);
-    return;
+      // Remove the tumor from the append filter.
+      this->AppendTumors->RemoveInputConnection(0,lrpModelNode->GetPolyDataConnection());
+      this->AppendTumors->Update();
+      }
     }
 
-  //Check whether the removed model was a parenchyma node.
-  if (parenchymaModelEx.find(modelNode->GetName()))
-    {
-    vtkDebugMacro("Resection planning logic: Parenchyma model node removed "
-                  << modelNode->GetName());
-
-    // Set scalar visibility of parenchyma.
-    vtkMRMLModelDisplayNode *parenchymaModelDisplayNode =
-      vtkMRMLModelDisplayNode::SafeDownCast(modelNode->GetDisplayNode());
-    if (parenchymaModelDisplayNode)
-      {
-      parenchymaModelDisplayNode->ScalarVisibilityOn();
-      }
-
-    // Inform that a parenchuma node was removed
-    this->InvokeEvent(vtkSlicerResectionPlanningLogic::ParenchymaModelRemoved,
-                      static_cast<void*>(&id_name));
-    return;
-    }
-
-  // Check whether the removed model was a hepatic node.
-  if (hepaticModelEx.find(modelNode->GetName()))
-    {
-    vtkDebugMacro("Resection planning logic: Hepatic model node removed "
-                  << modelNode->GetName());
-
-    //Set scalar visibility of hepatic model.
-    vtkMRMLModelDisplayNode *hepaticModelDisplayNode =
-      vtkMRMLModelDisplayNode::SafeDownCast(modelNode->GetDisplayNode());
-    if (hepaticModelDisplayNode)
-      {
-      hepaticModelDisplayNode->ScalarVisibilityOn();
-      }
-
-    // Inform that a hepatic node was removed
-    this->InvokeEvent(vtkSlicerResectionPlanningLogic::HepaticModelRemoved,
-                      static_cast<void*>(&id_name));
-    return;
-    }
-
-  //Check wether the removed model was a portal node
-  if (portalModelEx.find(modelNode->GetName()))
-    {
-    vtkDebugMacro("Resection planning logic: Portal model removed "
-                  << modelNode->GetName());
-
-    //Set scalar visibility of the portal model.
-    vtkMRMLModelDisplayNode *portalModelDisplayNode =
-      vtkMRMLModelDisplayNode::SafeDownCast(modelNode->GetDisplayNode());
-    if (portalModelDisplayNode)
-      {
-      portalModelDisplayNode->ScalarVisibilityOn();
-      }
-
-    // Inform that a hepatic node was removed
-    this->InvokeEvent(vtkSlicerResectionPlanningLogic::PortalModelRemoved,
-                      static_cast<void*>(&id_name));
-    return;
-    }
-
-  // Check whether the removed node was a resection node
-  vtkMRMLResectionSurfaceNode *resectionNode =
-    vtkMRMLResectionSurfaceNode::SafeDownCast(removedNode);
-  if (resectionNode)
-    {
-
-    // Remove the associated initialization node
-    ResectionInitializationIt it;
-    for (it=this->ResectionInitializationMap.begin();
-         it!=this->ResectionInitializationMap.end();
-         it++)
-      {
-      if (it->second == resectionNode)
-        {
-        this->GetMRMLScene()->RemoveNode(it->first);
-        this->ResectionInitializationMap.erase(it);
-        }
-      }
-
-    vtkDebugMacro("Resection planning logic: Resection node removed "
-                  << resectionNode->GetName());
-    // Inform that a resedtion node was removed
-    this->InvokeEvent(vtkSlicerResectionPlanningLogic::ResectionNodeRemoved,
-                      static_cast<void*>(&id_name));
-    return;
-    }
+  return;
 }
 
 //-------------------------------------------------------------------------------
@@ -512,8 +294,7 @@ void vtkSlicerResectionPlanningLogic::AddResectionSurface()
   vtkUnObserveMRMLNodeMacro(resectionNode);
   vtkUnObserveMRMLNodeMacro(resectionInitializationNode);
   vtkObserveMRMLNodeEventsMacro(resectionNode, nodeEvents.GetPointer());
-  vtkObserveMRMLNodeEventsMacro(resectionInitializationNode,
-                                nodeEvents.GetPointer());
+  vtkObserveMRMLNodeEventsMacro(resectionInitializationNode, nodeEvents.GetPointer());
 
   // Update the bezier surface
   this->UpdateBezierWidgetOnInitialization(resectionInitializationNode);
@@ -715,15 +496,15 @@ AddResectionSurface(const char* filename)
     resectionNode->SetAndObserveStorageNodeID(resectionStorageNode->GetID());
     resectionNode->SetAndObserveDisplayNodeID(resectionDisplayNode->GetID());
 
-    scene->AddNode(resectionNode.GetPointer());
+    scene->AddNode(resectionNode);
 
     // now set up the reading
     vtkDebugMacro("AddModel: calling read on the storage node");
-    int retval = storageNode->ReadData(resectionNode.GetPointer());
+    int retval = storageNode->ReadData(resectionNode);
     if (retval != 1)
       {
       vtkErrorMacro("AddModel: error reading " << filename);
-      scene->RemoveNode(resectionNode.GetPointer());
+      scene->RemoveNode(resectionNode);
       return 0;
       }
     }
@@ -837,6 +618,7 @@ ProcessMRMLNodesEvents(vtkObject *object,
                        unsigned long int eventId,
                        void *vtkNotUsed(data))
 {
+  // Process initialization node events
   vtkMRMLResectionInitializationNode *initializationNode =
     vtkMRMLResectionInitializationNode::SafeDownCast(object);
 
@@ -854,6 +636,8 @@ ProcessMRMLNodesEvents(vtkObject *object,
       }
     }
 
+
+  // Process resection node events
   vtkMRMLResectionSurfaceNode *resectionNode =
     vtkMRMLResectionSurfaceNode::SafeDownCast(object);
 
@@ -865,12 +649,13 @@ ProcessMRMLNodesEvents(vtkObject *object,
       }
     }
 
-  vtkMRMLModelNode *modelNode = vtkMRMLModelNode::SafeDownCast(object);
-  if (modelNode)
+  // // Process model node events
+  vtkMRMLLRPModelNode *lrpModelNode = vtkMRMLLRPModelNode::SafeDownCast(object);
+  if (lrpModelNode)
     {
     if (eventId == vtkCommand::ModifiedEvent)
       {
-      this->AppendTumors->AddInputConnection(0,modelNode->GetPolyDataConnection());
+      this->AppendTumors->AddInputConnection(0,lrpModelNode->GetPolyDataConnection());
       this->AppendTumors->Update();
       }
     }

@@ -1139,6 +1139,12 @@ vtkBezierSurfaceWidget::GetBezierSurfacePolyData() const
 }
 
 //------------------------------------------------------------------------------
+vtkAlgorithmOutput* vtkBezierSurfaceWidget::GetBezierSurfaceOutputPort() const
+{
+  return this->BezierSurfaceSource->GetOutputPort();
+}
+
+//------------------------------------------------------------------------------
 void vtkBezierSurfaceWidget::ComputeNormalsOn()
 {
   this->ComputeNormalsFlag = true;

@@ -360,24 +360,24 @@ UpdateLineWidget(vtkMRMLResectionInitializationNode *node)
 void vtkMRMLResectionInitializationDisplayableManager3D::
 UpdateVisibility(vtkMRMLResectionInitializationNode *node)
 {
-  if (!node)
-    {
-    return;
-    }
+  // if (!node)
+  //   {
+  //   return;
+  //   }
 
-  vtkMRMLResectionInitializationDisplayNode *displayNode =
-    vtkMRMLResectionInitializationDisplayNode::SafeDownCast(
-      node->GetDisplayNode());
+  // vtkMRMLResectionInitializationDisplayNode *displayNode =
+  //   vtkMRMLResectionInitializationDisplayNode::SafeDownCast(
+  //     node->GetDisplayNode());
 
-  if (!displayNode)
-    {
-    return;
-    }
+  // if (!displayNode)
+  //   {
+  //   return;
+  //   }
 
-  NodeWidgetIt it = this->NodeWidgetMap.find(node);
-  if (it != this->NodeWidgetMap.end())
-    {
-    vtkLineWidget3 *widget = it->second;
-    widget->SetEnabled(displayNode->GetVisibility());
-    }
+  // NodeWidgetIt it = this->NodeWidgetMap.find(node);
+  // if (it != this->NodeWidgetMap.end())
+  //   {
+  //   vtkLineWidget3 *widget = it->second;
+  //   widget->SetEnabled(displayNode->GetVisibility());
+  //   }
 }

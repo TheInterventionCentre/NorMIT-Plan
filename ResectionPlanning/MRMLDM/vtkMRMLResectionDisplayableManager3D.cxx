@@ -39,6 +39,7 @@
 #include "vtkMRMLResectionSurfaceDisplayNode.h"
 #include "vtkBezierSurfaceWidget.h"
 #include "vtkHausdorffDistancePointSetFilter.h"
+#include "vtkDistanceFilter.h"
 
 // MRML includes
 #include <vtkMRMLScene.h>
@@ -125,7 +126,6 @@ SetAndObserveNode(vtkMRMLResectionSurfaceNode* resectionNode)
   vtkObserveMRMLNodeEventsMacro(resectionNode, nodeEvents.GetPointer());
 }
 
-
 //------------------------------------------------------------------------------
 void vtkMRMLResectionDisplayableManager3D::
 ProcessMRMLNodesEvents(vtkObject *object,
@@ -198,6 +198,8 @@ AddWidget(vtkMRMLResectionSurfaceNode *resectionNode)
     return false;
     }
 
+  std::cout << "widget creation" << std::endl;
+
   vtkSmartPointer<vtkBezierSurfaceWidget> surfaceWidget =
     vtkSmartPointer<vtkBezierSurfaceWidget>::New();
   surfaceWidget->SetInteractor(this->GetInteractor());
@@ -207,26 +209,27 @@ AddWidget(vtkMRMLResectionSurfaceNode *resectionNode)
   surfaceWidget->ComputeNormalsOn();
   surfaceWidget->SetControlPoints(resectionNode->GetControlPoints());
 
+
   // Register the node-widget association.
   this->NodeWidgetMap[resectionNode] = surfaceWidget;
 
-  vtkSmartPointer<vtkCallbackCommand> updateMRMLCallback =
-    vtkSmartPointer<vtkCallbackCommand>::New();
-  updateMRMLCallback->SetCallback(this->UpdateMRML);
-  updateMRMLCallback->SetClientData(resectionNode);
-  surfaceWidget->AddObserver(vtkCommand::StartInteractionEvent,
-                             updateMRMLCallback);
-  surfaceWidget->AddObserver(vtkCommand::EndInteractionEvent,
-                             updateMRMLCallback);
+  // vtkSmartPointer<vtkCallbackCommand> updateMRMLCallback =
+  //   vtkSmartPointer<vtkCallbackCommand>::New();
+  // updateMRMLCallback->SetCallback(this->UpdateMRML);
+  // updateMRMLCallback->SetClientData(resectionNode);
+  // surfaceWidget->AddObserver(vtkCommand::StartInteractionEvent,
+  //                            updateMRMLCallback);
+  // surfaceWidget->AddObserver(vtkCommand::EndInteractionEvent,
+  //                            updateMRMLCallback);
 
-  vtkSmartPointer<vtkCallbackCommand> updateDistanceMapCallback =
-    vtkSmartPointer<vtkCallbackCommand>::New();
-  updateDistanceMapCallback->SetCallback(this->UpdateDistanceMap);
-  updateDistanceMapCallback->SetClientData(this);
-  surfaceWidget->AddObserver(vtkCommand::StartInteractionEvent,
-                             updateDistanceMapCallback);
-  surfaceWidget->AddObserver(vtkCommand::EndInteractionEvent,
-                             updateDistanceMapCallback);
+  // vtkSmartPointer<vtkCallbackCommand> updateDistanceMapCallback =
+  //   vtkSmartPointer<vtkCallbackCommand>::New();
+  // updateDistanceMapCallback->SetCallback(this->UpdateDistanceMap);
+  // updateDistanceMapCallback->SetClientData(this);
+  // surfaceWidget->AddObserver(vtkCommand::StartInteractionEvent,
+  //                            updateDistanceMapCallback);
+  // surfaceWidget->AddObserver(vtkCommand::EndInteractionEvent,
+  //                            updateDistanceMapCallback);
 
   return true;
 }
@@ -249,6 +252,8 @@ AddDistanceMapPipeline(vtkMRMLResectionSurfaceNode *node)
     return;
     }
 
+  std::cout << "Add Distance Map Pipeline" << std::endl;
+
   vtkMRMLResectionSurfaceDisplayNode * displayNode =
     vtkMRMLResectionSurfaceDisplayNode::
     SafeDownCast(node->GetDisplayNode());
@@ -258,28 +263,54 @@ AddDistanceMapPipeline(vtkMRMLResectionSurfaceNode *node)
     return;
     }
 
-  // Create and register the distance-to-parenchyma
-  vtkSmartPointer<vtkDistancePolyDataFilter> parDistanceFilter =
-    vtkSmartPointer<vtkDistancePolyDataFilter>::New();
-  parDistanceFilter->ComputeSecondDistanceOff();
-  parDistanceFilter->NegateDistanceOff();
-  parDistanceFilter->SignedDistanceOn();
-  parDistanceFilter->GlobalWarningDisplayOff();
-  this->NodeParDistanceFilterMap[node] = parDistanceFilter;
 
-  // Create and register the clipPolyData filter
-  vtkSmartPointer<vtkClipPolyData> clipper  =
-    vtkSmartPointer<vtkClipPolyData>::New();
-  clipper->SetValue(0);
-  clipper->InsideOutOn();
-  clipper->GenerateClippedOutputOff();
-  this->NodeClipperMap[node] = clipper;
+  // Check the corresponding bezier widget
+  NodeWidgetIt it = this->NodeWidgetMap.find(node);
+  if (it == this->NodeWidgetMap.end())
+    {
+    vtkErrorMacro("No Bezier widget associated to the resection node.");
+    return;
+    }
+  vtkBezierSurfaceWidget *bezierSurfaceWidget = it->second;
+  bezierSurfaceWidget->SetControlPoints(node->GetControlPoints());
+  bezierSurfaceWidget->GetBezierSurfacePolyData()->Modified();
 
-  // Create and register the distance-to-tumors filter
+  // Get the joint tumors model
+  vtkSmartPointer<vtkCollection> nodes;
+  nodes.TakeReference(this->GetMRMLScene()->
+                      GetNodesByName("LRPJointTumorsModel"));
+  vtkMRMLModelNode *jointTumorsModelNode =
+    vtkMRMLModelNode::SafeDownCast(nodes->GetItemAsObject(0));
+  if (!jointTumorsModelNode)
+    {
+    vtkErrorMacro("No joint tumors model found.");
+    return;
+    }
+
+// Create and register the distance-to-tumors filter
   vtkSmartPointer<vtkHausdorffDistancePointSetFilter> distanceFilter =
     vtkSmartPointer<vtkHausdorffDistancePointSetFilter>::New();
-  distanceFilter->SetTargetDistanceMethod(0);
+  distanceFilter->SetInputConnection(0, bezierSurfaceWidget->GetBezierSurfaceOutputPort());
+  distanceFilter->SetInputConnection(1, jointTumorsModelNode->GetPolyDataConnection());
   this->NodeDistanceFilterMap[node] = distanceFilter;
+
+// // Create and register the distance-to-parenchyma
+//   vtkSmartPointer<vtkDistancePolyDataFilter> parDistanceFilter =
+//     vtkSmartPointer<vtkDistancePolyDataFilter>::New();
+//   parDistanceFilter->ComputeSecondDistanceOff();
+//   parDistanceFilter->NegateDistanceOff();
+//   parDistanceFilter->SignedDistanceOn();
+//   parDistanceFilter->GlobalWarningDisplayOff();
+//   this->NodeParDistanceFilterMap[node] = parDistanceFilter;
+
+//   // Create and register the clipPolyData filter
+//   vtkSmartPointer<vtkClipPolyData> clipper  =
+//     vtkSmartPointer<vtkClipPolyData>::New();
+//   clipper->SetValue(0);
+//   clipper->InsideOutOn();
+//   clipper->GenerateClippedOutputOff();
+//   this->NodeClipperMap[node] = clipper;
+
 
   // Create normals filter
   vtkSmartPointer<vtkPolyDataNormals> normals =
@@ -289,7 +320,7 @@ AddDistanceMapPipeline(vtkMRMLResectionSurfaceNode *node)
   // Create the contour filter
   vtkSmartPointer<vtkContourFilter> contourFilter =
     vtkSmartPointer<vtkContourFilter>::New();
-  contourFilter->SetInputConnection(distanceFilter->GetOutputPort());
+  contourFilter->SetInputConnection(normals->GetOutputPort());
   contourFilter->SetNumberOfContours(1);
   contourFilter->SetValue(0, node->GetResectionMargin());
   this->NodeContourFilterMap[node] = contourFilter;
@@ -320,19 +351,18 @@ AddDistanceMapPipeline(vtkMRMLResectionSurfaceNode *node)
     // Create and register the distance actor
   vtkSmartPointer<vtkActor> distanceActor = vtkSmartPointer<vtkActor>::New();
   distanceActor->SetMapper(distanceMapper);
-  //distanceActor->VisibilityOff();
+  distanceActor->VisibilityOff();
   this->NodeDistanceActorMap[node] = distanceActor;
 
   //Create and register the contour actor
   vtkSmartPointer<vtkActor> contourActor = vtkSmartPointer<vtkActor>::New();
   contourActor->SetMapper(contourMapper);
   contourActor->GetProperty()->SetLineWidth(3);
-  //contourActor->VisibilityOff();
+  contourActor->VisibilityOff();
   this->NodeContourActorMap[node] = contourActor;
 
   vtkPolyDataMapper::SetResolveCoincidentTopologyToPolygonOffset();
 
-  std::cout << "poly data connection" << std::endl;
   node->SetPolyDataConnection(distanceFilter->GetOutputPort());
 
   // Add actors to the scene
@@ -743,8 +773,8 @@ UpdateVisibility(vtkMRMLResectionSurfaceNode *node)
     }
 
   vtkDistancePolyDataFilter *parDistanceFilter = parDistFiIt->second;
-  parDistanceFilter->SetInputData(0, widget->GetBezierSurfacePolyData());
-  parDistanceFilter->SetInputData(1, targetParenchyma->GetPolyData());
+  parDistanceFilter->SetInputConnection(0, widget->GetBezierSurfaceOutputPort());
+  parDistanceFilter->SetInputConnection(1, targetParenchyma->GetPolyDataConnection());
 
   NodeClipperIt clipperIt = this->NodeClipperMap.find(node);
   if (clipperIt == this->NodeClipperMap.end())

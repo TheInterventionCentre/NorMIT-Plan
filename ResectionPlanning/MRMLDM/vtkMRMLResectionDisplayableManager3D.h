@@ -56,6 +56,7 @@ class vtkColorTransferFunction;
 class vtkContourFilter;
 class vtkClipPolyData;
 class vtkDistancePolyDataFilter;
+class vtkHausdorffDistancePointSetFilter;
 
 //------------------------------------------------------------------------------
 class VTK_SLICER_RESECTIONPLANNING_MODULE_MRMLDISPLAYABLEMANAGER_EXPORT

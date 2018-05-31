@@ -301,6 +301,8 @@ int vtkBezierSurfaceSource::RequestData(vtkInformation *vtkNotUsed(request),
     {
     vtkPolyData *bezierSurfaceOutput =
       vtkPolyData::SafeDownCast(bezierSurfaceOutputInfo->Get(vtkDataObject::DATA_OBJECT()));
+    std::cout << "Request data from vtkBezierSurfaceSource "
+              << bezierSurfaceOutput << std::endl;
     this->UpdateBezierSurfacePolyData(bezierSurfaceOutput);
     bezierSurfaceOutput->SetPolys(this->Topology);
     }
